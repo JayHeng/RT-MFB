@@ -186,6 +186,29 @@ const clock_audio_pll_config_t g_audioPllConfig_BOARD_BootClockRUN = {
 /*******************************************************************************
  * Code for BOARD_BootClockRUN configuration
  ******************************************************************************/
+
+uint32_t s_flexspiFclksel = 0;
+uint32_t s_flexspiFclkdiv = 0;
+
+void BOARD_GetFlexspiClock(FLEXSPI_Type *base)
+{
+    if (base == FLEXSPI0)
+    {
+        s_flexspiFclksel = (CLKCTL0->FLEXSPI0FCLKSEL & CLKCTL0_FLEXSPI0FCLKSEL_SEL_MASK) >> CLKCTL0_FLEXSPI0FCLKSEL_SEL_SHIFT;
+        s_flexspiFclkdiv = (CLKCTL0->FLEXSPI0FCLKDIV & CLKCTL0_FLEXSPI0FCLKDIV_DIV_MASK) >> CLKCTL0_FLEXSPI0FCLKDIV_DIV_SHIFT;
+
+    }
+    else if (base == FLEXSPI1)
+    {
+        s_flexspiFclksel = (CLKCTL0->FLEXSPI0FCLKSEL & CLKCTL0_FLEXSPI0FCLKSEL_SEL_MASK) >> CLKCTL0_FLEXSPI0FCLKSEL_SEL_SHIFT;
+        s_flexspiFclkdiv = (CLKCTL0->FLEXSPI0FCLKDIV & CLKCTL0_FLEXSPI0FCLKDIV_DIV_MASK) >> CLKCTL0_FLEXSPI0FCLKDIV_DIV_SHIFT;
+    }
+    else
+    {
+        return;
+    }
+}
+
 void BOARD_BootClockRUN(void)
 {
     /* Configure LPOSC 1M */
@@ -199,6 +222,7 @@ void BOARD_BootClockRUN(void)
 
     /* Call function BOARD_FlexspiClockSafeConfig() to move FlexSPI clock to a stable clock source to avoid
        instruction/data fetch issue when updating PLL and Main clock if XIP(execute code on FLEXSPI memory). */
+    BOARD_GetFlexspiClock(FLEXSPI0);
     BOARD_FlexspiClockSafeConfig();
 
     /* Let CPU run on FRO with divider 2 for safe switching. */
@@ -236,7 +260,7 @@ void BOARD_BootClockRUN(void)
     CLOCK_SetClkDiv(kCLOCK_DivClockOut, 100U);   /* Set CLKOUTFCLKDIV divider to value 100 */
 
     /* Call function BOARD_SetFlexspiClock() to set user configured clock source/divider for FlexSPI. */
-    BOARD_SetFlexspiClock(FLEXSPI0, 0U, 2U);
+    BOARD_SetFlexspiClock(FLEXSPI0, s_flexspiFclksel, s_flexspiFclkdiv);
 
     /* Set SystemCoreClock variable. */
     SystemCoreClock = BOARD_BOOTCLOCKRUN_CORE_CLOCK;
