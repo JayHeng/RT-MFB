@@ -422,10 +422,10 @@ void BOARD_SetFlexspiClock(FLEXSPI_Type *base, uint32_t src, uint32_t divider)
  * updating in case XIP(execute code on FLEXSPI memory.) */
 void BOARD_FlexspiClockSafeConfig(void)
 {
-    /* Move FLEXSPI clock source from main clock to FRO192M / 2 to avoid instruction/data fetch issue in XIP when
+    /* Move FLEXSPI clock source from main clock to FRO192M / 7 to avoid instruction/data fetch issue in XIP when
      * updating PLL and main clock.
      */
-    BOARD_SetFlexspiClock(FLEXSPI0, 3U, 2U);
+    BOARD_SetFlexspiClock(FLEXSPI0, 3U, 7U);
 }
 
 void BOARD_SetDeepSleepPinConfig(void)
