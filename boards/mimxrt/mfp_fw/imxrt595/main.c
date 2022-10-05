@@ -29,18 +29,14 @@
  */
 int main(void)
 {
-    char ch;
-
     /* Init board hardware. */
     BOARD_InitPins();
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
-    PRINTF("hello world.\r\n");
+    PRINTF("i.MXRT multi-flash production test FW.\r\n");
 
     while (1)
     {
-        ch = GETCHAR();
-        PUTCHAR(ch);
     }
 }

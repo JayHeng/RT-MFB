@@ -638,15 +638,15 @@
                 <option>
                     <name>OOCOutputFormat</name>
                     <version>3</version>
-                    <state>3</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>sdk20-app.bin</state>
+                    <state>mfp_fw.srec</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -693,7 +693,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>hello_world.out</state>
+                    <state>mfp_fw.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -990,7 +990,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>mfp_fw_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -1117,7 +1117,7 @@
                 </option>
                 <option>
                     <name>RTDescription</name>
-                    <state>0</state>
+                    <state>Use the normal configuration of the C/C++ runtime library. No locale interface, C locale, no file descriptor support, no multibytes in printf and scanf, and no hex floats in strtod.</state>
                 </option>
                 <option>
                     <name>OGProductVersion</name>
@@ -1154,7 +1154,7 @@
                 <option>
                     <name>GBECoreSlave</name>
                     <version>30</version>
-                    <state>58</state>
+                    <state>59</state>
                 </option>
                 <option>
                     <name>OGUseCmsis</name>
@@ -1694,15 +1694,15 @@
                 <option>
                     <name>OOCOutputFormat</name>
                     <version>3</version>
-                    <state>3</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>sdk20-app.bin</state>
+                    <state>mfp_fw.srec</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -1749,7 +1749,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>hello_world.out</state>
+                    <state>mfp_fw.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -2181,7 +2181,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.30.2.18207</state>
+                    <state>9.10.2.39304</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -2227,7 +2227,7 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>30</version>
-                    <state>58</state>
+                    <state>59</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
@@ -2250,7 +2250,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>30</version>
-                    <state>58</state>
+                    <state>59</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -2480,7 +2480,7 @@
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>1</state>
+                    <state>3</state>
                 </option>
                 <option>
                     <name>CCPosIndRopi</name>
@@ -2749,15 +2749,15 @@
                 <option>
                     <name>OOCOutputFormat</name>
                     <version>3</version>
-                    <state>3</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>sdk20-app.bin</state>
+                    <state>mfp_fw.srec</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -2804,7 +2804,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>hello_world.out</state>
+                    <state>mfp_fw.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -3101,7 +3101,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>mfp_fw_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -3236,7 +3236,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.30.2.18207</state>
+                    <state>9.10.2.39304</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -3282,7 +3282,7 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>30</version>
-                    <state>58</state>
+                    <state>59</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
@@ -3305,7 +3305,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>30</version>
-                    <state>58</state>
+                    <state>59</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -3442,7 +3442,7 @@
                 <option>
                     <name>CCAllowList</name>
                     <version>1</version>
-                    <state>00100000</state>
+                    <state>11111110</state>
                 </option>
                 <option>
                     <name>CCDebugInfo</name>
@@ -3536,7 +3536,7 @@
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>1</state>
+                    <state>3</state>
                 </option>
                 <option>
                     <name>CCPosIndRopi</name>
@@ -3805,15 +3805,15 @@
                 <option>
                     <name>OOCOutputFormat</name>
                     <version>3</version>
-                    <state>3</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>sdk20-app.bin</state>
+                    <state>mfp_fw.srec</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -3860,7 +3860,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>hello_world.out</state>
+                    <state>mfp_fw.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -4157,7 +4157,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>mfp_fw_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -4415,10 +4415,10 @@
     <group>
         <name>flash_config</name>
         <file>
-            <name>$PROJ_DIR$\..\..\..\flash_config\flash_config.c</name>
+            <name>$PROJ_DIR$\..\..\..\flash_config\flash_config.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\flash_config\flash_config.h</name>
+            <name>$PROJ_DIR$\..\..\..\flash_config\flash_config_1bit_spi.c</name>
         </file>
     </group>
     <group>
