@@ -336,6 +336,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S/drivers</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S/utilities/str</state>
@@ -1392,6 +1393,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S/drivers</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S/utilities/str</state>
@@ -2447,6 +2449,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S/drivers</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S/utilities/str</state>
@@ -3503,6 +3506,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S/drivers</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT595S/utilities/str</state>
@@ -4423,6 +4427,12 @@
     </group>
     <group>
         <name>source</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\flexspi_flash_ops.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\flexspi_polling_transfer.c</name>
+        </file>
         <file>
             <name>$PROJ_DIR$\..\main.c</name>
         </file>
