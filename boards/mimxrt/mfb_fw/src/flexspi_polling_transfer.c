@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "mfp_cfg.h"
+#include "mfb_cfg.h"
 #include "fsl_flexspi.h"
 #include "app.h"
 #include "fsl_debug_console.h"
@@ -139,7 +139,7 @@ const uint32_t customLUTQuadMode_IS25WP064A[CUSTOM_LUT_LENGTH] = {
 };
 
 #if MFP_FLASH_SPEED_TEST_ENABLE
-void mfp_flash_speed_test(void)
+void mfb_flash_speed_test(void)
 {
     uint64_t startTicks = microseconds_get_ticks();
     /* Read 8MB data from flash to test speed */
@@ -157,7 +157,7 @@ void mfp_flash_speed_test(void)
 }
 #endif
 
-void jump_to_application(uint32_t vectorStartAddr)
+void mfb_jump_to_application(uint32_t vectorStartAddr)
 {
     static uint32_t s_resetEntry = 0;
     static uint32_t s_stackPointer = 0;
@@ -183,7 +183,7 @@ void jump_to_application(uint32_t vectorStartAddr)
     s_entry();
 }
 
-void mfp_main(void)
+void mfb_main(void)
 {
     status_t status;
     uint8_t vendorID = 0;
@@ -214,7 +214,7 @@ void mfp_main(void)
 
 #if MFP_FLASH_SPEED_TEST_ENABLE
     microseconds_init();
-    mfp_flash_speed_test();
+    mfb_flash_speed_test();
 #endif
 
     switch (vendorID)
@@ -261,10 +261,10 @@ void mfp_main(void)
         PRINTF("Flash entered Octal/Quad mode.\r\n");
         PRINTF("FLEXSPI Clk Frequency: %d Hz.\r\n", CLOCK_GetFlexspiClkFreq(0));
 #if MFP_FLASH_SPEED_TEST_ENABLE
-        mfp_flash_speed_test();
+        mfb_flash_speed_test();
         microseconds_shutdown();
 #endif
         PRINTF("Jump to Application code at 0x%x.\r\n", FlexSPI0_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
-        jump_to_application(FlexSPI0_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
+        mfb_jump_to_application(FlexSPI0_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
     }
 }

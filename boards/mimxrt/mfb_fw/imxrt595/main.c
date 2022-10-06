@@ -21,7 +21,7 @@
  * Prototypes
  ******************************************************************************/
 
-extern void mfp_main(void);
+extern void mfb_main(void);
 
 /*******************************************************************************
  * Code
@@ -36,9 +36,9 @@ int main(void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
-    PRINTF("\r\ni.MXRT multi-flash production test FW.\r\n");
+    PRINTF("\r\ni.MXRT multi-flash boot solution FW.\r\n");
     
-    mfp_main();
+    mfb_main();
 
     while (1)
     {
