@@ -36,7 +36,7 @@ int main(void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
-    PRINTF("i.MXRT multi-flash production test FW.\r\n");
+    PRINTF("\r\ni.MXRT multi-flash production test FW.\r\n");
     
     mfp_main();
 

@@ -4436,6 +4436,12 @@
         <file>
             <name>$PROJ_DIR$\..\main.c</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\microseconds_common.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\microseconds_cortexm_systick.c</name>
+        </file>
     </group>
     <group>
         <name>startup</name>

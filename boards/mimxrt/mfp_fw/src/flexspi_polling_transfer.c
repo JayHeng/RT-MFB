@@ -15,6 +15,7 @@
 #include "fsl_common.h"
 #include "fsl_power.h"
 #include "fsl_reset.h"
+#include "microseconds.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -28,6 +29,7 @@ extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT
 /*******************************************************************************
  * Variables
  ******************************************************************************/
+static uint8_t s_nor_read_buffer[256];
 
 /*******************************************************************************
  * Code
@@ -136,6 +138,23 @@ const uint32_t customLUTQuadMode_IS25WP064A[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x35, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0),
 };
 
+void mfp_flash_speed_test(void)
+{
+    uint64_t startTicks = microseconds_get_ticks();
+    /* Read 8MB data from flash to test speed */
+    for (uint32_t loop = 0; loop < 16 * 8; loop++)
+    {
+        /* Min NOR Flash size is 64KB */
+        for (uint32_t idx = 0; idx < 256; idx++)
+        {
+            memcpy(s_nor_read_buffer, (uint8_t*)(FlexSPI0_AMBA_BASE + idx * sizeof(s_nor_read_buffer)), sizeof(s_nor_read_buffer));
+        }
+    }
+    uint64_t totalTicks = microseconds_get_ticks() - startTicks;
+    uint32_t microSecs = microseconds_convert_to_microseconds(totalTicks);
+    PRINTF("Flash to RAM memcpy speed: %fMB/s.\r\n", (8.0 * 1000000)/microSecs);
+}
+
 void mfp_main(void)
 {
     status_t status;
@@ -150,20 +169,26 @@ void mfp_main(void)
     BOARD_FlexspiClockSafeConfig();
     /* Init FlexSPI using common LUT */ 
     flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
-    PRINTF("\r\nFLEXSPI module initialized!\r\n");
+    PRINTF("FLEXSPI module initialized!\r\n");
+    PRINTF("FLEXSPI Clk Frequency: %d Hz.\r\n", CLOCK_GetFlexspiClkFreq(0));
 
     /* Get vendor ID. */
     status = flexspi_nor_get_vendor_id(EXAMPLE_FLEXSPI, &vendorID);
     if (status != kStatus_Success)
     {
-        PRINTF("Get Vendor ID failed\n");
+        PRINTF("Get Flash Vendor ID failed.\r\n");
         return;
     }
     else
     {
-        PRINTF("Vendor ID: 0x%x\r\n", vendorID);
+        PRINTF("Flash Vendor ID: 0x%x.\r\n", vendorID);
     }
-    
+
+#if 1
+    microseconds_init();
+    mfp_flash_speed_test();
+#endif
+
     switch (vendorID)
     {
         // MXIC
@@ -195,16 +220,21 @@ void mfp_main(void)
                 break;
             }
         default:
-            PRINTF("Unsupported Vendor ID");
+            PRINTF("Unsupported Vendor ID\r\n");
             return;
     }
     
     if (status != kStatus_Success)
     {
-        PRINTF("Enter Octal/Quad mode failed");
+        PRINTF("Flash failed to Enter Octal/Quad mode.\r\n");
     }
     else
     {
-        PRINTF("Enter Octal/Quad mode done");
+        PRINTF("Flash entered Octal/Quad mode.\r\n");
+        PRINTF("FLEXSPI Clk Frequency: %d Hz.\r\n", CLOCK_GetFlexspiClkFreq(0));
+#if 1
+        mfp_flash_speed_test();
+        microseconds_shutdown();
+#endif
     }
 }
