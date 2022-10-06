@@ -187,6 +187,52 @@ status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, bool enableOctal)
     return status;
 }
 
+status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base)
+{
+    flexspi_transfer_t flashXfer;
+    status_t status;
+    uint32_t writeValue = FLASH_QUAD_ENABLE;
+
+#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
+    flexspi_cache_status_t cacheStatus;
+    flexspi_nor_disable_cache(&cacheStatus);
+#endif
+
+    /* Write enable */
+    status = flexspi_nor_write_enable(base, 0, false);
+
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    /* Enable quad mode. */
+    flashXfer.deviceAddress = 0;
+    flashXfer.port          = FLASH_PORT;
+    flashXfer.cmdType       = kFLEXSPI_Write;
+    flashXfer.SeqNumber     = 1;
+    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_WRITESTATUSREG;
+    flashXfer.data          = &writeValue;
+    flashXfer.dataSize      = 1;
+
+    status = FLEXSPI_TransferBlocking(base, &flashXfer);
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    status = flexspi_nor_wait_bus_busy(base, false);
+
+    /* Do software reset. */
+    FLEXSPI_SoftwareReset(base);
+
+#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
+    flexspi_nor_enable_cache(cacheStatus);
+#endif
+
+    return status;
+}
+
 status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base)
 {
     flexspi_transfer_t flashXfer;

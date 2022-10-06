@@ -17,10 +17,8 @@
 /*${macro:start}*/
 #define EXAMPLE_FLEXSPI                 FLEXSPI0
 #define EXAMPLE_CACHE                   CACHE64_CTRL0
-#define FLASH_SIZE                      0x10000 /* 512Mb/KByte */
 #define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI0_AMBA_BASE
 #define FLASH_PAGE_SIZE                 256
-#define EXAMPLE_SECTOR                  1000
 #define SECTOR_SIZE                     0x1000 /* 4K */
 #define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_FlexSpi0
 #define FLASH_PORT                      kFLEXSPI_PortA1
@@ -30,7 +28,10 @@
 #define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     2
 #define NOR_CMD_LUT_SEQ_IDX_READID          3
 #define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI 4
-#define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        8
+#define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        5
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  6
+#define NOR_CMD_LUT_SEQ_IDX_WRITESTATUSREG  7
+#define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        8
 /* NOTE: Workaround for debugger.
    Must define AHB write FlexSPI sequence index to 9 to avoid debugger issue.
    Debugger can attach to the CM33 core only when ROM executes to certain place.
@@ -42,12 +43,11 @@
    be set to STOP command to avoid unexpected debugger behaivor.
  */
 #define NOR_CMD_LUT_SEQ_IDX_WRITE          9
-#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI 10
 
 #define CUSTOM_LUT_LENGTH        60
+#define FLASH_QUAD_ENABLE        0x40
 #define FLASH_BUSY_STATUS_POL    1
 #define FLASH_BUSY_STATUS_OFFSET 0
-#define FLASH_ERROR_STATUS_MASK  0x0e
 #define FLASH_ENABLE_OCTAL_CMD   0x02
 #define CACHE_MAINTAIN           1
 #define EXAMPLE_INVALIDATE_FLEXSPI_CACHE()                                                                          \

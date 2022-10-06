@@ -23,6 +23,7 @@
  ******************************************************************************/
 extern status_t flexspi_nor_get_vendor_id(FLEXSPI_Type *base, uint8_t *vendorId);
 extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
+extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
 extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
 /*******************************************************************************
  * Variables
@@ -33,7 +34,7 @@ extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT
  ******************************************************************************/
 flexspi_device_config_t deviceconfig = {
     .flexspiRootClk       = 27400000,
-    .flashSize            = FLASH_SIZE,
+    .flashSize            = 0x2000, /* 64Mb/KByte */
     .CSIntervalUnit       = kFLEXSPI_CsIntervalUnit1SckCycle,
     .CSInterval           = 2,
     .CSHoldTime           = 3,
@@ -111,6 +112,30 @@ const uint32_t customLUTOctalMode_MX25UM51345[CUSTOM_LUT_LENGTH] = {
         kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_READ_DDR, kFLEXSPI_8PAD, 0x04),
 };
 
+const uint32_t customLUTQuadMode_IS25WP064A[CUSTOM_LUT_LENGTH] = {
+    /* Fast read quad mode - SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = FLEXSPI_LUT_SEQ(
+        kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x06, kFLEXSPI_Command_READ_SDR, kFLEXSPI_4PAD, 0x04),
+
+    /* Read status register */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR, kFLEXSPI_1PAD, 0x04),
+
+    /* Write Enable */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0),
+
+    /* Enable Quad mode */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITESTATUSREG] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04),
+
+    /* Enter QPI mode */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x35, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0),
+};
+
 void mfp_main(void)
 {
     status_t status;
@@ -148,27 +173,38 @@ void mfp_main(void)
                 BOARD_SetFlexspiClock(FLEXSPI0, 2U, 4U);
                 /* Update root clock */
                 deviceconfig.flexspiRootClk = 99000000;
+                deviceconfig.flashSize = 0x10000; /* 512Mb/KByte */
                 /* Re-init FlexSPI using custom LUT */
                 flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTOctalMode_MX25UM51345, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
                 /* Enter octal mode. */
                 status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
-                if (status != kStatus_Success)
-                {
-                    PRINTF("Enter Octal mode failed");
-                }
-                else
-                {
-                    PRINTF("Enter Octal mode done");
-                }
                 break;
             }
         // ISSI
         case 0x9d:
             {
+                /* Set FlexSPI clock: source AUX0_PLL, divide by 3 */
+                BOARD_SetFlexspiClock(FLEXSPI0, 2U, 3U);
+                /* Update root clock */
+                deviceconfig.flexspiRootClk = 132000000;
+                deviceconfig.flashSize = 0x2000; /* 64Mb/KByte */
+                /* Re-init FlexSPI using custom LUT */
+                flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTQuadMode_IS25WP064A, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                /* Enter quad mode. */
+                status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
                 break;
             }
         default:
             PRINTF("Unsupported Vendor ID");
-            break;
+            return;
+    }
+    
+    if (status != kStatus_Success)
+    {
+        PRINTF("Enter Octal/Quad mode failed");
+    }
+    else
+    {
+        PRINTF("Enter Octal/Quad mode done");
     }
 }
