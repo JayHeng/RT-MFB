@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "mfp_cfg.h"
 #include "fsl_flexspi.h"
 #include "app.h"
 #include "fsl_debug_console.h"
-
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "board.h"
@@ -138,6 +138,7 @@ const uint32_t customLUTQuadMode_IS25WP064A[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x35, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0),
 };
 
+#if MFP_FLASH_SPEED_TEST_ENABLE
 void mfp_flash_speed_test(void)
 {
     uint64_t startTicks = microseconds_get_ticks();
@@ -153,6 +154,33 @@ void mfp_flash_speed_test(void)
     uint64_t totalTicks = microseconds_get_ticks() - startTicks;
     uint32_t microSecs = microseconds_convert_to_microseconds(totalTicks);
     PRINTF("Flash to RAM memcpy speed: %fMB/s.\r\n", (8.0 * 1000000)/microSecs);
+}
+#endif
+
+void jump_to_application(uint32_t vectorStartAddr)
+{
+    static uint32_t s_resetEntry = 0;
+    static uint32_t s_stackPointer = 0;
+    s_resetEntry = *(uint32_t *)(vectorStartAddr + 4);
+    s_stackPointer = *(uint32_t *)vectorStartAddr;
+    // Turn off interrupts.
+    __disable_irq();
+
+    // Set the VTOR.
+    SCB->VTOR = vectorStartAddr;
+
+    // Memory barriers for good measure.
+    __ISB();
+    __DSB();
+
+    // Set main stack pointer and process stack pointer.
+    __set_MSP(s_stackPointer);
+    __set_PSP(s_stackPointer);
+
+    // Jump to application entry point, does not return.
+    static void (*s_entry)(void) = 0;
+    s_entry = (void (*)(void))s_resetEntry;
+    s_entry();
 }
 
 void mfp_main(void)
@@ -184,7 +212,7 @@ void mfp_main(void)
         PRINTF("Flash Vendor ID: 0x%x.\r\n", vendorID);
     }
 
-#if 1
+#if MFP_FLASH_SPEED_TEST_ENABLE
     microseconds_init();
     mfp_flash_speed_test();
 #endif
@@ -232,9 +260,11 @@ void mfp_main(void)
     {
         PRINTF("Flash entered Octal/Quad mode.\r\n");
         PRINTF("FLEXSPI Clk Frequency: %d Hz.\r\n", CLOCK_GetFlexspiClkFreq(0));
-#if 1
+#if MFP_FLASH_SPEED_TEST_ENABLE
         mfp_flash_speed_test();
         microseconds_shutdown();
 #endif
+        PRINTF("Jump to Application code at 0x%x.\r\n", FlexSPI0_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
+        jump_to_application(FlexSPI0_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
     }
 }

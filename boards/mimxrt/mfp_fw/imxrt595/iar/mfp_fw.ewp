@@ -4437,6 +4437,9 @@
             <name>$PROJ_DIR$\..\main.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\src\mfp_cfg.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\src\microseconds_common.c</name>
         </file>
         <file>
