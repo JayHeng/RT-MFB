@@ -1,0 +1,57 @@
+/*
+ * Copyright 2018-2022 NXP
+ * All rights reserved.
+ *
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+#ifndef _NOR_FLASH_H_
+#define _NOR_FLASH_H_
+
+
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
+
+#define NOR_CMD_LUT_SEQ_IDX_READ            0
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS      1
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     2
+#define NOR_CMD_LUT_SEQ_IDX_READID          3
+
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI 4
+#define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        5
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  6
+
+#define NOR_CMD_LUT_SEQ_IDX_WRITESTATUSREG  7
+#define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        8
+/* NOTE: Workaround for debugger.
+   Must define AHB write FlexSPI sequence index to 9 to avoid debugger issue.
+   Debugger can attach to the CM33 core only when ROM executes to certain place.
+   At that point, AHB write FlexSPI sequence index is set to 9, but in LUT, the
+   command is not filled by ROM. If the debugger sets software breakpoint at flash
+   after reset/attachment, FlexSPI AHB write command will be triggered. It may
+   cause AHB bus hang if the command in LUT sequence index 9 is any read opeartion.
+   So we need to ensure at any time, the FlexSPI LUT sequence 9 for the flash must
+   be set to STOP command to avoid unexpected debugger behaivor.
+ */
+#define NOR_CMD_LUT_SEQ_IDX_WRITE          9
+#define CUSTOM_LUT_LENGTH        60
+
+////////////////////////////////////////////////////////////////////////////////
+#define MXIC_DEVICE_SERIES      (1)
+#define MXIC_DEVICE_MX25UM51345 (1)
+////////////////////////////////////////////////////////////////////////////////
+#define ISSI_DEVICE_SERIES      (1)
+#define ISSI_DEVICE_IS25WP064A  (1)
+
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
+
+
+/*******************************************************************************
+ * Prototypes
+ ******************************************************************************/
+
+
+#endif /* _NOR_FLASH_H_ */

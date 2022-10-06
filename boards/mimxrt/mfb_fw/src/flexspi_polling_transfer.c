@@ -6,8 +6,16 @@
  */
 
 #include "mfb_cfg.h"
+#include "microseconds.h"
+#include "flexspi_info.h"
+#include "nor_flash.h"
+#if MXIC_DEVICE_SERIES
+#include "nor_flash_mxic.h"
+#endif
+#if ISSI_DEVICE_SERIES
+#include "nor_flash_issi.h"
+#endif
 #include "fsl_flexspi.h"
-#include "app.h"
 #include "fsl_debug_console.h"
 #include "pin_mux.h"
 #include "clock_config.h"
@@ -15,13 +23,17 @@
 #include "fsl_common.h"
 #include "fsl_power.h"
 #include "fsl_reset.h"
-#include "microseconds.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
+extern const uint32_t customLUT_ISSI[CUSTOM_LUT_LENGTH];
+extern const uint32_t customLUT_MXIC[CUSTOM_LUT_LENGTH];
+
 extern status_t flexspi_nor_get_vendor_id(FLEXSPI_Type *base, uint8_t *vendorId);
 extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
@@ -30,6 +42,11 @@ extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT
  * Variables
  ******************************************************************************/
 static uint8_t s_nor_read_buffer[256];
+
+uint8_t s_flashBusyStatusPol    = 0;
+uint8_t s_flashBusyStatusOffset = 0;
+uint8_t s_flashQuadEnableCfg    = 0;
+uint8_t s_flashEnableOctalCmd   = 0;
 
 /*******************************************************************************
  * Code
@@ -74,68 +91,6 @@ const uint32_t customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     /*  Dummy write, do nothing when AHB write command is triggered. */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,     kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
-};
-
-const uint32_t customLUTOctalMode_MX25UM51345[CUSTOM_LUT_LENGTH] = {
-    /*  OPI DDR read */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR, kFLEXSPI_8PAD, 0xEE, kFLEXSPI_Command_DDR, kFLEXSPI_8PAD, 0x11),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = FLEXSPI_LUT_SEQ(
-        kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x08),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR, kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0x0),
-
-    /* Read status register */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR, kFLEXSPI_1PAD, 0x04),
-
-    /* Write Enable */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0),
-
-    /*  Write Enable */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_DDR, kFLEXSPI_8PAD, 0xF9),
-
-    /* Enter OPI mode */
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x72, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x20),
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0),
-
-    /*  Dummy write, do nothing when AHB write command is triggered. */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0x0, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0x0),
-
-    /*  Read status register using Octal DDR read */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR, kFLEXSPI_8PAD, 0x05, kFLEXSPI_Command_DDR, kFLEXSPI_8PAD, 0xFA),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = FLEXSPI_LUT_SEQ(
-        kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_READ_DDR, kFLEXSPI_8PAD, 0x04),
-};
-
-const uint32_t customLUTQuadMode_IS25WP064A[CUSTOM_LUT_LENGTH] = {
-    /* Fast read quad mode - SDR */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = FLEXSPI_LUT_SEQ(
-        kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x06, kFLEXSPI_Command_READ_SDR, kFLEXSPI_4PAD, 0x04),
-
-    /* Read status register */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR, kFLEXSPI_1PAD, 0x04),
-
-    /* Write Enable */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0),
-
-    /* Enable Quad mode */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITESTATUSREG] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04),
-
-    /* Enter QPI mode */
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0x35, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0),
 };
 
 #if MFP_FLASH_SPEED_TEST_ENABLE
@@ -198,7 +153,7 @@ void mfb_main(void)
     /* Init FlexSPI using common LUT */ 
     flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
     PRINTF("FLEXSPI module initialized!\r\n");
-    PRINTF("FLEXSPI Clk Frequency: %d Hz.\r\n", CLOCK_GetFlexspiClkFreq(0));
+    PRINTF("FLEXSPI Clk Frequency: %dHz.\r\n", CLOCK_GetFlexspiClkFreq(0));
 
     /* Get vendor ID. */
     status = flexspi_nor_get_vendor_id(EXAMPLE_FLEXSPI, &vendorID);
@@ -219,34 +174,50 @@ void mfb_main(void)
 
     switch (vendorID)
     {
+#if MXIC_DEVICE_SERIES
         // MXIC
         case 0xc2:
             {
+#if MXIC_DEVICE_MX25UM51345
                 /* Set FlexSPI clock: source AUX0_PLL, divide by 4 */
                 BOARD_SetFlexspiClock(FLEXSPI0, 2U, 4U);
                 /* Update root clock */
                 deviceconfig.flexspiRootClk = 99000000;
                 deviceconfig.flashSize = 0x10000; /* 512Mb/KByte */
+                s_flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
+                s_flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
+                s_flashEnableOctalCmd   = MXIC_FLASH_ENABLE_OCTAL_CMD;
                 /* Re-init FlexSPI using custom LUT */
-                flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTOctalMode_MX25UM51345, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+                flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MXIC, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
                 /* Enter octal mode. */
                 status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
+#endif
                 break;
             }
+#endif // MXIC_DEVICE_SERIES
+
+#if ISSI_DEVICE_SERIES
         // ISSI
         case 0x9d:
             {
+#if ISSI_DEVICE_IS25WP064A
                 /* Set FlexSPI clock: source AUX0_PLL, divide by 3 */
                 BOARD_SetFlexspiClock(FLEXSPI0, 2U, 3U);
                 /* Update root clock */
                 deviceconfig.flexspiRootClk = 132000000;
                 deviceconfig.flashSize = 0x2000; /* 64Mb/KByte */
+                s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+                s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+                s_flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
                 /* Re-init FlexSPI using custom LUT */
-                flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTQuadMode_IS25WP064A, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
                 /* Enter quad mode. */
                 status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
+#endif
                 break;
             }
+#endif // ISSI_DEVICE_SERIES
+
         default:
             PRINTF("Unsupported Vendor ID\r\n");
             return;
@@ -259,7 +230,7 @@ void mfb_main(void)
     else
     {
         PRINTF("Flash entered Octal/Quad mode.\r\n");
-        PRINTF("FLEXSPI Clk Frequency: %d Hz.\r\n", CLOCK_GetFlexspiClkFreq(0));
+        PRINTF("FLEXSPI Clk Frequency: %dHz.\r\n", CLOCK_GetFlexspiClkFreq(0));
 #if MFP_FLASH_SPEED_TEST_ENABLE
         mfb_flash_speed_test();
         microseconds_shutdown();

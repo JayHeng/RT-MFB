@@ -6,7 +6,8 @@
  */
 
 #include "fsl_flexspi.h"
-#include "app.h"
+#include "flexspi_info.h"
+#include "nor_flash.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -18,6 +19,11 @@
  ******************************************************************************/
 
 extern flexspi_device_config_t deviceconfig;
+   
+extern uint8_t s_flashBusyStatusPol;
+extern uint8_t s_flashBusyStatusOffset;
+extern uint8_t s_flashQuadEnableCfg;
+extern uint8_t s_flashEnableOctalCmd;
 
 /*******************************************************************************
  * Code
@@ -159,9 +165,9 @@ status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, bool enableOctal)
         {
             return status;
         }
-        if (FLASH_BUSY_STATUS_POL)
+        if (s_flashBusyStatusPol)
         {
-            if (readValue & (1U << FLASH_BUSY_STATUS_OFFSET))
+            if (readValue & (1U << s_flashBusyStatusOffset))
             {
                 isBusy = true;
             }
@@ -172,7 +178,7 @@ status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, bool enableOctal)
         }
         else
         {
-            if (readValue & (1U << FLASH_BUSY_STATUS_OFFSET))
+            if (readValue & (1U << s_flashBusyStatusOffset))
             {
                 isBusy = false;
             }
@@ -191,7 +197,7 @@ status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base)
 {
     flexspi_transfer_t flashXfer;
     status_t status;
-    uint32_t writeValue = FLASH_QUAD_ENABLE;
+    uint32_t writeValue = s_flashQuadEnableCfg;
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
     flexspi_cache_status_t cacheStatus;
@@ -243,7 +249,7 @@ status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base)
     flexspi_nor_disable_cache(&cacheStatus);
 #endif
 
-    uint32_t writeValue = FLASH_ENABLE_OCTAL_CMD;
+    uint32_t writeValue = s_flashEnableOctalCmd;
 
     /* Write enable */
     status = flexspi_nor_write_enable(base, 0, false);
