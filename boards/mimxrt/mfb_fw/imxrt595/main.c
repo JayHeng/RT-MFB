@@ -11,7 +11,8 @@
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "board.h"
-
+#include "fsl_power.h"
+#include "fsl_reset.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -37,7 +38,13 @@ int main(void)
     BOARD_InitDebugConsole();
 
     PRINTF("\r\ni.MXRT multi-flash boot solution FW.\r\n");
-    
+
+#if !defined(FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE)
+    POWER_DisablePD(kPDRUNCFG_APD_FLEXSPI0_SRAM);
+    POWER_DisablePD(kPDRUNCFG_PPD_FLEXSPI0_SRAM);
+    POWER_ApplyPD();
+#endif
+
     mfb_main();
 
     while (1)

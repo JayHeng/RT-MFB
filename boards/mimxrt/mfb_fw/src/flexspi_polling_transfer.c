@@ -21,8 +21,6 @@
 #include "clock_config.h"
 #include "board.h"
 #include "fsl_common.h"
-#include "fsl_power.h"
-#include "fsl_reset.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -103,12 +101,12 @@ void mfb_flash_speed_test(void)
         /* Min NOR Flash size is 64KB */
         for (uint32_t idx = 0; idx < 256; idx++)
         {
-            memcpy(s_nor_read_buffer, (uint8_t*)(FlexSPI0_AMBA_BASE + idx * sizeof(s_nor_read_buffer)), sizeof(s_nor_read_buffer));
+            memcpy(s_nor_read_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + idx * sizeof(s_nor_read_buffer)), sizeof(s_nor_read_buffer));
         }
     }
     uint64_t totalTicks = microseconds_get_ticks() - startTicks;
     uint32_t microSecs = microseconds_convert_to_microseconds(totalTicks);
-    PRINTF("Flash to RAM memcpy speed: %fMB/s.\r\n", (8.0 * 1000000)/microSecs);
+    PRINTF("Flash to RAM memcpy speed: %dKB/s.\r\n", (8UL*1024*1000000)/microSecs);
 }
 #endif
 
@@ -143,17 +141,12 @@ void mfb_main(void)
     status_t status;
     uint8_t vendorID = 0;
 
-#if !defined(FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE)
-    POWER_DisablePD(kPDRUNCFG_APD_FLEXSPI0_SRAM);
-    POWER_DisablePD(kPDRUNCFG_PPD_FLEXSPI0_SRAM);
-    POWER_ApplyPD();
-#endif
     /* Move FlexSPI clock to a stable clock source */ 
-    BOARD_FlexspiClockSafeConfig();
+    flexspi_clock_init(kFlexspiRootClkFreq_30MHz);
     /* Init FlexSPI using common LUT */ 
     flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
     PRINTF("FLEXSPI module initialized!\r\n");
-    PRINTF("FLEXSPI Clk Frequency: %dHz.\r\n", CLOCK_GetFlexspiClkFreq(0));
+    PRINTF("FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
 
     /* Get vendor ID. */
     status = flexspi_nor_get_vendor_id(EXAMPLE_FLEXSPI, &vendorID);
@@ -179,8 +172,7 @@ void mfb_main(void)
         case 0xc2:
             {
 #if MXIC_DEVICE_MX25UM51345
-                /* Set FlexSPI clock: source AUX0_PLL, divide by 4 */
-                BOARD_SetFlexspiClock(FLEXSPI0, 2U, 4U);
+                flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
                 /* Update root clock */
                 deviceconfig.flexspiRootClk = 99000000;
                 deviceconfig.flashSize = 0x10000; /* 512Mb/KByte */
@@ -201,10 +193,9 @@ void mfb_main(void)
         case 0x9d:
             {
 #if ISSI_DEVICE_IS25WP064A
-                /* Set FlexSPI clock: source AUX0_PLL, divide by 3 */
-                BOARD_SetFlexspiClock(FLEXSPI0, 2U, 3U);
+                flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
                 /* Update root clock */
-                deviceconfig.flexspiRootClk = 132000000;
+                deviceconfig.flexspiRootClk = 100000000;
                 deviceconfig.flashSize = 0x2000; /* 64Mb/KByte */
                 s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
                 s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
@@ -230,12 +221,12 @@ void mfb_main(void)
     else
     {
         PRINTF("Flash entered Octal/Quad mode.\r\n");
-        PRINTF("FLEXSPI Clk Frequency: %dHz.\r\n", CLOCK_GetFlexspiClkFreq(0));
+        PRINTF("FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
 #if MFP_FLASH_SPEED_TEST_ENABLE
         mfb_flash_speed_test();
         microseconds_shutdown();
 #endif
-        PRINTF("Jump to Application code at 0x%x.\r\n", FlexSPI0_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
-        mfb_jump_to_application(FlexSPI0_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
+        PRINTF("Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
+        mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
     }
 }

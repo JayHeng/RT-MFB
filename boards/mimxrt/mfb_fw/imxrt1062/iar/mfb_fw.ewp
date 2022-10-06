@@ -36,11 +36,11 @@
                 </option>
                 <option>
                     <name>Input description</name>
-                    <state>No specifier n, no float nor long long, no scan set, no assignment suppressing, without multibyte support.</state>
+                    <state>Automatic choice of formatter, without multibyte support.</state>
                 </option>
                 <option>
                     <name>Output description</name>
-                    <state>No specifier a, A, no specifier n, no float nor long long, without multibyte support.</state>
+                    <state>Automatic choice of formatter, without multibyte support.</state>
                 </option>
                 <option>
                     <name>GOutputBinary</name>
@@ -155,7 +155,7 @@
                 <option>
                     <name>OGPrintfVariant</name>
                     <version>0</version>
-                    <state>3</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OGPrintfMultibyteSupport</name>
@@ -164,7 +164,7 @@
                 <option>
                     <name>OGScanfVariant</name>
                     <version>0</version>
-                    <state>3</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OGScanfMultibyteSupport</name>
@@ -4248,6 +4248,9 @@
             <name>$PROJ_DIR$\..\clock_config.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\flexspi_info.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\pin_mux.c</name>
         </file>
         <file>
@@ -4350,6 +4353,12 @@
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1062\drivers\fsl_common_arm.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1062\drivers\fsl_flexspi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1062\drivers\fsl_flexspi.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1062\drivers\fsl_gpio.c</name>
         </file>
         <file>
@@ -4368,7 +4377,37 @@
     <group>
         <name>source</name>
         <file>
+            <name>$PROJ_DIR$\..\..\src\flexspi_flash_ops.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\flexspi_polling_transfer.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\main.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_cfg.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\microseconds_common.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\microseconds_cortexm_systick.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\nor_flash.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\nor_flash_issi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\nor_flash_issi.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic.h</name>
         </file>
     </group>
     <group>
@@ -4392,10 +4431,10 @@
     <group>
         <name>xip</name>
         <file>
-            <name>$PROJ_DIR$\..\..\..\xip\evkmimxrt1060_flexspi_nor_config.c</name>
+            <name>$PROJ_DIR$\..\..\..\xip\flash_config.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\xip\evkmimxrt1060_flexspi_nor_config.h</name>
+            <name>$PROJ_DIR$\..\..\..\xip\flash_config.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1062\xip\fsl_flexspi_nor_boot.c</name>

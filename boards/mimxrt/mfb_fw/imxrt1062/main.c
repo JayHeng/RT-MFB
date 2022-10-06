@@ -21,6 +21,8 @@
  * Prototypes
  ******************************************************************************/
 
+extern void mfb_main(void);
+   
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -29,19 +31,15 @@
  */
 int main(void)
 {
-    char ch;
-
     /* Init board hardware. */
     BOARD_ConfigMPU();
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitDebugConsole();
 
-    PRINTF("hello world.\r\n");
+    mfb_main();
 
     while (1)
     {
-        ch = GETCHAR();
-        PUTCHAR(ch);
     }
 }

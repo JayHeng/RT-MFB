@@ -4455,10 +4455,10 @@
             <name>$PROJ_DIR$\..\..\src\nor_flash_issi.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic.h</name>
+            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic_.c</name>
+            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic.h</name>
         </file>
     </group>
     <group>

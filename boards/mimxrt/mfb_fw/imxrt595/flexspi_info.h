@@ -10,6 +10,8 @@
 
 /*${header:start}*/
 #include "fsl_cache.h"
+#include "board.h"
+#include "nor_flash.h"
 /*${header:end}*/
 /*******************************************************************************
  * Definitions
@@ -49,8 +51,41 @@ typedef struct _flexspi_cache_status
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-/*${prototype:start}*/
-void BOARD_InitHardware(void);
-/*${prototype:end}*/
+static void flexspi_clock_init(flexspi_root_clk_freq_t clkFreq)
+{
+    if (clkFreq == kFlexspiRootClkFreq_30MHz)
+    {
+        /* Move FLEXSPI clock source from main clock to FRO192M / 7 to avoid instruction/data fetch issue in XIP when
+         * updating PLL and main clock.
+         */
+        BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 3U, 7U);
+    }
+    else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+    {
+        /* Set FlexSPI clock: source AUX0_PLL, divide by 4 */
+        BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 4U);
+    }
+    else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+    {
+        /* Set FlexSPI clock: source AUX0_PLL, divide by 3 */
+        BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 3U);
+    }
+}
+
+static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
+{
+    if (base == FLEXSPI0)
+    {
+        return CLOCK_GetFlexspiClkFreq(0);
+    }
+    else if (base == FLEXSPI1)
+    {
+        return CLOCK_GetFlexspiClkFreq(1);
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 #endif /* _FLEXSPI_INFO_H_ */

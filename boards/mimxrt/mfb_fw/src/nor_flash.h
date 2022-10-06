@@ -12,6 +12,18 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+typedef enum _flexspi_root_clk_freq
+{
+    kFlexspiRootClkFreq_30MHz  = 1,
+    kFlexspiRootClkFreq_50MHz  = 2,
+    kFlexspiRootClkFreq_60MHz  = 3,
+    kFlexspiRootClkFreq_80MHz  = 4,
+    kFlexspiRootClkFreq_100MHz = 5,
+    kFlexspiRootClkFreq_120MHz = 6,
+    kFlexspiRootClkFreq_133MHz = 7,
+    kFlexspiRootClkFreq_166MHz = 8,
+    kFlexspiRootClkFreq_200MHz = 9,
+} flexspi_root_clk_freq_t;
 
 #define NOR_CMD_LUT_SEQ_IDX_READ            0
 #define NOR_CMD_LUT_SEQ_IDX_READSTATUS      1
