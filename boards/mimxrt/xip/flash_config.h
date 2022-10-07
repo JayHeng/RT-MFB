@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __EVKMIMXRT1060_FLEXSPI_NOR_CONFIG__
-#define __EVKMIMXRT1060_FLEXSPI_NOR_CONFIG__
+#ifndef __FLASH_CONFIG__
+#define __FLASH_CONFIG__
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -265,4 +265,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif /* __EVKMIMXRT1060_FLEXSPI_NOR_CONFIG__ */
+#endif /* __FLASH_CONFIG__ */
