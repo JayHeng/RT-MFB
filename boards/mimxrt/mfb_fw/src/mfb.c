@@ -39,7 +39,9 @@ extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT
 /*******************************************************************************
  * Variables
  ******************************************************************************/
+#if MFB_FLASH_SPEED_TEST_ENABLE
 static uint8_t s_nor_read_buffer[256];
+#endif
 
 uint8_t s_flashBusyStatusPol    = 0;
 uint8_t s_flashBusyStatusOffset = 0;
@@ -91,6 +93,15 @@ const uint32_t customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,     kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
 
+int mfb_printf(const char *fmt_s, ...)
+{
+#if MFB_LOG_INFO_ENABLE
+    PRINTF(fmt_s);
+#endif
+    
+    return 0;
+}
+
 #if MFB_FLASH_SPEED_TEST_ENABLE
 void mfb_flash_speed_test(void)
 {
@@ -106,7 +117,7 @@ void mfb_flash_speed_test(void)
     }
     uint64_t totalTicks = microseconds_get_ticks() - startTicks;
     uint32_t microSecs = microseconds_convert_to_microseconds(totalTicks);
-    PRINTF("Flash to RAM memcpy speed: %dKB/s.\r\n", (8UL*1024*1000000)/microSecs);
+    mfb_printf("MFB: Flash to RAM memcpy speed: %dKB/s.\r\n", (8UL*1024*1000000)/microSecs);
 }
 #endif
 
@@ -141,23 +152,26 @@ void mfb_main(void)
     status_t status;
     uint8_t vendorID = 0;
 
+    mfb_printf("\r\n-------------------------------------\r\n");
+    mfb_printf("MFB: i.MXRT multi-flash boot solution.\r\n");
+
     /* Move FlexSPI clock to a stable clock source */ 
     flexspi_clock_init(kFlexspiRootClkFreq_30MHz);
     /* Init FlexSPI using common LUT */ 
     flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
-    PRINTF("FLEXSPI module initialized!\r\n");
-    PRINTF("FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
+    mfb_printf("MFB: FLEXSPI module initialized!\r\n");
+    mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
 
     /* Get vendor ID. */
     status = flexspi_nor_get_vendor_id(EXAMPLE_FLEXSPI, &vendorID);
     if (status != kStatus_Success)
     {
-        PRINTF("Get Flash Vendor ID failed.\r\n");
+        mfb_printf("MFB: Get Flash Vendor ID failed.\r\n");
         return;
     }
     else
     {
-        PRINTF("Flash Vendor ID: 0x%x.\r\n", vendorID);
+        mfb_printf("MFB: Flash Vendor ID: 0x%x.\r\n", vendorID);
     }
 
 #if MFB_FLASH_SPEED_TEST_ENABLE
@@ -210,23 +224,26 @@ void mfb_main(void)
 #endif // ISSI_DEVICE_SERIES
 
         default:
-            PRINTF("Unsupported Vendor ID\r\n");
+            mfb_printf("MFB: Unsupported Vendor ID\r\n");
+            mfb_printf("-------------------------------------\r\n");
             return;
     }
     
     if (status != kStatus_Success)
     {
-        PRINTF("Flash failed to Enter Octal/Quad mode.\r\n");
+        mfb_printf("MFB: Flash failed to Enter Octal/Quad mode.\r\n");
+        mfb_printf("-------------------------------------\r\n");
     }
     else
     {
-        PRINTF("Flash entered Octal/Quad mode.\r\n");
-        PRINTF("FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
+        mfb_printf("MFB: Flash entered Octal/Quad mode.\r\n");
+        mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
 #if MFB_FLASH_SPEED_TEST_ENABLE
         mfb_flash_speed_test();
         microseconds_shutdown();
 #endif
-        PRINTF("Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
+        mfb_printf("MFB: Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
+        mfb_printf("-------------------------------------\r\n");
         mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
     }
 }

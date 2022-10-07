@@ -38,8 +38,6 @@ int main(void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
-    PRINTF("\r\ni.MXRT multi-flash boot solution FW.\r\n");
-
 #if !defined(FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE)
     POWER_DisablePD(kPDRUNCFG_APD_FLEXSPI0_SRAM);
     POWER_DisablePD(kPDRUNCFG_PPD_FLEXSPI0_SRAM);
