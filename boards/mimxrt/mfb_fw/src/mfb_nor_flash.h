@@ -50,11 +50,14 @@ typedef enum _flexspi_root_clk_freq
 #define CUSTOM_LUT_LENGTH        60
 
 ////////////////////////////////////////////////////////////////////////////////
-#define MXIC_DEVICE_SERIES      (1)
-#define MXIC_DEVICE_MX25UM51345 (1)
+#define MXIC_DEVICE_SERIES         (1)
+#define MXIC_DEVICE_MX25UM51345    (1)
 ////////////////////////////////////////////////////////////////////////////////
-#define ISSI_DEVICE_SERIES      (1)
-#define ISSI_DEVICE_IS25WP064A  (1)
+#define ISSI_DEVICE_SERIES         (1)
+#define ISSI_DEVICE_IS25WP064A     (1)
+////////////////////////////////////////////////////////////////////////////////
+#define WINBOND_DEVICE_SERIES      (1)
+#define WINBOND_DEVICE_W25Q64JV    (1)
 
 /*******************************************************************************
  * Variables

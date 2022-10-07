@@ -152,7 +152,8 @@ uint32_t mfb_decode_capacity_id(uint8_t capacityID)
     uint32_t memSizeInBytes = 0;
     //| ISSI QuadSPI       |  MXIC OctalSPI
     //| ISSI OctalSPI      |  MXIC QuadSPI U
-    //| MXIC QuadSPI R/L/V |  
+    //| MXIC QuadSPI R/L/V |
+    //| Winbond QuadSPI    |
     //|---------------------------------
     //| 09h - 256Kb        |
     //| 10h - 512Kb        |
@@ -332,6 +333,43 @@ void mfb_main(void)
                     flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
                     /* Enter quad mode. */
                     status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
+#endif
+                    break;
+                }
+#endif // ISSI_DEVICE_SERIES
+
+#if WINBOND_DEVICE_SERIES
+            // Winbond
+            case 0xef:
+                {
+                    mfb_printf(" -- Winbond Serial Flash.\r\n");
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
+                    switch (memoryTypeID)
+                    {
+                        case 0x30:
+                            mfb_printf(" -- W25X DualSPI 3.3V Series.\r\n");
+                            break;
+                        case 0x40:
+                            mfb_printf(" -- W25QxxxDV/FV/BV/CL/JV(-IQ/JQ) QuadlSPI 3.3V Series.\r\n");
+                            break;
+                        case 0x60:
+                            mfb_printf(" -- W25QxxxFW/EW/NW(-IQ/IN) QuadlSPI 1.8V Series.\r\n");
+                            break;
+                        case 0x70:
+                            mfb_printf(" -- W25QxxxJV(-IM/JM) QuadlSPI 3.3V Series.\r\n");
+                            break;
+                        case 0x80:
+                            mfb_printf(" -- W25QxxxJW/NW(-IM) QuadlSPI 1.8V Series.\r\n");
+                            break;
+                        // Missing W25H, W25M, W25R
+                        // Missing xxxJL, xxxDW, xxxRV
+                        default:
+                            mfb_printf(" -- Unsupported Series.\r\n");
+                            break;
+                    }
+                    mfb_show_mem_size(capacityID);
+#if WINBOND_DEVICE_W25Q64JV
+
 #endif
                     break;
                 }
