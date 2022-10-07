@@ -32,7 +32,7 @@
 extern const uint32_t customLUT_ISSI[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MXIC[CUSTOM_LUT_LENGTH];
 
-extern status_t flexspi_nor_get_vendor_id(FLEXSPI_Type *base, uint8_t *vendorId);
+extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
 extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
 extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
@@ -147,10 +147,55 @@ void mfb_jump_to_application(uint32_t vectorStartAddr)
     s_entry();
 }
 
+uint32_t mfb_decode_capacity_id(uint8_t capacityID)
+{
+    uint32_t memSizeInBytes = 0;
+    // 09h - 256Kb
+    // 10h - 512Kb
+    // 11h - 1Mb
+    // 12h - 2Mb
+    // 13h - 4Mb
+    // 14h - 8Mb
+    // 15h - 16Mb
+    // 16h - 32Mb
+    // 17h - 64Mb
+    // 18h - 128Mb
+    // 19h - 256Mb
+    // 1ah - 512Mb
+    // 1bh - 1Gb
+    // 1ch - 2Gb
+    if (capacityID <= 0x09)
+    {
+        memSizeInBytes = 1 << (capacityID + 6);
+    }
+    else if (capacityID >= 0x10)
+    {
+        memSizeInBytes = 1 << capacityID;
+    }
+    return memSizeInBytes;
+}
+
+void mfb_show_mem_size(uint8_t capacityID)
+{
+    mfb_printf("MFB: Flash Capacity ID: 0x%x", capacityID);
+    uint32_t flashMemSizeInKB = mfb_decode_capacity_id(capacityID)/ 0x400;
+    if (flashMemSizeInKB <= 0x400)
+    {
+        mfb_printf(" -- %dKB.\r\n", flashMemSizeInKB);
+    }
+    else
+    {
+        mfb_printf(" -- %dMB.\r\n", flashMemSizeInKB / 0x400);
+    }
+}
+
 void mfb_main(void)
 {
     status_t status;
-    uint8_t vendorID = 0;
+    uint32_t jedecID = 0;
+    uint8_t manufacturerID = 0;
+    uint8_t memoryTypeID = 0;
+    uint8_t capacityID = 0;
 
     mfb_printf("\r\n-------------------------------------\r\n");
     mfb_printf("MFB: i.MXRT multi-flash boot solution.\r\n");
@@ -162,8 +207,8 @@ void mfb_main(void)
     mfb_printf("MFB: FLEXSPI module initialized!\r\n");
     mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
 
-    /* Get vendor ID. */
-    status = flexspi_nor_get_vendor_id(EXAMPLE_FLEXSPI, &vendorID);
+    /* Get JEDEC ID. */
+    status = flexspi_nor_get_jedec_id(EXAMPLE_FLEXSPI, &jedecID);
     if (status != kStatus_Success)
     {
         mfb_printf("MFB: Get Flash Vendor ID failed.\r\n");
@@ -171,18 +216,22 @@ void mfb_main(void)
     else
     {
         bool isValidVendorId = true;
-        mfb_printf("MFB: Flash Vendor ID: 0x%x\r\n", vendorID);
+        manufacturerID = jedecID & 0xFF;
+        memoryTypeID = (jedecID >> 8) & 0xFF;
+        capacityID = (jedecID >> 16) & 0xFF;
 
 #if MFB_FLASH_SPEED_TEST_ENABLE
         microseconds_init();
         mfb_flash_speed_test();
 #endif
-        switch (vendorID)
+        mfb_printf("MFB: Flash Manufacturer ID: 0x%x", manufacturerID);
+        switch (manufacturerID)
         {
 #if MXIC_DEVICE_SERIES
             // MXIC
             case 0xc2:
                 {
+                    mfb_printf(" -- MXIC Serial Flash.\r\n");
 #if MXIC_DEVICE_MX25UM51345
                     flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
                     /* Update root clock */
@@ -204,11 +253,30 @@ void mfb_main(void)
             // ISSI
             case 0x9d:
                 {
+                    mfb_printf(" -- ISSI Serial Flash.\r\n");
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
+                    switch (memoryTypeID)
+                    {
+                        case 0x40:
+                            mfb_printf(" -- IS25L(Q/P) Series.\r\n");
+                            break;
+                        case 0x60:
+                            mfb_printf(" -- IS25L(P/E) Series.\r\n");
+                            break;
+                        case 0x70:
+                            mfb_printf(" -- IS25W(P/J/E) Series.\r\n");
+                            break;
+                        default:
+                            mfb_printf(" -- Unsupported Series.\r\n");
+                            break;
+                    }
+                    uint32_t flashMemSizeInByte = mfb_decode_capacity_id(capacityID);
+                    mfb_show_mem_size(capacityID);
 #if ISSI_DEVICE_IS25WP064A
                     flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
                     /* Update root clock */
                     deviceconfig.flexspiRootClk = 100000000;
-                    deviceconfig.flashSize = 0x2000; /* 64Mb/KByte */
+                    deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                     s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
                     s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
                     s_flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
@@ -222,7 +290,7 @@ void mfb_main(void)
 #endif // ISSI_DEVICE_SERIES
 
             default:
-                mfb_printf("MFB: Unsupported Vendor ID\r\n");
+                mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
                 isValidVendorId = false;
                 break;
         }

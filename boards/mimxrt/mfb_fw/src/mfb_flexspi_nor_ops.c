@@ -289,9 +289,9 @@ status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base)
 #if defined(__ICCARM__)
 #pragma optimize = none
 #endif
-status_t flexspi_nor_get_vendor_id(FLEXSPI_Type *base, uint8_t *vendorId)
+status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId)
 {
-    uint32_t temp;
+    uint32_t temp = 0;
     flexspi_transfer_t flashXfer;
     flashXfer.deviceAddress = 0;
     flashXfer.port          = FLASH_PORT;
@@ -299,11 +299,11 @@ status_t flexspi_nor_get_vendor_id(FLEXSPI_Type *base, uint8_t *vendorId)
     flashXfer.SeqNumber     = 1;
     flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_READID;
     flashXfer.data          = &temp;
-    flashXfer.dataSize      = 1;
+    flashXfer.dataSize      = 3;
 
     status_t status = FLEXSPI_TransferBlocking(base, &flashXfer);
 
-    *vendorId = temp;
+    *jedecId = temp;
 
     return status;
 }
