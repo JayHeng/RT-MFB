@@ -151,6 +151,7 @@ uint32_t mfb_decode_capacity_id(uint8_t capacityID)
 {
     uint32_t memSizeInBytes = 0;
     //| ISSI QuadSPI    |  MXIC OctalSPI
+    //| ISSI OctalSPI   |  
     //|---------------------------------
     //| 09h - 256Kb     |
     //| 10h - 512Kb     |
@@ -239,19 +240,19 @@ void mfb_main(void)
                     switch (memoryTypeID)
                     {
                         case 0x80:
-                            mfb_printf(" -- MX25(66)UMxxx45G Series.\r\n");
+                            mfb_printf(" -- MX25(66)UMxxx45G OctalSPI Series.\r\n");
                             break;
                         case 0x81:
-                            mfb_printf(" -- MX25UM51345G Series.\r\n");
+                            mfb_printf(" -- MX25UM51345G OctalSPI Series.\r\n");
                             break;
                         case 0x83:
-                            mfb_printf(" -- MX25UM25345G Series.\r\n");
+                            mfb_printf(" -- MX25UM25345G OctalSPI Series.\r\n");
                             break;
                         case 0x84:
-                            mfb_printf(" -- MX25UW51345G Series.\r\n");
+                            mfb_printf(" -- MX25UW51345G OctalSPI Series.\r\n");
                             break;
                         case 0x85:
-                            mfb_printf(" -- MX25(66)LMxxx45G Series.\r\n");
+                            mfb_printf(" -- MX25(66)LMxxx45G OctalSPI Series.\r\n");
                             break;
                         // Missing MX25LW51245G, MX66LW1G45G, MX66LW2G45G
                         // Missing MX25UW6445G, MX66UW12845G, MX25UW25645G, MX25UW51245G, MX66UW1G45G, MX66UW2G45G
@@ -287,13 +288,19 @@ void mfb_main(void)
                     switch (memoryTypeID)
                     {
                         case 0x40:
-                            mfb_printf(" -- IS25L(Q/P) Series.\r\n");
+                            mfb_printf(" -- IS25L(Q/P) QuadSPI Series.\r\n");
                             break;
                         case 0x60:
-                            mfb_printf(" -- IS25L(P/E) Series.\r\n");
+                            mfb_printf(" -- IS25L(P/E) QuadSPI Series.\r\n");
                             break;
                         case 0x70:
-                            mfb_printf(" -- IS25W(P/J/E) Series.\r\n");
+                            mfb_printf(" -- IS25W(P/J/E) QuadSPI Series.\r\n");
+                            break;
+                        case 0x5A:
+                            mfb_printf(" -- IS25LX OctalSPI Series.\r\n");
+                            break;
+                        case 0x5B:
+                            mfb_printf(" -- IS25WX OctalSPI Series.\r\n");
                             break;
                         default:
                             mfb_printf(" -- Unsupported Series.\r\n");
