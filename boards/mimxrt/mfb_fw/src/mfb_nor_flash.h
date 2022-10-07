@@ -58,6 +58,9 @@ typedef enum _flexspi_root_clk_freq
 ////////////////////////////////////////////////////////////////////////////////
 #define WINBOND_DEVICE_SERIES      (1)
 #define WINBOND_DEVICE_W25Q64JV    (1)
+////////////////////////////////////////////////////////////////////////////////
+#define MICRON_DEVICE_SERIES       (1)
+#define MICRON_DEVICE_MT25QL128    (1)
 
 /*******************************************************************************
  * Variables

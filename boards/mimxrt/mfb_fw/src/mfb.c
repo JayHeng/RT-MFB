@@ -150,33 +150,43 @@ void mfb_jump_to_application(uint32_t vectorStartAddr)
 uint32_t mfb_decode_capacity_id(uint8_t capacityID)
 {
     uint32_t memSizeInBytes = 0;
-    //| ISSI QuadSPI       |  MXIC OctalSPI
-    //| ISSI OctalSPI      |  MXIC QuadSPI U
-    //| MXIC QuadSPI R/L/V |
-    //| Winbond QuadSPI    |
-    //|---------------------------------
-    //| 09h - 256Kb        |
-    //| 10h - 512Kb        |
-    //| 11h - 1Mb          |
-    //| 12h - 2Mb          |
-    //| 13h - 4Mb          |
-    //| 14h - 8Mb          |
-    //| 15h - 16Mb         |
-    //| 16h - 32Mb         |
-    //| 17h - 64Mb         |  37h - 64Mb
-    //| 18h - 128Mb        |  38h - 128Mb
-    //| 19h - 256Mb        |  39h - 256Mb
-    //| 1ah - 512Mb        |  3ah - 512Mb
-    //| 1bh - 1Gb          |  3bh - 1Gb
-    //| 1ch - 2Gb          |  3ch - 2Gb
+    //| ISSI QuadSPI       |  MXIC OctalSPI     |  Micron QuadSPI    |
+    //| ISSI OctalSPI      |  MXIC QuadSPI U    |                    |
+    //| MXIC QuadSPI R/L/V |                    |                    |
+    //| Winbond QuadSPI    |                    |                    |
+    //| Micron OctalSPI    |                    |                    |
+    //|---------------------------------------------------------------
+    //| 09h - 256Kb        |                    |                    |
+    //| 10h - 512Kb        |                    |                    |
+    //| 11h - 1Mb          |                    |                    |
+    //| 12h - 2Mb          |                    |                    |
+    //| 13h - 4Mb          |                    |                    |
+    //| 14h - 8Mb          |                    |                    |
+    //| 15h - 16Mb         |                    |                    |
+    //| 16h - 32Mb         |                    |                    |
+    //| 17h - 64Mb         |  37h - 64Mb        |   17h - 64Mb       |
+    //| 18h - 128Mb        |  38h - 128Mb       |   18h - 128Mb      |
+    //| 19h - 256Mb        |  39h - 256Mb       |   19h - 256Mb      |
+    //| 1ah - 512Mb        |  3ah - 512Mb       |   20h - 512Mb      |
+    //| 1bh - 1Gb          |  3bh - 1Gb         |   21h - 1Gb        |
+    //| 1ch - 2Gb          |  3ch - 2Gb         |   22h - 2Gb        |
     if (capacityID <= 0x09)
     {
-        memSizeInBytes = 1 << (capacityID + 6);
+        capacityID += 6;
     }
-    else if (capacityID >= 0x10)
+    else if (capacityID <= 0x1c)
     {
-        memSizeInBytes = 1 << (capacityID & 0x1F);
+        // Do Nothing
     }
+    else if (capacityID <= 0x22)
+    {
+        capacityID -= 6;
+    }
+    else
+    {
+        capacityID &= 0x1F;
+    }
+    memSizeInBytes = 1 << capacityID;
     return memSizeInBytes;
 }
 
@@ -373,7 +383,39 @@ void mfb_main(void)
 #endif
                     break;
                 }
-#endif // ISSI_DEVICE_SERIES
+#endif // WINBOND_DEVICE_SERIES
+
+#if MICRON_DEVICE_SERIES
+            // Micron
+            case 0x20:
+                {
+                    mfb_printf(" -- Winbond Serial Flash.\r\n");
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
+                    switch (memoryTypeID)
+                    {
+                        case 0xBA:
+                            mfb_printf(" -- MT25QL QuadSPI 3.3V Series.\r\n");
+                            break;
+                        case 0xBB:
+                            mfb_printf(" -- MT25QU QuadSPI 1.8V Series.\r\n");
+                            break;
+                        case 0x5A:
+                            mfb_printf(" -- MT35XL OctalSPI 3.3V Series.\r\n");
+                            break;
+                        case 0x5B:
+                            mfb_printf(" -- MT35XU OctalSPI 1.8V Series.\r\n");
+                            break;
+                        default:
+                            mfb_printf(" -- Unsupported Series.\r\n");
+                            break;
+                    }
+                    mfb_show_mem_size(capacityID);
+#if MICRON_DEVICE_MT25QL128
+
+#endif
+                    break;
+                }
+#endif // MICRON_DEVICE_SERIES
 
             default:
                 mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
