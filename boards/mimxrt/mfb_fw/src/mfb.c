@@ -167,83 +167,84 @@ void mfb_main(void)
     if (status != kStatus_Success)
     {
         mfb_printf("MFB: Get Flash Vendor ID failed.\r\n");
-        return;
     }
     else
     {
-        mfb_printf("MFB: Flash Vendor ID: 0x%x.\r\n", vendorID);
-    }
+        bool isValidVendorId = true;
+        mfb_printf("MFB: Flash Vendor ID: 0x%x\r\n", vendorID);
 
 #if MFB_FLASH_SPEED_TEST_ENABLE
-    microseconds_init();
-    mfb_flash_speed_test();
+        microseconds_init();
+        mfb_flash_speed_test();
 #endif
-
-    switch (vendorID)
-    {
+        switch (vendorID)
+        {
 #if MXIC_DEVICE_SERIES
-        // MXIC
-        case 0xc2:
-            {
+            // MXIC
+            case 0xc2:
+                {
 #if MXIC_DEVICE_MX25UM51345
-                flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
-                /* Update root clock */
-                deviceconfig.flexspiRootClk = 99000000;
-                deviceconfig.flashSize = 0x10000; /* 512Mb/KByte */
-                s_flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
-                s_flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
-                s_flashEnableOctalCmd   = MXIC_FLASH_ENABLE_OCTAL_CMD;
-                /* Re-init FlexSPI using custom LUT */
-                flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MXIC, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
-                /* Enter octal mode. */
-                status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
+                    flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
+                    /* Update root clock */
+                    deviceconfig.flexspiRootClk = 99000000;
+                    deviceconfig.flashSize = 0x10000; /* 512Mb/KByte */
+                    s_flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
+                    s_flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
+                    s_flashEnableOctalCmd   = MXIC_FLASH_ENABLE_OCTAL_CMD;
+                    /* Re-init FlexSPI using custom LUT */
+                    flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MXIC, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+                    /* Enter octal mode. */
+                    status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
 #endif
-                break;
-            }
+                    break;
+                }
 #endif // MXIC_DEVICE_SERIES
 
 #if ISSI_DEVICE_SERIES
-        // ISSI
-        case 0x9d:
-            {
+            // ISSI
+            case 0x9d:
+                {
 #if ISSI_DEVICE_IS25WP064A
-                flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
-                /* Update root clock */
-                deviceconfig.flexspiRootClk = 100000000;
-                deviceconfig.flashSize = 0x2000; /* 64Mb/KByte */
-                s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
-                s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
-                s_flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
-                /* Re-init FlexSPI using custom LUT */
-                flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
-                /* Enter quad mode. */
-                status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
+                    flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
+                    /* Update root clock */
+                    deviceconfig.flexspiRootClk = 100000000;
+                    deviceconfig.flashSize = 0x2000; /* 64Mb/KByte */
+                    s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+                    s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+                    s_flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
+                    /* Re-init FlexSPI using custom LUT */
+                    flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                    /* Enter quad mode. */
+                    status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
 #endif
-                break;
-            }
+                    break;
+                }
 #endif // ISSI_DEVICE_SERIES
 
-        default:
-            mfb_printf("MFB: Unsupported Vendor ID\r\n");
-            mfb_printf("-------------------------------------\r\n");
-            return;
-    }
-    
-    if (status != kStatus_Success)
-    {
-        mfb_printf("MFB: Flash failed to Enter Octal/Quad mode.\r\n");
-        mfb_printf("-------------------------------------\r\n");
-    }
-    else
-    {
-        mfb_printf("MFB: Flash entered Octal/Quad mode.\r\n");
-        mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
+            default:
+                mfb_printf("MFB: Unsupported Vendor ID\r\n");
+                isValidVendorId = false;
+                break;
+        }
+        if (isValidVendorId)
+        {
+            if (status != kStatus_Success)
+            {
+                mfb_printf("MFB: Flash failed to Enter Octal/Quad mode.\r\n");
+            }
+            else
+            {
+                mfb_printf("MFB: Flash entered Octal/Quad mode.\r\n");
+                mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
 #if MFB_FLASH_SPEED_TEST_ENABLE
-        mfb_flash_speed_test();
-        microseconds_shutdown();
+                mfb_flash_speed_test();
+                microseconds_shutdown();
 #endif
-        mfb_printf("MFB: Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
-        mfb_printf("-------------------------------------\r\n");
-        mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
+                mfb_printf("MFB: Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
+                mfb_printf("-------------------------------------\r\n");
+                mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
+            }
+        }
     }
+    mfb_printf("-------------------------------------\r\n");
 }
