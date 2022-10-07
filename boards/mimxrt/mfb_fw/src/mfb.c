@@ -150,27 +150,29 @@ void mfb_jump_to_application(uint32_t vectorStartAddr)
 uint32_t mfb_decode_capacity_id(uint8_t capacityID)
 {
     uint32_t memSizeInBytes = 0;
-    // 09h - 256Kb
-    // 10h - 512Kb
-    // 11h - 1Mb
-    // 12h - 2Mb
-    // 13h - 4Mb
-    // 14h - 8Mb
-    // 15h - 16Mb
-    // 16h - 32Mb
-    // 17h - 64Mb
-    // 18h - 128Mb
-    // 19h - 256Mb
-    // 1ah - 512Mb
-    // 1bh - 1Gb
-    // 1ch - 2Gb
+    //| ISSI QuadSPI    |  MXIC OctalSPI
+    //|---------------------------------
+    //| 09h - 256Kb     |
+    //| 10h - 512Kb     |
+    //| 11h - 1Mb       |
+    //| 12h - 2Mb       |
+    //| 13h - 4Mb       |
+    //| 14h - 8Mb       |
+    //| 15h - 16Mb      |
+    //| 16h - 32Mb      |
+    //| 17h - 64Mb      |  37h - 64Mb
+    //| 18h - 128Mb     |  38h - 128Mb
+    //| 19h - 256Mb     |  39h - 256Mb
+    //| 1ah - 512Mb     |  3ah - 512Mb
+    //| 1bh - 1Gb       |  3bh - 1Gb
+    //| 1ch - 2Gb       |  3ch - 2Gb
     if (capacityID <= 0x09)
     {
         memSizeInBytes = 1 << (capacityID + 6);
     }
     else if (capacityID >= 0x10)
     {
-        memSizeInBytes = 1 << capacityID;
+        memSizeInBytes = 1 << (capacityID & 0x1F);
     }
     return memSizeInBytes;
 }
@@ -219,6 +221,7 @@ void mfb_main(void)
         manufacturerID = jedecID & 0xFF;
         memoryTypeID = (jedecID >> 8) & 0xFF;
         capacityID = (jedecID >> 16) & 0xFF;
+        uint32_t flashMemSizeInByte = mfb_decode_capacity_id(capacityID);
 
 #if MFB_FLASH_SPEED_TEST_ENABLE
         microseconds_init();
@@ -232,11 +235,37 @@ void mfb_main(void)
             case 0xc2:
                 {
                     mfb_printf(" -- MXIC Serial Flash.\r\n");
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
+                    switch (memoryTypeID)
+                    {
+                        case 0x80:
+                            mfb_printf(" -- MX25(66)UMxxx45G Series.\r\n");
+                            break;
+                        case 0x81:
+                            mfb_printf(" -- MX25UM51345G Series.\r\n");
+                            break;
+                        case 0x83:
+                            mfb_printf(" -- MX25UM25345G Series.\r\n");
+                            break;
+                        case 0x84:
+                            mfb_printf(" -- MX25UW51345G Series.\r\n");
+                            break;
+                        case 0x85:
+                            mfb_printf(" -- MX25(66)LMxxx45G Series.\r\n");
+                            break;
+                        // Missing MX25LW51245G, MX66LW1G45G, MX66LW2G45G
+                        // Missing MX25UW6445G, MX66UW12845G, MX25UW25645G, MX25UW51245G, MX66UW1G45G, MX66UW2G45G
+                        // Missing MX25UW6345G, MX66LW12345G, MX66UW25345G      done                 , MX66UW2G345G
+                        default:
+                            mfb_printf(" -- Unsupported Series.\r\n");
+                            break;
+                    }
+                    mfb_show_mem_size(capacityID);
 #if MXIC_DEVICE_MX25UM51345
                     flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
                     /* Update root clock */
                     deviceconfig.flexspiRootClk = 99000000;
-                    deviceconfig.flashSize = 0x10000; /* 512Mb/KByte */
+                    deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                     s_flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
                     s_flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
                     s_flashEnableOctalCmd   = MXIC_FLASH_ENABLE_OCTAL_CMD;
@@ -270,7 +299,6 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    uint32_t flashMemSizeInByte = mfb_decode_capacity_id(capacityID);
                     mfb_show_mem_size(capacityID);
 #if ISSI_DEVICE_IS25WP064A
                     flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
