@@ -5,15 +5,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "mfb_cfg.h"
+#include "mfb.h"
 #include "microseconds.h"
-#include "flexspi_info.h"
-#include "nor_flash.h"
+#include "port_flexspi_info.h"
+#include "mfb_nor_flash.h"
 #if MXIC_DEVICE_SERIES
-#include "nor_flash_mxic.h"
+#include "mfb_nor_flash_mxic.h"
 #endif
 #if ISSI_DEVICE_SERIES
-#include "nor_flash_issi.h"
+#include "mfb_nor_flash_issi.h"
 #endif
 #include "fsl_flexspi.h"
 #include "fsl_debug_console.h"
@@ -91,7 +91,7 @@ const uint32_t customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,     kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
 
-#if MFP_FLASH_SPEED_TEST_ENABLE
+#if MFB_FLASH_SPEED_TEST_ENABLE
 void mfb_flash_speed_test(void)
 {
     uint64_t startTicks = microseconds_get_ticks();
@@ -160,7 +160,7 @@ void mfb_main(void)
         PRINTF("Flash Vendor ID: 0x%x.\r\n", vendorID);
     }
 
-#if MFP_FLASH_SPEED_TEST_ENABLE
+#if MFB_FLASH_SPEED_TEST_ENABLE
     microseconds_init();
     mfb_flash_speed_test();
 #endif
@@ -222,11 +222,11 @@ void mfb_main(void)
     {
         PRINTF("Flash entered Octal/Quad mode.\r\n");
         PRINTF("FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
-#if MFP_FLASH_SPEED_TEST_ENABLE
+#if MFB_FLASH_SPEED_TEST_ENABLE
         mfb_flash_speed_test();
         microseconds_shutdown();
 #endif
-        PRINTF("Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
-        mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFP_APP_IMAGE_OFFSET);
+        PRINTF("Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
+        mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
     }
 }

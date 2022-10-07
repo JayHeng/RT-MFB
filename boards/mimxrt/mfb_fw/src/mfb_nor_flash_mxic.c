@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "mfb_cfg.h"
+#include "mfb.h"
 #include "fsl_flexspi.h"
-#include "nor_flash_mxic.h"
+#include "mfb_nor_flash_mxic.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/

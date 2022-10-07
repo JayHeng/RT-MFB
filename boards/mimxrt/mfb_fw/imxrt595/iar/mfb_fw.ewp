@@ -62,7 +62,7 @@
                 </option>
                 <option>
                     <name>RTDescription</name>
-                    <state>0</state>
+                    <state>Use the normal configuration of the C/C++ runtime library. No locale interface, C locale, no file descriptor support, no multibytes in printf and scanf, and no hex floats in strtod.</state>
                 </option>
                 <option>
                     <name>OGProductVersion</name>
@@ -99,7 +99,7 @@
                 <option>
                     <name>GBECoreSlave</name>
                     <version>30</version>
-                    <state>58</state>
+                    <state>59</state>
                 </option>
                 <option>
                     <name>OGUseCmsis</name>
@@ -4242,13 +4242,13 @@
             <name>$PROJ_DIR$\..\clock_config.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\flexspi_info.h</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\pin_mux.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\pin_mux.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\port_flexspi_info.h</name>
         </file>
     </group>
     <group>
@@ -4431,34 +4431,37 @@
     <group>
         <name>source</name>
         <file>
-            <name>$PROJ_DIR$\..\..\src\flexspi_flash_ops.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\flexspi_polling_transfer.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\main.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_flexspi_nor_ops.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_issi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_issi.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\microseconds_common.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\microseconds_cortexm_systick.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_issi.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_issi.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic.h</name>
         </file>
     </group>
     <group>

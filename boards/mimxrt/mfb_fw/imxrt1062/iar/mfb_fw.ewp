@@ -4252,13 +4252,13 @@
             <name>$PROJ_DIR$\..\clock_config.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\flexspi_info.h</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\pin_mux.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\pin_mux.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\port_flexspi_info.h</name>
         </file>
     </group>
     <group>
@@ -4381,37 +4381,37 @@
     <group>
         <name>source</name>
         <file>
-            <name>$PROJ_DIR$\..\..\src\flexspi_flash_ops.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\flexspi_polling_transfer.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\main.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\src\mfb_cfg.h</name>
+            <name>$PROJ_DIR$\..\..\src\mfb.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_flexspi_nor_ops.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_issi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_issi.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\microseconds_common.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\microseconds_cortexm_systick.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_issi.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_issi.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\nor_flash_mxic.h</name>
         </file>
     </group>
     <group>
@@ -4438,7 +4438,7 @@
             <name>$PROJ_DIR$\..\..\..\xip\flash_config.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\xip\flash_config_1bit_sdr.c</name>
+            <name>$PROJ_DIR$\..\..\..\xip\flash_config_1bit_spi.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1062\xip\fsl_flexspi_nor_boot.c</name>

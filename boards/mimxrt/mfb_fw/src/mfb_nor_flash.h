@@ -5,8 +5,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _NOR_FLASH_H_
-#define _NOR_FLASH_H_
+#ifndef _MFB_NOR_FLASH_H_
+#define _MFB_NOR_FLASH_H_
 
 
 /*******************************************************************************
@@ -66,4 +66,4 @@ typedef enum _flexspi_root_clk_freq
  ******************************************************************************/
 
 
-#endif /* _NOR_FLASH_H_ */
+#endif /* _MFB_NOR_FLASH_H_ */

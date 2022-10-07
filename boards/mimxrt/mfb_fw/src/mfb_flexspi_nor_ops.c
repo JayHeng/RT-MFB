@@ -6,8 +6,8 @@
  */
 
 #include "fsl_flexspi.h"
-#include "flexspi_info.h"
-#include "nor_flash.h"
+#include "port_flexspi_info.h"
+#include "mfb_nor_flash.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/

@@ -5,13 +5,13 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _FLEXSPI_INFO_H_
-#define _FLEXSPI_INFO_H_
+#ifndef _PORT_FLEXSPI_INFO_H_
+#define _PORT_FLEXSPI_INFO_H_
 
 /*${header:start}*/
 #include "fsl_cache.h"
 #include "board.h"
-#include "nor_flash.h"
+#include "mfb_nor_flash.h"
 /*${header:end}*/
 /*******************************************************************************
  * Definitions
@@ -88,4 +88,4 @@ static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
     }
 }
 
-#endif /* _FLEXSPI_INFO_H_ */
+#endif /* _PORT_FLEXSPI_INFO_H_ */
