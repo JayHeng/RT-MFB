@@ -151,10 +151,11 @@ uint32_t mfb_decode_capacity_id(uint8_t capacityID)
 {
     uint32_t memSizeInBytes = 0;
     //| ISSI QuadSPI       |  MXIC OctalSPI     |  Micron QuadSPI    |
-    //| ISSI OctalSPI      |  MXIC QuadSPI U    |                    |
+    //| ISSI OctalSPI      |  MXIC QuadSPI U    |GigaDevice QuadSPI Q|
     //| MXIC QuadSPI R/L/V |                    |                    |
     //| Winbond QuadSPI    |                    |                    |
     //| Micron OctalSPI    |                    |                    |
+    //| GigaDevice QuadSPI |                    |                    |
     //|---------------------------------------------------------------
     //| 09h - 256Kb        |                    |                    |
     //| 10h - 512Kb        |                    |                    |
@@ -258,7 +259,7 @@ void mfb_main(void)
                             mfb_printf(" -- MX25U/MX66U QuadSPI 1.8V Series.\r\n");
                             break;
                         case 0x28:
-                            mfb_printf(" -- MX25R QuadSPI 1.8/3.3V Series.\r\n");
+                            mfb_printf(" -- MX25R QuadSPI 1.8-3.3V Series.\r\n");
                             break;
                         case 0x75:
                             mfb_printf(" -- MX77L QuadSPI 3.3V Series.\r\n");
@@ -389,7 +390,7 @@ void mfb_main(void)
             // Micron
             case 0x20:
                 {
-                    mfb_printf(" -- Winbond Serial Flash.\r\n");
+                    mfb_printf(" -- Micron Serial Flash.\r\n");
                     mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
                     switch (memoryTypeID)
                     {
@@ -416,6 +417,58 @@ void mfb_main(void)
                     break;
                 }
 #endif // MICRON_DEVICE_SERIES
+
+#if GIGADEVICE_DEVICE_SERIE
+            // GigaDevice
+            case 0xc8:
+                {
+                    mfb_printf(" -- GigaDevice Serial Flash.\r\n");
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
+                    switch (memoryTypeID)
+                    {
+                        case 0x40:
+                            // GD25D DualSPI
+                            mfb_printf(" -- GD25Q/GD25B/GD25S QuadSPI 3.3V Series.\r\n");
+                            break;
+                        case 0x42:
+                            mfb_printf(" -- GD25VQ/GD25VE QuadSPI 2.5V Series.\r\n");
+                            break;
+                        case 0x47:
+                            mfb_printf(" -- GD55B QuadSPI 3.3V Series.\r\n");
+                            break;
+                        case 0x60:
+                            // GD25LD DualSPI
+                            mfb_printf(" -- GD25LE/GD25LQ QuadSPI 1.8V Series.\r\n");
+                            break;
+                        case 0x63:
+                            mfb_printf(" -- GD25LF/GD55LF QuadSPI 1.8V Series.\r\n");
+                            break;
+                        case 0x65:
+                            // GD25WD DualSPI
+                            mfb_printf(" -- GD25W/GD55W QuadSPI 1.8-3.3V Series.\r\n");
+                            break;
+                        case 0x66:
+                            mfb_printf(" -- GD25LT/GD55LT QuadSPI 1.8V Series.\r\n");
+                            break;
+                        case 0x67:
+                            mfb_printf(" -- GD25LB/GD55LB QuadSPI 1.8V Series.\r\n");
+                            break;
+                        case 0x68:
+                            mfb_printf(" -- GD25LX/GD55LX OctalSPI 1.8V Series.\r\n");
+                            break;
+                        // Missing GD25F, GD25LR, GD25T, GD25R
+                        // Missing GD25X,
+                        default:
+                            mfb_printf(" -- Unsupported Series.\r\n");
+                            break;
+                    }
+                    mfb_show_mem_size(capacityID);
+#if GIGADEVICE_DEVICE_GD25Q64C
+
+#endif
+                    break;
+                }
+#endif // GIGADEVICE_DEVICE_SERIE
 
             default:
                 mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
