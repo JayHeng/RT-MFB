@@ -156,6 +156,7 @@ uint32_t mfb_decode_capacity_id(uint8_t capacityID)
     //| Winbond QuadSPI    |                    |                    |
     //| Micron OctalSPI    |                    |                    |
     //| GigaDevice QuadSPI |                    |                    |
+    //| GigaDevice OctalSPI|                    |                    |
     //|---------------------------------------------------------------
     //| 09h - 256Kb        |                    |                    |
     //| 10h - 512Kb        |                    |                    |
@@ -215,13 +216,14 @@ void mfb_main(void)
 
     mfb_printf("\r\n-------------------------------------\r\n");
     mfb_printf("MFB: i.MXRT multi-flash boot solution.\r\n");
+    cpu_show_clock_source();
 
     /* Move FlexSPI clock to a stable clock source */ 
     flexspi_clock_init(kFlexspiRootClkFreq_30MHz);
     /* Init FlexSPI using common LUT */ 
     flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
-    mfb_printf("MFB: FLEXSPI module initialized!\r\n");
-    mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
+    mfb_printf("\r\nMFB: FLEXSPI module is initialized to 1bit SDR normal read mode.\r\n");
+    flexspi_show_clock_source(EXAMPLE_FLEXSPI);
 
     /* Get JEDEC ID. */
     status = flexspi_nor_get_jedec_id(EXAMPLE_FLEXSPI, &jedecID);
@@ -477,6 +479,8 @@ void mfb_main(void)
         }
         if (isValidVendorId)
         {
+            mfb_printf("\r\nMFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
+            flexspi_show_clock_source(EXAMPLE_FLEXSPI);
             if (status != kStatus_Success)
             {
                 mfb_printf("MFB: Flash failed to Enter Octal/Quad mode.\r\n");
@@ -484,12 +488,11 @@ void mfb_main(void)
             else
             {
                 mfb_printf("MFB: Flash entered Octal/Quad mode.\r\n");
-                mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
 #if MFB_FLASH_SPEED_TEST_ENABLE
                 mfb_flash_speed_test();
                 microseconds_shutdown();
 #endif
-                mfb_printf("MFB: Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
+                mfb_printf("\r\nMFB: Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
                 mfb_printf("-------------------------------------\r\n");
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }
