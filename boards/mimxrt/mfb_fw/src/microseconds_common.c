@@ -8,6 +8,7 @@
  */
 #include "microseconds.h"
 #include "assert.h"
+#include "mfb.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -38,6 +39,7 @@ extern void microseconds_timer_deinit(void);
 //! @brief Initialize and start the timer facilities using the SysTick.
 void microseconds_init(void)
 {
+#if MFB_FLASH_SPEED_TEST_ENABLE
     // 清零高位计数器
     s_highCounter = 0;
     // 打开硬件定时器
@@ -46,13 +48,16 @@ void microseconds_init(void)
     s_tickPerMicrosecond = microseconds_get_clock() / 1000000UL;
     // 假设定时器时钟源不小于 1MHz
     assert(s_tickPerMicrosecond);
+#endif
 }
 
 //! @brief Shutdown the microsecond timer
 void microseconds_shutdown(void)
 {
+#if MFB_FLASH_SPEED_TEST_ENABLE
     // 关闭硬件定时器
     microseconds_timer_deinit();
+#endif
 }
 
 //! @brief Returns the conversion of ticks to actual microseconds

@@ -102,9 +102,10 @@ int mfb_printf(const char *fmt_s, ...)
     return 0;
 }
 
-#if MFB_FLASH_SPEED_TEST_ENABLE
+
 void mfb_flash_speed_test(void)
 {
+#if MFB_FLASH_SPEED_TEST_ENABLE
     uint64_t startTicks = microseconds_get_ticks();
     /* Read 8MB data from flash to test speed */
     for (uint32_t loop = 0; loop < 16 * 8; loop++)
@@ -118,8 +119,8 @@ void mfb_flash_speed_test(void)
     uint64_t totalTicks = microseconds_get_ticks() - startTicks;
     uint32_t microSecs = microseconds_convert_to_microseconds(totalTicks);
     mfb_printf("MFB: Flash to RAM memcpy speed: %dKB/s.\r\n", (8UL*1024*1000000)/microSecs);
-}
 #endif
+}
 
 void mfb_jump_to_application(uint32_t vectorStartAddr)
 {
@@ -194,6 +195,7 @@ uint32_t mfb_decode_capacity_id(uint8_t capacityID)
 
 void mfb_show_mem_size(uint8_t capacityID)
 {
+#if MFB_LOG_INFO_ENABLE
     mfb_printf("MFB: Flash Capacity ID: 0x%x", capacityID);
     uint32_t flashMemSizeInKB = mfb_decode_capacity_id(capacityID)/ 0x400;
     if (flashMemSizeInKB <= 0x400)
@@ -204,6 +206,7 @@ void mfb_show_mem_size(uint8_t capacityID)
     {
         mfb_printf(" -- %dMB.\r\n", flashMemSizeInKB / 0x400);
     }
+#endif
 }
 
 void mfb_main(void)
@@ -238,11 +241,8 @@ void mfb_main(void)
         memoryTypeID = (jedecID >> 8) & 0xFF;
         capacityID = (jedecID >> 16) & 0xFF;
         uint32_t flashMemSizeInByte = mfb_decode_capacity_id(capacityID);
-
-#if MFB_FLASH_SPEED_TEST_ENABLE
         microseconds_init();
         mfb_flash_speed_test();
-#endif
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", manufacturerID);
         switch (manufacturerID)
         {
@@ -488,10 +488,8 @@ void mfb_main(void)
             else
             {
                 mfb_printf("MFB: Flash entered Octal/Quad mode.\r\n");
-#if MFB_FLASH_SPEED_TEST_ENABLE
                 mfb_flash_speed_test();
                 microseconds_shutdown();
-#endif
                 mfb_printf("\r\nMFB: Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
                 mfb_printf("-------------------------------------\r\n");
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);

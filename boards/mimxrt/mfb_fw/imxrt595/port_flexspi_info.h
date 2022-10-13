@@ -56,6 +56,7 @@ typedef struct _flexspi_cache_status
 
 static void cpu_show_clock_source(void)
 {
+#if MFB_LOG_INFO_ENABLE
     // Refer to CLOCK_GetMainClkFreq() in fsl_clock.c
     uint32_t mainClkSelB = (CLKCTL0->MAINCLKSELB) & CLKCTL0_MAINCLKSELB_SEL_MASK;
     uint32_t mainClkSelA = (CLKCTL0->MAINCLKSELA) & CLKCTL0_MAINCLKSELA_SEL_MASK;
@@ -102,6 +103,7 @@ static void cpu_show_clock_source(void)
     clkDiv = (CLKCTL0->SYSCPUAHBCLKDIV & CLKCTL0_SYSCPUAHBCLKDIV_DIV_MASK) >> CLKCTL0_SYSCPUAHBCLKDIV_DIV_SHIFT;
     mfb_printf("MFB: CPU Clk Source Divider: %d.\r\n", (clkDiv + 1U));
     mfb_printf("MFB: CPU Clk Frequency: %dHz.\r\n", CLOCK_GetFreq(kCLOCK_CoreSysClk));
+#endif
 }
 
 static void flexspi_clock_init(flexspi_root_clk_freq_t clkFreq)
@@ -143,6 +145,7 @@ static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
 
 static void flexspi_show_clock_source(FLEXSPI_Type *base)
 {
+#if MFB_LOG_INFO_ENABLE
     uint32_t clkSel;
     uint32_t clkDiv;
     if (base == FLEXSPI0)
@@ -192,6 +195,7 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
     }
     mfb_printf("MFB: FLEXSPI Clk Source Divider: %d.\r\n", (clkDiv + 1U));
     mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
+#endif
 }
 
 #endif /* _PORT_FLEXSPI_INFO_H_ */
