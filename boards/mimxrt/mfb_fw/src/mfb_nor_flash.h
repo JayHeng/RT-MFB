@@ -51,16 +51,16 @@ typedef enum _flexspi_root_clk_freq
 
 ////////////////////////////////////////////////////////////////////////////////
 #define MXIC_DEVICE_SERIES         (1)
-#define MXIC_DEVICE_MX25UM51345    (1)
+#define MXIC_DEVICE_MX25UM51345    (1)  // MIMXRT595-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define ISSI_DEVICE_SERIES         (1)
-#define ISSI_DEVICE_IS25WP064A     (1)
+#define ISSI_DEVICE_IS25WP064A     (1)  // MIMXRT1060-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define WINBOND_DEVICE_SERIES      (1)
 #define WINBOND_DEVICE_W25Q64JV    (1)
 ////////////////////////////////////////////////////////////////////////////////
 #define MICRON_DEVICE_SERIES       (1)
-#define MICRON_DEVICE_MT25QL128    (1)
+#define MICRON_DEVICE_MT25QL256    (1)  // MIMXRT1170-EVKB(Rework)
 ////////////////////////////////////////////////////////////////////////////////
 #define GIGADEVICE_DEVICE_SERIE    (1)
 #define GIGADEVICE_DEVICE_GD25Q64C (1)

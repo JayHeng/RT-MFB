@@ -1,0 +1,212 @@
+/*
+ * Copyright 2018-2020 NXP
+ * All rights reserved.
+ *
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+#ifndef _PORT_FLEXSPI_INFO_H_
+#define _PORT_FLEXSPI_INFO_H_
+
+#include "fsl_clock.h"
+#include "mfb.h"
+#include "mfb_nor_flash.h"
+
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
+#define EXAMPLE_FLEXSPI                 FLEXSPI1
+#define FLASH_SIZE                      0x8000 /* 32MB/KByte */
+#define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI1_AMBA_BASE
+#define FLASH_PAGE_SIZE                 256
+#define SECTOR_SIZE                     0x1000 /* 4K */
+#define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_Flexspi1
+#define FLASH_PORT                      kFLEXSPI_PortA1
+
+/*
+ * If cache is enabled, this example should maintain the cache to make sure
+ * CPU core accesses the memory, not cache only.
+ */
+#define CACHE_MAINTAIN 1
+
+/*${macro:end}*/
+
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
+/*${variable:start}*/
+#if (defined CACHE_MAINTAIN) && (CACHE_MAINTAIN == 1)
+typedef struct _flexspi_cache_status
+{
+    volatile bool DCacheEnableFlag;
+    volatile bool ICacheEnableFlag;
+} flexspi_cache_status_t;
+#endif
+/*${variable:end}*/
+
+/*******************************************************************************
+ * Prototypes
+ ******************************************************************************/
+
+static void cpu_show_clock_source(void)
+{
+#if MFB_LOG_INFO_ENABLE
+    uint32_t clkSel = CLOCK_GetRootClockMux(kCLOCK_Root_M7);
+    switch (clkSel)
+    {
+        case kCLOCK_M7_ClockRoot_MuxOscRc48MDiv2:
+            mfb_printf("MFB: CPU Clk Source from 3'b000 - OSC RC48M Div2 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_OscRc48MDiv2));
+            break;
+
+        case kCLOCK_M7_ClockRoot_MuxOsc24MOut:
+            mfb_printf("MFB: CPU Clk Source from 3'b001 - OSC RC24M clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Osc24MOut));
+            break;
+
+        case kCLOCK_M7_ClockRoot_MuxOscRc400M:
+            mfb_printf("MFB: CPU Clk Source from 3'b010 - OSC RC400M clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_OscRc400M));
+            break;
+
+        case kCLOCK_M7_ClockRoot_MuxOscRc16M:
+            mfb_printf("MFB: CPU Clk Source from 3'b011 - OSC RC16M clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_OscRc16M));
+            break;
+
+        case kCLOCK_M7_ClockRoot_MuxArmPllOut:
+            mfb_printf("MFB: CPU Clk Source from 3'b100 - ARM PLL clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_ArmPllOut));
+            break;
+
+        case kCLOCK_M7_ClockRoot_MuxSysPll1Out:
+            mfb_printf("MFB: CPU Clk Source from 3'b101 - Sys PLL1 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPll1Out));
+            break;
+
+        case kCLOCK_M7_ClockRoot_MuxSysPll3Out:
+            mfb_printf("MFB: CPU Clk Source from 3'b110 - Sys PLL3 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPll3Out));
+            break;
+
+        case kCLOCK_M7_ClockRoot_MuxVideoPllOut:
+            mfb_printf("MFB: CPU Clk Source from 3'b111 - Video PLL clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_VideoPllOut));
+            break;
+
+        default:
+            break;
+    }
+
+    uint32_t clkDiv = CLOCK_GetRootClockDiv(kCLOCK_Root_M7);
+    mfb_printf("MFB: CPU Clk Source Divider: %d.\r\n", clkDiv);
+    mfb_printf("MFB: CPU Clk Frequency: %dHz.\r\n", CLOCK_GetFreq(kCLOCK_CpuClk));
+#endif
+}
+
+static void flexspi_clock_init(flexspi_root_clk_freq_t clkFreq)
+{
+    clock_root_config_t rootCfg = {0};
+
+    // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 12-35.
+    if (clkFreq == kFlexspiRootClkFreq_30MHz)
+    {
+        rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxOscRc48MDiv2;
+        rootCfg.div = 1;
+        CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+    }
+    else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+    {
+        /* Init System Pll2 (528MHz) pfd2. */
+        // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+        // CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd2, 24);
+        rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd2;
+        rootCfg.div = 4;
+        CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+    }
+    else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+    {
+        /* Init System Pll3 (480MHz) pfd0. */
+        // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+        //CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd0, 13);
+        rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll3Pfd0;
+        rootCfg.div = 5;
+        CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+    }
+
+    uint32_t flexspiClk = CLOCK_GetRootClockFreq(kCLOCK_Root_Flexspi1);
+    if (flexspiClk > 166000000U)
+    {
+        __NOP();
+    }
+}
+
+static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
+{
+    if (base == FLEXSPI1)
+    {
+        return CLOCK_GetRootClockFreq(kCLOCK_Root_Flexspi1);
+    }
+    else if (base == FLEXSPI2)
+    {
+        return CLOCK_GetRootClockFreq(kCLOCK_Root_Flexspi2);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+static void flexspi_show_clock_source(FLEXSPI_Type *base)
+{
+#if MFB_LOG_INFO_ENABLE
+    clock_root_t root;
+    if (base == FLEXSPI1)
+    {
+        root = kCLOCK_Root_Flexspi1;
+    }
+    else if (base == FLEXSPI2)
+    {
+        root = kCLOCK_Root_Flexspi2;
+    }
+    else
+    {
+    }
+
+    uint32_t clkSel = CLOCK_GetRootClockMux(root);
+    switch (clkSel)
+    {
+        case kCLOCK_FLEXSPI1_ClockRoot_MuxOscRc48MDiv2:
+            mfb_printf("MFB: FLEXSPI Clk Source from 3'b000 - OSC RC48M Div2 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_OscRc48MDiv2));
+            break;
+
+        case kCLOCK_FLEXSPI1_ClockRoot_MuxOsc24MOut:
+            mfb_printf("MFB: FLEXSPI Clk Source from 3'b001 - OSC RC24M clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Osc24MOut));
+            break;
+
+        case kCLOCK_FLEXSPI1_ClockRoot_MuxOscRc400M:
+            mfb_printf("MFB: FLEXSPI Clk Source from 3'b010 - OSC RC400M clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_OscRc400M));
+            break;
+
+        case kCLOCK_FLEXSPI1_ClockRoot_MuxOscRc16M:
+            mfb_printf("MFB: FLEXSPI Clk Source from 3'b011 - OSC RC16M clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_OscRc16M));
+            break;
+
+        case kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll3Pfd0:
+            mfb_printf("MFB: FLEXSPI Clk Source from 3'b100 - Sys PLL3 PFD0 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPll3Pfd0));
+            break;
+
+        case kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Out:
+            mfb_printf("MFB: FLEXSPI Clk Source from 3'b101 - Sys PLL2 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPll2));
+            break;
+
+        case kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd2:
+            mfb_printf("MFB: FLEXSPI Clk Source from 3'b110 - Sys PLL3 PFD2 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPll2Pfd2));
+            break;
+
+        case kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll3Out:
+            mfb_printf("MFB: FLEXSPI Clk Source from 3'b111 - Sys PLL3 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPll3));
+            break;
+
+        default:
+            break;
+    }
+    uint32_t clkDiv = CLOCK_GetRootClockDiv(root);
+    mfb_printf("MFB: FLEXSPI Clk Source Divider: %d.\r\n", clkDiv);
+    mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
+#endif
+}
+
+#endif /* _PORT_FLEXSPI_INFO_H_ */

@@ -15,6 +15,9 @@
 #if ISSI_DEVICE_SERIES
 #include "mfb_nor_flash_issi.h"
 #endif
+#if MICRON_DEVICE_SERIES
+#include "mfb_nor_flash_micron.h"
+#endif
 #include "fsl_flexspi.h"
 #include "fsl_debug_console.h"
 #include "pin_mux.h"
@@ -31,6 +34,7 @@
  ******************************************************************************/
 extern const uint32_t customLUT_ISSI[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MXIC[CUSTOM_LUT_LENGTH];
+extern const uint32_t customLUT_MICRON[CUSTOM_LUT_LENGTH];
 
 extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
 extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
@@ -101,7 +105,6 @@ int mfb_printf(const char *fmt_s, ...)
     
     return 0;
 }
-
 
 void mfb_flash_speed_test(void)
 {
@@ -413,8 +416,16 @@ void mfb_main(void)
                             break;
                     }
                     mfb_show_mem_size(capacityID);
-#if MICRON_DEVICE_MT25QL128
-
+#if MICRON_DEVICE_MT25QL256
+                    flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
+                    /* Update root clock */
+                    deviceconfig.flexspiRootClk = 100000000;
+                    deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                    s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_POL;
+                    s_flashQuadEnableCfg    = MICRON_FLASH_BUSY_STATUS_OFFSET;
+                    /* Re-init FlexSPI using custom LUT */
+                    flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                    /* No need to enable quad mode for micron device. */
 #endif
                     break;
                 }
