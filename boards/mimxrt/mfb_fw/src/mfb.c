@@ -18,6 +18,9 @@
 #if MICRON_DEVICE_SERIES
 #include "mfb_nor_flash_micron.h"
 #endif
+#if WINBOND_DEVICE_SERIES
+#include "mfb_nor_flash_winbond.h"
+#endif
 #include "fsl_flexspi.h"
 #include "fsl_debug_console.h"
 #include "pin_mux.h"
@@ -35,6 +38,7 @@
 extern const uint32_t customLUT_ISSI[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MXIC[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MICRON[CUSTOM_LUT_LENGTH];
+extern const uint32_t customLUT_WINBOND[CUSTOM_LUT_LENGTH];
 
 extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
 extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
@@ -384,8 +388,18 @@ void mfb_main(void)
                             break;
                     }
                     mfb_show_mem_size(capacityID);
-#if WINBOND_DEVICE_W25Q64JV
-
+#if WINBOND_DEVICE_W25Q128JW
+                    flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
+                    /* Update root clock */
+                    deviceconfig.flexspiRootClk = 100000000;
+                    deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                    s_flashBusyStatusPol    = WINBOND_FLASH_QUAD_ENABLE;
+                    s_flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
+                    s_flashQuadEnableCfg    = WINBOND_FLASH_QUAD_ENABLE;
+                    /* Re-init FlexSPI using custom LUT */
+                    flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_WINBOND, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                    /* Enter quad mode. */
+                    status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
 #endif
                     break;
                 }

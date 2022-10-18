@@ -165,10 +165,12 @@ static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
 static void flexspi_show_clock_source(FLEXSPI_Type *base)
 {
 #if MFB_LOG_INFO_ENABLE
+    uint32_t index = 0;
     uint32_t clkSel;
     uint32_t clkDiv;
     if (base == FLEXSPI)
     {
+        index = 0;
         clkSel = CCM->CSCMR1 & CCM_CSCMR1_FLEXSPI_CLK_SEL_MASK;
         clkDiv = (CCM->CSCMR1 & CCM_CSCMR1_FLEXSPI_PODF_MASK) >> CCM_CSCMR1_FLEXSPI_PODF_SHIFT;
         switch (clkSel)
@@ -195,6 +197,7 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
     }
     else if (base == FLEXSPI2)
     {
+        index = 2;
         clkSel = CCM->CBCMR & CCM_CBCMR_FLEXSPI2_CLK_SEL_MASK;
         clkDiv = (CCM->CBCMR & CCM_CBCMR_FLEXSPI2_PODF_MASK) >> CCM_CBCMR_FLEXSPI2_PODF_SHIFT;
         switch (clkSel)
@@ -219,9 +222,8 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
                 break;
         }
     }
-
-    mfb_printf("MFB: FLEXSPI Clk Source Divider: %d.\r\n", (clkDiv + 1U));
-    mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
+    mfb_printf("MFB: FLEXSPI%d Clk Source Divider: %d.\r\n", index, (clkDiv + 1U));
+    mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, flexspi_get_clock(EXAMPLE_FLEXSPI));
 #endif
 }
 

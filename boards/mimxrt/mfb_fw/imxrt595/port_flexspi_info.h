@@ -146,55 +146,93 @@ static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
 static void flexspi_show_clock_source(FLEXSPI_Type *base)
 {
 #if MFB_LOG_INFO_ENABLE
+    uint32_t index = 0;
     uint32_t clkSel;
     uint32_t clkDiv;
     if (base == FLEXSPI0)
     {
+        index = 0;
         clkSel = CLKCTL0->FLEXSPI0FCLKSEL & CLKCTL0_FLEXSPI0FCLKSEL_SEL_MASK;
         clkDiv = CLKCTL0->FLEXSPI0FCLKDIV & CLKCTL0_FLEXSPI0FCLKDIV_DIV_MASK;
+        switch (clkSel)
+        {
+            case CLKCTL0_FLEXSPI0FCLKSEL_SEL(0):
+                mfb_printf("MFB: FLEXSPI0 Clk Source from 3'b000 - Main Clock %dHz.\r\n", CLOCK_GetMainClkFreq());
+                break;
+
+            case CLKCTL0_FLEXSPI0FCLKSEL_SEL(1):
+               {
+                   uint32_t MainPllClkFreq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd0) / ((CLKCTL0->MAINPLLCLKDIV & CLKCTL0_MAINPLLCLKDIV_DIV_MASK) + 1U);
+                   mfb_printf("MFB: FLEXSPI0 Clk Source from 3'b001 - Main System PLL Clock %dHz.\r\n", MainPllClkFreq);
+                   break;
+               }
+
+            case CLKCTL0_FLEXSPI0FCLKSEL_SEL(2):
+               {
+                   uint32_t Aux0PllClkFreq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd2) / ((CLKCTL0->AUX0PLLCLKDIV & CLKCTL0_AUX0PLLCLKDIV_DIV_MASK) + 1U);
+                   mfb_printf("MFB: FLEXSPI0 Clk Source from 3'b010 - SYSPLL0 AUX0 PLL Clock %dHz.\r\n", Aux0PllClkFreq);
+                   break;
+               }
+
+            case CLKCTL0_FLEXSPI0FCLKSEL_SEL(3):
+                mfb_printf("MFB: FLEXSPI0 Clk Source from 3'b011 - FRO_DIV1 Clock %dHz.\r\n", CLK_FRO_CLK);
+                break;
+
+            case CLKCTL0_FLEXSPI0FCLKSEL_SEL(4):
+               {
+                   uint32_t Aux1PllClkFreq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd3) / ((CLKCTL0->AUX1PLLCLKDIV & CLKCTL0_AUX1PLLCLKDIV_DIV_MASK) + 1U);
+                   mfb_printf("MFB: FLEXSPI0 Clk Source from 3'b100 - SYSPLL0 AUX1 PLL Clock %dHz.\r\n", Aux1PllClkFreq);
+                   break;
+               }
+
+            default:
+                break;
+        }
     }
     else if (base == FLEXSPI1)
     {
+        index = 1;
         clkSel = CLKCTL0->FLEXSPI1FCLKSEL & CLKCTL0_FLEXSPI1FCLKSEL_SEL_MASK;
         clkDiv = CLKCTL0->FLEXSPI1FCLKDIV & CLKCTL0_FLEXSPI1FCLKDIV_DIV_MASK;
+        switch (clkSel)
+        {
+            case CLKCTL0_FLEXSPI1FCLKSEL_SEL(0):
+                mfb_printf("MFB: FLEXSPI1 Clk Source from 3'b000 - Main Clock %dHz.\r\n", CLOCK_GetMainClkFreq());
+                break;
+
+            case CLKCTL0_FLEXSPI1FCLKSEL_SEL(1):
+               {
+                   uint32_t MainPllClkFreq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd0) / ((CLKCTL0->MAINPLLCLKDIV & CLKCTL0_MAINPLLCLKDIV_DIV_MASK) + 1U);
+                   mfb_printf("MFB: FLEXSPI1 Clk Source from 3'b001 - Main System PLL Clock %dHz.\r\n", MainPllClkFreq);
+                   break;
+               }
+
+            case CLKCTL0_FLEXSPI1FCLKSEL_SEL(2):
+               {
+                   uint32_t Aux0PllClkFreq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd2) / ((CLKCTL0->AUX0PLLCLKDIV & CLKCTL0_AUX0PLLCLKDIV_DIV_MASK) + 1U);
+                   mfb_printf("MFB: FLEXSPI1 Clk Source from 3'b010 - SYSPLL0 AUX0 PLL Clock %dHz.\r\n", Aux0PllClkFreq);
+                   break;
+               }
+
+            case CLKCTL0_FLEXSPI1FCLKSEL_SEL(3):
+                mfb_printf("MFB: FLEXSPI1 Clk Source from 3'b011 - FRO_DIV1 Clock %dHz.\r\n", CLK_FRO_CLK);
+                break;
+
+            case CLKCTL0_FLEXSPI1FCLKSEL_SEL(4):
+               {
+                   uint32_t Aux1PllClkFreq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd3) / ((CLKCTL0->AUX1PLLCLKDIV & CLKCTL0_AUX1PLLCLKDIV_DIV_MASK) + 1U);
+                   mfb_printf("MFB: FLEXSPI1 Clk Source from 3'b100 - SYSPLL0 AUX1 PLL Clock %dHz.\r\n", Aux1PllClkFreq);
+                   break;
+               }
+
+            default:
+                break;
+        }
     }
-
-    switch (clkSel)
-    {
-        case CLKCTL0_FLEXSPI0FCLKSEL_SEL(0):
-            mfb_printf("MFB: FLEXSPI Clk Source from 3'b000 - Main Clock %dHz.\r\n", CLOCK_GetMainClkFreq());
-            break;
-
-        case CLKCTL0_FLEXSPI0FCLKSEL_SEL(1):
-           {
-               uint32_t MainPllClkFreq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd0) / ((CLKCTL0->MAINPLLCLKDIV & CLKCTL0_MAINPLLCLKDIV_DIV_MASK) + 1U);
-               mfb_printf("MFB: FLEXSPI Clk Source from 3'b001 - Main System PLL Clock %dHz.\r\n", MainPllClkFreq);
-               break;
-           }
-
-        case CLKCTL0_FLEXSPI0FCLKSEL_SEL(2):
-           {
-               uint32_t Aux0PllClkFreq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd2) / ((CLKCTL0->AUX0PLLCLKDIV & CLKCTL0_AUX0PLLCLKDIV_DIV_MASK) + 1U);
-               mfb_printf("MFB: FLEXSPI Clk Source from 3'b010 - SYSPLL0 AUX0 PLL Clock %dHz.\r\n", Aux0PllClkFreq);
-               break;
-           }
-
-        case CLKCTL0_FLEXSPI0FCLKSEL_SEL(3):
-            mfb_printf("MFB: FLEXSPI Clk Source from 3'b011 - FRO_DIV1 Clock %dHz.\r\n", CLK_FRO_CLK);
-            break;
-
-        case CLKCTL0_FLEXSPI0FCLKSEL_SEL(4):
-           {
-               uint32_t Aux1PllClkFreq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd3) / ((CLKCTL0->AUX1PLLCLKDIV & CLKCTL0_AUX1PLLCLKDIV_DIV_MASK) + 1U);
-               mfb_printf("MFB: FLEXSPI Clk Source from 3'b100 - SYSPLL0 AUX1 PLL Clock %dHz.\r\n", Aux1PllClkFreq);
-               break;
-           }
-
-        default:
-            break;
-    }
-    mfb_printf("MFB: FLEXSPI Clk Source Divider: %d.\r\n", (clkDiv + 1U));
-    mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
+    else
+    {}
+    mfb_printf("MFB: FLEXSPI%d Clk Source Divider: %d.\r\n", index, (clkDiv + 1U));
+    mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, flexspi_get_clock(EXAMPLE_FLEXSPI));
 #endif
 }
 
