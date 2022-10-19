@@ -22,6 +22,7 @@
 #endif
 
 #if MICRON_DEVICE_MT35XU512
+#define MICRON_OCTAL_FLASH_JEDEC_ID     (0x001a5B20)
 #define MICRON_FLASH_ENABLE_OCTAL_CMD   0xe7
 #endif
 /*******************************************************************************

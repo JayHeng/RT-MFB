@@ -245,12 +245,16 @@ void mfb_main(void)
     flexspi_show_clock_source(EXAMPLE_FLEXSPI);
 
     /* Get JEDEC ID. */
+#if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
+    jedecID = MICRON_OCTAL_FLASH_JEDEC_ID;
+#else
     status = flexspi_nor_get_jedec_id(EXAMPLE_FLEXSPI, &jedecID);
     if (status != kStatus_Success)
     {
         mfb_printf("MFB: Get Flash Vendor ID failed.\r\n");
     }
     else
+#endif
     {
         bool isOctalFlash = false;
         bool isValidVendorId = true;
