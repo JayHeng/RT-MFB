@@ -26,6 +26,10 @@
 #define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_Flexspi1
 #define FLASH_PORT                      kFLEXSPI_PortA1
 
+#define BOARD_IS_RT1180_EVK_SKT_QUAD        (0)
+#define BOARD_IS_RT1180_EVK_SKT_OCTAL       (0)
+#define BOARD_IS_RT1180_MEM_DC              (1)
+
 /*
  * If cache is enabled, this example should maintain the cache to make sure
  * CPU core accesses the memory, not cache only.
@@ -88,17 +92,30 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
     rgpio_pin_config_t do_config = {kRGPIO_DigitalOutput, 0};
     if (base == FLEXSPI1)
     {
+#if BOARD_IS_RT1180_MEM_DC
         IOMUXC_SetPinMux(IOMUXC_GPIO_AD_23_GPIO4_IO23, 0U);
         RGPIO_PinInit(RGPIO4, 23, &do_config);
+#elif BOARD_IS_RT1180_EVK_SKT_QUAD | BOARD_IS_RT1180_EVK_SKT_OCTAL
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_04_GPIO4_IO04, 0U);
+        RGPIO_PinInit(RGPIO4, 4, &do_config);
+#endif
         switch (port)
         {
             case kFLEXSPI_PortA1:
             case kFLEXSPI_PortA2:
+#if BOARD_IS_RT1180_MEM_DC
                 RGPIO_PinWrite(RGPIO4, 23, 0);
+#endif
                 break;
             case kFLEXSPI_PortB1:
             case kFLEXSPI_PortB2:
-                RGPIO_PinWrite(RGPIO4, 23, 1);
+#if BOARD_IS_RT1180_MEM_DC
+                // TBD
+#elif BOARD_IS_RT1180_EVK_SKT_QUAD
+                RGPIO_PinWrite(RGPIO4, 4, 0);
+#elif BOARD_IS_RT1180_EVK_SKT_OCTAL
+                RGPIO_PinWrite(RGPIO4, 4, 1);
+#endif
                 break;
             default:
                 break;
@@ -106,7 +123,21 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
     }
     else if (base == FLEXSPI2)
     {
-        
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_22_GPIO4_IO22, 0U);
+        RGPIO_PinInit(RGPIO4, 22, &do_config);
+        switch (port)
+        {
+            case kFLEXSPI_PortA1:
+            case kFLEXSPI_PortA2:
+                // TBD
+                break;
+            case kFLEXSPI_PortB1:
+            case kFLEXSPI_PortB2:
+                // TBD
+                break;
+            default:
+                break;
+        }
     }
     else
     {
@@ -119,13 +150,43 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
     CLOCK_EnableClock(kCLOCK_Iomuxc2);          /* Turn on LPCG: LPCG is ON. */
     if (base == FLEXSPI1)
     {
-        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_07_FLEXSPI1_BUS2BIT_A_DQS,    1U);
-        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_08_FLEXSPI1_BUS2BIT_A_SCLK,   1U);
-        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_09_FLEXSPI1_BUS2BIT_A_SS0_B,  1U);
-        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_10_FLEXSPI1_BUS2BIT_A_DATA00, 1U);
-        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_11_FLEXSPI1_BUS2BIT_A_DATA01, 1U);
-        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_12_FLEXSPI1_BUS2BIT_A_DATA02, 1U);
-        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_13_FLEXSPI1_BUS2BIT_A_DATA03, 1U);
+        switch (port)
+        {
+            case kFLEXSPI_PortA1:
+            case kFLEXSPI_PortA2:
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_07_FLEXSPI1_BUS2BIT_A_DQS,    1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_08_FLEXSPI1_BUS2BIT_A_SCLK,   1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_09_FLEXSPI1_BUS2BIT_A_SS0_B,  1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_10_FLEXSPI1_BUS2BIT_A_DATA00, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_11_FLEXSPI1_BUS2BIT_A_DATA01, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_12_FLEXSPI1_BUS2BIT_A_DATA02, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_13_FLEXSPI1_BUS2BIT_A_DATA03, 1U);
+
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_07_FLEXSPI1_BUS2BIT_B_SCLK, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_03_FLEXSPI1_BUS2BIT_A_DATA04, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_04_FLEXSPI1_BUS2BIT_A_DATA05, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_05_FLEXSPI1_BUS2BIT_A_DATA06, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B2_06_FLEXSPI1_BUS2BIT_A_DATA07, 1U);
+                break;
+            case kFLEXSPI_PortB1:
+            case kFLEXSPI_PortB2:
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_05_FLEXSPI1_BUS2BIT_B_DQS,    1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_06_FLEXSPI1_BUS2BIT_B_SS0_B,  1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_07_FLEXSPI1_BUS2BIT_B_SCLK,   1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_08_FLEXSPI1_BUS2BIT_B_DATA00, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_09_FLEXSPI1_BUS2BIT_B_DATA01, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_10_FLEXSPI1_BUS2BIT_B_DATA02, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_11_FLEXSPI1_BUS2BIT_B_DATA03, 1U);
+                
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_00_FLEXSPI1_BUS2BIT_B_DATA04, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_01_FLEXSPI1_BUS2BIT_B_DATA05, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_02_FLEXSPI1_BUS2BIT_B_DATA06, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_03_FLEXSPI1_BUS2BIT_B_DATA07, 1U);
+                break;
+            default:
+                break;
+        }
+
     }
     else if (base == FLEXSPI2)
     {
