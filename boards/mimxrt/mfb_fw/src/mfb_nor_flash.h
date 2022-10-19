@@ -61,6 +61,7 @@ typedef enum _flexspi_root_clk_freq
 ////////////////////////////////////////////////////////////////////////////////
 #define MICRON_DEVICE_SERIES       (1)
 #define MICRON_DEVICE_MT25QL256    (1)  // MIMXRT1170-EVKB(Rework)
+#define MICRON_DEVICE_MT35XU512    (1)  // MIMXRT1180-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define GIGADEVICE_DEVICE_SERIE    (1)
 #define GIGADEVICE_DEVICE_GD25Q64C (1)

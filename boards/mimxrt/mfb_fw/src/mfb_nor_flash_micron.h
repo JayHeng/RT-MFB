@@ -14,10 +14,15 @@
  * Definitions
  ******************************************************************************/
 
-#if MICRON_DEVICE_MT25QL256
-#define MICRON_FLASH_QUAD_ENABLE        0x00
 #define MICRON_FLASH_BUSY_STATUS_POL    1
 #define MICRON_FLASH_BUSY_STATUS_OFFSET 0
+
+#if MICRON_DEVICE_MT25QL256
+#define MICRON_FLASH_QUAD_ENABLE        0x00
+#endif
+
+#if MICRON_DEVICE_MT35XU512
+#define MICRON_FLASH_ENABLE_OCTAL_CMD   0xe7
 #endif
 /*******************************************************************************
  * Variables

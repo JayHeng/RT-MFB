@@ -37,7 +37,8 @@
  ******************************************************************************/
 extern const uint32_t customLUT_ISSI[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MXIC[CUSTOM_LUT_LENGTH];
-extern const uint32_t customLUT_MICRON[CUSTOM_LUT_LENGTH];
+extern const uint32_t customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
+extern const uint32_t customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_WINBOND[CUSTOM_LUT_LENGTH];
 
 extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
@@ -251,6 +252,7 @@ void mfb_main(void)
     }
     else
     {
+        bool isOctalFlash = false;
         bool isValidVendorId = true;
         manufacturerID = jedecID & 0xFF;
         memoryTypeID = (jedecID >> 8) & 0xFF;
@@ -404,7 +406,7 @@ void mfb_main(void)
                     /* Update root clock */
                     deviceconfig.flexspiRootClk = 133000000;
                     deviceconfig.flashSize = flashMemSizeInByte / 0x400;
-                    s_flashBusyStatusPol    = WINBOND_FLASH_QUAD_ENABLE;
+                    s_flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
                     s_flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
                     s_flashQuadEnableCfg    = WINBOND_FLASH_QUAD_ENABLE;
                     /* Re-init FlexSPI using custom LUT */
@@ -431,9 +433,11 @@ void mfb_main(void)
                             mfb_printf(" -- MT25QU QuadSPI 1.8V Series.\r\n");
                             break;
                         case 0x5A:
+                            isOctalFlash = true;
                             mfb_printf(" -- MT35XL OctalSPI 3.3V Series.\r\n");
                             break;
                         case 0x5B:
+                            isOctalFlash = true;
                             mfb_printf(" -- MT35XU OctalSPI 1.8V Series.\r\n");
                             break;
                         default:
@@ -442,16 +446,36 @@ void mfb_main(void)
                     }
                     mfb_show_mem_size(capacityID);
 #if MICRON_DEVICE_MT25QL256
-                    flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
-                    flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
-                    /* Update root clock */
-                    deviceconfig.flexspiRootClk = 100000000;
-                    deviceconfig.flashSize = flashMemSizeInByte / 0x400;
-                    s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_POL;
-                    s_flashQuadEnableCfg    = MICRON_FLASH_BUSY_STATUS_OFFSET;
-                    /* Re-init FlexSPI using custom LUT */
-                    flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
-                    /* No need to enable quad mode for micron device. */
+                    if (!isOctalFlash)
+                    {
+                        flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
+                        /* Update root clock */
+                        deviceconfig.flexspiRootClk = 100000000;
+                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
+                        s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
+                        /* Re-init FlexSPI using custom LUT */
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                        /* No need to enable quad mode for micron device. */
+                    }
+#endif
+#if MICRON_DEVICE_MT35XU512
+                    if (isOctalFlash)
+                    {
+                        flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
+                        /* Update root clock */
+                        deviceconfig.flexspiRootClk = 100000000;
+                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
+                        s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashEnableOctalCmd   = MICRON_FLASH_ENABLE_OCTAL_CMD;
+                        /* Re-init FlexSPI using custom LUT */
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+                        /* Enter octal mode. */
+                        status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
+                    }
 #endif
                     break;
                 }
@@ -520,11 +544,25 @@ void mfb_main(void)
             flexspi_show_clock_source(EXAMPLE_FLEXSPI);
             if (status != kStatus_Success)
             {
-                mfb_printf("MFB: Flash failed to Enter Octal/Quad mode.\r\n");
+                if (isOctalFlash)
+                {
+                    mfb_printf("MFB: Flash failed to Enter Octal I/O DDR mode.\r\n");
+                }
+                else
+                {
+                    mfb_printf("MFB: Flash failed to Enter Quad I/O SDR mode.\r\n");
+                }
             }
             else
             {
-                mfb_printf("MFB: Flash entered Octal/Quad mode.\r\n");
+                if (isOctalFlash)
+                {
+                    mfb_printf("MFB: Flash entered Octal I/O DDR mode.\r\n");
+                }
+                else
+                {
+                    mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
+                }
                 mfb_flash_speed_test();
                 microseconds_shutdown();
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);

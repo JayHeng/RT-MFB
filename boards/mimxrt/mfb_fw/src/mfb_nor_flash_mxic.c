@@ -32,15 +32,15 @@ const uint32_t customLUT_MXIC[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
-    /* Read status register */
+    /* Read status register -SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
 
-    /* Write Enable */
+    /* Write Enable - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
-    /*  Write Enable */
+    /* Write Enable - OPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xF9),
 
