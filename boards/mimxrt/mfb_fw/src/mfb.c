@@ -231,9 +231,13 @@ void mfb_main(void)
     mfb_printf("\r\n-------------------------------------\r\n");
     mfb_printf("MFB: i.MXRT multi-flash boot solution.\r\n");
     cpu_show_clock_source();
+    
+    /* Init FlexSPI pinmux */
+    flexspi_port_switch(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_2PAD);
+    flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_2PAD);
 
     /* Move FlexSPI clock to a stable clock source */ 
-    flexspi_clock_init(kFlexspiRootClkFreq_30MHz);
+    flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_30MHz);
     /* Init FlexSPI using common LUT */ 
     flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
     mfb_printf("\r\nMFB: FLEXSPI module is initialized to 1bit SDR normal read mode.\r\n");
@@ -301,7 +305,8 @@ void mfb_main(void)
                     }
                     mfb_show_mem_size(capacityID);
 #if MXIC_DEVICE_MX25UM51345
-                    flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
+                    flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
+                    flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
                     /* Update root clock */
                     deviceconfig.flexspiRootClk = 99000000;
                     deviceconfig.flashSize = flashMemSizeInByte / 0x400;
@@ -346,7 +351,8 @@ void mfb_main(void)
                     }
                     mfb_show_mem_size(capacityID);
 #if ISSI_DEVICE_IS25WP064A
-                    flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
+                    flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
+                    flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
                     /* Update root clock */
                     deviceconfig.flexspiRootClk = 100000000;
                     deviceconfig.flashSize = flashMemSizeInByte / 0x400;
@@ -393,7 +399,8 @@ void mfb_main(void)
                     }
                     mfb_show_mem_size(capacityID);
 #if WINBOND_DEVICE_W25Q128JW
-                    flexspi_clock_init(kFlexspiRootClkFreq_133MHz);
+                    flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
+                    flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_133MHz);
                     /* Update root clock */
                     deviceconfig.flexspiRootClk = 133000000;
                     deviceconfig.flashSize = flashMemSizeInByte / 0x400;
@@ -435,7 +442,8 @@ void mfb_main(void)
                     }
                     mfb_show_mem_size(capacityID);
 #if MICRON_DEVICE_MT25QL256
-                    flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
+                    flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
+                    flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
                     /* Update root clock */
                     deviceconfig.flexspiRootClk = 100000000;
                     deviceconfig.flashSize = flashMemSizeInByte / 0x400;

@@ -9,6 +9,9 @@
 #define _PORT_FLEXSPI_INFO_H_
 
 #include "fsl_clock.h"
+#include "fsl_iomuxc.h"
+#include "fsl_rgpio.h"
+#include "fsl_flexspi.h"
 #include "mfb.h"
 #include "mfb_nor_flash.h"
 
@@ -80,34 +83,96 @@ static void cpu_show_clock_source(void)
 #endif
 }
 
-static void flexspi_clock_init(flexspi_root_clk_freq_t clkFreq)
+static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
+{
+    rgpio_pin_config_t do_config = {kRGPIO_DigitalOutput, 0};
+    if (base == FLEXSPI1)
+    {
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_23_GPIO4_IO23, 0U);
+        RGPIO_PinInit(RGPIO4, 23, &do_config);
+        switch (port)
+        {
+            case kFLEXSPI_PortA1:
+            case kFLEXSPI_PortA2:
+                RGPIO_PinWrite(RGPIO4, 23, 0);
+                break;
+            case kFLEXSPI_PortB1:
+            case kFLEXSPI_PortB2:
+                RGPIO_PinWrite(RGPIO4, 23, 1);
+                break;
+            default:
+                break;
+        }
+    }
+    else if (base == FLEXSPI2)
+    {
+        
+    }
+    else
+    {
+    }
+}
+
+static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
+{
+    CLOCK_EnableClock(kCLOCK_Iomuxc1);          /* Turn on LPCG: LPCG is ON. */
+    CLOCK_EnableClock(kCLOCK_Iomuxc2);          /* Turn on LPCG: LPCG is ON. */
+    if (base == FLEXSPI1)
+    {
+        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_07_FLEXSPI1_BUS2BIT_A_DQS,    1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_08_FLEXSPI1_BUS2BIT_A_SCLK,   1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_09_FLEXSPI1_BUS2BIT_A_SS0_B,  1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_10_FLEXSPI1_BUS2BIT_A_DATA00, 1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_11_FLEXSPI1_BUS2BIT_A_DATA01, 1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_12_FLEXSPI1_BUS2BIT_A_DATA02, 1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_B2_13_FLEXSPI1_BUS2BIT_A_DATA03, 1U);
+    }
+    else if (base == FLEXSPI2)
+    {
+        
+    }
+    else
+    {
+    }
+}
+
+static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFreq)
 {
     clock_root_config_t rootCfg = {0};
-
-    // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 12-35.
-    if (clkFreq == kFlexspiRootClkFreq_30MHz)
+    if (base == FLEXSPI1)
     {
-        rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxOscRc24M;
-        rootCfg.div = 1;
-        CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 12-35.
+        if (clkFreq == kFlexspiRootClkFreq_30MHz)
+        {
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxOscRc24M;
+            rootCfg.div = 1;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+        {
+            /* Init System Pll2 (528MHz) pfd0. */
+            // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            // CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 27);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd0;
+            rootCfg.div = 4;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+        {
+            /* Init System Pll3 (480MHz) pfd0. */
+            // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            // CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd0, 22);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll3Pfd0;
+            rootCfg.div = 3;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
     }
-    else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+    else if (base == FLEXSPI2)
     {
-        /* Init System Pll2 (528MHz) pfd0. */
-        // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
-        // CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 27);
-        rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd0;
-        rootCfg.div = 4;
-        CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        
     }
-    else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+    else
     {
-        /* Init System Pll3 (480MHz) pfd0. */
-        // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
-        // CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd0, 22);
-        rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll3Pfd0;
-        rootCfg.div = 3;
-        CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
     }
 }
 

@@ -42,13 +42,6 @@ BOARD_InitPins:
 - pin_list:
   - {pin_num: B1, peripheral: LPUART1, signal: TXD, pin_signal: GPIO_AON_08}
   - {pin_num: A5, peripheral: LPUART1, signal: RXD, pin_signal: GPIO_AON_09}
-  - {pin_num: A10, peripheral: FLEXSPI1, signal: FLEXSPI_A_DATA0, pin_signal: GPIO_B2_10, software_input_on: Enable}
-  - {pin_num: B9, peripheral: FLEXSPI1, signal: FLEXSPI_A_DATA1, pin_signal: GPIO_B2_11, software_input_on: Enable}
-  - {pin_num: A8, peripheral: FLEXSPI1, signal: FLEXSPI_A_DATA2, pin_signal: GPIO_B2_12, software_input_on: Enable}
-  - {pin_num: B8, peripheral: FLEXSPI1, signal: FLEXSPI_A_DATA3, pin_signal: GPIO_B2_13, software_input_on: Enable}
-  - {pin_num: A6, peripheral: FLEXSPI1, signal: FLEXSPI_A_DQS, pin_signal: GPIO_B2_07, software_input_on: Enable}
-  - {pin_num: A7, peripheral: FLEXSPI1, signal: FLEXSPI_A_SCLK, pin_signal: GPIO_B2_08, software_input_on: Enable}
-  - {pin_num: D10, peripheral: FLEXSPI1, signal: FLEXSPI_A_SS0_B, pin_signal: GPIO_B2_09, software_input_on: Enable}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 
@@ -62,27 +55,6 @@ void BOARD_InitPins(void) {
   CLOCK_EnableClock(kCLOCK_Iomuxc1);          /* Turn on LPCG: LPCG is ON. */
   CLOCK_EnableClock(kCLOCK_Iomuxc2);          /* Turn on LPCG: LPCG is ON. */
 
-  IOMUXC_SetPinMux(
-      IOMUXC_GPIO_B2_07_FLEXSPI1_BUS2BIT_A_DQS,  /* GPIO_B2_07 is configured as FLEXSPI1_BUS2BIT_A_DQS */
-      1U);                                    /* Software Input On Field: Force input path of pad GPIO_B2_07 */
-  IOMUXC_SetPinMux(
-      IOMUXC_GPIO_B2_08_FLEXSPI1_BUS2BIT_A_SCLK,  /* GPIO_B2_08 is configured as FLEXSPI1_BUS2BIT_A_SCLK */
-      1U);                                    /* Software Input On Field: Force input path of pad GPIO_B2_08 */
-  IOMUXC_SetPinMux(
-      IOMUXC_GPIO_B2_09_FLEXSPI1_BUS2BIT_A_SS0_B,  /* GPIO_B2_09 is configured as FLEXSPI1_BUS2BIT_A_SS0_B */
-      1U);                                    /* Software Input On Field: Force input path of pad GPIO_B2_09 */
-  IOMUXC_SetPinMux(
-      IOMUXC_GPIO_B2_10_FLEXSPI1_BUS2BIT_A_DATA00,  /* GPIO_B2_10 is configured as FLEXSPI1_BUS2BIT_A_DATA00 */
-      1U);                                    /* Software Input On Field: Force input path of pad GPIO_B2_10 */
-  IOMUXC_SetPinMux(
-      IOMUXC_GPIO_B2_11_FLEXSPI1_BUS2BIT_A_DATA01,  /* GPIO_B2_11 is configured as FLEXSPI1_BUS2BIT_A_DATA01 */
-      1U);                                    /* Software Input On Field: Force input path of pad GPIO_B2_11 */
-  IOMUXC_SetPinMux(
-      IOMUXC_GPIO_B2_12_FLEXSPI1_BUS2BIT_A_DATA02,  /* GPIO_B2_12 is configured as FLEXSPI1_BUS2BIT_A_DATA02 */
-      1U);                                    /* Software Input On Field: Force input path of pad GPIO_B2_12 */
-  IOMUXC_SetPinMux(
-      IOMUXC_GPIO_B2_13_FLEXSPI1_BUS2BIT_A_DATA03,  /* GPIO_B2_13 is configured as FLEXSPI1_BUS2BIT_A_DATA03 */
-      1U);                                    /* Software Input On Field: Force input path of pad GPIO_B2_13 */
   IOMUXC_SetPinMux(
       IOMUXC_GPIO_AON_08_LPUART1_TX,          /* GPIO_AON_08 is configured as LPUART1_TX */
       0U);                                    /* Software Input On Field: Input Path is determined by functionality */

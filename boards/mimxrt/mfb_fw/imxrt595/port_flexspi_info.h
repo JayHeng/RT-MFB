@@ -11,6 +11,9 @@
 /*${header:start}*/
 #include "fsl_cache.h"
 #include "fsl_clock.h"
+#include "fsl_iopctl.h"
+#include "fsl_flexspi.h"
+#include "pin_mux.h"
 #include "board.h"
 #include "mfb.h"
 #include "mfb_nor_flash.h"
@@ -106,24 +109,281 @@ static void cpu_show_clock_source(void)
 #endif
 }
 
-static void flexspi_clock_init(flexspi_root_clk_freq_t clkFreq)
+static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
 {
-    if (clkFreq == kFlexspiRootClkFreq_30MHz)
+}
+
+static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
+{
+    if (base == FLEXSPI0)
     {
-        /* Move FLEXSPI clock source from main clock to FRO192M / 7 to avoid instruction/data fetch issue in XIP when
-         * updating PLL and main clock.
-         */
-        BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 3U, 7U);
+        const uint32_t port1_pin18_config = (/* Pin is configured as FLEXSPI0_SCLK */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN18 (coords: T17) is configured as FLEXSPI0_SCLK */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 18U, port1_pin18_config);
+
+        const uint32_t port1_pin19_config = (/* Pin is configured as FLEXSPI0_SS0_N */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN19 (coords: U16) is configured as FLEXSPI0_SS0_N */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 19U, port1_pin19_config);
+
+        const uint32_t port1_pin20_config = (/* Pin is configured as FLEXSPI0_DATA0 */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN20 (coords: T15) is configured as FLEXSPI0_DATA0 */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 20U, port1_pin20_config);
+
+        const uint32_t port1_pin21_config = (/* Pin is configured as FLEXSPI0_DATA1 */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN21 (coords: T14) is configured as FLEXSPI0_DATA1 */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 21U, port1_pin21_config);
+
+        const uint32_t port1_pin22_config = (/* Pin is configured as FLEXSPI0_DATA2 */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN22 (coords: R13) is configured as FLEXSPI0_DATA2 */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 22U, port1_pin22_config);
+
+        const uint32_t port1_pin23_config = (/* Pin is configured as FLEXSPI0_DATA3 */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN23 (coords: R12) is configured as FLEXSPI0_DATA3 */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 23U, port1_pin23_config);
+
+        const uint32_t port1_pin24_config = (/* Pin is configured as FLEXSPI0_DATA4 */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN24 (coords: N12) is configured as FLEXSPI0_DATA4 */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 24U, port1_pin24_config);
+
+        const uint32_t port1_pin25_config = (/* Pin is configured as FLEXSPI0_DATA5 */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN25 (coords: R14) is configured as FLEXSPI0_DATA5 */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 25U, port1_pin25_config);
+
+        const uint32_t port1_pin26_config = (/* Pin is configured as FLEXSPI0_DATA6 */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN26 (coords: P14) is configured as FLEXSPI0_DATA6 */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 26U, port1_pin26_config);
+
+        const uint32_t port1_pin27_config = (/* Pin is configured as FLEXSPI0_DATA7 */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN27 (coords: P13) is configured as FLEXSPI0_DATA7 */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 27U, port1_pin27_config);
+
+        const uint32_t port1_pin28_config = (/* Pin is configured as FLEXSPI0_DQS */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Enable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_EN |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Normal mode */
+                                             IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                             /* Full drive enable */
+                                             IOPCTL_PIO_FULLDRIVE_EN |
+                                             /* Analog mux is disabled */
+                                             IOPCTL_PIO_ANAMUX_DI |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI);
+        /* PORT1 PIN28 (coords: U14) is configured as FLEXSPI0_DQS */
+        IOPCTL_PinMuxSet(IOPCTL, 1U, 28U, port1_pin28_config);
     }
-    else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+    else if (base == FLEXSPI1)
     {
-        /* Set FlexSPI clock: source AUX0_PLL, divide by 4 */
-        BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 4U);
+        
     }
-    else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+    else
     {
-        /* Set FlexSPI clock: source AUX0_PLL, divide by 3 */
-        BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 3U);
+    }
+}
+
+static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFreq)
+{
+    if (base == FLEXSPI0)
+    {
+        if (clkFreq == kFlexspiRootClkFreq_30MHz)
+        {
+            /* Move FLEXSPI clock source from main clock to FRO192M / 7 to avoid instruction/data fetch issue in XIP when
+             * updating PLL and main clock.
+             */
+            BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 3U, 7U);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+        {
+            /* Set FlexSPI clock: source AUX0_PLL, divide by 4 */
+            BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 4U);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+        {
+            /* Set FlexSPI clock: source AUX0_PLL, divide by 3 */
+            BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 3U);
+        }
+    }
+    else if (base == FLEXSPI1)
+    {
+    }
+    else
+    {
     }
 }
 

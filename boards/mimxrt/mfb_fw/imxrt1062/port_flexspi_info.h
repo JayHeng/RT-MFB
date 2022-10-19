@@ -9,6 +9,8 @@
 #define _PORT_FLEXSPI_INFO_H_
 
 #include "fsl_clock.h"
+#include "fsl_iomuxc.h"
+#include "fsl_flexspi.h"
 #include "mfb.h"
 #include "mfb_nor_flash.h"
 
@@ -121,28 +123,70 @@ static void cpu_show_clock_source(void)
 #endif
 }
 
-static void flexspi_clock_init(flexspi_root_clk_freq_t clkFreq)
+static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
 {
-    const clock_usb_pll_config_t g_ccmConfigUsbPll = {.loopDivider = 0U};
-    CLOCK_InitUsb1Pll(&g_ccmConfigUsbPll);
-    // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 12-35.
-    if (clkFreq == kFlexspiRootClkFreq_30MHz)
+}
+
+static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
+{
+    CLOCK_EnableClock(kCLOCK_Iomuxc);   
+    if (base == FLEXSPI)
     {
-        CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 30);   /* Set PLL3 PFD0 clock 288MHZ. */
-        CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
-        CLOCK_SetDiv(kCLOCK_FlexspiDiv, 7);   /* flexspi clock 36M. */
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_05_FLEXSPIA_DQS, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_06_FLEXSPIA_SS0_B, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_07_FLEXSPIA_SCLK, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_08_FLEXSPIA_DATA00, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_09_FLEXSPIA_DATA01, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_10_FLEXSPIA_DATA02, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_11_FLEXSPIA_DATA03, 1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_05_FLEXSPIA_DQS, 0x10F1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_06_FLEXSPIA_SS0_B, 0x10F1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_07_FLEXSPIA_SCLK, 0x10F1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_08_FLEXSPIA_DATA00, 0x10F1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_09_FLEXSPIA_DATA01, 0x10F1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_10_FLEXSPIA_DATA02, 0x10F1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_11_FLEXSPIA_DATA03, 0x10F1U); 
     }
-    else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+    else if (base == FLEXSPI2)
     {
-        CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 13);   /* Set PLL3 PFD0 clock 664.6MHZ. */
-        CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
-        CLOCK_SetDiv(kCLOCK_FlexspiDiv, 6);   /* flexspi clock 94.9M. */
+        
     }
-    else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+    else
     {
-        CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 33);   /* Set PLL3 PFD0 clock 261.8MHZ. */
-        CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
-        CLOCK_SetDiv(kCLOCK_FlexspiDiv, 1);   /* flexspi clock 130.9M. */
+    }
+}
+
+static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFreq)
+{
+    if (base == FLEXSPI)
+    {
+        const clock_usb_pll_config_t g_ccmConfigUsbPll = {.loopDivider = 0U};
+        CLOCK_InitUsb1Pll(&g_ccmConfigUsbPll);
+        // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 12-35.
+        if (clkFreq == kFlexspiRootClkFreq_30MHz)
+        {
+            CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 30);   /* Set PLL3 PFD0 clock 288MHZ. */
+            CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
+            CLOCK_SetDiv(kCLOCK_FlexspiDiv, 7);   /* flexspi clock 36M. */
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+        {
+            CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 13);   /* Set PLL3 PFD0 clock 664.6MHZ. */
+            CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
+            CLOCK_SetDiv(kCLOCK_FlexspiDiv, 6);   /* flexspi clock 94.9M. */
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+        {
+            CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 33);   /* Set PLL3 PFD0 clock 261.8MHZ. */
+            CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
+            CLOCK_SetDiv(kCLOCK_FlexspiDiv, 1);   /* flexspi clock 130.9M. */
+        }
+    }
+    else if (base == FLEXSPI2)
+    {
+    }
+    else
+    {
     }
 }
 
