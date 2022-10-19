@@ -131,6 +131,9 @@ void mfb_flash_speed_test(void)
 
 void mfb_jump_to_application(uint32_t vectorStartAddr)
 {
+#if MFB_APP_JUMP_ENABLE
+    mfb_printf("\r\nMFB: Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
+    mfb_printf("-------------------------------------\r\n");
     static uint32_t s_resetEntry = 0;
     static uint32_t s_stackPointer = 0;
     s_resetEntry = *(uint32_t *)(vectorStartAddr + 4);
@@ -153,6 +156,7 @@ void mfb_jump_to_application(uint32_t vectorStartAddr)
     static void (*s_entry)(void) = 0;
     s_entry = (void (*)(void))s_resetEntry;
     s_entry();
+#endif
 }
 
 uint32_t mfb_decode_capacity_id(uint8_t capacityID)
@@ -515,8 +519,6 @@ void mfb_main(void)
                 mfb_printf("MFB: Flash entered Octal/Quad mode.\r\n");
                 mfb_flash_speed_test();
                 microseconds_shutdown();
-                mfb_printf("\r\nMFB: Jump to Application code at 0x%x.\r\n", EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
-                mfb_printf("-------------------------------------\r\n");
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }
         }

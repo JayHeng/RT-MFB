@@ -36,6 +36,7 @@ int main(void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
+    mfb_printf("\r\nMFB: Target i.MXRT1170.\r\n");
     mfb_main();
         
     while (1)

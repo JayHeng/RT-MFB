@@ -16,7 +16,8 @@
 #define MFB_LOG_INFO_ENABLE           (1)
 
 #define MFB_FLASH_SPEED_TEST_ENABLE   (1)
-   
+
+#define MFB_APP_JUMP_ENABLE           (1)
 #define MFB_APP_IMAGE_OFFSET          (0xC000)
 
 

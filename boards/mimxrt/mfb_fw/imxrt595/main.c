@@ -44,6 +44,7 @@ int main(void)
     POWER_ApplyPD();
 #endif
 
+    mfb_printf("\r\nMFB: Target i.MXRT500.\r\n");
     mfb_main();
 
     while (1)
