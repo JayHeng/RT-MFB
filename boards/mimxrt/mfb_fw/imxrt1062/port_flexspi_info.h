@@ -176,19 +176,19 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
         switch (clkSel)
         {
             case CCM_CSCMR1_FLEXSPI_CLK_SEL(0):
-                mfb_printf("MFB: FLEXSPI Clk Source from 2'b00 - semc_clk_root_pre clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SemcClk));
+                mfb_printf("MFB: FLEXSPI0 Clk Source from 2'b00 - semc_clk_root_pre clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SemcClk));
                 break;
 
             case CCM_CSCMR1_FLEXSPI_CLK_SEL(1):
-                mfb_printf("MFB: FLEXSPI Clk Source from 2'b01 - PLL3(USB1 PLL) sw_clk %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllClk));
+                mfb_printf("MFB: FLEXSPI0 Clk Source from 2'b01 - PLL3(USB1 PLL) sw_clk %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllClk));
                 break;
 
             case CCM_CSCMR1_FLEXSPI_CLK_SEL(2):
-                mfb_printf("MFB: FLEXSPI Clk Source from 2'b10 - PLL2(System PLL) PFD2 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd2Clk));
+                mfb_printf("MFB: FLEXSPI0 Clk Source from 2'b10 - PLL2(System PLL) PFD2 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd2Clk));
                 break;
 
             case CCM_CSCMR1_FLEXSPI_CLK_SEL(3):
-                mfb_printf("MFB: FLEXSPI Clk Source from 2'b11 - PLL3(USB1 PLL) PFD0 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd0Clk));
+                mfb_printf("MFB: FLEXSPI0 Clk Source from 2'b11 - PLL3(USB1 PLL) PFD0 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd0Clk));
                 break;
 
             default:
@@ -203,19 +203,19 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
         switch (clkSel)
         {
             case CCM_CBCMR_FLEXSPI2_CLK_SEL(0):
-                mfb_printf("MFB: FLEXSPI Clk Source from 2'b00 - PLL2(System PLL) PFD2 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd2Clk));
+                mfb_printf("MFB: FLEXSPI2 Clk Source from 2'b00 - PLL2(System PLL) PFD2 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPllPfd2Clk));
                 break;
 
             case CCM_CBCMR_FLEXSPI2_CLK_SEL(1):
-                mfb_printf("MFB: FLEXSPI Clk Source from 2'b01 - PLL3(USB1 PLL) PFD0 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd0Clk));
+                mfb_printf("MFB: FLEXSPI2 Clk Source from 2'b01 - PLL3(USB1 PLL) PFD0 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd0Clk));
                 break;
 
             case CCM_CBCMR_FLEXSPI2_CLK_SEL(2):
-                mfb_printf("MFB: FLEXSPI Clk Source from 2'b10 - PLL3(USB1 PLL) PFD1 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd1Clk));
+                mfb_printf("MFB: FLEXSPI2 Clk Source from 2'b10 - PLL3(USB1 PLL) PFD1 clock %dHz.\r\n", CLOCK_GetFreq(kCLOCK_Usb1PllPfd1Clk));
                 break;
 
             case CCM_CBCMR_FLEXSPI2_CLK_SEL(3):
-                mfb_printf("MFB: FLEXSPI Clk Source from 2'b11 - PLL2(System PLL) main_clk %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPllClk));
+                mfb_printf("MFB: FLEXSPI2 Clk Source from 2'b11 - PLL2(System PLL) main_clk %dHz.\r\n", CLOCK_GetFreq(kCLOCK_SysPllClk));
                 break;
 
             default:

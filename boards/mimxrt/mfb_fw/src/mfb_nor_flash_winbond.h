@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #if WINBOND_DEVICE_W25Q128JW
-#define WINBOND_FLASH_QUAD_ENABLE        0x40
+#define WINBOND_FLASH_QUAD_ENABLE        0x02
 #define WINBOND_FLASH_BUSY_STATUS_POL    1
 #define WINBOND_FLASH_BUSY_STATUS_OFFSET 0
 #endif

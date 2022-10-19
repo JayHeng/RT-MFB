@@ -389,9 +389,9 @@ void mfb_main(void)
                     }
                     mfb_show_mem_size(capacityID);
 #if WINBOND_DEVICE_W25Q128JW
-                    flexspi_clock_init(kFlexspiRootClkFreq_100MHz);
+                    flexspi_clock_init(kFlexspiRootClkFreq_133MHz);
                     /* Update root clock */
-                    deviceconfig.flexspiRootClk = 100000000;
+                    deviceconfig.flexspiRootClk = 133000000;
                     deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                     s_flashBusyStatusPol    = WINBOND_FLASH_QUAD_ENABLE;
                     s_flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
