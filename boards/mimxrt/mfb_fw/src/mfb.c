@@ -468,9 +468,9 @@ void mfb_main(void)
                     if (isOctalFlash)
                     {
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
-                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_166MHz);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = 100000000;
+                        deviceconfig.flexspiRootClk = 166000000;
                         deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;

@@ -18,17 +18,18 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define EXAMPLE_FLEXSPI                 FLEXSPI1
+#define EXAMPLE_FLEXSPI                 FLEXSPI2
 #define FLASH_SIZE                      0x4000 /* 16Mb/KByte */
-#define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI1_AMBA_BASE
+#define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI2_AMBA_BASE
 #define FLASH_PAGE_SIZE                 256
 #define SECTOR_SIZE                     0x1000 /* 4K */
-#define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_Flexspi1
+#define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_Flexspi2
 #define FLASH_PORT                      kFLEXSPI_PortA1
 
 #define BOARD_IS_RT1180_EVK_SKT_QUAD        (0)
 #define BOARD_IS_RT1180_EVK_SKT_OCTAL       (0)
-#define BOARD_IS_RT1180_MEM_DC              (1)
+#define BOARD_IS_RT1180_MEM_DC_MUX1         (0)
+#define BOARD_IS_RT1180_MEM_DC_MUX2         (1)
 
 /*
  * If cache is enabled, this example should maintain the cache to make sure
@@ -92,10 +93,11 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
     rgpio_pin_config_t do_config = {kRGPIO_DigitalOutput, 0};
     if (base == FLEXSPI1)
     {
-#if BOARD_IS_RT1180_MEM_DC
+#if BOARD_IS_RT1180_MEM_DC_MUX1 | BOARD_IS_RT1180_MEM_DC_MUX2
         IOMUXC_SetPinMux(IOMUXC_GPIO_AD_23_GPIO4_IO23, 0U);
         RGPIO_PinInit(RGPIO4, 23, &do_config);
-#elif BOARD_IS_RT1180_EVK_SKT_QUAD | BOARD_IS_RT1180_EVK_SKT_OCTAL
+#endif
+#if BOARD_IS_RT1180_EVK_SKT_QUAD | BOARD_IS_RT1180_EVK_SKT_OCTAL
         IOMUXC_SetPinMux(IOMUXC_GPIO_AD_04_GPIO4_IO04, 0U);
         RGPIO_PinInit(RGPIO4, 4, &do_config);
 #endif
@@ -103,15 +105,16 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
         {
             case kFLEXSPI_PortA1:
             case kFLEXSPI_PortA2:
-#if BOARD_IS_RT1180_MEM_DC
+#if BOARD_IS_RT1180_MEM_DC_MUX1 | BOARD_IS_RT1180_MEM_DC_MUX2
                 RGPIO_PinWrite(RGPIO4, 23, 0);
 #endif
                 break;
             case kFLEXSPI_PortB1:
             case kFLEXSPI_PortB2:
-#if BOARD_IS_RT1180_MEM_DC
+#if BOARD_IS_RT1180_MEM_DC_MUX1 | BOARD_IS_RT1180_MEM_DC_MUX2
                 // TBD
-#elif BOARD_IS_RT1180_EVK_SKT_QUAD
+#endif
+#if BOARD_IS_RT1180_EVK_SKT_QUAD
                 RGPIO_PinWrite(RGPIO4, 4, 0);
 #elif BOARD_IS_RT1180_EVK_SKT_OCTAL
                 RGPIO_PinWrite(RGPIO4, 4, 1);
@@ -123,13 +126,19 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
     }
     else if (base == FLEXSPI2)
     {
+#if BOARD_IS_RT1180_MEM_DC_MUX1 | BOARD_IS_RT1180_MEM_DC_MUX2
         IOMUXC_SetPinMux(IOMUXC_GPIO_AD_22_GPIO4_IO22, 0U);
         RGPIO_PinInit(RGPIO4, 22, &do_config);
+#endif
         switch (port)
         {
             case kFLEXSPI_PortA1:
             case kFLEXSPI_PortA2:
-                // TBD
+#if BOARD_IS_RT1180_MEM_DC_MUX1
+                RGPIO_PinWrite(RGPIO4, 22, 0);
+#elif BOARD_IS_RT1180_MEM_DC_MUX2
+                RGPIO_PinWrite(RGPIO4, 22, 1);
+#endif
                 break;
             case kFLEXSPI_PortB1:
             case kFLEXSPI_PortB2:
@@ -190,7 +199,52 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
     }
     else if (base == FLEXSPI2)
     {
-        
+        switch (port)
+        {
+            case kFLEXSPI_PortA1:
+            case kFLEXSPI_PortA2:
+            case kFLEXSPI_PortB1:
+            case kFLEXSPI_PortB2:
+#if BOARD_IS_RT1180_MEM_DC_MUX1
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_35_FLEXSPI2_BUS2BIT_A_DATA00, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_36_FLEXSPI2_BUS2BIT_A_DATA01, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_37_FLEXSPI2_BUS2BIT_A_DATA02, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_38_FLEXSPI2_BUS2BIT_A_DATA03, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_39_FLEXSPI2_BUS2BIT_A_SS0_B,  1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_40_FLEXSPI2_BUS2BIT_A_DQS,    1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_41_FLEXSPI2_BUS2BIT_A_SCLK,   1U);
+
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_30_FLEXSPI2_BUS2BIT_B_DATA03, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_31_FLEXSPI2_BUS2BIT_B_DATA02, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_32_FLEXSPI2_BUS2BIT_B_DATA01, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_33_FLEXSPI2_BUS2BIT_B_DATA00, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_34_FLEXSPI2_BUS2BIT_B_SCLK,   1U);
+#elif BOARD_IS_RT1180_MEM_DC_MUX2
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_22_FLEXSPI2_BUS2BIT_A_SS0_B,     1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_23_FLEXSPI2_BUS2BIT_A_SCLK,      1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_24_FLEXSPI2_BUS2BIT_A_DATA00,    1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_25_FLEXSPI2_BUS2BIT_A_DATA01,    1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_26_FLEXSPI2_BUS2BIT_A_DATA02,    1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_27_FLEXSPI2_BUS2BIT_A_DATA03,    1U);
+                if (pads == kFLEXSPI_4PAD)
+                {
+                    // It is internal PAD
+                    IOMUXC_SetPinMux(IOMUXC_GPIO_AON_28_DUMMY_FLEXSPI2_BUS2BIT_A_DQS, 1U);
+                }
+
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_15_FLEXSPI2_BUS2BIT_B_DATA03, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_16_FLEXSPI2_BUS2BIT_B_DATA02, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_17_FLEXSPI2_BUS2BIT_B_DATA01, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_19_FLEXSPI2_BUS2BIT_B_SCLK,   1U);
+                if (pads == kFLEXSPI_8PAD)
+                {
+                    IOMUXC_SetPinMux(IOMUXC_GPIO_AON_20_FLEXSPI2_BUS2BIT_B_DQS,    1U);
+                }
+#endif
+                break;
+            default:
+                break;
+        }
     }
     else
     {
@@ -213,9 +267,9 @@ static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFr
         {
             /* Init System Pll2 (528MHz) pfd0. */
             // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
-            // CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 27);
+            CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 32);
             rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd0;
-            rootCfg.div = 4;
+            rootCfg.div = 3;
             CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
         }
         else if (clkFreq == kFlexspiRootClkFreq_133MHz)
@@ -227,10 +281,70 @@ static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFr
             rootCfg.div = 3;
             CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
         }
+        else if (clkFreq == kFlexspiRootClkFreq_166MHz)
+        {
+            /* Init System Pll3 (480MHz) pfd0. */
+            // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd0, 26);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll3Pfd0;
+            rootCfg.div = 2;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_200MHz)
+        {
+            /* Init System Pll2 (528MHz) pfd0. */
+            // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 24);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd0;
+            rootCfg.div = 2;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
     }
     else if (base == FLEXSPI2)
     {
-        
+        // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 12-35.
+        if (clkFreq == kFlexspiRootClkFreq_30MHz)
+        {
+            rootCfg.mux = kCLOCK_FLEXSPI2_ClockRoot_MuxOscRc24M;
+            rootCfg.div = 1;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi2, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+        {
+            /* Init System Pll2 (528MHz) pfd1. */
+            // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            // CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd1, 16);
+            rootCfg.mux = kCLOCK_FLEXSPI2_ClockRoot_MuxSysPll2Pfd1;
+            rootCfg.div = 6;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi2, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+        {
+            /* Init System Pll3 (480MHz) pfd2. */
+            // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd2, 22);
+            rootCfg.mux = kCLOCK_FLEXSPI2_ClockRoot_MuxSysPll3Pfd2;
+            rootCfg.div = 3;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi2, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_166MHz)
+        {
+            /* Init System Pll3 (480MHz) pfd2. */
+            // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            // CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd2, 26);
+            rootCfg.mux = kCLOCK_FLEXSPI2_ClockRoot_MuxSysPll3Pfd2;
+            rootCfg.div = 2;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi2, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_200MHz)
+        {
+            /* Init System Pll2 (528MHz) pfd1. */
+            // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd1, 24);
+            rootCfg.mux = kCLOCK_FLEXSPI2_ClockRoot_MuxSysPll2Pfd1;
+            rootCfg.div = 2;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi2, &rootCfg);
+        }
     }
     else
     {
