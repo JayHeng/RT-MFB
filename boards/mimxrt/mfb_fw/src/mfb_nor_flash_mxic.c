@@ -23,7 +23,7 @@
  * Code
  ******************************************************************************/
 #if MXIC_DEVICE_MX25UM51345
-const uint32_t customLUT_MXIC[CUSTOM_LUT_LENGTH] = {
+const uint32_t customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
     /*  OPI DDR read */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xEE, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x11),
