@@ -23,7 +23,7 @@
  * Code
  ******************************************************************************/
 #if ISSI_DEVICE_IS25WP064A
-const uint32_t customLUT_ISSI[CUSTOM_LUT_LENGTH] = {
+const uint32_t customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
@@ -47,5 +47,43 @@ const uint32_t customLUT_ISSI[CUSTOM_LUT_LENGTH] = {
     /* Enter QPI mode */
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x35, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+};
+#endif
+
+#if ISSI_DEVICE_IS25WX256
+const uint32_t customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
+    /*  OPI DDR read */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0xFD, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04),
+
+    /* Read status register -SPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
+
+    /* Write Enable - SPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Write Enable - OPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_8PAD, 0x00),
+
+    /* Enter OPI mode */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x81, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /*  Dummy write, do nothing when AHB write command is triggered. */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /*  Read status register using Octal DDR read */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04),
 };
 #endif

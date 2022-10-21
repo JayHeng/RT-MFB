@@ -35,7 +35,8 @@
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-extern const uint32_t customLUT_ISSI[CUSTOM_LUT_LENGTH];
+extern const uint32_t customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH];
+extern const uint32_t customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MXIC[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
@@ -346,9 +347,11 @@ void mfb_main(void)
                             mfb_printf(" -- IS25WP/IS25WJ/IS25WE QuadSPI 1.8V Series.\r\n");
                             break;
                         case 0x5A:
+                            isOctalFlash = true;
                             mfb_printf(" -- IS25LX OctalSPI 3.3V Series.\r\n");
                             break;
                         case 0x5B:
+                            isOctalFlash = true;
                             mfb_printf(" -- IS25WX OctalSPI 1.8V Series.\r\n");
                             break;
                         default:
@@ -357,18 +360,38 @@ void mfb_main(void)
                     }
                     mfb_show_mem_size(capacityID);
 #if ISSI_DEVICE_IS25WP064A
-                    flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
-                    flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
-                    /* Update root clock */
-                    deviceconfig.flexspiRootClk = 100000000;
-                    deviceconfig.flashSize = flashMemSizeInByte / 0x400;
-                    s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
-                    s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
-                    s_flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
-                    /* Re-init FlexSPI using custom LUT */
-                    flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
-                    /* Enter quad mode. */
-                    status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
+                    if (!isOctalFlash)
+                    {
+                        flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
+                        /* Update root clock */
+                        deviceconfig.flexspiRootClk = 100000000;
+                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+                        s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
+                        /* Re-init FlexSPI using custom LUT */
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                        /* Enter quad mode. */
+                        status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
+                    }
+#endif
+#if ISSI_DEVICE_IS25WX256
+                    if (isOctalFlash)
+                    {
+                        flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_166MHz);
+                        /* Update root clock */
+                        deviceconfig.flexspiRootClk = 166000000;
+                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+                        s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashEnableOctalCmd   = ISSI_FLASH_ENABLE_OCTAL_CMD;
+                        /* Re-init FlexSPI using custom LUT */
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+                        /* Enter octal mode. */
+                        status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
+                    }
 #endif
                     break;
                 }
