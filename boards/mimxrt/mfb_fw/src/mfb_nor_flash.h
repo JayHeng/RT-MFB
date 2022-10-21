@@ -34,8 +34,10 @@ typedef enum _flexspi_root_clk_freq
 #define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        5
 #define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  6
 
-#define NOR_CMD_LUT_SEQ_IDX_WRITESTATUSREG  7
+#define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        7
 #define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        8
+
+#define NOR_CMD_LUT_SEQ_IDX_SETDUMMY        10
 /* NOTE: Workaround for debugger.
    Must define AHB write FlexSPI sequence index to 9 to avoid debugger issue.
    Debugger can attach to the CM33 core only when ROM executes to certain place.
@@ -46,26 +48,35 @@ typedef enum _flexspi_root_clk_freq
    So we need to ensure at any time, the FlexSPI LUT sequence 9 for the flash must
    be set to STOP command to avoid unexpected debugger behaivor.
  */
-#define NOR_CMD_LUT_SEQ_IDX_WRITE          9
-#define CUSTOM_LUT_LENGTH        60
+#define NOR_CMD_LUT_SEQ_IDX_WRITE           9
+#define CUSTOM_LUT_LENGTH                   60
 
 ////////////////////////////////////////////////////////////////////////////////
-#define MXIC_DEVICE_SERIES         (1)
-#define MXIC_DEVICE_MX25UM51345    (1)  // MIMXRT595-EVK
+#define MXIC_DEVICE_SERIES          (1)
+#define MXIC_DEVICE_MX25L12865      (0)
+#define MXIC_DEVICE_MX25UM51345     (1)  // MIMXRT595-EVK
 ////////////////////////////////////////////////////////////////////////////////
-#define ISSI_DEVICE_SERIES         (1)
-#define ISSI_DEVICE_IS25WP064A     (1)  // MIMXRT1060-EVK
-#define ISSI_DEVICE_IS25WX256      (1)  // MIMXRT1180-MEM-BB&DS
+#define ISSI_DEVICE_SERIES          (1)
+#define ISSI_DEVICE_IS25LP064A      (0)  // MIMXRT1020-EVK
+#define ISSI_DEVICE_IS25WP064A      (1)  // MIMXRT1060-EVK, MIMXRT1170-EVK/PMIC
+#define ISSI_DEVICE_IS25WX256       (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
-#define WINBOND_DEVICE_SERIES      (1)
-#define WINBOND_DEVICE_W25Q128JW   (1)  // MIMXRT1180-EVK
+#define WINBOND_DEVICE_SERIES       (1)
+#define WINBOND_DEVICE_W25Q128JW    (1)  // MIMXRT1180-EVK
 ////////////////////////////////////////////////////////////////////////////////
-#define MICRON_DEVICE_SERIES       (1)
-#define MICRON_DEVICE_MT25QL256    (1)  // MIMXRT1170-EVKB(Rework)
-#define MICRON_DEVICE_MT35XU512    (1)  // MIMXRT1180-EVK
+#define MICRON_DEVICE_SERIES        (1)
+#define MICRON_DEVICE_MT25QL256     (1)  // MIMXRT1170-EVKB(Rework)
+#define MICRON_DEVICE_MT35XU512     (1)  // MIMXRT1180-EVK
 ////////////////////////////////////////////////////////////////////////////////
-#define GIGADEVICE_DEVICE_SERIE    (1)
-#define GIGADEVICE_DEVICE_GD25Q64C (1)
+#define GIGADEVICE_DEVICE_SERIE     (1)
+#define GIGADEVICE_DEVICE_GD25Q64C  (0)
+#define GIGADEVICE_DEVICE_GD25LX256 (0)
+////////////////////////////////////////////////////////////////////////////////
+#define ADESTO_DEVICE_SERIE         (0)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
+#define ADESTO_DEVICE_AT25SF128A    (0)  // MIMXRT1010-EVK, MIMXRT1015-EVK
+////////////////////////////////////////////////////////////////////////////////
+#define SPANSION_DEVICE_SERIE       (0)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon  in 2019
+#define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
 
 /*******************************************************************************
  * Variables

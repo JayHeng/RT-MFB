@@ -41,7 +41,7 @@ const uint32_t customLUT_WINBOND[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
     /* Enable Quad mode */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITESTATUSREG] =
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x31, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04),
 
     /* Enter QPI mode */

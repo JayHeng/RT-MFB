@@ -22,7 +22,8 @@
 #endif
 
 #if ISSI_DEVICE_IS25WX256
-#define ISSI_FLASH_ENABLE_OCTAL_CMD   0xe7
+#define ISSI_FLASH_ENABLE_OCTAL_CMD     0xe7
+#define ISSI_FLASH_SET_DUMMY_CMD        0x14   // 200MHz OPI DDR
 #endif
 /*******************************************************************************
  * Variables

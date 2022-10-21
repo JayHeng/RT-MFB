@@ -43,6 +43,7 @@ extern const uint32_t customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_WINBOND[CUSTOM_LUT_LENGTH];
 
 extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
+extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
 extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
 extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
@@ -259,6 +260,7 @@ void mfb_main(void)
     {
         bool isOctalFlash = false;
         bool isValidVendorId = true;
+        uint8_t dummyValue = 0;
         manufacturerID = jedecID & 0xFF;
         memoryTypeID = (jedecID >> 8) & 0xFF;
         capacityID = (jedecID >> 16) & 0xFF;
@@ -315,7 +317,7 @@ void mfb_main(void)
                     flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
                     flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
                     /* Update root clock */
-                    deviceconfig.flexspiRootClk = 99000000;
+                    deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                     deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                     s_flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
                     s_flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
@@ -365,7 +367,7 @@ void mfb_main(void)
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = 100000000;
+                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                         deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
@@ -379,16 +381,23 @@ void mfb_main(void)
 #if ISSI_DEVICE_IS25WX256
                     if (isOctalFlash)
                     {
+                        flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_200MHz;
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
-                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_166MHz);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, rootClkFreq);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = 166000000;
+                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                         deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
                         s_flashEnableOctalCmd   = ISSI_FLASH_ENABLE_OCTAL_CMD;
                         /* Re-init FlexSPI using custom LUT */
                         flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+                        // Set dummy cycle of Flash
+                        if (rootClkFreq == kFlexspiRootClkFreq_200MHz)
+                        {
+                            dummyValue = ISSI_FLASH_SET_DUMMY_CMD;
+                            flexspi_nor_set_dummy_cycle(EXAMPLE_FLEXSPI, ISSI_FLASH_SET_DUMMY_CMD);
+                        }
                         /* Enter octal mode. */
                         status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
                     }
@@ -431,7 +440,7 @@ void mfb_main(void)
                     flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
                     flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_133MHz);
                     /* Update root clock */
-                    deviceconfig.flexspiRootClk = 133000000;
+                    deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                     deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                     s_flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
                     s_flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
@@ -478,7 +487,7 @@ void mfb_main(void)
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = 100000000;
+                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                         deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
@@ -490,16 +499,23 @@ void mfb_main(void)
 #if MICRON_DEVICE_MT35XU512
                     if (isOctalFlash)
                     {
+                        flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_200MHz;
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
-                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_166MHz);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, rootClkFreq);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = 166000000;
+                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                         deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
                         s_flashEnableOctalCmd   = MICRON_FLASH_ENABLE_OCTAL_CMD;
                         /* Re-init FlexSPI using custom LUT */
                         flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+                        // Set dummy cycle of Flash
+                        if (rootClkFreq == kFlexspiRootClkFreq_200MHz)
+                        {
+                            dummyValue = MICRON_FLASH_SET_DUMMY_CMD;
+                            flexspi_nor_set_dummy_cycle(EXAMPLE_FLEXSPI, MICRON_FLASH_SET_DUMMY_CMD);
+                        }
                         /* Enter octal mode. */
                         status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
                     }
@@ -582,6 +598,10 @@ void mfb_main(void)
             }
             else
             {
+                if (dummyValue)
+                {
+                    mfb_printf("MFB: Flash dummy cycle is set to %d.\r\n", dummyValue);
+                }
                 if (isOctalFlash)
                 {
                     mfb_printf("MFB: Flash entered Octal I/O DDR mode.\r\n");

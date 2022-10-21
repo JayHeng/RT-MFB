@@ -24,6 +24,7 @@
 #if MICRON_DEVICE_MT35XU512
 #define MICRON_OCTAL_FLASH_JEDEC_ID     (0x001a5B20)
 #define MICRON_FLASH_ENABLE_OCTAL_CMD   0xe7
+#define MICRON_FLASH_SET_DUMMY_CMD      0x14   // 200MHz OPI DDR
 #endif
 /*******************************************************************************
  * Variables

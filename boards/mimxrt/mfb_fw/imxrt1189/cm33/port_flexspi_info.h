@@ -18,18 +18,18 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define EXAMPLE_FLEXSPI                 FLEXSPI2
+#define EXAMPLE_FLEXSPI                 FLEXSPI1
 #define FLASH_SIZE                      0x4000 /* 16Mb/KByte */
-#define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI2_AMBA_BASE
+#define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI1_AMBA_BASE
 #define FLASH_PAGE_SIZE                 256
 #define SECTOR_SIZE                     0x1000 /* 4K */
-#define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_Flexspi2
+#define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_Flexspi1
 #define FLASH_PORT                      kFLEXSPI_PortA1
 
 #define BOARD_IS_RT1180_EVK_SKT_QUAD        (0)
 #define BOARD_IS_RT1180_EVK_SKT_OCTAL       (0)
-#define BOARD_IS_RT1180_MEM_DC_MUX1         (0)
-#define BOARD_IS_RT1180_MEM_DC_MUX2         (1)
+#define BOARD_IS_RT1180_MEM_DC_MUX1         (1)
+#define BOARD_IS_RT1180_MEM_DC_MUX2         (0)
 
 /*
  * If cache is enabled, this example should maintain the cache to make sure
