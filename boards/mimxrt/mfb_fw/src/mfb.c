@@ -21,6 +21,9 @@
 #if WINBOND_DEVICE_SERIES
 #include "mfb_nor_flash_winbond.h"
 #endif
+#if ADESTO_DEVICE_SERIE
+#include "mfb_nor_flash_adesto.h"
+#endif
 #include "fsl_flexspi.h"
 #include "fsl_debug_console.h"
 #include "pin_mux.h"
@@ -41,6 +44,7 @@ extern const uint32_t customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH];
+extern const uint32_t customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH];
 
 extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
 extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
@@ -162,7 +166,7 @@ void mfb_jump_to_application(uint32_t vectorStartAddr)
 #endif
 }
 
-uint32_t mfb_decode_capacity_id(uint8_t capacityID)
+uint32_t mfb_decode_common_capacity_id(uint8_t capacityID)
 {
     uint32_t memSizeInBytes = 0;
     //| ISSI QuadSPI       |  MXIC OctalSPI     |  Micron QuadSPI    |
@@ -172,6 +176,7 @@ uint32_t mfb_decode_capacity_id(uint8_t capacityID)
     //| Micron OctalSPI    |                    |                    |
     //| GigaDevice QuadSPI |                    |                    |
     //| GigaDevice OctalSPI|                    |                    |
+    //|Adesto QuadSPI SL/QL|                    |                    |
     //|---------------------------------------------------------------
     //| 09h - 256Kb        |                    |                    |
     //| 10h - 512Kb        |                    |                    |
@@ -207,11 +212,53 @@ uint32_t mfb_decode_capacity_id(uint8_t capacityID)
     return memSizeInBytes;
 }
 
-void mfb_show_mem_size(uint8_t capacityID)
+uint32_t mfb_decode_adesto_capacity_id(uint8_t capacityID)
+{
+    uint32_t memSizeInBytes = 0;
+    //|Adesto QuadSPI      | Adesto QuadSPI EU  |
+    //|------------------------------------------
+    //|                    | 10h - 1Mb          |
+    //| 03h - 2Mb          | 11h - 2Mb          |
+    //| 04h - 4Mb          | 14h - 4Mb          |
+    //| 05h - 8Mb          |                    |
+    //| 06h - 16Mb         |                    |
+    //| 07h - 32Mb         |                    |
+    //| 08h - 64Mb         |                    |
+    //| 09h - 128Mb        |                    |
+    if (capacityID <= 0x09)
+    {
+        capacityID += 15;
+    }
+    else if (capacityID == 0x10)
+    {
+        capacityID = 0x11;
+    }
+    else if (capacityID == 0x11)
+    {
+        capacityID = 0x12;
+    }
+    else if (capacityID == 0x14)
+    {
+        capacityID = 0x13;
+    }
+    memSizeInBytes = 1 << capacityID;
+    return memSizeInBytes;
+}
+
+void mfb_show_mem_size(uint8_t capacityID, bool isAdesto)
 {
 #if MFB_LOG_INFO_ENABLE
-    mfb_printf("MFB: Flash Capacity ID: 0x%x", capacityID);
-    uint32_t flashMemSizeInKB = mfb_decode_capacity_id(capacityID)/ 0x400;
+    uint32_t flashMemSizeInKB;
+    if (isAdesto)
+    {
+        mfb_printf("MFB: Flash Density Code: 0x%x", capacityID);
+        flashMemSizeInKB = mfb_decode_adesto_capacity_id(capacityID)/ 0x400;
+    }
+    else
+    {
+        mfb_printf("MFB: Flash Capacity ID: 0x%x", capacityID);
+        flashMemSizeInKB = mfb_decode_common_capacity_id(capacityID)/ 0x400;
+    }
     if (flashMemSizeInKB <= 0x400)
     {
         mfb_printf(" -- %dKB.\r\n", flashMemSizeInKB);
@@ -264,7 +311,7 @@ void mfb_main(void)
         manufacturerID = jedecID & 0xFF;
         memoryTypeID = (jedecID >> 8) & 0xFF;
         capacityID = (jedecID >> 16) & 0xFF;
-        uint32_t flashMemSizeInByte = mfb_decode_capacity_id(capacityID);
+        uint32_t flashMemSizeInByte = mfb_decode_common_capacity_id(capacityID);
         microseconds_init();
         mfb_flash_speed_test();
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", manufacturerID);
@@ -317,7 +364,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID);
+                    mfb_show_mem_size(capacityID, false);
 #if MXIC_DEVICE_MX25UM51345
                     if (isOctalFlash)
                     {
@@ -368,7 +415,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID);
+                    mfb_show_mem_size(capacityID, false);
 #if ISSI_DEVICE_IS25WP064A
                     if (!isOctalFlash)
                     {
@@ -443,7 +490,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID);
+                    mfb_show_mem_size(capacityID, false);
 #if WINBOND_DEVICE_W25Q128JW
                     if (!isOctalFlash)
                     {
@@ -491,7 +538,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID);
+                    mfb_show_mem_size(capacityID, false);
 #if MICRON_DEVICE_MT25QL256
                     if (!isOctalFlash)
                     {
@@ -579,13 +626,81 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID);
+                    mfb_show_mem_size(capacityID, false);
 #if GIGADEVICE_DEVICE_GD25Q64C
 
 #endif
                     break;
                 }
 #endif // GIGADEVICE_DEVICE_SERIE
+
+#if ADESTO_DEVICE_SERIE
+            // Adesto
+            case 0x1f:
+                {
+                    mfb_printf(" -- Adesto Serial Flash.\r\n");
+                    if (memoryTypeID != 0x42)
+                    {
+                        capacityID = memoryTypeID & 0x1F;
+                        memoryTypeID = (memoryTypeID & 0xE0) >> 5;
+                        mfb_printf("MFB: Flash Family Code: 0x%x", memoryTypeID);
+                    }
+                    else
+                    {
+                        mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
+                    }
+                    switch (memoryTypeID)
+                    {
+                        case 0x00:
+                            mfb_printf(" -- AT25EU QuadSPI 1.8-3.3V Series.\r\n");
+                            break;
+                        case 0x01:
+                            mfb_printf(" -- AT25DQ QuadSPI 2.5V Series.\r\n");
+                            break;
+                        case 0x02:
+                            mfb_printf(" -- AT25FF/AT25XE/AT25XV QuadSPI 1.8-3.3V Series.\r\n");
+                            break;
+                        case 0x04:
+                            mfb_printf(" -- AT25SF/AT25QF QuadSPI 3.3V Series.\r\n");
+                            break;
+                        // Only this type is same as other vendors
+                        case 0x42:
+                            mfb_printf(" -- AT25SL/AT25QL QuadSPI 1.8V Series.\r\n");
+                            break;
+                        default:
+                            mfb_printf(" -- Unsupported Series.\r\n");
+                            break;
+                    }
+                    if (memoryTypeID != 0x42)
+                    {
+                        mfb_show_mem_size(capacityID, true);
+                        flashMemSizeInByte = mfb_decode_adesto_capacity_id(capacityID);
+                    }
+                    else
+                    {
+                        mfb_show_mem_size(capacityID, false);
+                        flashMemSizeInByte = mfb_decode_common_capacity_id(capacityID);
+                    }
+#if ADESTO_DEVICE_AT25SF128A
+                    if (!isOctalFlash)
+                    {
+                        flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_133MHz);
+                        /* Update root clock */
+                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
+                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_flashBusyStatusPol    = ADESTO_FLASH_BUSY_STATUS_POL;
+                        s_flashBusyStatusOffset = ADESTO_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashQuadEnableCfg    = ADESTO_FLASH_QUAD_ENABLE;
+                        /* Re-init FlexSPI using custom LUT */
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ADESTO_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                        /* Enter quad mode. */
+                        status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
+                    }
+#endif
+                    break;
+                }
+#endif // ADESTO_DEVICE_SERIE
 
             default:
                 mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");

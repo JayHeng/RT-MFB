@@ -72,8 +72,8 @@ typedef enum _flexspi_root_clk_freq
 #define GIGADEVICE_DEVICE_GD25Q64C  (0)
 #define GIGADEVICE_DEVICE_GD25LX256 (0)
 ////////////////////////////////////////////////////////////////////////////////
-#define ADESTO_DEVICE_SERIE         (0)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
-#define ADESTO_DEVICE_AT25SF128A    (0)  // MIMXRT1010-EVK, MIMXRT1015-EVK
+#define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
+#define ADESTO_DEVICE_AT25SF128A    (1)  // MIMXRT1010-EVK, MIMXRT1015-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define SPANSION_DEVICE_SERIE       (0)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon  in 2019
 #define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
