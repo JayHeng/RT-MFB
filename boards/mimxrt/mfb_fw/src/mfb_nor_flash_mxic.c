@@ -45,10 +45,24 @@ const uint32_t customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xF9),
 
     /* Enter OPI mode */
+    // Configuration Register 2 address 00000000h - I/O mode
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x72, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x20),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x72, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
+
+    /* Set Dummy cycle */
+    // Configuration Register 2 address 00000300h - Dummy cycle configuration
+    //   - Default dummy cycle for OPI DDR is 20, max freq is 200MHz(BGA24)/133MHz(SOP16)
+    //   - To support freq 200MHz, min dummy cycle is 18
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x72, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x03),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
 
     /*  Dummy write, do nothing when AHB write command is triggered. */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
