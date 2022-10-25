@@ -39,7 +39,7 @@ extern void microseconds_timer_deinit(void);
 //! @brief Initialize and start the timer facilities using the SysTick.
 void microseconds_init(void)
 {
-#if MFB_FLASH_SPEED_TEST_ENABLE
+#if MFB_FLASH_MEMCPY_ENABLE
     // 清零高位计数器
     s_highCounter = 0;
     // 打开硬件定时器
@@ -54,7 +54,7 @@ void microseconds_init(void)
 //! @brief Shutdown the microsecond timer
 void microseconds_shutdown(void)
 {
-#if MFB_FLASH_SPEED_TEST_ENABLE
+#if MFB_FLASH_MEMCPY_ENABLE
     // 关闭硬件定时器
     microseconds_timer_deinit();
 #endif

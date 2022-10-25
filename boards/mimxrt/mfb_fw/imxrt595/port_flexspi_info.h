@@ -59,7 +59,7 @@ typedef struct _flexspi_cache_status
 
 static void cpu_show_clock_source(void)
 {
-#if MFB_LOG_INFO_ENABLE
+#if MFB_DEBUG_LOG_INFO_ENABLE
     // Refer to CLOCK_GetMainClkFreq() in fsl_clock.c
     uint32_t mainClkSelB = (CLKCTL0->MAINCLKSELB) & CLKCTL0_MAINCLKSELB_SEL_MASK;
     uint32_t mainClkSelA = (CLKCTL0->MAINCLKSELA) & CLKCTL0_MAINCLKSELA_SEL_MASK;
@@ -405,7 +405,7 @@ static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
 
 static void flexspi_show_clock_source(FLEXSPI_Type *base)
 {
-#if MFB_LOG_INFO_ENABLE
+#if MFB_DEBUG_LOG_INFO_ENABLE
     uint32_t index = 0;
     uint32_t clkSel;
     uint32_t clkDiv;

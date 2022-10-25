@@ -52,7 +52,7 @@ typedef struct _flexspi_cache_status
 
 static void cpu_show_clock_source(void)
 {
-#if MFB_LOG_INFO_ENABLE
+#if MFB_DEBUG_LOG_INFO_ENABLE
     mfb_printf("MFB: CPU Clk Frequency: %dHz.\r\n", CLOCK_GetFreq(kCLOCK_CpuClk));
 #endif
 }
@@ -131,7 +131,7 @@ static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
 
 static void flexspi_show_clock_source(FLEXSPI_Type *base)
 {
-#if MFB_LOG_INFO_ENABLE
+#if MFB_DEBUG_LOG_INFO_ENABLE
     mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", flexspi_get_clock(EXAMPLE_FLEXSPI));
 #endif
 }

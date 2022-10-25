@@ -54,7 +54,7 @@ extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-#if MFB_FLASH_SPEED_TEST_ENABLE
+#if MFB_FLASH_MEMCPY_ENABLE
 static uint8_t s_nor_read_buffer[256];
 #endif
 
@@ -110,7 +110,7 @@ const uint32_t customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
 
 int mfb_printf(const char *fmt_s, ...)
 {
-#if MFB_LOG_INFO_ENABLE
+#if MFB_DEBUG_LOG_INFO_ENABLE
     PRINTF(fmt_s);
 #endif
     
@@ -119,7 +119,7 @@ int mfb_printf(const char *fmt_s, ...)
 
 void mfb_flash_speed_test(void)
 {
-#if MFB_FLASH_SPEED_TEST_ENABLE
+#if MFB_FLASH_MEMCPY_ENABLE
     uint64_t startTicks = microseconds_get_ticks();
     /* Read 8MB data from flash to test speed */
     for (uint32_t loop = 0; loop < 16 * 8; loop++)
@@ -247,7 +247,7 @@ uint32_t mfb_decode_adesto_capacity_id(uint8_t capacityID)
 
 void mfb_show_mem_size(uint8_t capacityID, bool isAdesto)
 {
-#if MFB_LOG_INFO_ENABLE
+#if MFB_DEBUG_LOG_INFO_ENABLE
     uint32_t flashMemSizeInKB;
     if (isAdesto)
     {
@@ -370,7 +370,7 @@ void mfb_main(void)
                     {
                         flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_100MHz;
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
-                        flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, rootClkFreq);
                         /* Update root clock */
                         deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                         deviceconfig.flashSize = flashMemSizeInByte / 0x400;

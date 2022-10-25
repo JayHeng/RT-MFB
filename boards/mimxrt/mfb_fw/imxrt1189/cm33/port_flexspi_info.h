@@ -58,7 +58,7 @@ typedef struct _flexspi_cache_status
 
 static void cpu_show_clock_source(void)
 {
-#if MFB_LOG_INFO_ENABLE
+#if MFB_DEBUG_LOG_INFO_ENABLE
     uint32_t clkSel = CLOCK_GetRootClockMux(kCLOCK_Root_M33);
     switch (clkSel)
     {
@@ -369,7 +369,7 @@ static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
 
 static void flexspi_show_clock_source(FLEXSPI_Type *base)
 {
-#if MFB_LOG_INFO_ENABLE
+#if MFB_DEBUG_LOG_INFO_ENABLE
     uint32_t index = 0;
     clock_root_t root;
     uint32_t clkSel;
