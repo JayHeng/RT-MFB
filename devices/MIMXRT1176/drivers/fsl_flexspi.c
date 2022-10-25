@@ -789,19 +789,22 @@ status_t FLEXSPI_TransferBlocking(FLEXSPI_Type *base, flexspi_transfer_t *xfer)
     base->IPCR1 = configValue;
 
     /* Start Transfer. */
-    base->IPCMD |= FLEXSPI_IPCMD_TRG_MASK;
+    //base->IPCMD |= FLEXSPI_IPCMD_TRG_MASK;
 
     if ((xfer->cmdType == kFLEXSPI_Write) || (xfer->cmdType == kFLEXSPI_Config))
     {
         result = FLEXSPI_WriteBlocking(base, xfer->data, xfer->dataSize);
+        base->IPCMD |= FLEXSPI_IPCMD_TRG_MASK;
     }
     else if (xfer->cmdType == kFLEXSPI_Read)
     {
+        base->IPCMD |= FLEXSPI_IPCMD_TRG_MASK;
         result = FLEXSPI_ReadBlocking(base, xfer->data, xfer->dataSize);
     }
     else
     {
         /* Empty else. */
+        base->IPCMD |= FLEXSPI_IPCMD_TRG_MASK;
     }
 
     /* Wait for bus to be idle before changing flash configuration. */
