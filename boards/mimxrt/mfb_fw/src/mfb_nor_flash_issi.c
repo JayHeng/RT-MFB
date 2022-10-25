@@ -52,15 +52,23 @@ const uint32_t customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
 
 #if ISSI_DEVICE_IS25WX256
 const uint32_t customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
-    /*  OPI DDR read */
+#if !MFB_FLASH_FORCE_LOOPBACK_DQS
+    /*  DDR OCTAL I/O FAST READ */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xFD, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04),
+#else
+    /*  4-BYTE OCTAL I/O FAST READ */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xCC, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_8PAD, 0x20),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_8PAD, 0x04),
+#endif
 
     /* Read status register -SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x01),
 
     /* Write Enable - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
@@ -96,6 +104,8 @@ const uint32_t customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
 
     /*  Read status register using Octal DDR read */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x10),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_8PAD, 0x00),
 };
 #endif

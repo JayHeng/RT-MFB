@@ -443,7 +443,11 @@ void mfb_main(void)
 #if ISSI_DEVICE_IS25WX256
                     if (isOctalFlash)
                     {
-                        flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_200MHz;
+#if MFB_FLASH_FORCE_LOOPBACK_DQS
+                        flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_30MHz;
+#else
+                        flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_166MHz;
+#endif
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, rootClkFreq);
                         /* Update root clock */
@@ -453,15 +457,21 @@ void mfb_main(void)
                         s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
                         s_flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
                         /* Re-init FlexSPI using custom LUT */
+#if MFB_FLASH_FORCE_LOOPBACK_DQS
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI_Octal, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+#else
                         flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
                         // Set dummy cycle of Flash
                         if (rootClkFreq == kFlexspiRootClkFreq_200MHz)
+#endif
                         {
                             dummyValue = ISSI_OCTAL_FLASH_SET_DUMMY_CMD;
                             flexspi_nor_set_dummy_cycle(EXAMPLE_FLEXSPI, ISSI_OCTAL_FLASH_SET_DUMMY_CMD);
                         }
                         /* Enter octal mode. */
+#if !MFB_FLASH_FORCE_LOOPBACK_DQS
                         status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
+#endif
                     }
 #endif
                     break;
