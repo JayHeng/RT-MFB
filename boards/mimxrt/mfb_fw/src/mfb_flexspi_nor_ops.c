@@ -193,17 +193,18 @@ status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, bool enableOctal)
     return status;
 }
 
-status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
+static status_t flexspi_nor_write_register(FLEXSPI_Type *base, uint32_t seqIndex, uint8_t regVal)
 {
     flexspi_transfer_t flashXfer;
     status_t status;
+    bool isOctalMode = false;
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
     flexspi_cache_status_t cacheStatus;
     flexspi_nor_disable_cache(&cacheStatus);
 #endif
 
-    uint32_t writeValue = dummyCmd;
+    uint32_t writeValue = regVal;
 
     /* Write enable */
     status = flexspi_nor_write_enable(base, 0, false);
@@ -213,12 +214,11 @@ status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
         return status;
     }
 
-    /* Set dummy cycle. */
     flashXfer.deviceAddress = 0;
     flashXfer.port          = FLASH_PORT;
     flashXfer.cmdType       = kFLEXSPI_Write;
     flashXfer.SeqNumber     = 1;
-    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_SETDUMMY;
+    flashXfer.seqIndex      = seqIndex;
     flashXfer.data          = &writeValue;
     flashXfer.dataSize      = 1;
 
@@ -228,7 +228,16 @@ status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
         return status;
     }
 
-    status             = flexspi_nor_wait_bus_busy(base, false);
+    if ((seqIndex == NOR_CMD_LUT_SEQ_IDX_SETDUMMY) || (seqIndex == NOR_CMD_LUT_SEQ_IDX_ENABLEQE))
+    {
+        isOctalMode = false;
+    }
+    else if (seqIndex == NOR_CMD_LUT_SEQ_IDX_ENTEROPI)
+    {
+        isOctalMode = true;
+    }
+
+    status             = flexspi_nor_wait_bus_busy(base, isOctalMode);
 
     /* Do software reset. */
     FLEXSPI_SoftwareReset(base);
@@ -238,99 +247,21 @@ status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
 #endif
 
     return status;
+}
+
+status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
+{
+    return flexspi_nor_write_register(base, NOR_CMD_LUT_SEQ_IDX_SETDUMMY, dummyCmd);
 }
 
 status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base)
 {
-    flexspi_transfer_t flashXfer;
-    status_t status;
-    uint32_t writeValue = s_flashQuadEnableCfg;
-
-#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-    flexspi_cache_status_t cacheStatus;
-    flexspi_nor_disable_cache(&cacheStatus);
-#endif
-
-    /* Write enable */
-    status = flexspi_nor_write_enable(base, 0, false);
-
-    if (status != kStatus_Success)
-    {
-        return status;
-    }
-
-    /* Enable quad mode. */
-    flashXfer.deviceAddress = 0;
-    flashXfer.port          = FLASH_PORT;
-    flashXfer.cmdType       = kFLEXSPI_Write;
-    flashXfer.SeqNumber     = 1;
-    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ENABLEQE;
-    flashXfer.data          = &writeValue;
-    flashXfer.dataSize      = 1;
-
-    status = FLEXSPI_TransferBlocking(base, &flashXfer);
-    if (status != kStatus_Success)
-    {
-        return status;
-    }
-
-    status = flexspi_nor_wait_bus_busy(base, false);
-
-    /* Do software reset. */
-    FLEXSPI_SoftwareReset(base);
-
-#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-    flexspi_nor_enable_cache(cacheStatus);
-#endif
-
-    return status;
+    return flexspi_nor_write_register(base, NOR_CMD_LUT_SEQ_IDX_ENABLEQE, s_flashQuadEnableCfg);
 }
 
 status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base)
 {
-    flexspi_transfer_t flashXfer;
-    status_t status;
-
-#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-    flexspi_cache_status_t cacheStatus;
-    flexspi_nor_disable_cache(&cacheStatus);
-#endif
-
-    uint32_t writeValue = s_flashEnableOctalCmd;
-
-    /* Write enable */
-    status = flexspi_nor_write_enable(base, 0, false);
-
-    if (status != kStatus_Success)
-    {
-        return status;
-    }
-
-    /* Enable quad mode. */
-    flashXfer.deviceAddress = 0;
-    flashXfer.port          = FLASH_PORT;
-    flashXfer.cmdType       = kFLEXSPI_Write;
-    flashXfer.SeqNumber     = 1;
-    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ENTEROPI;
-    flashXfer.data          = &writeValue;
-    flashXfer.dataSize      = 1;
-
-    status = FLEXSPI_TransferBlocking(base, &flashXfer);
-    if (status != kStatus_Success)
-    {
-        return status;
-    }
-
-    status             = flexspi_nor_wait_bus_busy(base, true);
-
-    /* Do software reset. */
-    FLEXSPI_SoftwareReset(base);
-
-#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-    flexspi_nor_enable_cache(cacheStatus);
-#endif
-
-    return status;
+    return flexspi_nor_write_register(base, NOR_CMD_LUT_SEQ_IDX_ENTEROPI, s_flashEnableOctalCmd);
 }
 
 #if defined(__ICCARM__)
