@@ -54,8 +54,8 @@ extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-#if MFB_FLASH_MEMCPY_ENABLE
-static uint8_t s_nor_read_buffer[256];
+#if MFB_FLASH_MEMCPY_PERF_ENABLE
+static uint8_t s_nor_read_buffer[FLASH_PAGE_SIZE];
 #endif
 
 uint8_t s_flashBusyStatusPol    = 0;
@@ -117,22 +117,37 @@ int mfb_printf(const char *fmt_s, ...)
     return 0;
 }
 
-void mfb_flash_speed_test(void)
+void mfb_flash_memcpy_perf_test(bool isFirstTime)
 {
-#if MFB_FLASH_MEMCPY_ENABLE
+#if MFB_FLASH_MEMCPY_PERF_ENABLE
+    if (isFirstTime)
+    {
+        microseconds_init();
+    }
+
     uint64_t startTicks = microseconds_get_ticks();
+    uint64_t totalSize = (8UL*1024*1024);
+    uint32_t loopMax = totalSize / MFB_FLASH_ACCESS_REGION_SIZE;
+    uint32_t unitSize = sizeof(s_nor_read_buffer);
+    uint32_t idxMax = MFB_FLASH_ACCESS_REGION_SIZE / unitSize;
     /* Read 8MB data from flash to test speed */
-    for (uint32_t loop = 0; loop < 16 * 8; loop++)
+    for (uint32_t loop = 0; loop < loopMax; loop++)
     {
         /* Min NOR Flash size is 64KB */
-        for (uint32_t idx = 0; idx < 256; idx++)
+        for (uint32_t idx = 0; idx < idxMax; idx++)
         {
-            memcpy(s_nor_read_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + idx * sizeof(s_nor_read_buffer)), sizeof(s_nor_read_buffer));
+            memcpy(s_nor_read_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + idx * unitSize), unitSize);
         }
     }
     uint64_t totalTicks = microseconds_get_ticks() - startTicks;
     uint32_t microSecs = microseconds_convert_to_microseconds(totalTicks);
-    mfb_printf("MFB: Flash to RAM memcpy speed: %dKB/s.\r\n", (8UL*1024*1000000)/microSecs);
+    uint32_t kBps = (totalSize / 1024) * 1000000 / microSecs;
+    mfb_printf("MFB: Flash to RAM memcpy speed: %dKB/s.\r\n", kBps);
+
+    if (!isFirstTime)
+    {
+        microseconds_shutdown();
+    }
 #endif
 }
 
@@ -307,13 +322,15 @@ void mfb_main(void)
     {
         bool isOctalFlash = false;
         bool isValidVendorId = true;
+        bool isFirstTime = true;
+        bool isAdestoDevice = false;
         uint8_t dummyValue = 0;
         manufacturerID = jedecID & 0xFF;
         memoryTypeID = (jedecID >> 8) & 0xFF;
         capacityID = (jedecID >> 16) & 0xFF;
         uint32_t flashMemSizeInByte = mfb_decode_common_capacity_id(capacityID);
-        microseconds_init();
-        mfb_flash_speed_test();
+        mfb_flash_memcpy_perf_test(isFirstTime);
+        isFirstTime = false;
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", manufacturerID);
         switch (manufacturerID)
         {
@@ -364,7 +381,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, false);
+                    mfb_show_mem_size(capacityID, isAdestoDevice);
 #if MXIC_DEVICE_MX25UM51345
                     if (isOctalFlash)
                     {
@@ -422,7 +439,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, false);
+                    mfb_show_mem_size(capacityID, isAdestoDevice);
 #if ISSI_DEVICE_IS25WP064A
                     if (!isOctalFlash)
                     {
@@ -507,7 +524,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, false);
+                    mfb_show_mem_size(capacityID, isAdestoDevice);
 #if WINBOND_DEVICE_W25Q128JW
                     if (!isOctalFlash)
                     {
@@ -555,7 +572,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, false);
+                    mfb_show_mem_size(capacityID, isAdestoDevice);
 #if MICRON_DEVICE_MT25QL256
                     if (!isOctalFlash)
                     {
@@ -643,7 +660,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, false);
+                    mfb_show_mem_size(capacityID, isAdestoDevice);
 #if GIGADEVICE_DEVICE_GD25Q64C
 
 #endif
@@ -690,12 +707,13 @@ void mfb_main(void)
                     }
                     if (memoryTypeID != 0x42)
                     {
-                        mfb_show_mem_size(capacityID, true);
+                        isAdestoDevice = true;
+                        mfb_show_mem_size(capacityID, isAdestoDevice);
                         flashMemSizeInByte = mfb_decode_adesto_capacity_id(capacityID);
                     }
                     else
                     {
-                        mfb_show_mem_size(capacityID, false);
+                        mfb_show_mem_size(capacityID, isAdestoDevice);
                         flashMemSizeInByte = mfb_decode_common_capacity_id(capacityID);
                     }
 #if ADESTO_DEVICE_AT25SF128A
@@ -753,8 +771,7 @@ void mfb_main(void)
                 {
                     mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
                 }
-                mfb_flash_speed_test();
-                microseconds_shutdown();
+                mfb_flash_memcpy_perf_test(isFirstTime);
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }
         }
