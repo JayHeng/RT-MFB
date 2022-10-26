@@ -158,7 +158,7 @@ static bool mfb_flash_verify_pattern_region(void)
 {
     for (uint32_t idx = 0; idx < MFB_FLASH_ACCESS_REGION_SIZE / FLASH_PAGE_SIZE; idx++)
     {
-        if (!mfb_flash_handle_one_pattern_page(idx * FLASH_PAGE_SIZE, false))
+        if (!mfb_flash_handle_one_pattern_page(MFB_FLASH_ACCESS_REGION_START + idx * FLASH_PAGE_SIZE, false))
         {
             return false;
         }
@@ -183,12 +183,12 @@ bool mfb_flash_pattern_verify_test(bool fillPatternWhenFailure, bool isOctalDdrM
     result = mfb_flash_verify_pattern_region();
     if ((!result) && fillPatternWhenFailure)
     {
-        mfb_printf("MFB: Write pattern data into Flash (First %dKB).\r\n", MFB_FLASH_ACCESS_REGION_SIZE / 0x400);
+        mfb_printf("MFB: Write pattern data into Flash region 0x%x - 0x%x.\r\n", MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_START + MFB_FLASH_ACCESS_REGION_SIZE - 1);
         uint32_t sectorMax = MFB_FLASH_ACCESS_REGION_SIZE / SECTOR_SIZE;
         uint32_t pagesPerSector = SECTOR_SIZE / FLASH_PAGE_SIZE;
         for (uint32_t sectorId = 0; sectorId < sectorMax; sectorId++)
         {
-            uint32_t sectorAddr = sectorId * SECTOR_SIZE;
+            uint32_t sectorAddr = MFB_FLASH_ACCESS_REGION_START + sectorId * SECTOR_SIZE;
             status_t status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, sectorAddr, isOctalDdrMode);
             if (status != kStatus_Success)
             {
@@ -208,7 +208,7 @@ bool mfb_flash_pattern_verify_test(bool fillPatternWhenFailure, bool isOctalDdrM
             }
         }
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-        DCACHE_InvalidateByRange(EXAMPLE_FLEXSPI_AMBA_BASE, MFB_FLASH_ACCESS_REGION_SIZE);
+        DCACHE_InvalidateByRange(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_SIZE);
 #endif
         result = mfb_flash_verify_pattern_region();
     }
@@ -252,7 +252,7 @@ void mfb_flash_memcpy_perf_test(bool isFirstTime)
         /* Min NOR Flash size is 64KB */
         for (uint32_t idx = 0; idx < idxMax; idx++)
         {
-            memcpy(s_nor_rw_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + idx * unitSize), unitSize);
+            memcpy(s_nor_rw_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START + idx * unitSize), unitSize);
         }
     }
     uint64_t totalTicks = microseconds_get_ticks() - startTicks;

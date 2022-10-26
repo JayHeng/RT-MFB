@@ -15,7 +15,8 @@
 // Whether to show MFB log info via UART console (for development)
 #define MFB_DEBUG_LOG_INFO_ENABLE        (1)
 // The flash region size used for perf and pattern test
-#define MFB_FLASH_ACCESS_REGION_SIZE     (0x8000U)
+#define MFB_FLASH_ACCESS_REGION_START    (0x1000U)
+#define MFB_FLASH_ACCESS_REGION_SIZE     (0x10000U)
 // Whether to show flash to RAM memcpy perf result
 #define MFB_FLASH_MEMCPY_PERF_ENABLE     (1)
 // Whether to write pattern data into flash to do readback verify
@@ -29,7 +30,7 @@
 // Whether to use fake jedec id (appliable when there is no id in flash device)
 #define MFB_FLASH_FAKE_JEDEC_ID_ENABLE   (0)
 // Whether to force loopback DQS (test dummy cycle setting for Octal Flash)
-#define MFB_FLASH_FORCE_LOOPBACK_DQS     (0)
+#define MFB_FLASH_FORCE_LOOPBACK_DQS     (1)
 
 /*******************************************************************************
  * Variables
