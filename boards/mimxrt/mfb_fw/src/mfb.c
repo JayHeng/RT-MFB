@@ -89,25 +89,35 @@ flexspi_device_config_t deviceconfig = {
 const uint32_t customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     /*  Normal read */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,      kFLEXSPI_1PAD, 0x03, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x03, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR, kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
     /* Read status register */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,      kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
 
     /* Write Enable */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,      kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0X00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0X00),
 
     /* Read ID */
     [4 * NOR_CMD_LUT_SEQ_IDX_READID] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,      kFLEXSPI_1PAD, 0x9F, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x9F, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
 
-    /*  Dummy write, do nothing when AHB write command is triggered. */
+    /* Dummy write, do nothing when AHB write command is triggered. */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,     kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Erase Sector */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+
+    /* Page Program - single mode */
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
 
 int mfb_printf(const char *fmt_s, ...)
@@ -158,13 +168,20 @@ static bool mfb_flash_verify_pattern_region(void)
 }
 #endif
 
-bool mfb_flash_pattern_verify_test(bool isFirstTime)
+bool mfb_flash_pattern_verify_test(bool fillPatternWhenFailure)
 {
     bool result = true;
 
+    // For QuadSPI Flash
+    //  1. It is 1st time verify (before QE enablment), do nothing when failure
+    //  2. It is 2nd time verify (after QE enablment), write pattern when failure then verify (ERASE/PROGRAM seq in vendor LUT)
+    // For OctalSPI Flash
+    //  1. It is 1st time verify (before Reading ID), do nothing when failure
+    //  2. It is 2nd time verify (before OPI enablment), write pattern when failure then verify (ERASE/PROGRAM seq in common LUT)
+    //  3. It is 3rd time verify (after OPI enablment), just verify even failure
 #if MFB_FLASH_PATTERN_VERIFY_ENABLE
     result = mfb_flash_verify_pattern_region();
-    if ((!result) && (!isFirstTime))
+    if ((!result) && fillPatternWhenFailure)
     {
         mfb_printf("MFB: Write pattern data into Flash (First %dKB).\r\n", MFB_FLASH_ACCESS_REGION_SIZE / 0x400);
         uint32_t sectorMax = MFB_FLASH_ACCESS_REGION_SIZE / SECTOR_SIZE;
@@ -202,7 +219,7 @@ bool mfb_flash_pattern_verify_test(bool isFirstTime)
     }
     else
     {
-        if (isFirstTime)
+        if (!fillPatternWhenFailure)
         {
             mfb_printf("MFB: Flash Pattern data has not been written.\r\n");
         }
@@ -420,16 +437,16 @@ void mfb_main(void)
     {
         bool isOctalFlash = false;
         bool isValidVendorId = true;
-        bool isFirstTime = true;
+        bool isValidPattern = false;
+        bool fillPatternWhenFailure = true;
         bool isAdestoDevice = false;
         uint8_t dummyValue = 0;
         manufacturerID = jedecID & 0xFF;
         memoryTypeID = (jedecID >> 8) & 0xFF;
         capacityID = (jedecID >> 16) & 0xFF;
         uint32_t flashMemSizeInByte = mfb_decode_common_capacity_id(capacityID);
-        mfb_flash_pattern_verify_test(isFirstTime);
-        mfb_flash_memcpy_perf_test(isFirstTime);
-        isFirstTime = false;
+        isValidPattern = mfb_flash_pattern_verify_test(false);
+        mfb_flash_memcpy_perf_test(true);
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", manufacturerID);
         switch (manufacturerID)
         {
@@ -559,6 +576,16 @@ void mfb_main(void)
 #if ISSI_DEVICE_IS25WX256
                     if (isOctalFlash)
                     {
+                        s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+                        s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+                        if (!isValidPattern)
+                        {
+                            if (!mfb_flash_pattern_verify_test(true))
+                            {
+                                return;
+                            }
+                        }
+                        fillPatternWhenFailure = false;
 #if MFB_FLASH_FORCE_LOOPBACK_DQS
                         flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_30MHz;
 #else
@@ -569,8 +596,6 @@ void mfb_main(void)
                         /* Update root clock */
                         deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                         deviceconfig.flashSize = flashMemSizeInByte / 0x400;
-                        s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
-                        s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
                         s_flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
                         /* Re-init FlexSPI using custom LUT */
 #if MFB_FLASH_FORCE_LOOPBACK_DQS
@@ -870,11 +895,11 @@ void mfb_main(void)
                 {
                     mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
                 }
-                if (!mfb_flash_pattern_verify_test(false))
+                if (!mfb_flash_pattern_verify_test(fillPatternWhenFailure))
                 {
                     return;
                 }
-                mfb_flash_memcpy_perf_test(isFirstTime);
+                mfb_flash_memcpy_perf_test(false);
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }
         }
