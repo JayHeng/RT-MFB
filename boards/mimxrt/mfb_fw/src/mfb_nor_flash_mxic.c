@@ -57,11 +57,11 @@ const uint32_t customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
     // Configuration Register 2 address 00000300h - Dummy cycle configuration
     //   - Default dummy cycle for OPI DDR is 20, max freq is 200MHz(BGA24)/133MHz(SOP16)
     //   - To support freq 200MHz, min dummy cycle is 18
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
+    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x72, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00),
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 1] =
+    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 1] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x03),
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 2] =
+    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 2] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
 
     /*  Dummy write, do nothing when AHB write command is triggered. */
@@ -75,5 +75,17 @@ const uint32_t customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x08),
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 2] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_8PAD, 0x00),
+
+    /*  Erase Sector - OPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x21, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xDE),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_STOP,      kFLEXSPI_8PAD, 0x00),
+
+    /*  4-BYTE Page Program - OPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x12, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xED),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x04),
 };
 #endif

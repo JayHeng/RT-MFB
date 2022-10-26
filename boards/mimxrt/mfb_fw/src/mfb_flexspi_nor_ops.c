@@ -264,7 +264,7 @@ status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base)
     return flexspi_nor_write_register(base, NOR_CMD_LUT_SEQ_IDX_ENTEROPI, s_flashEnableOctalCmd);
 }
 
-status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address)
+status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bool enableOctal)
 {
     status_t status;
     flexspi_transfer_t flashXfer;
@@ -275,13 +275,7 @@ status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address)
 #endif
 
     /* Write enable */
-    flashXfer.deviceAddress = address;
-    flashXfer.port          = FLASH_PORT;
-    flashXfer.cmdType       = kFLEXSPI_Command;
-    flashXfer.SeqNumber     = 1;
-    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_WRITEENABLE;
-
-    status = FLEXSPI_TransferBlocking(base, &flashXfer);
+    status = flexspi_nor_write_enable(base, address, enableOctal);
 
     if (status != kStatus_Success)
     {
@@ -300,7 +294,7 @@ status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address)
         return status;
     }
 
-    status = flexspi_nor_wait_bus_busy(base, false);
+    status = flexspi_nor_wait_bus_busy(base, enableOctal);
 
     /* Do software reset. */
     FLEXSPI_SoftwareReset(base);
@@ -312,7 +306,7 @@ status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address)
     return status;
 }
 
-status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length)
+status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, bool enableOctal)
 {
     status_t status;
     flexspi_transfer_t flashXfer;
@@ -323,7 +317,7 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
 #endif
 
     /* Write enable */
-    status = flexspi_nor_write_enable(base, address, false);
+    status = flexspi_nor_write_enable(base, address, enableOctal);
 
     if (status != kStatus_Success)
     {
@@ -335,7 +329,14 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
     flashXfer.port          = FLASH_PORT;
     flashXfer.cmdType       = kFLEXSPI_Write;
     flashXfer.SeqNumber     = 1;
-    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM;
+    if (enableOctal)
+    {
+        flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI;
+    }
+    else
+    {
+        flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM;
+    }
     flashXfer.data          = (uint32_t *)src;
     flashXfer.dataSize      = length;
     status                  = FLEXSPI_TransferBlocking(base, &flashXfer);
@@ -345,7 +346,7 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
         return status;
     }
 
-    status = flexspi_nor_wait_bus_busy(base, false);
+    status = flexspi_nor_wait_bus_busy(base, enableOctal);
 
     /* Do software reset or clear AHB buffer directly. */
 #if defined(FSL_FEATURE_SOC_OTFAD_COUNT) && defined(FLEXSPI_AHBCR_CLRAHBRXBUF_MASK) && \

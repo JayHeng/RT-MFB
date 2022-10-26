@@ -39,6 +39,8 @@ typedef enum _flexspi_root_clk_freq
 
 #define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR     11
 #define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     12
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI 13
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI 14
 
 /* NOTE: Workaround for debugger.
    Must define AHB write FlexSPI sequence index to 9 to avoid debugger issue.
