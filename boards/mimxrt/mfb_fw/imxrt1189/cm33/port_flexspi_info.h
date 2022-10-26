@@ -10,6 +10,7 @@
 
 #include "fsl_clock.h"
 #include "fsl_iomuxc.h"
+#include "fsl_cache.h"
 #include "fsl_rgpio.h"
 #include "fsl_flexspi.h"
 #include "mfb.h"

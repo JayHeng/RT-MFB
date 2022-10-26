@@ -50,12 +50,14 @@ extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
 extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
 extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
+extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address);
+extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length);
 extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-#if MFB_FLASH_MEMCPY_PERF_ENABLE
-static uint8_t s_nor_read_buffer[FLASH_PAGE_SIZE];
+#if MFB_FLASH_MEMCPY_PERF_ENABLE | MFB_FLASH_PATTERN_VERIFY_ENABLE
+static uint32_t s_nor_rw_buffer[FLASH_PAGE_SIZE/4];
 #endif
 
 uint8_t s_flashBusyStatusPol    = 0;
@@ -117,6 +119,103 @@ int mfb_printf(const char *fmt_s, ...)
     return 0;
 }
 
+#if MFB_FLASH_PATTERN_VERIFY_ENABLE
+static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen)
+{
+    if (isDataGen)
+    {
+        for (uint32_t idx = 0; idx < FLASH_PAGE_SIZE / sizeof(uint32_t); idx++)
+        {
+            s_nor_rw_buffer[idx] = pageAddr + idx * sizeof(uint32_t);
+        }
+    }
+    else
+    {
+        memcpy(s_nor_rw_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + pageAddr), FLASH_PAGE_SIZE);
+        for (uint32_t idx = 0; idx < FLASH_PAGE_SIZE / sizeof(uint32_t); idx++)
+        {
+            if (s_nor_rw_buffer[idx] != pageAddr + idx * sizeof(uint32_t))
+            {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+static bool mfb_flash_verify_pattern_region(void)
+{
+    for (uint32_t idx = 0; idx < MFB_FLASH_ACCESS_REGION_SIZE / FLASH_PAGE_SIZE; idx++)
+    {
+        if (!mfb_flash_handle_one_pattern_page(idx * FLASH_PAGE_SIZE, false))
+        {
+            return false;
+        }
+    }
+    
+    return true;
+}
+#endif
+
+bool mfb_flash_pattern_verify_test(bool isFirstTime)
+{
+    bool result = true;
+
+#if MFB_FLASH_PATTERN_VERIFY_ENABLE
+    result = mfb_flash_verify_pattern_region();
+    if ((!result) && (!isFirstTime))
+    {
+        mfb_printf("MFB: Write pattern data into Flash (First %dKB).\r\n", MFB_FLASH_ACCESS_REGION_SIZE / 0x400);
+        uint32_t sectorMax = MFB_FLASH_ACCESS_REGION_SIZE / SECTOR_SIZE;
+        uint32_t pagesPerSector = SECTOR_SIZE / FLASH_PAGE_SIZE;
+        for (uint32_t sectorId = 0; sectorId < sectorMax; sectorId++)
+        {
+            uint32_t sectorAddr = sectorId * SECTOR_SIZE;
+            status_t status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, sectorAddr);
+            if (status != kStatus_Success)
+            {
+                mfb_printf("MFB: Erase flash sector failure at address 0x%x!\r\n", sectorAddr);
+                return false;
+            }
+            for (uint32_t pageId = 0; pageId < pagesPerSector; pageId++)
+            {
+                uint32_t pageAddr = sectorAddr + pageId * FLASH_PAGE_SIZE;
+                mfb_flash_handle_one_pattern_page(pageAddr, true);
+                status = flexspi_nor_flash_page_program(EXAMPLE_FLEXSPI, pageAddr, (const uint32_t *)s_nor_rw_buffer, FLASH_PAGE_SIZE);
+                if (status != kStatus_Success)
+                {
+                    mfb_printf("MFB: Program flash page failure at address 0x%x!\r\n", pageAddr);
+                    return false;
+                }
+            }
+        }
+#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
+        DCACHE_InvalidateByRange(EXAMPLE_FLEXSPI_AMBA_BASE, MFB_FLASH_ACCESS_REGION_SIZE);
+#endif
+        result = mfb_flash_verify_pattern_region();
+    }
+
+    if (result)
+    {
+        mfb_printf("MFB: Flash Pattern data readback verification - Passed.\r\n");
+    }
+    else
+    {
+        if (isFirstTime)
+        {
+            mfb_printf("MFB: Flash Pattern data has not been written.\r\n");
+        }
+        else
+        {
+            mfb_printf("MFB: Flash Pattern data readback verification - Failed.\r\n");
+        }
+    }
+#endif
+    
+    return result;
+}
+
 void mfb_flash_memcpy_perf_test(bool isFirstTime)
 {
 #if MFB_FLASH_MEMCPY_PERF_ENABLE
@@ -128,7 +227,7 @@ void mfb_flash_memcpy_perf_test(bool isFirstTime)
     uint64_t startTicks = microseconds_get_ticks();
     uint64_t totalSize = (8UL*1024*1024);
     uint32_t loopMax = totalSize / MFB_FLASH_ACCESS_REGION_SIZE;
-    uint32_t unitSize = sizeof(s_nor_read_buffer);
+    uint32_t unitSize = FLASH_PAGE_SIZE;
     uint32_t idxMax = MFB_FLASH_ACCESS_REGION_SIZE / unitSize;
     /* Read 8MB data from flash to test speed */
     for (uint32_t loop = 0; loop < loopMax; loop++)
@@ -136,7 +235,7 @@ void mfb_flash_memcpy_perf_test(bool isFirstTime)
         /* Min NOR Flash size is 64KB */
         for (uint32_t idx = 0; idx < idxMax; idx++)
         {
-            memcpy(s_nor_read_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + idx * unitSize), unitSize);
+            memcpy(s_nor_rw_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + idx * unitSize), unitSize);
         }
     }
     uint64_t totalTicks = microseconds_get_ticks() - startTicks;
@@ -293,13 +392,12 @@ void mfb_main(void)
     uint8_t memoryTypeID = 0;
     uint8_t capacityID = 0;
 
-    mfb_printf("\r\n-------------------------------------\r\n");
     mfb_printf("MFB: i.MXRT multi-flash boot solution.\r\n");
     cpu_show_clock_source();
     
     /* Init FlexSPI pinmux */
-    flexspi_port_switch(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_2PAD);
-    flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_2PAD);
+    flexspi_port_switch(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_1PAD);
+    flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_1PAD);
 
     /* Move FlexSPI clock to a stable clock source */ 
     flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_30MHz);
@@ -329,6 +427,7 @@ void mfb_main(void)
         memoryTypeID = (jedecID >> 8) & 0xFF;
         capacityID = (jedecID >> 16) & 0xFF;
         uint32_t flashMemSizeInByte = mfb_decode_common_capacity_id(capacityID);
+        mfb_flash_pattern_verify_test(isFirstTime);
         mfb_flash_memcpy_perf_test(isFirstTime);
         isFirstTime = false;
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", manufacturerID);
@@ -771,10 +870,13 @@ void mfb_main(void)
                 {
                     mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
                 }
+                if (!mfb_flash_pattern_verify_test(false))
+                {
+                    return;
+                }
                 mfb_flash_memcpy_perf_test(isFirstTime);
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }
         }
     }
-    mfb_printf("-------------------------------------\r\n");
 }

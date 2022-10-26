@@ -37,7 +37,9 @@ int main(void)
     BOARD_InitDebugConsole();
 
     mfb_printf("\r\nMFB: Target i.MXRT1170.\r\n");
+    mfb_printf("\r\n-------------------------------------\r\n");
     mfb_main();
+    mfb_printf("-------------------------------------\r\n");
         
     while (1)
     {

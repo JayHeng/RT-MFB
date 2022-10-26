@@ -27,17 +27,19 @@ typedef enum _flexspi_root_clk_freq
 
 #define NOR_CMD_LUT_SEQ_IDX_READ            0
 #define NOR_CMD_LUT_SEQ_IDX_READSTATUS      1
-#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     2
-#define NOR_CMD_LUT_SEQ_IDX_READID          3
-
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  2
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     3
 #define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI 4
-#define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        5
-#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  6
+#define NOR_CMD_LUT_SEQ_IDX_READID          5
 
-#define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        7
-#define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        8
-
+#define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        6
+#define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        7
+#define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        8
 #define NOR_CMD_LUT_SEQ_IDX_SETDUMMY        10
+
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR     11
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     12
+
 /* NOTE: Workaround for debugger.
    Must define AHB write FlexSPI sequence index to 9 to avoid debugger issue.
    Debugger can attach to the CM33 core only when ROM executes to certain place.

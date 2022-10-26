@@ -45,7 +45,9 @@ int main(void)
 #endif
 
     mfb_printf("\r\nMFB: Target i.MXRT500.\r\n");
+    mfb_printf("\r\n-------------------------------------\r\n");
     mfb_main();
+    mfb_printf("-------------------------------------\r\n");
 
     while (1)
     {

@@ -4333,6 +4333,12 @@
     <group>
         <name>drivers</name>
         <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1011\drivers\fsl_cache.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1011\drivers\fsl_cache.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1011\drivers\fsl_clock.c</name>
         </file>
         <file>

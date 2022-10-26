@@ -11,6 +11,7 @@
 /*${header:start}*/
 #include "fsl_cache.h"
 #include "fsl_clock.h"
+#include "fsl_cache.h"
 #include "fsl_iopctl.h"
 #include "fsl_flexspi.h"
 #include "pin_mux.h"
