@@ -30,7 +30,7 @@
 // Whether to use fake jedec id (appliable when there is no id in flash device)
 #define MFB_FLASH_FAKE_JEDEC_ID_ENABLE   (0)
 // Whether to force loopback DQS (test dummy cycle setting for Octal Flash)
-#define MFB_FLASH_FORCE_LOOPBACK_DQS     (1)
+#define MFB_FLASH_FORCE_LOOPBACK_DQS     (0)
 
 /*******************************************************************************
  * Variables
