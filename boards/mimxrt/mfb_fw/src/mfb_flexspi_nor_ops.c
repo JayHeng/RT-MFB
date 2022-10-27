@@ -18,7 +18,7 @@
  * Variables
  ******************************************************************************/
 
-extern flexspi_device_config_t deviceconfig;
+extern flexspi_device_config_t s_deviceconfig;
    
 extern uint8_t s_flashBusyStatusPol;
 extern uint8_t s_flashBusyStatusOffset;
@@ -409,7 +409,7 @@ void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexs
     FLEXSPI_Init(base, &config);
 
     /* Configure flash settings according to serial flash feature. */
-    FLEXSPI_SetFlashConfig(base, &deviceconfig, FLASH_PORT);
+    FLEXSPI_SetFlashConfig(base, &s_deviceconfig, FLASH_PORT);
 
     /* Update LUT table into a specific mode, such as octal SDR mode or octal DDR mode based on application's
      * requirement. */

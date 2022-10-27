@@ -34,17 +34,25 @@
  * Definitions
  ******************************************************************************/
 
+/*! @brief JEDEC id structure. */
+typedef struct _jedec_id
+{
+    uint8_t manufacturerID;
+    uint8_t memoryTypeID;
+    uint8_t capacityID;
+    uint8_t reserved;
+} jedec_id_t;
 
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-extern const uint32_t customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH];
-extern const uint32_t customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH];
-extern const uint32_t customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH];
-extern const uint32_t customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
-extern const uint32_t customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
-extern const uint32_t customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH];
-extern const uint32_t customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH];
 
 extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
 extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
@@ -65,10 +73,7 @@ uint8_t s_flashBusyStatusOffset = 0;
 uint8_t s_flashQuadEnableCfg    = 0;
 uint8_t s_flashEnableOctalCmd   = 0;
 
-/*******************************************************************************
- * Code
- ******************************************************************************/
-flexspi_device_config_t deviceconfig = {
+flexspi_device_config_t s_deviceconfig = {
     .flexspiRootClk       = 27400000,
     .flashSize            = 0x2000, /* 64Mb/KByte */
     .CSIntervalUnit       = kFLEXSPI_CsIntervalUnit1SckCycle,
@@ -86,7 +91,7 @@ flexspi_device_config_t deviceconfig = {
     .AHBWriteWaitInterval = 0,
 };
 
-const uint32_t customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
+const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     /*  Normal read */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x03, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
@@ -119,6 +124,11 @@ const uint32_t customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
+
+/*******************************************************************************
+ * Code
+ ******************************************************************************/
+
 
 int mfb_printf(const char *fmt_s, ...)
 {
@@ -404,10 +414,7 @@ void mfb_show_mem_size(uint8_t capacityID, bool isAdesto)
 void mfb_main(void)
 {
     status_t status = kStatus_Success;
-    uint32_t jedecID = 0;
-    uint8_t manufacturerID = 0;
-    uint8_t memoryTypeID = 0;
-    uint8_t capacityID = 0;
+    jedec_id_t jedecID;
 
     mfb_printf("MFB: i.MXRT multi-flash boot solution.\r\n");
     cpu_show_clock_source();
@@ -419,15 +426,17 @@ void mfb_main(void)
     /* Move FlexSPI clock to a stable clock source */ 
     flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_30MHz);
     /* Init FlexSPI using common LUT */ 
-    flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
+    flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
     mfb_printf("\r\nMFB: FLEXSPI module is initialized to 1bit SDR normal read mode.\r\n");
     flexspi_show_clock_source(EXAMPLE_FLEXSPI);
 
     /* Get JEDEC ID. */
 #if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
-    jedecID = MICRON_OCTAL_FLASH_JEDEC_ID;
+    jedecID.manufacturerID = MICRON_OCTAL_FLASH_JEDEC_ID & 0xFF;
+    jedecID.memoryTypeID = (MICRON_OCTAL_FLASH_JEDEC_ID >> 8) & 0xFF;
+    jedecID.capacityID = (MICRON_OCTAL_FLASH_JEDEC_ID >> 16) & 0xFF;
 #else
-    status = flexspi_nor_get_jedec_id(EXAMPLE_FLEXSPI, &jedecID);
+    status = flexspi_nor_get_jedec_id(EXAMPLE_FLEXSPI, (uint32_t *)&jedecID);
     if (status != kStatus_Success)
     {
         mfb_printf("MFB: Get Flash Vendor ID failed.\r\n");
@@ -440,22 +449,19 @@ void mfb_main(void)
         bool isValidVendorId = true;
         bool isAdestoDevice = false;
         uint8_t dummyValue = 0;
-        manufacturerID = jedecID & 0xFF;
-        memoryTypeID = (jedecID >> 8) & 0xFF;
-        capacityID = (jedecID >> 16) & 0xFF;
-        uint32_t flashMemSizeInByte = mfb_decode_common_capacity_id(capacityID);
+        uint32_t flashMemSizeInByte = mfb_decode_common_capacity_id(jedecID.capacityID);
         mfb_flash_pattern_verify_test(false, isOctalDdrMode);
         mfb_flash_memcpy_perf_test(true);
-        mfb_printf("MFB: Flash Manufacturer ID: 0x%x", manufacturerID);
-        switch (manufacturerID)
+        mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID.manufacturerID);
+        switch (jedecID.manufacturerID)
         {
 #if MXIC_DEVICE_SERIES
             // MXIC
-            case 0xc2:
+            case MXIC_DEVICE_VENDOR_ID:
                 {
                     mfb_printf(" -- MXIC Serial Flash.\r\n");
-                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
-                    switch (memoryTypeID)
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
+                    switch (jedecID.memoryTypeID)
                     {
                         case 0x20:
                             mfb_printf(" -- MX25L/MX66L/MX25V QuadSPI 3.3V Series.\r\n");
@@ -496,7 +502,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, isAdestoDevice);
+                    mfb_show_mem_size(jedecID.capacityID, isAdestoDevice);
 #if MXIC_DEVICE_MX25UM51345
                     if (isOctalFlash)
                     {
@@ -504,13 +510,13 @@ void mfb_main(void)
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, rootClkFreq);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
-                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
+                        s_deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
                         s_flashEnableOctalCmd   = MXIC_OCTAL_FLASH_ENABLE_DDR_CMD;
                         /* Re-init FlexSPI using custom LUT */
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MXIC_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUT_MXIC_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
                         // Set dummy cycle of Flash
                         if (rootClkFreq == kFlexspiRootClkFreq_200MHz)
                         {
@@ -528,11 +534,11 @@ void mfb_main(void)
 
 #if ISSI_DEVICE_SERIES
             // ISSI
-            case 0x9d:
+            case ISSI_DEVICE_VENDOR_ID:
                 {
                     mfb_printf(" -- ISSI Serial Flash.\r\n");
-                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
-                    switch (memoryTypeID)
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
+                    switch (jedecID.memoryTypeID)
                     {
                         case 0x40:
                             mfb_printf(" -- IS25LQ/IS25LP QuadSPI 3.3V Series.\r\n");
@@ -555,20 +561,20 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, isAdestoDevice);
+                    mfb_show_mem_size(jedecID.capacityID, isAdestoDevice);
 #if ISSI_DEVICE_IS25WP064A
                     if (!isOctalFlash)
                     {
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
-                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
+                        s_deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
                         s_flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
                         /* Re-init FlexSPI using custom LUT */
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUT_ISSI_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
                         /* Enter quad mode. */
                         status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
                     }
@@ -584,16 +590,16 @@ void mfb_main(void)
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, rootClkFreq);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
-                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
+                        s_deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
                         s_flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
                         /* Re-init FlexSPI using custom LUT */
 #if MFB_FLASH_FORCE_LOOPBACK_DQS
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI_Octal, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUT_ISSI_Octal, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
 #else
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ISSI_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUT_ISSI_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
                         // Set dummy cycle of Flash
                         if (rootClkFreq == kFlexspiRootClkFreq_200MHz)
 #endif
@@ -614,11 +620,11 @@ void mfb_main(void)
 
 #if WINBOND_DEVICE_SERIES
             // Winbond
-            case 0xef:
+            case WINBOND_DEVICE_VENDOR_ID:
                 {
                     mfb_printf(" -- Winbond Serial Flash.\r\n");
-                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
-                    switch (memoryTypeID)
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
+                    switch (jedecID.memoryTypeID)
                     {
                         case 0x30:
                             mfb_printf(" -- W25X DualSPI 3.3V Series.\r\n");
@@ -641,20 +647,20 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, isAdestoDevice);
+                    mfb_show_mem_size(jedecID.capacityID, isAdestoDevice);
 #if WINBOND_DEVICE_W25Q128JW
                     if (!isOctalFlash)
                     {
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_133MHz);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
-                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
+                        s_deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
                         s_flashQuadEnableCfg    = WINBOND_FLASH_QUAD_ENABLE;
                         /* Re-init FlexSPI using custom LUT */
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_WINBOND_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUT_WINBOND_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
                         /* Enter quad mode. */
                         status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
                     }
@@ -665,11 +671,11 @@ void mfb_main(void)
 
 #if MICRON_DEVICE_SERIES
             // Micron
-            case 0x20:
+            case MICRON_DEVICE_VENDOR_ID:
                 {
                     mfb_printf(" -- Micron Serial Flash.\r\n");
-                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
-                    switch (memoryTypeID)
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
+                    switch (jedecID.memoryTypeID)
                     {
                         case 0xBA:
                             mfb_printf(" -- MT25QL QuadSPI 3.3V Series.\r\n");
@@ -689,19 +695,19 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, isAdestoDevice);
+                    mfb_show_mem_size(jedecID.capacityID, isAdestoDevice);
 #if MICRON_DEVICE_MT25QL256
                     if (!isOctalFlash)
                     {
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_100MHz);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
-                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
+                        s_deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
                         /* Re-init FlexSPI using custom LUT */
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUT_MICRON_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
                         /* No need to enable quad mode for micron device. */
                     }
 #endif
@@ -716,16 +722,16 @@ void mfb_main(void)
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, rootClkFreq);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
-                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
+                        s_deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
                         s_flashEnableOctalCmd   = MICRON_OCTAL_FLASH_ENABLE_DDR_CMD;
                         /* Re-init FlexSPI using custom LUT */
 #if MFB_FLASH_FORCE_LOOPBACK_DQS
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON_Octal, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUT_MICRON_Octal, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
 #else
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUT_MICRON_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
                         // Set dummy cycle of Flash
                         if (rootClkFreq == kFlexspiRootClkFreq_200MHz)
 #endif
@@ -746,11 +752,11 @@ void mfb_main(void)
 
 #if GIGADEVICE_DEVICE_SERIE
             // GigaDevice
-            case 0xc8:
+            case GIGADEVICE_DEVICE_VENDOR_ID:
                 {
                     mfb_printf(" -- GigaDevice Serial Flash.\r\n");
-                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
-                    switch (memoryTypeID)
+                    mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
+                    switch (jedecID.memoryTypeID)
                     {
                         case 0x40:
                             // GD25D DualSPI
@@ -788,7 +794,7 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(capacityID, isAdestoDevice);
+                    mfb_show_mem_size(jedecID.capacityID, isAdestoDevice);
 #if GIGADEVICE_DEVICE_GD25Q64C
 
 #endif
@@ -798,20 +804,20 @@ void mfb_main(void)
 
 #if ADESTO_DEVICE_SERIE
             // Adesto
-            case 0x1f:
+            case ADESTO_DEVICE_VENDOR_ID:
                 {
                     mfb_printf(" -- Adesto Serial Flash.\r\n");
-                    if (memoryTypeID != 0x42)
+                    if (jedecID.memoryTypeID != 0x42)
                     {
-                        capacityID = memoryTypeID & 0x1F;
-                        memoryTypeID = (memoryTypeID & 0xE0) >> 5;
-                        mfb_printf("MFB: Flash Family Code: 0x%x", memoryTypeID);
+                        jedecID.capacityID = jedecID.memoryTypeID & 0x1F;
+                        jedecID.memoryTypeID = (jedecID.memoryTypeID & 0xE0) >> 5;
+                        mfb_printf("MFB: Flash Family Code: 0x%x", jedecID.memoryTypeID);
                     }
                     else
                     {
-                        mfb_printf("MFB: Flash Memory Type ID: 0x%x", memoryTypeID);
+                        mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
                     }
-                    switch (memoryTypeID)
+                    switch (jedecID.memoryTypeID)
                     {
                         case 0x00:
                             mfb_printf(" -- AT25EU QuadSPI 1.8-3.3V Series.\r\n");
@@ -833,16 +839,16 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    if (memoryTypeID != 0x42)
+                    if (jedecID.memoryTypeID != 0x42)
                     {
                         isAdestoDevice = true;
-                        mfb_show_mem_size(capacityID, isAdestoDevice);
-                        flashMemSizeInByte = mfb_decode_adesto_capacity_id(capacityID);
+                        mfb_show_mem_size(jedecID.capacityID, isAdestoDevice);
+                        flashMemSizeInByte = mfb_decode_adesto_capacity_id(jedecID.capacityID);
                     }
                     else
                     {
-                        mfb_show_mem_size(capacityID, isAdestoDevice);
-                        flashMemSizeInByte = mfb_decode_common_capacity_id(capacityID);
+                        mfb_show_mem_size(jedecID.capacityID, isAdestoDevice);
+                        flashMemSizeInByte = mfb_decode_common_capacity_id(jedecID.capacityID);
                     }
 #if ADESTO_DEVICE_AT25SF128A
                     if (!isOctalFlash)
@@ -850,13 +856,13 @@ void mfb_main(void)
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_4PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_133MHz);
                         /* Update root clock */
-                        deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
-                        deviceconfig.flashSize = flashMemSizeInByte / 0x400;
+                        s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
+                        s_deviceconfig.flashSize = flashMemSizeInByte / 0x400;
                         s_flashBusyStatusPol    = ADESTO_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = ADESTO_FLASH_BUSY_STATUS_OFFSET;
                         s_flashQuadEnableCfg    = ADESTO_FLASH_QUAD_ENABLE;
                         /* Re-init FlexSPI using custom LUT */
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_ADESTO_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUT_ADESTO_Quad, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
                         /* Enter quad mode. */
                         status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
                     }

@@ -23,7 +23,7 @@
  * Code
  ******************************************************************************/
 #if ADESTO_DEVICE_AT25SF128A
-const uint32_t customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH] = {
+const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),

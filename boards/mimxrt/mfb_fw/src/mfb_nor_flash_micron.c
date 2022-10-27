@@ -23,7 +23,7 @@
  * Code
  ******************************************************************************/
 #if MICRON_DEVICE_MT25QL256
-const uint32_t customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
+const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
@@ -55,7 +55,7 @@ const uint32_t customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
 #endif
 
 #if MICRON_DEVICE_MT35XU512
-const uint32_t customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH] = {
+const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_FORCE_LOOPBACK_DQS
     /*  DDR OCTAL I/O FAST READ */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =

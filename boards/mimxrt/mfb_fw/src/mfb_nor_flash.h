@@ -57,26 +57,32 @@ typedef enum _flexspi_root_clk_freq
 
 ////////////////////////////////////////////////////////////////////////////////
 #define MXIC_DEVICE_SERIES          (1)
+#define MXIC_DEVICE_VENDOR_ID       (0xC2)
 #define MXIC_DEVICE_MX25L12865      (0)
 #define MXIC_DEVICE_MX25UM51345     (1)  // MIMXRT595-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define ISSI_DEVICE_SERIES          (1)
+#define ISSI_DEVICE_VENDOR_ID       (0x9D)
 #define ISSI_DEVICE_IS25LP064A      (0)  // MIMXRT1020-EVK
 #define ISSI_DEVICE_IS25WP064A      (1)  // MIMXRT1060-EVK, MIMXRT1170-EVK/PMIC
 #define ISSI_DEVICE_IS25WX256       (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
 #define WINBOND_DEVICE_SERIES       (1)
+#define WINBOND_DEVICE_VENDOR_ID    (0xEF)
 #define WINBOND_DEVICE_W25Q128JW    (1)  // MIMXRT1180-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define MICRON_DEVICE_SERIES        (1)
+#define MICRON_DEVICE_VENDOR_ID     (0x20)
 #define MICRON_DEVICE_MT25QL256     (1)  // MIMXRT1170-EVKB(Rework)
 #define MICRON_DEVICE_MT35XU512     (1)  // MIMXRT1180-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define GIGADEVICE_DEVICE_SERIE     (1)
+#define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
 #define GIGADEVICE_DEVICE_GD25Q64C  (0)
 #define GIGADEVICE_DEVICE_GD25LX256 (0)
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
+#define ADESTO_DEVICE_VENDOR_ID     (0x1F)
 #define ADESTO_DEVICE_AT25SF128A    (1)  // MIMXRT1010-EVK, MIMXRT1015-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define SPANSION_DEVICE_SERIE       (0)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon  in 2019
