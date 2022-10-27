@@ -403,7 +403,7 @@ void mfb_show_mem_size(uint8_t capacityID, bool isAdesto)
 
 void mfb_main(void)
 {
-    status_t status;
+    status_t status = kStatus_Success;
     uint32_t jedecID = 0;
     uint8_t manufacturerID = 0;
     uint8_t memoryTypeID = 0;
@@ -708,7 +708,11 @@ void mfb_main(void)
 #if MICRON_DEVICE_MT35XU512
                     if (isOctalFlash)
                     {
-                        flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_200MHz;
+#if MFB_FLASH_FORCE_LOOPBACK_DQS
+                        flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_30MHz;
+#else
+                        flexspi_root_clk_freq_t rootClkFreq = kFlexspiRootClkFreq_166MHz;
+#endif
                         flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_8PAD);
                         flexspi_clock_init(EXAMPLE_FLEXSPI, rootClkFreq);
                         /* Update root clock */
@@ -718,16 +722,22 @@ void mfb_main(void)
                         s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
                         s_flashEnableOctalCmd   = MICRON_OCTAL_FLASH_ENABLE_DDR_CMD;
                         /* Re-init FlexSPI using custom LUT */
+#if MFB_FLASH_FORCE_LOOPBACK_DQS
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON_Octal, kFLEXSPI_ReadSampleClkLoopbackFromDqsPad);
+#else
                         flexspi_nor_flash_init(EXAMPLE_FLEXSPI, customLUT_MICRON_Octal, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
                         // Set dummy cycle of Flash
                         if (rootClkFreq == kFlexspiRootClkFreq_200MHz)
+#endif
                         {
                             dummyValue = MICRON_OCTAL_FLASH_SET_DUMMY_CMD;
                             flexspi_nor_set_dummy_cycle(EXAMPLE_FLEXSPI, MICRON_OCTAL_FLASH_SET_DUMMY_CMD);
                         }
                         /* Enter octal mode. */
+#if !MFB_FLASH_FORCE_LOOPBACK_DQS
                         status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
                         isOctalDdrMode = true;
+#endif
                     }
 #endif
                     break;
