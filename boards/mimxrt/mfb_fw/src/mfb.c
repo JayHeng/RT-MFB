@@ -65,6 +65,7 @@ extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bool enableOctal);
 extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, bool enableOctal);
 extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
+extern uint8_t flexspi_nor_read_register(FLEXSPI_Type *base, uint8_t seqIndex, uint32_t regAddr);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -409,6 +410,32 @@ void mfb_show_mem_size(uint8_t capacityID, bool isAdesto)
     {
         mfb_printf(" -- %dMB.\r\n", flashMemSizeInKB / 0x400);
     }
+#endif
+}
+
+
+void mfb_show_flash_registers(void)
+{
+#if MFB_FLASH_REGS_READBACK_ENABLE
+    uint8_t regVal = 0;
+    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI, 0x0);
+    mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regVal);
+    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG2, 0x00000000);
+    mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regVal);
+    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000000);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000000, regVal);
+    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000001);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000001, regVal);
+    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000003);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000003, regVal);
+    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000004);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000004, regVal);
+    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000005);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000005, regVal);
+    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000006);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000006, regVal);
+    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000007);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000007, regVal);
 #endif
 }
 
@@ -902,6 +929,7 @@ void mfb_main(void)
             }
             if (status == kStatus_Success)
             {
+                mfb_show_flash_registers();
                 bool isFirstTry = true;
                 while (1)
                 {

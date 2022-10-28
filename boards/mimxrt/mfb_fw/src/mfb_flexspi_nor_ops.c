@@ -265,6 +265,32 @@ status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base)
     return flexspi_nor_write_register(base, NOR_CMD_LUT_SEQ_IDX_ENTEROPI, s_flashEnableOctalCmd);
 }
 
+uint8_t flexspi_nor_read_register(FLEXSPI_Type *base, uint8_t seqIndex, uint32_t regAddr)
+{
+    uint32_t regVal = 0;
+    flexspi_transfer_t flashXfer;
+    flashXfer.deviceAddress = regAddr;
+    flashXfer.port          = FLASH_PORT;
+    flashXfer.cmdType       = kFLEXSPI_Read;
+    flashXfer.SeqNumber     = 1;
+    flashXfer.seqIndex      = seqIndex;
+    flashXfer.data          = &regVal;
+    flashXfer.dataSize      = 1;
+
+    status_t status = FLEXSPI_TransferBlocking(base, &flashXfer);
+
+    /* Do software reset or clear AHB buffer directly. */
+#if defined(FSL_FEATURE_SOC_OTFAD_COUNT) && defined(FLEXSPI_AHBCR_CLRAHBRXBUF_MASK) && \
+    defined(FLEXSPI_AHBCR_CLRAHBTXBUF_MASK)
+    base->AHBCR |= FLEXSPI_AHBCR_CLRAHBRXBUF_MASK | FLEXSPI_AHBCR_CLRAHBTXBUF_MASK;
+    base->AHBCR &= ~(FLEXSPI_AHBCR_CLRAHBRXBUF_MASK | FLEXSPI_AHBCR_CLRAHBTXBUF_MASK);
+#else
+    FLEXSPI_SoftwareReset(base);
+#endif
+
+    return (regVal & 0xFF);
+}
+
 status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bool enableOctal)
 {
     status_t status;

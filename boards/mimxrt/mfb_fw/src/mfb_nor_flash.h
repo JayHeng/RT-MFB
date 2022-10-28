@@ -44,6 +44,9 @@ typedef enum _flexspi_root_clk_freq
 #define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     12
 #define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI 13
 #define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI 14
+    
+#define NOR_CMD_LUT_SEQ_IDX_READREG         15
+#define NOR_CMD_LUT_SEQ_IDX_READREG2        5
 
 /* NOTE: Workaround for debugger.
    Must define AHB write FlexSPI sequence index to 9 to avoid debugger issue.
@@ -56,7 +59,7 @@ typedef enum _flexspi_root_clk_freq
    be set to STOP command to avoid unexpected debugger behaivor.
  */
 #define NOR_CMD_LUT_SEQ_IDX_WRITE           9
-#define CUSTOM_LUT_LENGTH                   60
+#define CUSTOM_LUT_LENGTH                   64
 
 ////////////////////////////////////////////////////////////////////////////////
 #define MXIC_DEVICE_SERIES          (1)
