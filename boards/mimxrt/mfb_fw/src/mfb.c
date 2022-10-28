@@ -144,7 +144,7 @@ int mfb_printf(const char *fmt_s, ...)
 }
 
 #if MFB_FLASH_PATTERN_VERIFY_ENABLE
-static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen)
+static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen, bool showError)
 {
     if (isDataGen)
     {
@@ -160,6 +160,10 @@ static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen)
         {
             if (s_nor_rw_buffer[idx] != pageAddr + idx * sizeof(uint32_t))
             {
+                if (showError)
+                {
+                    mfb_printf("MFB: Pattern verify failure at flash address 0x%x, error value is 0x%x.\r\n", pageAddr + idx * sizeof(uint32_t), s_nor_rw_buffer[idx]);
+                }
                 return false;
             }
         }
@@ -167,22 +171,43 @@ static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen)
     
     return true;
 }
-
-static bool mfb_flash_verify_pattern_region(void)
-{
-    for (uint32_t idx = 0; idx < MFB_FLASH_ACCESS_REGION_SIZE / FLASH_PAGE_SIZE; idx++)
-    {
-        if (!mfb_flash_handle_one_pattern_page(MFB_FLASH_ACCESS_REGION_START + idx * FLASH_PAGE_SIZE, false))
-        {
-            return false;
-        }
-    }
-    
-    return true;
-}
 #endif
 
-bool mfb_flash_pattern_verify_test(bool fillPatternWhenFailure, bool isOctalDdrMode)
+bool mfb_flash_write_pattern_region(bool isOctalDdrMode)
+{
+    bool result = true;
+
+#if MFB_FLASH_PATTERN_VERIFY_ENABLE
+    mfb_printf("MFB: Write pattern data into Flash region 0x%x - 0x%x.\r\n", MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_START + MFB_FLASH_ACCESS_REGION_SIZE - 1);
+    uint32_t sectorMax = MFB_FLASH_ACCESS_REGION_SIZE / SECTOR_SIZE;
+    uint32_t pagesPerSector = SECTOR_SIZE / FLASH_PAGE_SIZE;
+    for (uint32_t sectorId = 0; sectorId < sectorMax; sectorId++)
+    {
+        uint32_t sectorAddr = MFB_FLASH_ACCESS_REGION_START + sectorId * SECTOR_SIZE;
+        status_t status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, sectorAddr, isOctalDdrMode);
+        if (status != kStatus_Success)
+        {
+            mfb_printf("MFB: Erase flash sector failure at address 0x%x!\r\n", sectorAddr);
+            return false;
+        }
+        for (uint32_t pageId = 0; pageId < pagesPerSector; pageId++)
+        {
+            uint32_t pageAddr = sectorAddr + pageId * FLASH_PAGE_SIZE;
+            mfb_flash_handle_one_pattern_page(pageAddr, true, false);
+            status = flexspi_nor_flash_page_program(EXAMPLE_FLEXSPI, pageAddr, (const uint32_t *)s_nor_rw_buffer, FLASH_PAGE_SIZE, isOctalDdrMode);
+            if (status != kStatus_Success)
+            {
+                mfb_printf("MFB: Program flash page failure at address 0x%x!\r\n", pageAddr);
+                return false;
+            }
+        }
+    }
+#endif
+    
+    return result;
+}
+
+bool mfb_flash_pattern_verify_test(bool showError)
 {
     bool result = true;
 
@@ -194,37 +219,16 @@ bool mfb_flash_pattern_verify_test(bool fillPatternWhenFailure, bool isOctalDdrM
     //  2. It is 2nd time verify (before OPI enablment), write pattern when failure then verify (ERASE/PROGRAM seq in common LUT)
     //  3. It is 3rd time verify (after OPI enablment), just verify even failure
 #if MFB_FLASH_PATTERN_VERIFY_ENABLE
-    result = mfb_flash_verify_pattern_region();
-    if ((!result) && fillPatternWhenFailure)
-    {
-        mfb_printf("MFB: Write pattern data into Flash region 0x%x - 0x%x.\r\n", MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_START + MFB_FLASH_ACCESS_REGION_SIZE - 1);
-        uint32_t sectorMax = MFB_FLASH_ACCESS_REGION_SIZE / SECTOR_SIZE;
-        uint32_t pagesPerSector = SECTOR_SIZE / FLASH_PAGE_SIZE;
-        for (uint32_t sectorId = 0; sectorId < sectorMax; sectorId++)
-        {
-            uint32_t sectorAddr = MFB_FLASH_ACCESS_REGION_START + sectorId * SECTOR_SIZE;
-            status_t status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, sectorAddr, isOctalDdrMode);
-            if (status != kStatus_Success)
-            {
-                mfb_printf("MFB: Erase flash sector failure at address 0x%x!\r\n", sectorAddr);
-                return false;
-            }
-            for (uint32_t pageId = 0; pageId < pagesPerSector; pageId++)
-            {
-                uint32_t pageAddr = sectorAddr + pageId * FLASH_PAGE_SIZE;
-                mfb_flash_handle_one_pattern_page(pageAddr, true);
-                status = flexspi_nor_flash_page_program(EXAMPLE_FLEXSPI, pageAddr, (const uint32_t *)s_nor_rw_buffer, FLASH_PAGE_SIZE, isOctalDdrMode);
-                if (status != kStatus_Success)
-                {
-                    mfb_printf("MFB: Program flash page failure at address 0x%x!\r\n", pageAddr);
-                    return false;
-                }
-            }
-        }
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-        DCACHE_InvalidateByRange(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_SIZE);
+    DCACHE_InvalidateByRange(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_SIZE);
 #endif
-        result = mfb_flash_verify_pattern_region();
+    for (uint32_t idx = 0; idx < MFB_FLASH_ACCESS_REGION_SIZE / FLASH_PAGE_SIZE; idx++)
+    {
+        if (!mfb_flash_handle_one_pattern_page(MFB_FLASH_ACCESS_REGION_START + idx * FLASH_PAGE_SIZE, false, showError))
+        {
+            result = false;
+            break;
+        }
     }
 
     if (result)
@@ -233,14 +237,7 @@ bool mfb_flash_pattern_verify_test(bool fillPatternWhenFailure, bool isOctalDdrM
     }
     else
     {
-        if (!fillPatternWhenFailure)
-        {
-            mfb_printf("MFB: Flash Pattern data has not been written.\r\n");
-        }
-        else
-        {
-            mfb_printf("MFB: Flash Pattern data readback verification - Failed.\r\n");
-        }
+        //mfb_printf("MFB: Flash Pattern data readback verification - Failed.\r\n");
     }
 #endif
     
@@ -459,7 +456,7 @@ void mfb_main(void)
         /* Get real flash size according to jedec id result (it may not be appliable to some specifal adesto device) */
         uint32_t cfg_flashMemSizeInByte = mfb_decode_common_capacity_id(jedecID.capacityID);
         /* Do patten verify test under 1bit SPI mode */
-        mfb_flash_pattern_verify_test(false, sta_isOctalDdrMode);
+        mfb_flash_pattern_verify_test(false);
         /* Get perf test result under 1bit SPI mode */
         mfb_flash_memcpy_perf_test(true);
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID.manufacturerID);
@@ -905,14 +902,36 @@ void mfb_main(void)
             }
             if (status == kStatus_Success)
             {
-                if (!mfb_flash_pattern_verify_test(true, sta_isOctalDdrMode))
+                bool isFirstTry = true;
+                while (1)
                 {
-                    return;
+                    if (!mfb_flash_pattern_verify_test(!isFirstTry))
+                    {
+                         if (isFirstTry)
+                         {
+                             if (!mfb_flash_write_pattern_region(sta_isOctalDdrMode))
+                             {
+                                 return;
+                             }
+                         }
+                         else
+                         {
+                             return;
+                         }
+                    }
+                    if (isFirstTry)
+                    {
+                        /* Configure FlexSPI clock as user prescriptive */ 
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, cfg_rootClkFreq);
+                        /* Show FlexSPI clock source */
+                        flexspi_show_clock_source(EXAMPLE_FLEXSPI);
+                        isFirstTry = false;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                /* Configure FlexSPI clock as user prescriptive */ 
-                flexspi_clock_init(EXAMPLE_FLEXSPI, cfg_rootClkFreq);
-                /* Show FlexSPI clock source */
-                flexspi_show_clock_source(EXAMPLE_FLEXSPI);
                 mfb_flash_memcpy_perf_test(false);
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }
