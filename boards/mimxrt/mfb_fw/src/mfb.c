@@ -518,7 +518,7 @@ void mfb_main(void)
                     if (sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_8PAD;
-                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_166MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
                         s_flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
@@ -762,13 +762,18 @@ void mfb_main(void)
                     if (sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_8PAD;
-                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
-                        cfg_readSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
                         s_flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
                         s_flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
                         s_flashEnableOctalCmd   = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_GIGADEVICE_Octal;
+#if MFB_FLASH_FORCE_LOOPBACK_DQS
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
+                        cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+#else
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_166MHz;
+                        cfg_readSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
                         if (cfg_rootClkFreq == kFlexspiRootClkFreq_200MHz)
+#endif
                         {
                             cfg_dummyValue = GIGADEVICE_OCTAL_FLASH_SET_DUMMY_CMD;
                         }
@@ -885,7 +890,6 @@ void mfb_main(void)
 #if !MFB_FLASH_FORCE_LOOPBACK_DQS
                 status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
                 sta_isOctalDdrMode = true;
-                flexspi_sw_delay_us(100UL);
 #endif
                 if (status != kStatus_Success)
                 {
