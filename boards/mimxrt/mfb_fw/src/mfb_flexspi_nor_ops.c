@@ -231,13 +231,14 @@ static status_t flexspi_nor_write_register(FLEXSPI_Type *base, uint32_t seqIndex
     if ((seqIndex == NOR_CMD_LUT_SEQ_IDX_SETDUMMY) || (seqIndex == NOR_CMD_LUT_SEQ_IDX_ENABLEQE))
     {
         isOctalMode = false;
+        status = flexspi_nor_wait_bus_busy(base, isOctalMode);
     }
     else if (seqIndex == NOR_CMD_LUT_SEQ_IDX_ENTEROPI)
     {
         isOctalMode = true;
+        status = flexspi_nor_wait_bus_busy(base, isOctalMode);
+        //flexspi_sw_delay_us(100UL);
     }
-
-    status             = flexspi_nor_wait_bus_busy(base, isOctalMode);
 
     /* Do software reset. */
     FLEXSPI_SoftwareReset(base);
