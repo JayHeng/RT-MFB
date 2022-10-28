@@ -88,8 +88,9 @@ typedef enum _flexspi_root_clk_freq
 ////////////////////////////////////////////////////////////////////////////////
 #define GIGADEVICE_DEVICE_SERIE     (1)
 #define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
-#define GIGADEVICE_DEVICE_GD25Q64C  (0)
-#define GIGADEVICE_DEVICE_GD25LX256 (0)
+#define GIGADEVICE_DEVICE_GD25LE128 (0)
+#define GIGADEVICE_DEVICE_OCTAL     (1)
+#define GIGADEVICE_DEVICE_GD25LX256 (1)
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
 #define ADESTO_DEVICE_VENDOR_ID     (0x1F)

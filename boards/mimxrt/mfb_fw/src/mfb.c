@@ -24,6 +24,9 @@
 #if ADESTO_DEVICE_SERIE
 #include "mfb_nor_flash_adesto.h"
 #endif
+#if GIGADEVICE_DEVICE_SERIE
+#include "mfb_nor_flash_gigadevice.h"
+#endif
 #include "fsl_flexspi.h"
 #include "fsl_debug_console.h"
 #include "pin_mux.h"
@@ -53,6 +56,7 @@ extern const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_GIGADEVICE_Octal[CUSTOM_LUT_LENGTH];
 
 extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
 extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
@@ -744,6 +748,7 @@ void mfb_main(void)
                             mfb_printf(" -- GD25LB/GD55LB QuadSPI 1.8V Series.\r\n");
                             break;
                         case 0x68:
+                            sta_isOctalFlash = true;
                             mfb_printf(" -- GD25LX/GD55LX OctalSPI 1.8V Series.\r\n");
                             break;
                         // Missing GD25F, GD25LR, GD25T, GD25R
@@ -753,8 +758,21 @@ void mfb_main(void)
                             break;
                     }
                     mfb_show_mem_size(jedecID.capacityID, false);
-#if GIGADEVICE_DEVICE_GD25Q64C
-
+#if GIGADEVICE_DEVICE_OCTAL
+                    if (sta_isOctalFlash)
+                    {
+                        cfg_pad                 = kFLEXSPI_8PAD;
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
+                        cfg_readSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+                        s_flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
+                        s_flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashEnableOctalCmd   = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
+                        cfg_customLUTVendor     = s_customLUT_GIGADEVICE_Octal;
+                        if (cfg_rootClkFreq == kFlexspiRootClkFreq_200MHz)
+                        {
+                            cfg_dummyValue = GIGADEVICE_OCTAL_FLASH_SET_DUMMY_CMD;
+                        }
+                    }
 #endif
                     break;
                 }
@@ -867,6 +885,7 @@ void mfb_main(void)
 #if !MFB_FLASH_FORCE_LOOPBACK_DQS
                 status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
                 sta_isOctalDdrMode = true;
+                flexspi_sw_delay_us(100UL);
 #endif
                 if (status != kStatus_Success)
                 {

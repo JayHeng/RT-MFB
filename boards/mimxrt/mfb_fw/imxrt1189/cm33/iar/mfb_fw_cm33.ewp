@@ -4559,6 +4559,12 @@
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_adesto.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_gigadevice.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_gigadevice.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_issi.c</name>
         </file>
         <file>
