@@ -86,7 +86,7 @@ const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
 
     /* Write Enable - OPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_8PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
     /* Enter OPI mode */
     // Volatile Configuration Register address 000000h - I/O mode
@@ -116,7 +116,7 @@ const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x10),
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_8PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
 #if !MFB_FLASH_FORCE_LOOPBACK_DQS
     /* Erase Sector - OPI */
@@ -127,7 +127,7 @@ const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x12, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_8PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 #else
     /* Erase Sector */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI] =
