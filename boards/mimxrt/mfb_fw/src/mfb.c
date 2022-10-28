@@ -855,16 +855,12 @@ void mfb_main(void)
         {
             /* Configure FlexSPI pinmux as user prescriptive */
             flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, cfg_pad);
-            /* Configure FlexSPI clock as user prescriptive */ 
-            flexspi_clock_init(EXAMPLE_FLEXSPI, cfg_rootClkFreq);
             /* Update root clock */
-            s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
+            //s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
             s_deviceconfig.flashSize = cfg_flashMemSizeInByte / 0x400;
             /* Re-init FlexSPI using custom LUT */
             flexspi_nor_flash_init(EXAMPLE_FLEXSPI, cfg_customLUTVendor, cfg_readSampleClock);
             mfb_printf("\r\nMFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
-            /* Show FlexSPI clock source */
-            flexspi_show_clock_source(EXAMPLE_FLEXSPI);
             /* Write dummy cycle value into flash if needed */
             if (cfg_dummyValue != DUMMY_VALUE_INVALID)
             {
@@ -913,6 +909,10 @@ void mfb_main(void)
                 {
                     return;
                 }
+                /* Configure FlexSPI clock as user prescriptive */ 
+                flexspi_clock_init(EXAMPLE_FLEXSPI, cfg_rootClkFreq);
+                /* Show FlexSPI clock source */
+                flexspi_show_clock_source(EXAMPLE_FLEXSPI);
                 mfb_flash_memcpy_perf_test(false);
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }
