@@ -22,7 +22,7 @@
 #endif
 
 #if MICRON_DEVICE_MT35XU512
-#define MICRON_OCTAL_FLASH_JEDEC_ID     (0x001a5B20)
+#define MICRON_OCTAL_FLASH_JEDEC_ID     (0x001a5B2C)
 // 0xFF - Extended SPI (Default)
 // 0xDF - Extended SPI without DQS
 // 0xE7 - Octal DDR

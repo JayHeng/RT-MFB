@@ -83,7 +83,7 @@ typedef enum _flexspi_root_clk_freq
 #define WINBOND_DEVICE_W25Q128JW    (1)  // MIMXRT1180-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define MICRON_DEVICE_SERIES        (1)
-#define MICRON_DEVICE_VENDOR_ID     (0x20)
+#define MICRON_DEVICE_VENDOR_ID     (0x2C)
 #define MICRON_DEVICE_QUAD          (1)
 #define MICRON_DEVICE_MT25QL256     (1)  // MIMXRT1170-EVKB(Rework)
 #define MICRON_DEVICE_OCTAL         (1)
