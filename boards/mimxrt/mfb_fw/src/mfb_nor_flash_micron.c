@@ -32,7 +32,7 @@ const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
 
     /* Read status register */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x01),
 
     /* Write Enable */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =

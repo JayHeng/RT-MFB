@@ -23,6 +23,47 @@
  * Code
  ******************************************************************************/
 
+#if GIGADEVICE_DEVICE_GD25LE128
+const uint32_t s_customLUT_GIGADEVICE_Quad[CUSTOM_LUT_LENGTH] = {
+    /* Fast read quad mode - SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x04),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Read status register - 1 */
+    // opcode 0x05/0x35 to read Status Registers (1/2)
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x01),
+
+    /* Write Enable */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Enable Quad mode */
+    // QE bit in 8bit Status Register-2[1], there are two Status Registers (1/2)
+    // opcode 0x01 to write Status Registers (1&2)
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x02),
+
+    /* Enter QPI mode */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x38, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Erase Sector */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+
+    /* Page Program - single mode */
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+};
+#endif
+
 #if GIGADEVICE_DEVICE_GD25LX256
 const uint32_t s_customLUT_GIGADEVICE_Octal[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_FORCE_LOOPBACK_DQS

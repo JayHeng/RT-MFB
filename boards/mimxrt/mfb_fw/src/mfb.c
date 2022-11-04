@@ -56,6 +56,7 @@ extern const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_GIGADEVICE_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_GIGADEVICE_Octal[CUSTOM_LUT_LENGTH];
 
 extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
@@ -615,6 +616,7 @@ void mfb_main(void)
                         s_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
                         s_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
                         s_flashPropertyInfo.flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
+                        s_flashPropertyInfo.flashQuadEnableBytes  = 1;
                         cfg_customLUTVendor     = s_customLUT_ISSI_Quad;
                     }
 #endif
@@ -682,6 +684,7 @@ void mfb_main(void)
                         s_flashPropertyInfo.flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
                         s_flashPropertyInfo.flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
                         s_flashPropertyInfo.flashQuadEnableCfg    = WINBOND_FLASH_QUAD_ENABLE;
+                        s_flashPropertyInfo.flashQuadEnableBytes  = 1;
                         cfg_customLUTVendor     = s_customLUT_WINBOND_Quad;
                     }
 #endif
@@ -800,6 +803,19 @@ void mfb_main(void)
                             break;
                     }
                     mfb_show_mem_size(jedecID.capacityID, false);
+#if GIGADEVICE_DEVICE_Quad
+                    if (!sta_isOctalFlash)
+                    {
+                        cfg_pad                 = kFLEXSPI_4PAD;
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
+                        cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+                        s_flashPropertyInfo.flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashPropertyInfo.flashQuadEnableCfg    = GIGADEVICE_FLASH_QUAD_ENABLE;
+                        s_flashPropertyInfo.flashQuadEnableBytes  = 2;
+                        cfg_customLUTVendor     = s_customLUT_GIGADEVICE_Quad;
+                    }
+#endif
 #if GIGADEVICE_DEVICE_OCTAL
                     if (sta_isOctalFlash)
                     {
@@ -881,6 +897,7 @@ void mfb_main(void)
                         s_flashPropertyInfo.flashBusyStatusPol    = ADESTO_FLASH_BUSY_STATUS_POL;
                         s_flashPropertyInfo.flashBusyStatusOffset = ADESTO_FLASH_BUSY_STATUS_OFFSET;
                         s_flashPropertyInfo.flashQuadEnableCfg    = ADESTO_FLASH_QUAD_ENABLE;
+                        s_flashPropertyInfo.flashQuadEnableBytes  = 1;
                         cfg_customLUTVendor     = s_customLUT_ADESTO_Quad;
                     }
 #endif
