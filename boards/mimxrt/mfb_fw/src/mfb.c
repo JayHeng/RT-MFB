@@ -51,6 +51,7 @@ typedef struct _jedec_id
  ******************************************************************************/
 extern const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH];
+extern const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
@@ -557,6 +558,19 @@ void mfb_main(void)
                             break;
                     }
                     mfb_show_mem_size(jedecID.capacityID, false);
+#if MXIC_DEVICE_QUAD
+                    if (!sta_isOctalFlash)
+                    {
+                        cfg_pad                 = kFLEXSPI_4PAD;
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
+                        cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+                        s_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashPropertyInfo.flashQuadEnableCfg    = MXIC_FLASH_QUAD_ENABLE;
+                        s_flashPropertyInfo.flashQuadEnableBytes  = 1;
+                        cfg_customLUTVendor     = s_customLUT_MXIC_Quad;
+                    }
+#endif
 #if MXIC_DEVICE_OCTAL
                     if (sta_isOctalFlash)
                     {

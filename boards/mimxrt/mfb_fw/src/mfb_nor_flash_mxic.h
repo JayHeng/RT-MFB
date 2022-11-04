@@ -13,11 +13,14 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-
-#if MXIC_DEVICE_MX25UM51345
 #define MXIC_FLASH_BUSY_STATUS_POL    1
 #define MXIC_FLASH_BUSY_STATUS_OFFSET 0
 
+#if MXIC_DEVICE_MX25U25645G
+#define MXIC_FLASH_QUAD_ENABLE        0x40
+#endif
+
+#if MXIC_DEVICE_MX25UM51345
 // 0x00 - SPI (default)
 // 0x01 - STR OPI enable
 // 0x02 - DTR OPI enable
