@@ -21,8 +21,9 @@ typedef struct _flash_property_info
     uint8_t flashBusyStatusPol;
     uint8_t flashBusyStatusOffset;
     uint16_t flashQuadEnableCfg;
+    uint8_t flashQuadEnableBytes;
     uint8_t flashEnableOctalCmd;
-    uint8_t reserved[3];
+    uint8_t reserved[2];
 } flash_property_info_t;
 
 // Flash status/cfg register r/w access helper
@@ -96,8 +97,8 @@ typedef enum _flexspi_root_clk_freq
 ////////////////////////////////////////////////////////////////////////////////
 #define MXIC_DEVICE_SERIES          (1)
 #define MXIC_DEVICE_VENDOR_ID       (0xC2)
-#define MXIC_DEVICE_QUAD            (0)
-#define MXIC_DEVICE_MX25L12865      (0)
+#define MXIC_DEVICE_QUAD            (1)
+#define MXIC_DEVICE_MX25U25645G     (1)  // MIMXRT1180-MEM-BB&DS
 #define MXIC_DEVICE_OCTAL           (1)
 #define MXIC_DEVICE_MX25UM51345     (1)  // MIMXRT595-EVK
 ////////////////////////////////////////////////////////////////////////////////

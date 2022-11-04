@@ -258,7 +258,7 @@ status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
 status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base)
 {
     flash_reg_access_t regAccess;
-    regAccess.regNum = 1;
+    regAccess.regNum = s_flashPropertyInfo.flashQuadEnableBytes;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_ENABLEQE;
     regAccess.regValue.U = s_flashPropertyInfo.flashQuadEnableCfg;
     return flexspi_nor_write_register(base, &regAccess);
