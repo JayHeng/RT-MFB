@@ -95,12 +95,26 @@ typedef enum _flexspi_root_clk_freq
 #define CUSTOM_LUT_LENGTH                   64
 
 ////////////////////////////////////////////////////////////////////////////////
+#define WINBOND_DEVICE_SERIES       (1)
+#define WINBOND_DEVICE_VENDOR_ID    (0xEF)
+#define WINBOND_DEVICE_QUAD         (1)
+#define WINBOND_DEVICE_W25Q128JW    (1)  // MIMXRT1180-EVK
+#define WINBOND_DEVICE_W25M512JW    (0)  // MIMXRT1180-MEM-BB&DS
+////////////////////////////////////////////////////////////////////////////////
 #define MXIC_DEVICE_SERIES          (1)
 #define MXIC_DEVICE_VENDOR_ID       (0xC2)
 #define MXIC_DEVICE_QUAD            (1)
 #define MXIC_DEVICE_MX25U25645G     (1)  // MIMXRT1180-MEM-BB&DS
 #define MXIC_DEVICE_OCTAL           (1)
 #define MXIC_DEVICE_MX25UM51345     (1)  // MIMXRT595-EVK
+////////////////////////////////////////////////////////////////////////////////
+#define GIGADEVICE_DEVICE_SERIE     (1)
+#define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
+#define GIGADEVICE_DEVICE_Quad      (1)
+#define GIGADEVICE_DEVICE_GD25LE128 (1)  // MIMXRT1180-MEM-BB&DS
+#define GIGADEVICE_DEVICE_GD25LT256 (0)  // MIMXRT1180-MEM-BB&DS
+#define GIGADEVICE_DEVICE_OCTAL     (1)
+#define GIGADEVICE_DEVICE_GD25LX256 (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
 #define ISSI_DEVICE_SERIES          (1)
 #define ISSI_DEVICE_VENDOR_ID       (0x9D)
@@ -110,24 +124,12 @@ typedef enum _flexspi_root_clk_freq
 #define ISSI_DEVICE_OCTAL           (1)
 #define ISSI_DEVICE_IS25WX256       (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
-#define WINBOND_DEVICE_SERIES       (1)
-#define WINBOND_DEVICE_VENDOR_ID    (0xEF)
-#define WINBOND_DEVICE_QUAD         (1)
-#define WINBOND_DEVICE_W25Q128JW    (1)  // MIMXRT1180-EVK
-////////////////////////////////////////////////////////////////////////////////
 #define MICRON_DEVICE_SERIES        (1)
 #define MICRON_DEVICE_VENDOR_ID     (0x2C)
 #define MICRON_DEVICE_QUAD          (1)
 #define MICRON_DEVICE_MT25QL256     (1)  // MIMXRT1170-EVKB(Rework)
 #define MICRON_DEVICE_OCTAL         (1)
 #define MICRON_DEVICE_MT35XU512     (1)  // MIMXRT1180-EVK
-////////////////////////////////////////////////////////////////////////////////
-#define GIGADEVICE_DEVICE_SERIE     (1)
-#define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
-#define GIGADEVICE_DEVICE_Quad      (1)
-#define GIGADEVICE_DEVICE_GD25LE128 (1)  // MIMXRT1180-MEM-BB&DS
-#define GIGADEVICE_DEVICE_OCTAL     (1)
-#define GIGADEVICE_DEVICE_GD25LX256 (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
 #define ADESTO_DEVICE_VENDOR_ID     (0x1F)
