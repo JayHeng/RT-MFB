@@ -15,6 +15,37 @@
 
 #define DUMMY_VALUE_INVALID               (0xdeadbeefu)
 
+// Flash property info for operation
+typedef struct _flash_property_info
+{
+    uint8_t flashBusyStatusPol;
+    uint8_t flashBusyStatusOffset;
+    uint16_t flashQuadEnableCfg;
+    uint8_t flashEnableOctalCmd;
+    uint8_t reserved[3];
+} flash_property_info_t;
+
+// Flash status/cfg register r/w access helper
+typedef struct _flash_reg_access
+{
+    uint8_t regNum;
+    uint8_t regSeqIdx;
+    uint8_t reserved[2];
+    uint32_t regAddr;
+    union
+    {
+        struct
+        {
+            uint32_t reg1 : 8;
+            uint32_t reg2 : 8;
+            uint32_t reg3 : 8;
+            uint32_t reg4 : 8;
+        } B;
+        uint32_t U;
+    } regValue;
+} flash_reg_access_t;
+
+// Supported Flexspi clock defn
 typedef enum _flexspi_root_clk_freq
 {
     kFlexspiRootClkFreq_30MHz  = 1,
@@ -28,6 +59,7 @@ typedef enum _flexspi_root_clk_freq
     kFlexspiRootClkFreq_200MHz = 9,
 } flexspi_root_clk_freq_t;
 
+// FlexSPI LUT seq defn
 #define NOR_CMD_LUT_SEQ_IDX_READ            0
 #define NOR_CMD_LUT_SEQ_IDX_READSTATUS      1
 #define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  2
@@ -91,17 +123,27 @@ typedef enum _flexspi_root_clk_freq
 ////////////////////////////////////////////////////////////////////////////////
 #define GIGADEVICE_DEVICE_SERIE     (1)
 #define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
-#define GIGADEVICE_DEVICE_GD25LE128 (0)
+#define GIGADEVICE_DEVICE_Quad      (1)
+#define GIGADEVICE_DEVICE_GD25LE128 (1)  // MIMXRT1180-MEM-BB&DS
 #define GIGADEVICE_DEVICE_OCTAL     (1)
-#define GIGADEVICE_DEVICE_GD25LX256 (1)
+#define GIGADEVICE_DEVICE_GD25LX256 (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
 #define ADESTO_DEVICE_VENDOR_ID     (0x1F)
+#define DIALOG_DEVICE_VENDOR_ID     (0x1F)
+#define RENESAS_DEVICE_VENDOR_ID    (0x1F)
 #define ADESTO_DEVICE_QUAD          (1)
 #define ADESTO_DEVICE_AT25SF128A    (1)  // MIMXRT1010-EVK, MIMXRT1015-EVK
 ////////////////////////////////////////////////////////////////////////////////
-#define SPANSION_DEVICE_SERIE       (0)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon  in 2019
-#define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
+#define SPANSION_DEVICE_SERIE       (0)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon in 2019
+#define SPANSION_DEVICE_VENDOR_ID   (0x01)
+#define CYPRESS_DEVICE_VENDOR_ID    (0x01)
+#define INFINEON_DEVICE_VENDOR_ID   (0x34)
+#define SPANSION_DEVICE_QUAD        (0)
+#define SPANSION_DEVICE_S25FL128    (0)
+#define SPANSION_DEVICE_Octal       (0)
+#define SPANSION_DEVICE_S28HS512    (0)
+//#define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
 
 /*******************************************************************************
  * Variables

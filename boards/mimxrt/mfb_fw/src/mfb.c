@@ -65,7 +65,7 @@ extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bool enableOctal);
 extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, bool enableOctal);
 extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
-extern uint8_t flexspi_nor_read_register(FLEXSPI_Type *base, uint8_t seqIndex, uint32_t regAddr);
+extern status_t flexspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -73,10 +73,7 @@ extern uint8_t flexspi_nor_read_register(FLEXSPI_Type *base, uint8_t seqIndex, u
 static uint32_t s_nor_rw_buffer[FLASH_PAGE_SIZE/4];
 #endif
 
-uint8_t s_flashBusyStatusPol    = 0;
-uint8_t s_flashBusyStatusOffset = 0;
-uint8_t s_flashQuadEnableCfg    = 0;
-uint8_t s_flashEnableOctalCmd   = 0;
+flash_property_info_t s_flashPropertyInfo;
 
 flexspi_device_config_t s_deviceconfig = {
     .flexspiRootClk       = 27400000,
@@ -417,25 +414,46 @@ void mfb_show_mem_size(uint8_t capacityID, bool isAdesto)
 void mfb_show_flash_registers(void)
 {
 #if MFB_FLASH_REGS_READBACK_ENABLE
-    uint8_t regVal = 0;
-    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI, 0x0);
-    mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regVal);
-    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG2, 0x00000000);
-    mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regVal);
-    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000000);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000000, regVal);
-    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000001);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000001, regVal);
-    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000003);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000003, regVal);
-    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000004);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000004, regVal);
-    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000005);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000005, regVal);
-    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000006);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000006, regVal);
-    regVal = flexspi_nor_read_register(EXAMPLE_FLEXSPI, NOR_CMD_LUT_SEQ_IDX_READREG, 0x00000007);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", 0x00000007, regVal);
+    flash_reg_access_t regAccess;
+    regAccess.regNum = 1;
+    regAccess.regAddr = 0x0;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
+    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+    mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+    regAccess.regAddr = 0x00000000;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
+    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+    mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+    regAccess.regAddr = 0x00000000;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+    regAccess.regAddr = 0x00000001;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+    regAccess.regAddr = 0x00000003;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+    regAccess.regAddr = 0x00000004;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+    regAccess.regAddr = 0x00000005;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+    regAccess.regAddr = 0x00000006;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+    regAccess.regAddr = 0x00000007;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+    regAccess.regAddr = 0x00000000;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
 #endif
 }
 
@@ -544,9 +562,9 @@ void mfb_main(void)
                         cfg_pad                 = kFLEXSPI_8PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_166MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
-                        s_flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
-                        s_flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashEnableOctalCmd   = MXIC_OCTAL_FLASH_ENABLE_DDR_CMD;
+                        s_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashPropertyInfo.flashEnableOctalCmd   = MXIC_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_MXIC_Octal;
                         if (cfg_rootClkFreq == kFlexspiRootClkFreq_200MHz)
                         {
@@ -594,9 +612,9 @@ void mfb_main(void)
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
-                        s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
+                        s_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashPropertyInfo.flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
                         cfg_customLUTVendor     = s_customLUT_ISSI_Quad;
                     }
 #endif
@@ -604,9 +622,9 @@ void mfb_main(void)
                     if (sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_8PAD;
-                        s_flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
-                        s_flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
+                        s_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashPropertyInfo.flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_ISSI_Octal;
 #if MFB_FLASH_FORCE_LOOPBACK_DQS
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
@@ -661,9 +679,9 @@ void mfb_main(void)
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_133MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
-                        s_flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashQuadEnableCfg    = WINBOND_FLASH_QUAD_ENABLE;
+                        s_flashPropertyInfo.flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashPropertyInfo.flashQuadEnableCfg    = WINBOND_FLASH_QUAD_ENABLE;
                         cfg_customLUTVendor     = s_customLUT_WINBOND_Quad;
                     }
 #endif
@@ -704,9 +722,9 @@ void mfb_main(void)
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
-                        s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
-                        //s_flashQuadEnableCfg    = MICRON_FLASH_QUAD_ENABLE;
+                        s_flashPropertyInfo.flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
+                        //s_flashPropertyInfo.flashQuadEnableCfg    = MICRON_FLASH_QUAD_ENABLE;
                         cfg_customLUTVendor     = s_customLUT_MICRON_Quad;
                         /* No need to enable quad mode for micron device. */
                     }
@@ -715,9 +733,9 @@ void mfb_main(void)
                     if (sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_8PAD;
-                        s_flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
-                        s_flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashEnableOctalCmd   = MICRON_OCTAL_FLASH_ENABLE_DDR_CMD;
+                        s_flashPropertyInfo.flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashPropertyInfo.flashEnableOctalCmd   = MICRON_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_MICRON_Octal;
 #if MFB_FLASH_FORCE_LOOPBACK_DQS
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
@@ -786,9 +804,9 @@ void mfb_main(void)
                     if (sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_8PAD;
-                        s_flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
-                        s_flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashEnableOctalCmd   = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
+                        s_flashPropertyInfo.flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashPropertyInfo.flashEnableOctalCmd   = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_GIGADEVICE_Octal;
 #if MFB_FLASH_FORCE_LOOPBACK_DQS
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
@@ -860,9 +878,9 @@ void mfb_main(void)
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_133MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashBusyStatusPol    = ADESTO_FLASH_BUSY_STATUS_POL;
-                        s_flashBusyStatusOffset = ADESTO_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashQuadEnableCfg    = ADESTO_FLASH_QUAD_ENABLE;
+                        s_flashPropertyInfo.flashBusyStatusPol    = ADESTO_FLASH_BUSY_STATUS_POL;
+                        s_flashPropertyInfo.flashBusyStatusOffset = ADESTO_FLASH_BUSY_STATUS_OFFSET;
+                        s_flashPropertyInfo.flashQuadEnableCfg    = ADESTO_FLASH_QUAD_ENABLE;
                         cfg_customLUTVendor     = s_customLUT_ADESTO_Quad;
                     }
 #endif
