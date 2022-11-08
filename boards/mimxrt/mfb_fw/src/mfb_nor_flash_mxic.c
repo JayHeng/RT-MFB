@@ -23,7 +23,7 @@
  * Code
  ******************************************************************************/
 
-#if MXIC_DEVICE_MX25U25645G
+#if MXIC_DEVICE_MX25L6433F
 const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =

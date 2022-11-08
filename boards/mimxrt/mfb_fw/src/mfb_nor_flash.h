@@ -104,7 +104,8 @@ typedef enum _flexspi_root_clk_freq
 #define MXIC_DEVICE_SERIES          (1)
 #define MXIC_DEVICE_VENDOR_ID       (0xC2)
 #define MXIC_DEVICE_QUAD            (1)
-#define MXIC_DEVICE_MX25U6432F      (1)  // MIMXRT1180-MEM-BB&DS
+#define MXIC_DEVICE_MX25L6433F      (1)  // MIMXRT1180-MEM-BB&DS
+#define MXIC_DEVICE_MX25U6432F      (0)  // MIMXRT1180-MEM-BB&DS
 #define MXIC_DEVICE_MX25U25645G     (0)  // MIMXRT1180-MEM-BB&DS
 #define MXIC_DEVICE_OCTAL           (1)
 #define MXIC_DEVICE_MX25UM51345     (1)  // MIMXRT1180-MEM-BB&DS, MIMXRT595-EVK

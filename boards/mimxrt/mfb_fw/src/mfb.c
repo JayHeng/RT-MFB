@@ -480,9 +480,9 @@ void mfb_main(void)
 
     /* Get JEDEC ID. */
 #if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
-    jedecID.manufacturerID = MICRON_OCTAL_FLASH_JEDEC_ID & 0xFF;
-    jedecID.memoryTypeID = (MICRON_OCTAL_FLASH_JEDEC_ID >> 8) & 0xFF;
-    jedecID.capacityID = (MICRON_OCTAL_FLASH_JEDEC_ID >> 16) & 0xFF;
+    jedecID.manufacturerID = MXIC_QUAD_FLASH_JEDEC_ID & 0xFF;
+    jedecID.memoryTypeID = (MXIC_QUAD_FLASH_JEDEC_ID >> 8) & 0xFF;
+    jedecID.capacityID = (MXIC_QUAD_FLASH_JEDEC_ID >> 16) & 0xFF;
 #else
     status = flexspi_nor_get_jedec_id(EXAMPLE_FLEXSPI, (uint32_t *)&jedecID);
     if (status != kStatus_Success)
