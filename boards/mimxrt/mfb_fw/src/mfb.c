@@ -858,6 +858,7 @@ void mfb_main(void)
 #if ADESTO_DEVICE_SERIE
             // Adesto
             case ADESTO_DEVICE_VENDOR_ID:
+            case ADESTO_DEVICE_VENDOR_ID2:
                 {
                     mfb_printf(" -- Adesto Serial Flash.\r\n");
                     if (jedecID.memoryTypeID != 0x42)
@@ -883,6 +884,9 @@ void mfb_main(void)
                             break;
                         case 0x04:
                             mfb_printf(" -- AT25SF/AT25QF QuadSPI 3.3V Series.\r\n");
+                            break;
+                        case 0x05:
+                            mfb_printf(" -- ATXP OctalSPI 1.8V Series.\r\n");
                             break;
                         // Only this type is same as other vendors
                         case 0x42:

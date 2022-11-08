@@ -116,7 +116,7 @@ typedef enum _flexspi_root_clk_freq
 #define GIGADEVICE_DEVICE_OCTAL     (1)
 #define GIGADEVICE_DEVICE_GD25LX256 (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
-#define ISSI_DEVICE_SERIES          (1)
+#define ISSI_DEVICE_SERIES          (1)  // ISSI is acquired by 北京矽成 in 2015, 北京矽成 is acquired Ingenic by in 2020
 #define ISSI_DEVICE_VENDOR_ID       (0x9D)
 #define ISSI_DEVICE_QUAD            (1)
 #define ISSI_DEVICE_IS25LP064A      (0)  // MIMXRT1020-EVK
@@ -133,10 +133,13 @@ typedef enum _flexspi_root_clk_freq
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
 #define ADESTO_DEVICE_VENDOR_ID     (0x1F)
+#define ADESTO_DEVICE_VENDOR_ID2    (0x43)
 #define DIALOG_DEVICE_VENDOR_ID     (0x1F)
 #define RENESAS_DEVICE_VENDOR_ID    (0x1F)
 #define ADESTO_DEVICE_QUAD          (1)
 #define ADESTO_DEVICE_AT25SF128A    (1)  // MIMXRT1010-EVK, MIMXRT1015-EVK
+#define ADESTO_DEVICE_OCTAL         (0)
+#define ADESTO_DEVICE_ATXP032       (0)  // Adesto octal flash is EOL
 ////////////////////////////////////////////////////////////////////////////////
 #define SPANSION_DEVICE_SERIE       (0)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon in 2019
 #define SPANSION_DEVICE_VENDOR_ID   (0x01)
