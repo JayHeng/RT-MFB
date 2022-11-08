@@ -18,6 +18,12 @@
 #define ADESTO_FLASH_QUAD_ENABLE        0x02
 #define ADESTO_FLASH_BUSY_STATUS_POL    1
 #define ADESTO_FLASH_BUSY_STATUS_OFFSET 0
+
+//------------------------------------------------------
+//    NTR     |  dummy cycles  |Quad IO Fast Read(SPI) | 
+//------------------------------------------------------
+//    N/A     | 6(def for SPI) |        133MHz         |
+//------------------------------------------------------
 #endif
 /*******************************************************************************
  * Variables

@@ -98,15 +98,16 @@ typedef enum _flexspi_root_clk_freq
 #define WINBOND_DEVICE_SERIES       (1)
 #define WINBOND_DEVICE_VENDOR_ID    (0xEF)
 #define WINBOND_DEVICE_QUAD         (1)
-#define WINBOND_DEVICE_W25Q128JW    (1)  // MIMXRT1180-EVK
+#define WINBOND_DEVICE_W25Q128JW    (1)  // MIMXRT1180-MEM-BB&DS, MIMXRT1180-EVK
 #define WINBOND_DEVICE_W25M512JW    (0)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
 #define MXIC_DEVICE_SERIES          (1)
 #define MXIC_DEVICE_VENDOR_ID       (0xC2)
 #define MXIC_DEVICE_QUAD            (1)
-#define MXIC_DEVICE_MX25U25645G     (1)  // MIMXRT1180-MEM-BB&DS
+#define MXIC_DEVICE_MX25U6432F      (1)  // MIMXRT1180-MEM-BB&DS
+#define MXIC_DEVICE_MX25U25645G     (0)  // MIMXRT1180-MEM-BB&DS
 #define MXIC_DEVICE_OCTAL           (1)
-#define MXIC_DEVICE_MX25UM51345     (1)  // MIMXRT595-EVK
+#define MXIC_DEVICE_MX25UM51345     (1)  // MIMXRT1180-MEM-BB&DS, MIMXRT595-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define GIGADEVICE_DEVICE_SERIE     (1)
 #define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)

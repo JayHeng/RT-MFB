@@ -19,6 +19,28 @@
 
 #if ISSI_DEVICE_IS25WP064A
 #define ISSI_FLASH_QUAD_ENABLE        0x40
+
+//------------------------------------------------------
+//    P[6:3]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//    0x0     |    6(default)  |         81MHz         |
+//    0x1     |       1        |         23MHz         |
+//    0x2     |       2        |         34MHz         |
+//    0x3     |       3        |         46MHz         |
+//    0x4     |       4        |         58MHz         |
+//    0x5     |       5        |         69MHz         |
+//    0x6     |       6        |         81MHz         |
+//    0x7     |       7        |         93MHz         |
+//    0x8     |       8        |        104MHz         |
+//    0x9     |       9        |        122MHz         |
+//    0xa     |      10        |        127MHz         |
+//    0xb     |      11        |        139MHz         |
+//    0xc     |      12        |        151MHz         |
+//    0xd     |      13        |        162MHz         |
+//    0xe     |      14        |        166MHz         |
+//    0xf     |      15        |        166MHz         |
+//------------------------------------------------------
 #endif
 
 #if ISSI_DEVICE_IS25WX256

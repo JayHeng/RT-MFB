@@ -17,8 +17,31 @@
 #define MICRON_FLASH_BUSY_STATUS_POL    1
 #define MICRON_FLASH_BUSY_STATUS_OFFSET 0
 
-#if MICRON_DEVICE_MT25QL256
+#if MICRON_DEVICE_MT25QU128
 #define MICRON_FLASH_QUAD_ENABLE        0x00
+
+//------------------------------------------------------
+//   DC[7:4]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//    0x0     |   10(default)  |        125MHz         |
+//    0x1     |       1        |         39MHz         |
+//    0x2     |       2        |         48MHz         |
+//    0x3     |       3        |         58MHz         |
+//    0x4     |       4        |         69MHz         |
+//    0x5     |       5        |         78MHz         |
+//    0x6     |       6        |         86MHz         |
+//    0x7     |       7        |         97MHz         |
+//    0x8     |       8        |        106MHz         |
+//    0x9     |       9        |        115MHz         |
+//    0xa     |      10        |        125MHz         |
+//    0xb     |      11        |        134MHz         |
+//    0xc     |      12        |        143MHz         |
+//    0xd     |      13        |        156MHz         |
+//    0xe     |      14        |        166MHz         |
+//    0xf     |      10        |        125MHz         |
+//------------------------------------------------------
+
 #endif
 
 #if MICRON_DEVICE_MT35XU512

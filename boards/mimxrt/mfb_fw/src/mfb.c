@@ -546,7 +546,7 @@ void mfb_main(void)
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
-                        cfg_rootClkFreq         = kFlexspiRootClkFreq_133MHz;
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
                         s_flashPropertyInfo.flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
                         s_flashPropertyInfo.flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
@@ -613,7 +613,7 @@ void mfb_main(void)
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
-                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_80MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
                         s_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
                         s_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
@@ -694,7 +694,7 @@ void mfb_main(void)
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
-                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_120MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
                         s_flashPropertyInfo.flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
                         s_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
@@ -764,7 +764,7 @@ void mfb_main(void)
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
-                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_80MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
                         s_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
                         s_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
@@ -832,7 +832,7 @@ void mfb_main(void)
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
-                        cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
+                        cfg_rootClkFreq         = kFlexspiRootClkFreq_120MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
                         s_flashPropertyInfo.flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
                         s_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;

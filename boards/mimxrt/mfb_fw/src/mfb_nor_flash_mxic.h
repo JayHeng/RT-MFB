@@ -16,8 +16,20 @@
 #define MXIC_FLASH_BUSY_STATUS_POL    1
 #define MXIC_FLASH_BUSY_STATUS_OFFSET 0
 
-#if MXIC_DEVICE_MX25U25645G
+#if MXIC_DEVICE_MX25U6432F
+#define MXIC_QUAD_FLASH_JEDEC_ID      (0x003725C2)
 #define MXIC_FLASH_QUAD_ENABLE        0x40
+
+//------------------------------------------------------
+//   DC[1:0]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//  2'b00     |   6(default)   |         84MHz         |
+//  2'b01     |       4        |         66MHz         |
+//  2'b10     |       8        |        104MHz         |
+//  2'b11     |      10        |        133MHz         |
+//------------------------------------------------------
+
 #endif
 
 #if MXIC_DEVICE_MX25UM51345
