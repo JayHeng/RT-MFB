@@ -369,6 +369,11 @@ static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFr
              */
             BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 3U, 7U);
         }
+        else if (clkFreq == kFlexspiRootClkFreq_80MHz)
+        {
+            /* Set FlexSPI clock: source AUX0_PLL£¨396MHz£©, divide by 5 */
+            BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 5U);
+        }
         else if (clkFreq == kFlexspiRootClkFreq_100MHz)
         {
             /* Set FlexSPI clock: source AUX0_PLL, divide by 4 */
@@ -378,6 +383,16 @@ static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFr
         {
             /* Set FlexSPI clock: source AUX0_PLL, divide by 3 */
             BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 3U);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_166MHz)
+        {
+            /* Set FlexSPI clock: source AUX1_PLL£¨327MHz£©, divide by 2 */
+            BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 4U, 2U);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_200MHz)
+        {
+            /* Set FlexSPI clock: source AUX0_PLL, divide by 2 */
+            BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 2U);
         }
     }
     else if (base == FLEXSPI1)

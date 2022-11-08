@@ -144,6 +144,15 @@ static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFr
             rootCfg.div = 1;
             CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
         }
+        else if (clkFreq == kFlexspiRootClkFreq_80MHz)
+        {
+            /* Init System Pll2 (528MHz) pfd2. */
+            // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            // CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd2, 24);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd2;
+            rootCfg.div = 5;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
         else if (clkFreq == kFlexspiRootClkFreq_100MHz)
         {
             /* Init System Pll2 (528MHz) pfd2. */
