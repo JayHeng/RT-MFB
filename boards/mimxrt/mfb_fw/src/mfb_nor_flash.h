@@ -125,11 +125,13 @@ typedef enum _flexspi_root_clk_freq
 #define ISSI_DEVICE_IS25WX256       (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
 #define MICRON_DEVICE_SERIES        (1)
-#define MICRON_DEVICE_VENDOR_ID     (0x2C)
+#define MICRON_DEVICE_VENDOR_ID     (0x20)
+#define MICRON_DEVICE_VENDOR_ID2    (0x2C)
 #define MICRON_DEVICE_QUAD          (1)
-#define MICRON_DEVICE_MT25QL256     (1)  // MIMXRT1170-EVKB(Rework)
+#define MICRON_DEVICE_MT25QU128     (1)  // MIMXRT1180-MEM-BB&DS
+#define MICRON_DEVICE_MT25QL256     (0)  // MIMXRT1170-EVKB(Rework)
 #define MICRON_DEVICE_OCTAL         (1)
-#define MICRON_DEVICE_MT35XU512     (1)  // MIMXRT1180-EVK
+#define MICRON_DEVICE_MT35XU512     (1)  // MIMXRT1180-MEM-BB&DS, MIMXRT1180-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
 #define ADESTO_DEVICE_VENDOR_ID     (0x1F)
@@ -147,7 +149,7 @@ typedef enum _flexspi_root_clk_freq
 #define INFINEON_DEVICE_VENDOR_ID   (0x34)
 #define SPANSION_DEVICE_QUAD        (0)
 #define SPANSION_DEVICE_S25FL128    (0)
-#define SPANSION_DEVICE_Octal       (0)
+#define SPANSION_DEVICE_OCTAL       (0)
 #define SPANSION_DEVICE_S28HS512    (0)
 //#define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
 

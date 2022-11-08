@@ -22,13 +22,13 @@
 /*******************************************************************************
  * Code
  ******************************************************************************/
-#if MICRON_DEVICE_MT25QL256
+#if MICRON_DEVICE_MT25QU128
 const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x06, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x0A, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04),
 
     /* Read status register */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =

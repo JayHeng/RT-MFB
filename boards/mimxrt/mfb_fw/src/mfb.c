@@ -518,6 +518,7 @@ void mfb_main(void)
                     mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
                     switch (jedecID.memoryTypeID)
                     {
+                        /////////////////////////QuadSPI////////////////////////
                         case 0x30:
                             mfb_printf(" -- W25X DualSPI 3.3V Series.\r\n");
                             break;
@@ -533,6 +534,7 @@ void mfb_main(void)
                         case 0x80:
                             mfb_printf(" -- W25QxxxJW/NW(-IM) QuadlSPI 1.8V Series.\r\n");
                             break;
+                        ////////////////////////OctalSPI////////////////////////
                         // Missing W25H, W25M, W25R
                         // Missing xxxJL, xxxDW, xxxRV
                         default:
@@ -565,6 +567,7 @@ void mfb_main(void)
                     mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
                     switch (jedecID.memoryTypeID)
                     {
+                        /////////////////////////QuadSPI////////////////////////
                         case 0x20:
                             mfb_printf(" -- MX25L/MX66L/MX25V QuadSPI 3.3V Series.\r\n");
                             break;
@@ -577,6 +580,7 @@ void mfb_main(void)
                         case 0x75:
                             mfb_printf(" -- MX77L QuadSPI 3.3V Series.\r\n");
                             break;
+                        ////////////////////////OctalSPI////////////////////////
                         case 0x80:
                             sta_isOctalFlash = true;
                             mfb_printf(" -- MX25UM/MX66UM OctalSPI 1.8V Series.\r\n");
@@ -646,6 +650,7 @@ void mfb_main(void)
                     mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
                     switch (jedecID.memoryTypeID)
                     {
+                        /////////////////////////QuadSPI////////////////////////
                         case 0x40:
                             // GD25D DualSPI
                             mfb_printf(" -- GD25Q/GD25B/GD25S QuadSPI 3.3V Series.\r\n");
@@ -673,6 +678,7 @@ void mfb_main(void)
                         case 0x67:
                             mfb_printf(" -- GD25LB/GD55LB QuadSPI 1.8V Series.\r\n");
                             break;
+                        ////////////////////////OctalSPI////////////////////////
                         case 0x68:
                             sta_isOctalFlash = true;
                             mfb_printf(" -- GD25LX/GD55LX OctalSPI 1.8V Series.\r\n");
@@ -730,6 +736,7 @@ void mfb_main(void)
                     mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
                     switch (jedecID.memoryTypeID)
                     {
+                        /////////////////////////QuadSPI////////////////////////
                         case 0x40:
                             mfb_printf(" -- IS25LQ/IS25LP QuadSPI 3.3V Series.\r\n");
                             break;
@@ -739,6 +746,7 @@ void mfb_main(void)
                         case 0x70:
                             mfb_printf(" -- IS25WP/IS25WJ/IS25WE QuadSPI 1.8V Series.\r\n");
                             break;
+                        ////////////////////////OctalSPI////////////////////////
                         case 0x5A:
                             sta_isOctalFlash = true;
                             mfb_printf(" -- IS25LX OctalSPI 3.3V Series.\r\n");
@@ -793,17 +801,20 @@ void mfb_main(void)
 #if MICRON_DEVICE_SERIES
             // Micron
             case MICRON_DEVICE_VENDOR_ID:
+            case MICRON_DEVICE_VENDOR_ID2:
                 {
                     mfb_printf(" -- Micron Serial Flash.\r\n");
                     mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID.memoryTypeID);
                     switch (jedecID.memoryTypeID)
                     {
+                        /////////////////////////QuadSPI////////////////////////
                         case 0xBA:
                             mfb_printf(" -- MT25QL QuadSPI 3.3V Series.\r\n");
                             break;
                         case 0xBB:
                             mfb_printf(" -- MT25QU QuadSPI 1.8V Series.\r\n");
                             break;
+                        ////////////////////////OctalSPI////////////////////////
                         case 0x5A:
                             sta_isOctalFlash = true;
                             mfb_printf(" -- MT35XL OctalSPI 3.3V Series.\r\n");
@@ -873,6 +884,7 @@ void mfb_main(void)
                     }
                     switch (jedecID.memoryTypeID)
                     {
+                        /////////////////////////QuadSPI////////////////////////
                         case 0x00:
                             mfb_printf(" -- AT25EU QuadSPI 1.8-3.3V Series.\r\n");
                             break;
@@ -885,12 +897,14 @@ void mfb_main(void)
                         case 0x04:
                             mfb_printf(" -- AT25SF/AT25QF QuadSPI 3.3V Series.\r\n");
                             break;
-                        case 0x05:
-                            mfb_printf(" -- ATXP OctalSPI 1.8V Series.\r\n");
-                            break;
                         // Only this type is same as other vendors
                         case 0x42:
                             mfb_printf(" -- AT25SL/AT25QL QuadSPI 1.8V Series.\r\n");
+                            break;
+                        ////////////////////////OctalSPI////////////////////////
+                        case 0x05:
+                            sta_isOctalFlash = true;
+                            mfb_printf(" -- ATXP OctalSPI 1.8V Series.\r\n");
                             break;
                         default:
                             mfb_printf(" -- Unsupported Series.\r\n");
