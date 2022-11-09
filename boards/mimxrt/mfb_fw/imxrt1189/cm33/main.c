@@ -11,7 +11,7 @@
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "board.h"
-#include "mfb.h"
+#include "mfb_def.h"
 
 /*******************************************************************************
  * Definitions

@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "mfb.h"
 #include "microseconds.h"
 #include "port_flexspi_info.h"
 #include "mfb_nor_flash.h"
@@ -37,14 +36,6 @@
  * Definitions
  ******************************************************************************/
 
-/*! @brief JEDEC id structure. */
-typedef struct _jedec_id
-{
-    uint8_t manufacturerID;
-    uint8_t memoryTypeID;
-    uint8_t capacityID;
-    uint8_t reserved;
-} jedec_id_t;
 
 /*******************************************************************************
  * Prototypes

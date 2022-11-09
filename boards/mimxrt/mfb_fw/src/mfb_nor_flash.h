@@ -8,12 +8,23 @@
 #ifndef _MFB_NOR_FLASH_H_
 #define _MFB_NOR_FLASH_H_
 
+#include "mfb_cfg.h"
+#include "mfb_def.h"
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 
 #define DUMMY_VALUE_INVALID               (0xdeadbeefu)
+   
+/*! @brief JEDEC id structure. */
+typedef struct _jedec_id
+{
+    uint8_t manufacturerID;
+    uint8_t memoryTypeID;
+    uint8_t capacityID;
+    uint8_t reserved;
+} jedec_id_t;
 
 // Flash property info for operation
 typedef struct _flash_property_info
@@ -60,26 +71,27 @@ typedef enum _flexspi_root_clk_freq
     kFlexspiRootClkFreq_200MHz = 9,
 } flexspi_root_clk_freq_t;
 
-// FlexSPI LUT seq defn
+// FlexSPI LUT seq defn (common)
 #define NOR_CMD_LUT_SEQ_IDX_READ            0
 #define NOR_CMD_LUT_SEQ_IDX_READSTATUS      1
-#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  2
-#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     3
-#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI 4
-#define NOR_CMD_LUT_SEQ_IDX_READID          5
-
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     2
+#define NOR_CMD_LUT_SEQ_IDX_SETDUMMY        3
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR     4
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     5
+// FlexSPI LUT seq defn (1bit spi)
+#define NOR_CMD_LUT_SEQ_IDX_READID          6
+// FlexSPI LUT seq defn (quad lut)
 #define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        6
 #define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        7
-#define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        8
-#define NOR_CMD_LUT_SEQ_IDX_SETDUMMY        10
-
-#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR     11
-#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     12
-#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI 13
-#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI 14
+// FlexSPI LUT seq defn (octal lut)
+#define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        6
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  7
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI 8
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI 10
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI 11
     
-#define NOR_CMD_LUT_SEQ_IDX_READREG         15
-#define NOR_CMD_LUT_SEQ_IDX_READREG2        5
+#define NOR_CMD_LUT_SEQ_IDX_READREG         12
+#define NOR_CMD_LUT_SEQ_IDX_READREG2        13
 
 /* NOTE: Workaround for debugger.
    Must define AHB write FlexSPI sequence index to 9 to avoid debugger issue.
