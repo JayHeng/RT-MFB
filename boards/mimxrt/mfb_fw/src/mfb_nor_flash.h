@@ -133,7 +133,8 @@ typedef enum _flexspi_root_clk_freq
 #define MICRON_DEVICE_MT25QU128     (1)  // MIMXRT1180-MEM-BB&DS
 #define MICRON_DEVICE_MT25QL256     (0)  // MIMXRT1170-EVKB(Rework)
 #define MICRON_DEVICE_OCTAL         (1)
-#define MICRON_DEVICE_MT35XU512     (1)  // MIMXRT1180-MEM-BB&DS, MIMXRT1180-EVK
+#define MICRON_DEVICE_MT35XU512_RW303 (1)  // MIMXRT1180-MEM-BB&DS
+#define MICRON_DEVICE_MT35XU512_RW304 (0)  // MIMXRT1180-EVK
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
 #define ADESTO_DEVICE_VENDOR_ID     (0x1F)
