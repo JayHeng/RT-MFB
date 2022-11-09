@@ -16,6 +16,8 @@
  ******************************************************************************/
 
 #define DUMMY_VALUE_INVALID               (0xdeadbeefu)
+#define INVALID_JEDEC_ID_0                (0x00u)
+#define INVALID_JEDEC_ID_1                (0xFFu)
    
 /*! @brief JEDEC id structure. */
 typedef struct _jedec_id
@@ -80,6 +82,7 @@ typedef enum _flexspi_root_clk_freq
 #define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     5
 // FlexSPI LUT seq defn (1bit spi)
 #define NOR_CMD_LUT_SEQ_IDX_READID          6
+#define NOR_CMD_LUT_SEQ_IDX_READID_OPI      7
 // FlexSPI LUT seq defn (quad lut)
 #define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        6
 #define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        7

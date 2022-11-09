@@ -51,7 +51,7 @@ extern const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH];
 
-extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId);
+extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, bool enableOctal);
 extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
 extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
@@ -104,6 +104,12 @@ const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     /* Read ID */
     [4 * NOR_CMD_LUT_SEQ_IDX_READID] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x9F, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
+
+    /* Read ID - OPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READID_OPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x9F, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x06),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READID_OPI + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
     /* Dummy write, do nothing when AHB write command is triggered. */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
@@ -450,22 +456,39 @@ void mfb_show_flash_registers(void)
 #endif
 }
 
+void mfb_flexspi_common_init(bool enOpi)
+{
+    if (!enOpi)
+    {
+        /* Init FlexSPI pinmux */
+        flexspi_pin_init(EXAMPLE_FLEXSPI,    FLASH_PORT, kFLEXSPI_1PAD);
+        /* Init FlexSPI using common LUT */ 
+        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
+        mfb_printf("\r\nMFB: FLEXSPI module is initialized to 1bit SDR normal read mode.\r\n");
+    }
+    else
+    {
+        /* Init FlexSPI pinmux */
+        flexspi_pin_init(EXAMPLE_FLEXSPI,    FLASH_PORT, kFLEXSPI_8PAD);
+        /* Init FlexSPI using common LUT */ 
+        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+        mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O for default OPI DDR mode.\r\n");
+    }
+}
+
 void mfb_main(void)
 {
     status_t status = kStatus_Success;
     jedec_id_t jedecID;
+    bool sta_isInstOpi = false;
 
     mfb_printf("MFB: i.MXRT multi-flash boot solution.\r\n");
     /* Show CPU clock source */
     cpu_show_clock_source();
-    /* Init FlexSPI pinmux */
+    /* Switch FlexSPI port if needed */
     flexspi_port_switch(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_1PAD);
-    flexspi_pin_init(EXAMPLE_FLEXSPI,    FLASH_PORT, kFLEXSPI_1PAD);
     /* Move FlexSPI clock to a stable clock source */ 
     flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_30MHz);
-    /* Init FlexSPI using common LUT */ 
-    flexspi_nor_flash_init(EXAMPLE_FLEXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
-    mfb_printf("\r\nMFB: FLEXSPI module is initialized to 1bit SDR normal read mode.\r\n");
     /* Show FlexSPI clock source */
     flexspi_show_clock_source(EXAMPLE_FLEXSPI);
 
@@ -475,17 +498,48 @@ void mfb_main(void)
     jedecID.memoryTypeID = (MXIC_QUAD_FLASH_JEDEC_ID >> 8) & 0xFF;
     jedecID.capacityID = (MXIC_QUAD_FLASH_JEDEC_ID >> 16) & 0xFF;
 #else
-    status = flexspi_nor_get_jedec_id(EXAMPLE_FLEXSPI, (uint32_t *)&jedecID);
-    if (status != kStatus_Success)
+    while (status == kStatus_Success)
     {
-        mfb_printf("MFB: Get Flash Vendor ID failed.\r\n");
+        /* Init FlexSPI using common LUT */ 
+        mfb_flexspi_common_init(sta_isInstOpi);
+        /* Read JEDEC id from flash */
+        status = flexspi_nor_get_jedec_id(EXAMPLE_FLEXSPI, (uint32_t *)&jedecID, sta_isInstOpi);
+        if (status != kStatus_Success)
+        {
+            mfb_printf("MFB: Get Flash Vendor ID failed.\r\n");
+            break;
+        }
+        else
+        {
+            if ((jedecID.manufacturerID != INVALID_JEDEC_ID_0) && \
+                (jedecID.manufacturerID != INVALID_JEDEC_ID_1))
+            {
+                mfb_printf("MFB: Get Valid Flash Vendor ID.\r\n");
+                break;
+            }
+            else
+            {
+                mfb_printf("MFB: Get Invalid Flash Vendor ID 0x%x", jedecID.manufacturerID);
+            }
+        }
+        if (!sta_isInstOpi)
+        {
+            mfb_printf(" under Std/Ext SPI mode.\r\n");
+            sta_isInstOpi = true;
+        }
+        else
+        {
+            mfb_printf(" under OPI DDR mode.\r\n");
+            break;
+        }
     }
-    else
+    if (status == kStatus_Success)
 #endif
     {
         bool sta_isOctalFlash = false;
         bool sta_isOctalDdrMode = false;
         bool sta_isValidVendorId = true;
+        /* Set default paramenters */
         flexspi_pad_t cfg_pad = kFLEXSPI_4PAD;
         flexspi_root_clk_freq_t cfg_rootClkFreq = kFlexspiRootClkFreq_100MHz;
         flexspi_read_sample_clock_t cfg_readSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
@@ -493,10 +547,14 @@ void mfb_main(void)
         uint32_t cfg_dummyValue = DUMMY_VALUE_INVALID;
         /* Get real flash size according to jedec id result (it may not be appliable to some specifal adesto device) */
         uint32_t cfg_flashMemSizeInByte = mfb_decode_common_capacity_id(jedecID.capacityID);
-        /* Do patten verify test under 1bit SPI mode */
-        mfb_flash_pattern_verify_test(false);
-        /* Get perf test result under 1bit SPI mode */
-        mfb_flash_memcpy_perf_test(true);
+        /* Only run 1st perf and pattern verify when default flash state is Ext SPI mode */
+        if (!sta_isInstOpi)
+        {
+            /* Do patten verify test under 1bit SPI mode */
+            mfb_flash_pattern_verify_test(false);
+            /* Get perf test result under 1bit SPI mode */
+            mfb_flash_memcpy_perf_test(true);
+        }
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID.manufacturerID);
         /* Check Vendor ID. */
         switch (jedecID.manufacturerID)
@@ -964,25 +1022,33 @@ void mfb_main(void)
             }
             else
             {
-                /* Enter octal DDR mode. */
+                /* Only When defult flash is Ext SPI mode, Enter OPI DDR mode then */
+                if (!sta_isInstOpi)
+                {
+                    /* Enter octal DDR mode. */
 #if !MFB_FLASH_FORCE_LOOPBACK_DQS
-                status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
-                sta_isOctalDdrMode = true;
-#endif
-                if (status != kStatus_Success)
-                {
-                    mfb_printf("MFB: Flash failed to Enter Octal I/O DDR mode.\r\n");
-                }
-                else
-                {
-                    if (sta_isOctalDdrMode)
+                    status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
+                    if (status != kStatus_Success)
                     {
-                        mfb_printf("MFB: Flash entered Octal I/O DDR mode.\r\n");
+                        mfb_printf("MFB: Flash failed to Enter Octal I/O DDR mode.\r\n");
                     }
                     else
                     {
-                        mfb_printf("MFB: Flash ran in Octal I/O SPI mode.\r\n");
+                        sta_isOctalDdrMode = true;
+                        mfb_printf("MFB: Flash entered Octal I/O DDR mode.\r\n");
                     }
+#else
+                    mfb_printf("MFB: Flash ran in Octal I/O SPI mode.\r\n");
+#endif
+                }
+                else
+                {
+#if !MFB_FLASH_FORCE_LOOPBACK_DQS
+                    sta_isOctalDdrMode = true;
+                    mfb_printf("MFB: Flash remained in default Octal I/O DDR mode.\r\n");
+#else
+#warning "Do not support loopback dqs option when flash default state in OPI DDR"
+#endif
                 }
             }
             if (status == kStatus_Success)

@@ -404,7 +404,7 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
 #if defined(__ICCARM__)
 #pragma optimize = none
 #endif
-status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId)
+status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, bool enableOctal)
 {
     uint32_t temp = 0;
     flexspi_transfer_t flashXfer;
@@ -413,6 +413,14 @@ status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId)
     flashXfer.cmdType       = kFLEXSPI_Read;
     flashXfer.SeqNumber     = 1;
     flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_READID;
+    if (enableOctal)
+    {
+        flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_READID_OPI;
+    }
+    else
+    {
+        flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_READID;
+    }
     flashXfer.data          = &temp;
     flashXfer.dataSize      = 3;
 
