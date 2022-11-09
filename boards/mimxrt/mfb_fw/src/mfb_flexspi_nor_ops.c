@@ -105,7 +105,7 @@ void flexspi_nor_enable_cache(flexspi_cache_status_t cacheStatus)
 #endif
 }
 
-status_t flexspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, bool enableOctal)
+status_t flexspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, flash_inst_mode_t flashInstMode)
 {
     flexspi_transfer_t flashXfer;
     status_t status;
@@ -115,13 +115,21 @@ status_t flexspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, bool en
     flashXfer.port          = FLASH_PORT;
     flashXfer.cmdType       = kFLEXSPI_Command;
     flashXfer.SeqNumber     = 1;
-    if (enableOctal)
+    switch (flashInstMode)
     {
-        flashXfer.seqIndex = NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI;
-    }
-    else
-    {
-        flashXfer.seqIndex = NOR_CMD_LUT_SEQ_IDX_WRITEENABLE;
+        case kFlashInstMode_QPI_1:
+        case kFlashInstMode_QPI_2:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_QPI;
+            break;
+
+        case kFlashInstMode_OPI:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI;
+            break;
+
+        case kFlashInstMode_SPI:
+        default:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_WRITEENABLE;
+            break;
     }
 
     status = FLEXSPI_TransferBlocking(base, &flashXfer);
@@ -129,7 +137,7 @@ status_t flexspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, bool en
     return status;
 }
 
-status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, bool enableOctal)
+status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashInstMode)
 {
     /* Wait status ready. */
     bool isBusy;
@@ -141,15 +149,22 @@ status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, bool enableOctal)
     flashXfer.port          = FLASH_PORT;
     flashXfer.cmdType       = kFLEXSPI_Read;
     flashXfer.SeqNumber     = 1;
-    if (enableOctal)
+    switch (flashInstMode)
     {
-        flashXfer.seqIndex = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
-    }
-    else
-    {
-        flashXfer.seqIndex = NOR_CMD_LUT_SEQ_IDX_READSTATUS;
-    }
+        case kFlashInstMode_QPI_1:
+        case kFlashInstMode_QPI_2:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI;
+            break;
 
+        case kFlashInstMode_OPI:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
+            break;
+
+        case kFlashInstMode_SPI:
+        default:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_READSTATUS;
+            break;
+    }
     flashXfer.data     = &readValue;
     flashXfer.dataSize = 1;
 
@@ -193,7 +208,6 @@ static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_
 {
     flexspi_transfer_t flashXfer;
     status_t status;
-    bool isOctalMode = false;
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
     flexspi_cache_status_t cacheStatus;
@@ -203,7 +217,7 @@ static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_
     uint32_t writeValue = regAccess->regValue.U;
 
     /* Write enable */
-    status = flexspi_nor_write_enable(base, 0, false);
+    status = flexspi_nor_write_enable(base, 0, kFlashInstMode_SPI);
 
     if (status != kStatus_Success)
     {
@@ -227,13 +241,11 @@ static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_
     if ((regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_SETDUMMY) || \
         (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_ENABLEQE))
     {
-        isOctalMode = false;
-        status = flexspi_nor_wait_bus_busy(base, isOctalMode);
+        status = flexspi_nor_wait_bus_busy(base, kFlashInstMode_SPI);
     }
     else if (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_ENTEROPI)
     {
-        isOctalMode = true;
-        status = flexspi_nor_wait_bus_busy(base, isOctalMode);
+        status = flexspi_nor_wait_bus_busy(base, kFlashInstMode_OPI);
         //flexspi_sw_delay_us(100UL);
     }
 
@@ -302,7 +314,7 @@ status_t flexspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAc
     return status;
 }
 
-status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bool enableOctal)
+status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode)
 {
     status_t status;
     flexspi_transfer_t flashXfer;
@@ -313,7 +325,7 @@ status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bo
 #endif
 
     /* Write enable */
-    status = flexspi_nor_write_enable(base, address, enableOctal);
+    status = flexspi_nor_write_enable(base, address, flashInstMode);
 
     if (status != kStatus_Success)
     {
@@ -324,22 +336,30 @@ status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bo
     flashXfer.port          = FLASH_PORT;
     flashXfer.cmdType       = kFLEXSPI_Command;
     flashXfer.SeqNumber     = 1;
-    if (enableOctal)
+    switch (flashInstMode)
     {
-        flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI;
-    }
-    else
-    {
-        flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ERASESECTOR;
-    }
-    status                  = FLEXSPI_TransferBlocking(base, &flashXfer);
+        case kFlashInstMode_QPI_1:
+        case kFlashInstMode_QPI_2:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_QPI;
+            break;
 
+        case kFlashInstMode_OPI:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI;
+            break;
+
+        case kFlashInstMode_SPI:
+        default:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_ERASESECTOR;
+            break;
+    }
+
+    status                  = FLEXSPI_TransferBlocking(base, &flashXfer);
     if (status != kStatus_Success)
     {
         return status;
     }
 
-    status = flexspi_nor_wait_bus_busy(base, enableOctal);
+    status = flexspi_nor_wait_bus_busy(base, flashInstMode);
 
     /* Do software reset. */
     FLEXSPI_SoftwareReset(base);
@@ -351,7 +371,7 @@ status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bo
     return status;
 }
 
-status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, bool enableOctal)
+status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode)
 {
     status_t status;
     flexspi_transfer_t flashXfer;
@@ -362,7 +382,7 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
 #endif
 
     /* Write enable */
-    status = flexspi_nor_write_enable(base, address, enableOctal);
+    status = flexspi_nor_write_enable(base, address, flashInstMode);
 
     if (status != kStatus_Success)
     {
@@ -374,13 +394,21 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
     flashXfer.port          = FLASH_PORT;
     flashXfer.cmdType       = kFLEXSPI_Write;
     flashXfer.SeqNumber     = 1;
-    if (enableOctal)
+    switch (flashInstMode)
     {
-        flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI;
-    }
-    else
-    {
-        flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM;
+        case kFlashInstMode_QPI_1:
+        case kFlashInstMode_QPI_2:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_QPI;
+            break;
+
+        case kFlashInstMode_OPI:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI;
+            break;
+
+        case kFlashInstMode_SPI:
+        default:
+            flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM;
+            break;
     }
     flashXfer.data          = (uint32_t *)src;
     flashXfer.dataSize      = length;
@@ -391,7 +419,7 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
         return status;
     }
 
-    status = flexspi_nor_wait_bus_busy(base, enableOctal);
+    status = flexspi_nor_wait_bus_busy(base, flashInstMode);
 
     /* Do software reset or clear AHB buffer directly. */
 #if defined(FSL_FEATURE_SOC_OTFAD_COUNT) && defined(FLEXSPI_AHBCR_CLRAHBRXBUF_MASK) && \

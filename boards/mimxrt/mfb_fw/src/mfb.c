@@ -55,8 +55,8 @@ extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, 
 extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
 extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
-extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bool enableOctal);
-extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, bool enableOctal);
+extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode);
+extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode);
 extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
 extern status_t flexspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess);
 /*******************************************************************************
@@ -178,7 +178,7 @@ static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen,
 }
 #endif
 
-bool mfb_flash_write_pattern_region(bool isOctalDdrMode)
+bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode)
 {
     bool result = true;
 
@@ -189,7 +189,7 @@ bool mfb_flash_write_pattern_region(bool isOctalDdrMode)
     for (uint32_t sectorId = 0; sectorId < sectorMax; sectorId++)
     {
         uint32_t sectorAddr = MFB_FLASH_ACCESS_REGION_START + sectorId * SECTOR_SIZE;
-        status_t status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, sectorAddr, isOctalDdrMode);
+        status_t status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, sectorAddr, flashInstMode);
         if (status != kStatus_Success)
         {
             mfb_printf("MFB: Erase flash sector failure at address 0x%x!\r\n", sectorAddr);
@@ -199,7 +199,7 @@ bool mfb_flash_write_pattern_region(bool isOctalDdrMode)
         {
             uint32_t pageAddr = sectorAddr + pageId * FLASH_PAGE_SIZE;
             mfb_flash_handle_one_pattern_page(pageAddr, true, false);
-            status = flexspi_nor_flash_page_program(EXAMPLE_FLEXSPI, pageAddr, (const uint32_t *)s_nor_rw_buffer, FLASH_PAGE_SIZE, isOctalDdrMode);
+            status = flexspi_nor_flash_page_program(EXAMPLE_FLEXSPI, pageAddr, (const uint32_t *)s_nor_rw_buffer, FLASH_PAGE_SIZE, flashInstMode);
             if (status != kStatus_Success)
             {
                 mfb_printf("MFB: Program flash page failure at address 0x%x!\r\n", pageAddr);
@@ -569,7 +569,6 @@ void mfb_main(void)
 #endif
     {
         bool sta_isOctalFlash = false;
-        bool sta_isOctalDdrMode = false;
         bool sta_isValidVendorId = true;
         /* Set default paramenters */
         flexspi_pad_t cfg_pad = kFLEXSPI_4PAD;
@@ -1041,15 +1040,22 @@ void mfb_main(void)
             }
             if (!sta_isOctalFlash)
             {
-                /* Enable quad mode. */
-                status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
-                if (status != kStatus_Success)
+                if (sta_flashInstMode == kFlashInstMode_SPI)
                 {
-                    mfb_printf("MFB: Flash failed to Enter Quad I/O SDR mode.\r\n");
+                    /* Enable quad mode. */
+                    status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
+                    if (status != kStatus_Success)
+                    {
+                        mfb_printf("MFB: Flash failed to Enter Quad I/O SDR mode.\r\n");
+                    }
+                    else
+                    {
+                        mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
+                    }
                 }
                 else
                 {
-                    mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
+                    mfb_printf("MFB: Flash remained in default QPI SDR mode.\r\n");
                 }
             }
             else
@@ -1066,7 +1072,7 @@ void mfb_main(void)
                     }
                     else
                     {
-                        sta_isOctalDdrMode = true;
+                        sta_flashInstMode = kFlashInstMode_OPI;
                         mfb_printf("MFB: Flash entered Octal I/O DDR mode.\r\n");
                     }
 #else
@@ -1076,8 +1082,7 @@ void mfb_main(void)
                 else
                 {
 #if !MFB_FLASH_FORCE_LOOPBACK_DQS
-                    sta_isOctalDdrMode = true;
-                    mfb_printf("MFB: Flash remained in default Octal I/O DDR mode.\r\n");
+                    mfb_printf("MFB: Flash remained in default OPI DDR mode.\r\n");
 #else
 #warning "Do not support loopback dqs option when flash default state in OPI DDR"
 #endif
@@ -1093,7 +1098,7 @@ void mfb_main(void)
                     {
                          if (isFirstTry)
                          {
-                             if (!mfb_flash_write_pattern_region(sta_isOctalDdrMode))
+                             if (!mfb_flash_write_pattern_region(sta_flashInstMode))
                              {
                                  return;
                              }

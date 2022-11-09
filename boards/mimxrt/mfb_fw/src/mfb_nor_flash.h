@@ -91,23 +91,27 @@ typedef enum _flexspi_root_clk_freq
 #define NOR_CMD_LUT_SEQ_IDX_SETDUMMY        3
 #define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR     4
 #define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     5
-// FlexSPI LUT seq defn (1bit spi)
-#define NOR_CMD_LUT_SEQ_IDX_READID          6
-#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_1    7
-#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_2    8
-#define NOR_CMD_LUT_SEQ_IDX_READID_OPI      10
-// FlexSPI LUT seq defn (quad lut)
 #define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        6
 #define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        7
-// FlexSPI LUT seq defn (octal lut)
-#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  6
-#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI 7
 #define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        8
-#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI 10
-#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI 11
+// FlexSPI LUT seq defn (1bit spi)
+#define NOR_CMD_LUT_SEQ_IDX_READID          10
+#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_1    11
+#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_2    12
+#define NOR_CMD_LUT_SEQ_IDX_READID_OPI      13
+// FlexSPI LUT seq defn (quad lut)
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI  10
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_QPI 11
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_QPI 12
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_QPI 13
+// FlexSPI LUT seq defn (octal lut)
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  10
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI 11
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI 12
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI 13
 
-#define NOR_CMD_LUT_SEQ_IDX_READREG         12
-#define NOR_CMD_LUT_SEQ_IDX_READREG2        13
+#define NOR_CMD_LUT_SEQ_IDX_READREG         14
+#define NOR_CMD_LUT_SEQ_IDX_READREG2        15
 
 /* NOTE: Workaround for debugger.
    Must define AHB write FlexSPI sequence index to 9 to avoid debugger issue.
