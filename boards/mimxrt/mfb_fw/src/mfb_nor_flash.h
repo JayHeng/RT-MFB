@@ -28,6 +28,17 @@ typedef struct _jedec_id
     uint8_t reserved;
 } jedec_id_t;
 
+// Supported Flash inst mode
+typedef enum _flash_inst_mode
+{
+    kFlashInstMode_SPI    = 0,
+    kFlashInstMode_QPI_1  = 1,
+    kFlashInstMode_QPI_2  = 2,
+    kFlashInstMode_OPI    = 3,
+
+    kFlashInstMode_MAX    = 4,
+} flash_inst_mode_t;
+
 // Flash property info for operation
 typedef struct _flash_property_info
 {
@@ -82,7 +93,9 @@ typedef enum _flexspi_root_clk_freq
 #define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     5
 // FlexSPI LUT seq defn (1bit spi)
 #define NOR_CMD_LUT_SEQ_IDX_READID          6
-#define NOR_CMD_LUT_SEQ_IDX_READID_OPI      7
+#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_1    7
+#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_2    8
+#define NOR_CMD_LUT_SEQ_IDX_READID_OPI      10
 // FlexSPI LUT seq defn (quad lut)
 #define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        6
 #define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        7
