@@ -514,7 +514,7 @@ void mfb_main(void)
             if ((jedecID.manufacturerID != INVALID_JEDEC_ID_0) && \
                 (jedecID.manufacturerID != INVALID_JEDEC_ID_1))
             {
-                mfb_printf("MFB: Get Valid Flash Vendor ID.\r\n");
+                //mfb_printf("MFB: Get Valid Flash Vendor ID.\r\n");
                 break;
             }
             else
