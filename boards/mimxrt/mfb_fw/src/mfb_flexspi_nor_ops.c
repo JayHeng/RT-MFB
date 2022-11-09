@@ -224,7 +224,8 @@ static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_
         return status;
     }
 
-    if ((regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_SETDUMMY) || (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_ENABLEQE))
+    if ((regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_SETDUMMY) || \
+        (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_ENABLEQE))
     {
         isOctalMode = false;
         status = flexspi_nor_wait_bus_busy(base, isOctalMode);
@@ -323,7 +324,14 @@ status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, bo
     flashXfer.port          = FLASH_PORT;
     flashXfer.cmdType       = kFLEXSPI_Command;
     flashXfer.SeqNumber     = 1;
-    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ERASESECTOR;
+    if (enableOctal)
+    {
+        flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI;
+    }
+    else
+    {
+        flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ERASESECTOR;
+    }
     status                  = FLEXSPI_TransferBlocking(base, &flashXfer);
 
     if (status != kStatus_Success)
