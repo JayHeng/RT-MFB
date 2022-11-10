@@ -187,6 +187,17 @@ typedef enum _flexspi_root_clk_freq
 #define SPANSION_DEVICE_OCTAL       (0)
 #define SPANSION_DEVICE_S28HS512    (0)
 //#define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
+   
+#define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
+                                     MXIC_DEVICE_VENDOR_ID,       \
+                                     GIGADEVICE_DEVICE_VENDOR_ID, \
+                                     ISSI_DEVICE_VENDOR_ID,       \
+                                     MICRON_DEVICE_VENDOR_ID,     \
+                                     MICRON_DEVICE_VENDOR_ID2,    \
+                                     ADESTO_DEVICE_VENDOR_ID,     \
+                                     ADESTO_DEVICE_VENDOR_ID2,    \
+                                     SPANSION_DEVICE_VENDOR_ID,   \
+                                     INFINEON_DEVICE_VENDOR_ID}
 
 /*******************************************************************************
  * Variables

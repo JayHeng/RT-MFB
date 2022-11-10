@@ -67,6 +67,8 @@ extern status_t flexspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t
 static uint32_t s_nor_rw_buffer[FLASH_PAGE_SIZE/4];
 #endif
 
+uint8_t s_flashVendorIDs[] = FLASH_DEVICE_VENDOR_ID_LIST;
+
 flash_property_info_t s_flashPropertyInfo;
 
 flexspi_device_config_t s_deviceconfig = {
@@ -524,8 +526,15 @@ void mfb_main(void)
         }
         else
         {
-            if ((jedecID.manufacturerID != INVALID_JEDEC_ID_0) && \
-                (jedecID.manufacturerID != INVALID_JEDEC_ID_1))
+            uint32_t idx;
+            for (idx = 0; idx < sizeof(s_flashVendorIDs); idx++)
+            {
+                if (jedecID.manufacturerID == s_flashVendorIDs[idx])
+                {
+                    break;
+                }
+            }
+            if (idx != sizeof(s_flashVendorIDs))
             {
                 mfb_printf("MFB: Get Valid Flash Vendor ID.\r\n");
                 break;
@@ -537,9 +546,14 @@ void mfb_main(void)
         }
         switch (sta_flashInstMode)
         {
+            case kFlashInstMode_OPI:
+                mfb_printf(" under OPI DDR mode.\r\n");
+                sta_flashInstMode = kFlashInstMode_MAX;
+                break;
+
             case kFlashInstMode_QPI_2:
                 mfb_printf(" under QPI_2 SDR mode.\r\n");
-                sta_flashInstMode = kFlashInstMode_MAX;
+                sta_flashInstMode = kFlashInstMode_OPI;
                 break;
 
             case kFlashInstMode_QPI_1:
@@ -547,15 +561,10 @@ void mfb_main(void)
                 sta_flashInstMode = kFlashInstMode_QPI_2;
                 break;
 
-            case kFlashInstMode_OPI:
-                mfb_printf(" under OPI DDR mode.\r\n");
-                sta_flashInstMode = kFlashInstMode_QPI_1;
-                break;
-
             case kFlashInstMode_SPI:
             default:
                 mfb_printf(" under Std/Ext SPI mode.\r\n");
-                sta_flashInstMode = kFlashInstMode_OPI;
+                sta_flashInstMode = kFlashInstMode_QPI_1;
                 break;
         }
     }
