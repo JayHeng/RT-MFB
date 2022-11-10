@@ -249,13 +249,11 @@ bool mfb_flash_pattern_verify_test(bool showError)
     return result;
 }
 
-void mfb_flash_memcpy_perf_test(bool isFirstTime)
+void mfb_flash_memcpy_perf_test()
 {
 #if MFB_FLASH_MEMCPY_PERF_ENABLE
-    if (isFirstTime)
-    {
-        microseconds_init();
-    }
+    microseconds_shutdown();
+    microseconds_init();
 
     uint64_t startTicks = microseconds_get_ticks();
     uint64_t totalSize = (8UL*1024*1024);
@@ -276,10 +274,7 @@ void mfb_flash_memcpy_perf_test(bool isFirstTime)
     uint32_t kBps = (totalSize / 1024) * 1000000 / microSecs;
     mfb_printf("MFB: Flash to RAM memcpy speed: %dKB/s.\r\n", kBps);
 
-    if (!isFirstTime)
-    {
-        microseconds_shutdown();
-    }
+    microseconds_shutdown();
 #endif
 }
 
@@ -584,7 +579,7 @@ void mfb_main(void)
             /* Do patten verify test under 1bit SPI mode */
             mfb_flash_pattern_verify_test(false);
             /* Get perf test result under 1bit SPI mode */
-            mfb_flash_memcpy_perf_test(true);
+            mfb_flash_memcpy_perf_test();
         }
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID.manufacturerID);
         /* Check Vendor ID. */
@@ -1121,7 +1116,7 @@ void mfb_main(void)
                         break;
                     }
                 }
-                mfb_flash_memcpy_perf_test(false);
+                mfb_flash_memcpy_perf_test();
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }
         }
