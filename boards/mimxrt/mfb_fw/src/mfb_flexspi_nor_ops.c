@@ -204,6 +204,23 @@ status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashIn
     return status;
 }
 
+status_t flexspi_nor_enable_qpi_mode(FLEXSPI_Type *base)
+{
+    flexspi_transfer_t flashXfer;
+    status_t status;
+
+    /* Write enable */
+    flashXfer.deviceAddress = 0;
+    flashXfer.port          = FLASH_PORT;
+    flashXfer.cmdType       = kFLEXSPI_Command;
+    flashXfer.SeqNumber     = 1;
+    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ENTERQPI;
+
+    status = FLEXSPI_TransferBlocking(base, &flashXfer);
+
+    return status;
+}
+
 static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess)
 {
     flexspi_transfer_t flashXfer;
@@ -277,7 +294,7 @@ status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base)
     return flexspi_nor_write_register(base, &regAccess);
 }
 
-status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base)
+status_t flexspi_nor_enable_opi_mode(FLEXSPI_Type *base)
 {
     flash_reg_access_t regAccess;
     regAccess.regNum = 1;

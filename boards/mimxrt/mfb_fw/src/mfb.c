@@ -53,8 +53,9 @@ extern const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH];
 
 extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
 extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
-extern status_t flexspi_nor_enable_octal_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
+extern status_t flexspi_nor_enable_qpi_mode(FLEXSPI_Type *base);
+extern status_t flexspi_nor_enable_opi_mode(FLEXSPI_Type *base);
 extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode);
 extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode);
 extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
@@ -561,6 +562,7 @@ void mfb_main(void)
     if (status == kStatus_Success)
 #endif
     {
+        bool sta_hasQpiSupport = false;
         bool sta_isOctalFlash = false;
         bool sta_isValidVendorId = true;
         /* Set default paramenters */
@@ -1035,15 +1037,34 @@ void mfb_main(void)
             {
                 if (sta_flashInstMode == kFlashInstMode_SPI)
                 {
-                    /* Enable quad mode. */
-                    status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
-                    if (status != kStatus_Success)
+#if MFB_FLASH_QPI_MODE_ENABLE
+                    if (sta_hasQpiSupport)
                     {
-                        mfb_printf("MFB: Flash failed to Enter Quad I/O SDR mode.\r\n");
+                        /* Enter QPI SDR mode. */
+                        status = flexspi_nor_enable_qpi_mode(EXAMPLE_FLEXSPI);
+                        if (status != kStatus_Success)
+                        {
+                            mfb_printf("MFB: Flash failed to Enter QPI SDR mode.\r\n");
+                        }
+                        else
+                        {
+                            sta_flashInstMode = kFlashInstMode_QPI_1;
+                            mfb_printf("MFB: Flash entered QPI SDR mode.\r\n");
+                        }
                     }
                     else
+#endif
                     {
-                        mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
+                        /* Enable quad mode. */
+                        status = flexspi_nor_enable_quad_mode(EXAMPLE_FLEXSPI);
+                        if (status != kStatus_Success)
+                        {
+                            mfb_printf("MFB: Flash failed to Enter Quad I/O SDR mode.\r\n");
+                        }
+                        else
+                        {
+                            mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
+                        }
                     }
                 }
                 else
@@ -1056,17 +1077,17 @@ void mfb_main(void)
                 /* Only When defult flash is Ext SPI mode, Enter OPI DDR mode then */
                 if (sta_flashInstMode != kFlashInstMode_OPI)
                 {
-                    /* Enter octal DDR mode. */
+                    /* Enter OPI DDR mode. */
 #if !MFB_FLASH_OPI_MODE_DISABLE
-                    status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
+                    status = flexspi_nor_enable_opi_mode(EXAMPLE_FLEXSPI);
                     if (status != kStatus_Success)
                     {
-                        mfb_printf("MFB: Flash failed to Enter Octal I/O DDR mode.\r\n");
+                        mfb_printf("MFB: Flash failed to Enter OPI DDR mode.\r\n");
                     }
                     else
                     {
                         sta_flashInstMode = kFlashInstMode_OPI;
-                        mfb_printf("MFB: Flash entered Octal I/O DDR mode.\r\n");
+                        mfb_printf("MFB: Flash entered OPI DDR mode.\r\n");
                     }
 #else
                     mfb_printf("MFB: Flash ran in Octal I/O SPI mode.\r\n");
