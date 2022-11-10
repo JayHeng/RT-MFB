@@ -69,7 +69,7 @@
 //   0x1E     |      30        |        200MHz          |         166MHz        |
 //   0x1F     |      31        |        200MHz          |         166MHz        |
 //-------------------------------------------------------------------------------
-#if MFB_FLASH_FORCE_LOOPBACK_DQS
+#if MFB_FLASH_OPI_MODE_DISABLE
 #define GIGADEVICE_OCTAL_FLASH_SET_DUMMY_CMD     0x04
 #else
 #define GIGADEVICE_OCTAL_FLASH_SET_DUMMY_CMD     0x10   // 200MHz OPI DDR

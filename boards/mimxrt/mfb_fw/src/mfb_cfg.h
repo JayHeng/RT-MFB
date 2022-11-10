@@ -16,6 +16,11 @@
 // The app image offset in flash device
 #define MFB_APP_IMAGE_OFFSET             (0xC000)
 
+// Whether to enable QPI mode for Quad Flash
+#define MFB_FLASH_QPI_MODE_ENABLE        (0)
+// Whether to disable OPI mode for Octal Flash (test dummy cycle setting for Octal Flash)
+#define MFB_FLASH_OPI_MODE_DISABLE       (0)
+
 // Whether to show MFB log info via UART console (for development)
 #define MFB_DEBUG_LOG_INFO_ENABLE        (1)
 // The flash region size used for perf and pattern test
@@ -28,8 +33,6 @@
 
 // Whether to use fake jedec id (appliable when there is no id in flash device)
 #define MFB_FLASH_FAKE_JEDEC_ID_ENABLE   (0)
-// Whether to force loopback DQS (test dummy cycle setting for Octal Flash)
-#define MFB_FLASH_FORCE_LOOPBACK_DQS     (0)
 // Whether to show flash internal registers
 #define MFB_FLASH_REGS_READBACK_ENABLE   (0)
 

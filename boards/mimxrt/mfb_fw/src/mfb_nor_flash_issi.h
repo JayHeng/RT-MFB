@@ -80,7 +80,7 @@
 //   0x1E     |      30        |        200MHz          |         166MHz        |
 //   0x1F     |      31        |        200MHz          |         166MHz        |
 //-------------------------------------------------------------------------------
-#if MFB_FLASH_FORCE_LOOPBACK_DQS
+#if MFB_FLASH_OPI_MODE_DISABLE
 #define ISSI_OCTAL_FLASH_SET_DUMMY_CMD     0x06
 #else
 #define ISSI_OCTAL_FLASH_SET_DUMMY_CMD     0x14   // 200MHz OPI DDR

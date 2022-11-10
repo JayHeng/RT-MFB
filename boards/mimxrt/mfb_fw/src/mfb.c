@@ -784,7 +784,7 @@ void mfb_main(void)
                         s_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
                         s_flashPropertyInfo.flashEnableOctalCmd   = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_GIGADEVICE_Octal;
-#if MFB_FLASH_FORCE_LOOPBACK_DQS
+#if MFB_FLASH_OPI_MODE_DISABLE
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
 #else
@@ -854,7 +854,7 @@ void mfb_main(void)
                         s_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
                         s_flashPropertyInfo.flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_ISSI_Octal;
-#if MFB_FLASH_FORCE_LOOPBACK_DQS
+#if MFB_FLASH_OPI_MODE_DISABLE
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
 #else
@@ -922,7 +922,7 @@ void mfb_main(void)
                         s_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
                         s_flashPropertyInfo.flashEnableOctalCmd   = MICRON_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_MICRON_Octal;
-#if MFB_FLASH_FORCE_LOOPBACK_DQS
+#if MFB_FLASH_OPI_MODE_DISABLE
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
 #else
@@ -1057,7 +1057,7 @@ void mfb_main(void)
                 if (sta_flashInstMode != kFlashInstMode_OPI)
                 {
                     /* Enter octal DDR mode. */
-#if !MFB_FLASH_FORCE_LOOPBACK_DQS
+#if !MFB_FLASH_OPI_MODE_DISABLE
                     status = flexspi_nor_enable_octal_mode(EXAMPLE_FLEXSPI);
                     if (status != kStatus_Success)
                     {
@@ -1074,7 +1074,7 @@ void mfb_main(void)
                 }
                 else
                 {
-#if !MFB_FLASH_FORCE_LOOPBACK_DQS
+#if !MFB_FLASH_OPI_MODE_DISABLE
                     mfb_printf("MFB: Flash remained in default OPI DDR mode.\r\n");
 #else
 #warning "Do not support loopback dqs option when flash default state in OPI DDR"
