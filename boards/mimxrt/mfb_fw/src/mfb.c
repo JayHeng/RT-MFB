@@ -138,7 +138,6 @@ const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
  * Code
  ******************************************************************************/
 
-
 int mfb_printf(const char *fmt_s, ...)
 {
 #if MFB_DEBUG_LOG_INFO_ENABLE
@@ -160,7 +159,8 @@ static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen,
     }
     else
     {
-        memcpy(s_nor_rw_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + pageAddr), FLASH_PAGE_SIZE);
+        uint32_t srcAddr = EXAMPLE_FLEXSPI_AMBA_BASE + pageAddr;
+        memcpy(s_nor_rw_buffer, (uint8_t*)srcAddr, FLASH_PAGE_SIZE);
         for (uint32_t idx = 0; idx < FLASH_PAGE_SIZE / sizeof(uint32_t); idx++)
         {
             if (s_nor_rw_buffer[idx] != pageAddr + idx * sizeof(uint32_t))
@@ -216,13 +216,10 @@ bool mfb_flash_pattern_verify_test(bool showError)
 {
     bool result = true;
 
-    // For QuadSPI Flash
-    //  1. It is 1st time verify (before QE enablment), do nothing when failure
-    //  2. It is 2nd time verify (after QE enablment), write pattern when failure then verify (ERASE/PROGRAM seq in vendor LUT)
-    // For OctalSPI Flash
-    //  1. It is 1st time verify (before Reading ID), do nothing when failure
-    //  2. It is 2nd time verify (before OPI enablment), write pattern when failure then verify (ERASE/PROGRAM seq in common LUT)
-    //  3. It is 3rd time verify (after OPI enablment), just verify even failure
+    // For QuadSPI/OctalSPI Flash
+    //  1. It is 1st time verify (before QE/QPI/OPI enablment), do nothing when failure
+    //  2. It is 2nd time verify (after QE/QPI/OPI enablment), write pattern when failure (ERASE/PROGRAM seq in vendor LUT)
+    //  3. It is 3rd time verify (after QE/QPI/OPI enablment), just verify even failure (ERASE/PROGRAM seq in vendor LUT)
 #if MFB_FLASH_PATTERN_VERIFY_ENABLE
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
     DCACHE_InvalidateByRange(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_SIZE);
@@ -260,13 +257,15 @@ void mfb_flash_memcpy_perf_test()
     uint32_t loopMax = totalSize / MFB_FLASH_ACCESS_REGION_SIZE;
     uint32_t unitSize = FLASH_PAGE_SIZE;
     uint32_t idxMax = MFB_FLASH_ACCESS_REGION_SIZE / unitSize;
+    uint32_t srcAddr = 0;
     /* Read 8MB data from flash to test speed */
     for (uint32_t loop = 0; loop < loopMax; loop++)
     {
         /* Min NOR Flash size is 64KB */
         for (uint32_t idx = 0; idx < idxMax; idx++)
         {
-            memcpy(s_nor_rw_buffer, (uint8_t*)(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START + idx * unitSize), unitSize);
+            srcAddr = EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START + idx * unitSize;
+            memcpy(s_nor_rw_buffer, (uint8_t*)srcAddr, unitSize);
         }
     }
     uint64_t totalTicks = microseconds_get_ticks() - startTicks;
@@ -411,7 +410,6 @@ void mfb_show_mem_size(uint8_t capacityID, bool isAdesto)
     }
 #endif
 }
-
 
 void mfb_show_flash_registers(void)
 {
@@ -1086,12 +1084,16 @@ void mfb_main(void)
             if (status == kStatus_Success)
             {
                 mfb_show_flash_registers();
-                bool isFirstTry = true;
-                while (1)
+                /* Do patten verify test under Multi I/O fast read mode */
+                uint32_t round = 1;
+                while (round < 2)
                 {
-                    if (!mfb_flash_pattern_verify_test(!isFirstTry))
+                    bool showError = (round == 2);
+                    /* Don't show error info when it is 1st round, as flash may be blank this time */
+                    if (!mfb_flash_pattern_verify_test(showError))
                     {
-                         if (isFirstTry)
+                         /* Try to write pattern into flash when error occurs in 1st round */
+                         if (round == 1)
                          {
                              if (!mfb_flash_write_pattern_region(sta_flashInstMode))
                              {
@@ -1103,20 +1105,19 @@ void mfb_main(void)
                              return;
                          }
                     }
-                    if (isFirstTry)
+                    /* Increase speed for 2nd round */
+                    if (round != 2)
                     {
                         /* Configure FlexSPI clock as user prescriptive */ 
                         flexspi_clock_init(EXAMPLE_FLEXSPI, cfg_rootClkFreq);
                         /* Show FlexSPI clock source */
                         flexspi_show_clock_source(EXAMPLE_FLEXSPI);
-                        isFirstTry = false;
-                    }
-                    else
-                    {
-                        break;
+                        round = 2;
                     }
                 }
+                /* Get perf test result under Multi I/O fast read mode */
                 mfb_flash_memcpy_perf_test();
+                /* Jump into user application */
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }
         }
