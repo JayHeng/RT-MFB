@@ -24,6 +24,7 @@
 
 #if MXIC_DEVICE_MX25L6433F | MXIC_DEVICE_MX25U6432F
 const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
+#if !MFB_FLASH_QPI_MODE_ENABLE
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
@@ -31,6 +32,15 @@ const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x04),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+#else
+    /* Fast read quad mode - QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x04),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+#endif
 
     /* Read status register -SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
@@ -59,6 +69,24 @@ const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
     /* Enter QPI mode */
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x35, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Read status register -QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x01),
+
+    /* Write Enable -QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_QPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Erase Sector - QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_QPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
+
+    /* Page Program - QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_QPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
 #endif
 

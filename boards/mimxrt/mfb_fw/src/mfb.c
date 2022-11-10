@@ -648,6 +648,7 @@ void mfb_main(void)
                             break;
                         case 0x25:
                             mfb_printf(" -- MX25U/MX66U QuadSPI 1.8V Series.\r\n");
+                            sta_hasQpiSupport = true;
                             break;
                         case 0x28:
                             mfb_printf(" -- MX25R QuadSPI 1.8-3.3V Series.\r\n");
