@@ -372,6 +372,8 @@ void mfb_main(void)
                         else
                         {
                             mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
+                            /* Read internal regiters of Flash */
+                            mfb_flash_show_registers(&jedecID, true);
                         }
                     }
                 }
@@ -396,6 +398,8 @@ void mfb_main(void)
                     {
                         sta_flashInstMode = kFlashInstMode_OPI;
                         mfb_printf("MFB: Flash entered OPI DDR mode.\r\n");
+                        /* Read internal regiters of Flash */
+                        mfb_flash_show_registers(&jedecID, true);
                     }
 #else
                     mfb_printf("MFB: Flash ran in Octal I/O SPI mode.\r\n");
@@ -412,8 +416,6 @@ void mfb_main(void)
             }
             if (status == kStatus_Success)
             {
-                /* Read internal regiters of Flash */
-                mfb_flash_show_registers(&jedecID, g_flashPropertyInfo.flashIsOctal);
                 /* Do patten verify test under Multi I/O fast read mode */
                 uint32_t round = 1;
                 while (round < 2)

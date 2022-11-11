@@ -11,7 +11,6 @@
  * Definitions
  ******************************************************************************/
 
-
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -52,6 +51,20 @@ const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
     // QE bit in 8bit Status Register[6], there is only one Status Register
     [4 * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
+
+    /* Read function register */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x48, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x01),
+
+    /* Read read parameters */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x61, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x01),
+
+    /* Read extended read parameters */
+    /*
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x81, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x01),
+    */
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /* Enter QPI mode */
@@ -227,17 +240,27 @@ void mfb_flash_show_registers_for_issi(bool isOctalFlash)
 {
 #if MFB_FLASH_REGS_READBACK_ENABLE
     flash_reg_access_t regAccess;
-    if (isOctalFlash)
+    if (!isOctalFlash)
+    {
+        regAccess.regNum = 1;
+        regAccess.regAddr = 0x0;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Function Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Read Parameters: 0x%x\r\n", regAccess.regValue.B.reg1);
+    }
+    else
     {
         regAccess.regNum = 1;
         regAccess.regAddr = 0x0;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
         flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
-        regAccess.regAddr = 0x00000000;
-        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-        mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
         regAccess.regAddr = 0x00000000;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
         flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
@@ -266,6 +289,10 @@ void mfb_flash_show_registers_for_issi(bool isOctalFlash)
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
         flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00000000;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
     }
 #endif
 }
