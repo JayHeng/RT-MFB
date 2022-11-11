@@ -5,8 +5,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "fsl_flexspi.h"
-#include "port_flexspi_info.h"
 #include "mfb_nor_flash.h"
 /*******************************************************************************
  * Definitions
@@ -18,8 +16,7 @@
  * Variables
  ******************************************************************************/
 
-extern flash_property_info_t s_flashPropertyInfo;
-extern flexspi_device_config_t s_deviceconfig;
+extern flexspi_device_config_t g_deviceconfig;
 
 /*******************************************************************************
  * Code
@@ -176,9 +173,9 @@ status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashIn
         {
             return status;
         }
-        if (s_flashPropertyInfo.flashBusyStatusPol)
+        if (g_flashPropertyInfo.flashBusyStatusPol)
         {
-            if (readValue & (1U << s_flashPropertyInfo.flashBusyStatusOffset))
+            if (readValue & (1U << g_flashPropertyInfo.flashBusyStatusOffset))
             {
                 isBusy = true;
             }
@@ -189,7 +186,7 @@ status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashIn
         }
         else
         {
-            if (readValue & (1U << s_flashPropertyInfo.flashBusyStatusOffset))
+            if (readValue & (1U << g_flashPropertyInfo.flashBusyStatusOffset))
             {
                 isBusy = false;
             }
@@ -288,9 +285,9 @@ status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
 status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base)
 {
     flash_reg_access_t regAccess;
-    regAccess.regNum = s_flashPropertyInfo.flashQuadEnableBytes;
+    regAccess.regNum = g_flashPropertyInfo.flashQuadEnableBytes;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_ENABLEQE;
-    regAccess.regValue.U = s_flashPropertyInfo.flashQuadEnableCfg;
+    regAccess.regValue.U = g_flashPropertyInfo.flashQuadEnableCfg;
     return flexspi_nor_write_register(base, &regAccess);
 }
 
@@ -299,7 +296,7 @@ status_t flexspi_nor_enable_opi_mode(FLEXSPI_Type *base)
     flash_reg_access_t regAccess;
     regAccess.regNum = 1;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_ENTEROPI;
-    regAccess.regValue.U = s_flashPropertyInfo.flashEnableOctalCmd;
+    regAccess.regValue.U = g_flashPropertyInfo.flashEnableOctalCmd;
     return flexspi_nor_write_register(base, &regAccess);
 }
 
@@ -517,7 +514,7 @@ void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexs
     FLEXSPI_Init(base, &config);
 
     /* Configure flash settings according to serial flash feature. */
-    FLEXSPI_SetFlashConfig(base, &s_deviceconfig, FLASH_PORT);
+    FLEXSPI_SetFlashConfig(base, &g_deviceconfig, FLASH_PORT);
 
     /* Update LUT table into a specific mode, such as octal SDR mode or octal DDR mode based on application's
      * requirement. */

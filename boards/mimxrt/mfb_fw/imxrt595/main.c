@@ -13,7 +13,7 @@
 #include "board.h"
 #include "fsl_power.h"
 #include "fsl_reset.h"
-#include "mfb_def.h"
+#include "mfb.h"
 
 /*******************************************************************************
  * Definitions

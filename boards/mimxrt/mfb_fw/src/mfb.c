@@ -5,8 +5,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "microseconds.h"
-#include "port_flexspi_info.h"
 #include "mfb_nor_flash.h"
 #if WINBOND_DEVICE_SERIES
 #include "mfb_nor_flash_winbond.h"
@@ -26,12 +24,7 @@
 #if ADESTO_DEVICE_SERIE
 #include "mfb_nor_flash_adesto.h"
 #endif
-#include "fsl_flexspi.h"
 #include "fsl_debug_console.h"
-#include "pin_mux.h"
-#include "clock_config.h"
-#include "board.h"
-#include "fsl_common.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -51,27 +44,19 @@ extern const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
 extern const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH];
 
-extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
-extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
-extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
-extern status_t flexspi_nor_enable_qpi_mode(FLEXSPI_Type *base);
-extern status_t flexspi_nor_enable_opi_mode(FLEXSPI_Type *base);
-extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode);
-extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode);
-extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
-extern status_t flexspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
+
+static uint8_t s_flashVendorIDs[] = FLASH_DEVICE_VENDOR_ID_LIST;
+
 #if MFB_FLASH_MEMCPY_PERF_ENABLE | MFB_FLASH_PATTERN_VERIFY_ENABLE
-static uint32_t s_nor_rw_buffer[FLASH_PAGE_SIZE/4];
+uint32_t g_flashRwBuffer[FLASH_PAGE_SIZE/4];
 #endif
 
-uint8_t s_flashVendorIDs[] = FLASH_DEVICE_VENDOR_ID_LIST;
+flash_property_info_t g_flashPropertyInfo;
 
-flash_property_info_t s_flashPropertyInfo;
-
-flexspi_device_config_t s_deviceconfig = {
+flexspi_device_config_t g_deviceconfig = {
     .flexspiRootClk       = 27400000,
     .flashSize            = 0x2000, /* 64Mb/KByte */
     .CSIntervalUnit       = kFLEXSPI_CsIntervalUnit1SckCycle,
@@ -150,136 +135,6 @@ int mfb_printf(const char *fmt_s, ...)
     return 0;
 }
 
-#if MFB_FLASH_PATTERN_VERIFY_ENABLE
-static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen, bool showError)
-{
-    if (isDataGen)
-    {
-        for (uint32_t idx = 0; idx < FLASH_PAGE_SIZE / sizeof(uint32_t); idx++)
-        {
-            s_nor_rw_buffer[idx] = pageAddr + idx * sizeof(uint32_t);
-        }
-    }
-    else
-    {
-        uint32_t srcAddr = EXAMPLE_FLEXSPI_AMBA_BASE + pageAddr;
-        memcpy(s_nor_rw_buffer, (uint8_t*)srcAddr, FLASH_PAGE_SIZE);
-        for (uint32_t idx = 0; idx < FLASH_PAGE_SIZE / sizeof(uint32_t); idx++)
-        {
-            if (s_nor_rw_buffer[idx] != pageAddr + idx * sizeof(uint32_t))
-            {
-                if (showError)
-                {
-                    mfb_printf("MFB: Pattern verify failure at flash address 0x%x, error value is 0x%x.\r\n", pageAddr + idx * sizeof(uint32_t), s_nor_rw_buffer[idx]);
-                }
-                return false;
-            }
-        }
-    }
-    
-    return true;
-}
-#endif
-
-bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode)
-{
-    bool result = true;
-
-#if MFB_FLASH_PATTERN_VERIFY_ENABLE
-    mfb_printf("MFB: Write pattern data into Flash region 0x%x - 0x%x.\r\n", MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_START + MFB_FLASH_ACCESS_REGION_SIZE - 1);
-    uint32_t sectorMax = MFB_FLASH_ACCESS_REGION_SIZE / SECTOR_SIZE;
-    uint32_t pagesPerSector = SECTOR_SIZE / FLASH_PAGE_SIZE;
-    for (uint32_t sectorId = 0; sectorId < sectorMax; sectorId++)
-    {
-        uint32_t sectorAddr = MFB_FLASH_ACCESS_REGION_START + sectorId * SECTOR_SIZE;
-        status_t status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, sectorAddr, flashInstMode);
-        if (status != kStatus_Success)
-        {
-            mfb_printf("MFB: Erase flash sector failure at address 0x%x!\r\n", sectorAddr);
-            return false;
-        }
-        for (uint32_t pageId = 0; pageId < pagesPerSector; pageId++)
-        {
-            uint32_t pageAddr = sectorAddr + pageId * FLASH_PAGE_SIZE;
-            mfb_flash_handle_one_pattern_page(pageAddr, true, false);
-            status = flexspi_nor_flash_page_program(EXAMPLE_FLEXSPI, pageAddr, (const uint32_t *)s_nor_rw_buffer, FLASH_PAGE_SIZE, flashInstMode);
-            if (status != kStatus_Success)
-            {
-                mfb_printf("MFB: Program flash page failure at address 0x%x!\r\n", pageAddr);
-                return false;
-            }
-        }
-    }
-#endif
-    
-    return result;
-}
-
-bool mfb_flash_pattern_verify_test(bool showError)
-{
-    bool result = true;
-
-    // For QuadSPI/OctalSPI Flash
-    //  1. It is 1st time verify (before QE/QPI/OPI enablment), do nothing when failure
-    //  2. It is 2nd time verify (after QE/QPI/OPI enablment), write pattern when failure (ERASE/PROGRAM seq in vendor LUT)
-    //  3. It is 3rd time verify (after QE/QPI/OPI enablment), just verify even failure (ERASE/PROGRAM seq in vendor LUT)
-#if MFB_FLASH_PATTERN_VERIFY_ENABLE
-#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-    DCACHE_InvalidateByRange(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_SIZE);
-#endif
-    for (uint32_t idx = 0; idx < MFB_FLASH_ACCESS_REGION_SIZE / FLASH_PAGE_SIZE; idx++)
-    {
-        if (!mfb_flash_handle_one_pattern_page(MFB_FLASH_ACCESS_REGION_START + idx * FLASH_PAGE_SIZE, false, showError))
-        {
-            result = false;
-            break;
-        }
-    }
-
-    if (result)
-    {
-        mfb_printf("MFB: Flash Pattern data readback verification - Passed.\r\n");
-    }
-    else
-    {
-        //mfb_printf("MFB: Flash Pattern data readback verification - Failed.\r\n");
-    }
-#endif
-    
-    return result;
-}
-
-void mfb_flash_memcpy_perf_test()
-{
-#if MFB_FLASH_MEMCPY_PERF_ENABLE
-    microseconds_shutdown();
-    microseconds_init();
-
-    uint64_t startTicks = microseconds_get_ticks();
-    uint64_t totalSize = (8UL*1024*1024);
-    uint32_t loopMax = totalSize / MFB_FLASH_ACCESS_REGION_SIZE;
-    uint32_t unitSize = FLASH_PAGE_SIZE;
-    uint32_t idxMax = MFB_FLASH_ACCESS_REGION_SIZE / unitSize;
-    uint32_t srcAddr = 0;
-    /* Read 8MB data from flash to test speed */
-    for (uint32_t loop = 0; loop < loopMax; loop++)
-    {
-        /* Min NOR Flash size is 64KB */
-        for (uint32_t idx = 0; idx < idxMax; idx++)
-        {
-            srcAddr = EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START + idx * unitSize;
-            memcpy(s_nor_rw_buffer, (uint8_t*)srcAddr, unitSize);
-        }
-    }
-    uint64_t totalTicks = microseconds_get_ticks() - startTicks;
-    uint32_t microSecs = microseconds_convert_to_microseconds(totalTicks);
-    uint32_t kBps = (totalSize / 1024) * 1000000 / microSecs;
-    mfb_printf("MFB: Flash to RAM memcpy speed: %dKB/s.\r\n", kBps);
-
-    microseconds_shutdown();
-#endif
-}
-
 void mfb_jump_to_application(uint32_t vectorStartAddr)
 {
 #if MFB_APP_JUMP_ENABLE
@@ -307,156 +162,6 @@ void mfb_jump_to_application(uint32_t vectorStartAddr)
     static void (*s_entry)(void) = 0;
     s_entry = (void (*)(void))s_resetEntry;
     s_entry();
-#endif
-}
-
-uint32_t mfb_decode_common_capacity_id(uint8_t capacityID)
-{
-    uint32_t memSizeInBytes = 0;
-    //| ISSI QuadSPI       |  MXIC OctalSPI     |  Micron QuadSPI    |
-    //| ISSI OctalSPI      |  MXIC QuadSPI U    |GigaDevice QuadSPI Q|
-    //| MXIC QuadSPI R/L/V |                    |                    |
-    //| Winbond QuadSPI    |                    |                    |
-    //| Micron OctalSPI    |                    |                    |
-    //| GigaDevice QuadSPI |                    |                    |
-    //| GigaDevice OctalSPI|                    |                    |
-    //|Adesto QuadSPI SL/QL|                    |                    |
-    //|---------------------------------------------------------------
-    //| 09h - 256Kb        |                    |                    |
-    //| 10h - 512Kb        |                    |                    |
-    //| 11h - 1Mb          |                    |                    |
-    //| 12h - 2Mb          |                    |                    |
-    //| 13h - 4Mb          |                    |                    |
-    //| 14h - 8Mb          |                    |                    |
-    //| 15h - 16Mb         |                    |                    |
-    //| 16h - 32Mb         |                    |                    |
-    //| 17h - 64Mb         |  37h - 64Mb        |   17h - 64Mb       |
-    //| 18h - 128Mb        |  38h - 128Mb       |   18h - 128Mb      |
-    //| 19h - 256Mb        |  39h - 256Mb       |   19h - 256Mb      |
-    //| 1ah - 512Mb        |  3ah - 512Mb       |   20h - 512Mb      |
-    //| 1bh - 1Gb          |  3bh - 1Gb         |   21h - 1Gb        |
-    //| 1ch - 2Gb          |  3ch - 2Gb         |   22h - 2Gb        |
-    if (capacityID <= 0x09)
-    {
-        capacityID += 6;
-    }
-    else if (capacityID <= 0x1c)
-    {
-        // Do Nothing
-    }
-    else if (capacityID <= 0x22)
-    {
-        capacityID -= 6;
-    }
-    else
-    {
-        capacityID &= 0x1F;
-    }
-    memSizeInBytes = 1 << capacityID;
-    return memSizeInBytes;
-}
-
-uint32_t mfb_decode_adesto_capacity_id(uint8_t capacityID)
-{
-    uint32_t memSizeInBytes = 0;
-    //|Adesto QuadSPI      | Adesto QuadSPI EU  |
-    //|------------------------------------------
-    //|                    | 10h - 1Mb          |
-    //| 03h - 2Mb          | 11h - 2Mb          |
-    //| 04h - 4Mb          | 14h - 4Mb          |
-    //| 05h - 8Mb          |                    |
-    //| 06h - 16Mb         |                    |
-    //| 07h - 32Mb         |                    |
-    //| 08h - 64Mb         |                    |
-    //| 09h - 128Mb        |                    |
-    if (capacityID <= 0x09)
-    {
-        capacityID += 15;
-    }
-    else if (capacityID == 0x10)
-    {
-        capacityID = 0x11;
-    }
-    else if (capacityID == 0x11)
-    {
-        capacityID = 0x12;
-    }
-    else if (capacityID == 0x14)
-    {
-        capacityID = 0x13;
-    }
-    memSizeInBytes = 1 << capacityID;
-    return memSizeInBytes;
-}
-
-void mfb_show_mem_size(uint8_t capacityID, bool isAdesto)
-{
-#if MFB_DEBUG_LOG_INFO_ENABLE
-    uint32_t flashMemSizeInKB;
-    if (isAdesto)
-    {
-        mfb_printf("MFB: Flash Density Code: 0x%x", capacityID);
-        flashMemSizeInKB = mfb_decode_adesto_capacity_id(capacityID)/ 0x400;
-    }
-    else
-    {
-        mfb_printf("MFB: Flash Capacity ID: 0x%x", capacityID);
-        flashMemSizeInKB = mfb_decode_common_capacity_id(capacityID)/ 0x400;
-    }
-    if (flashMemSizeInKB <= 0x400)
-    {
-        mfb_printf(" -- %dKB.\r\n", flashMemSizeInKB);
-    }
-    else
-    {
-        mfb_printf(" -- %dMB.\r\n", flashMemSizeInKB / 0x400);
-    }
-#endif
-}
-
-void mfb_show_flash_registers(void)
-{
-#if MFB_FLASH_REGS_READBACK_ENABLE
-    flash_reg_access_t regAccess;
-    regAccess.regNum = 1;
-    regAccess.regAddr = 0x0;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000000;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000000;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000001;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000003;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000004;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000005;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000006;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000007;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000000;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
 #endif
 }
 
@@ -625,17 +330,17 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(jedecID.capacityID, false);
+                    mfb_flash_show_mem_size(jedecID.capacityID, false);
 #if WINBOND_DEVICE_QUAD
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_100MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashPropertyInfo.flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashPropertyInfo.flashQuadEnableCfg    = WINBOND_FLASH_QUAD_ENABLE;
-                        s_flashPropertyInfo.flashQuadEnableBytes  = 1;
+                        g_flashPropertyInfo.flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
+                        g_flashPropertyInfo.flashQuadEnableCfg    = WINBOND_FLASH_QUAD_ENABLE;
+                        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
                         cfg_customLUTVendor     = s_customLUT_WINBOND_Quad;
                     }
 #endif
@@ -693,17 +398,17 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(jedecID.capacityID, false);
+                    mfb_flash_show_mem_size(jedecID.capacityID, false);
 #if MXIC_DEVICE_QUAD
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_80MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashPropertyInfo.flashQuadEnableCfg    = MXIC_FLASH_QUAD_ENABLE;
-                        s_flashPropertyInfo.flashQuadEnableBytes  = 1;
+                        g_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
+                        g_flashPropertyInfo.flashQuadEnableCfg    = MXIC_FLASH_QUAD_ENABLE;
+                        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
                         cfg_customLUTVendor     = s_customLUT_MXIC_Quad;
                     }
 #endif
@@ -713,9 +418,9 @@ void mfb_main(void)
                         cfg_pad                 = kFLEXSPI_8PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_166MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
-                        s_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashPropertyInfo.flashEnableOctalCmd   = MXIC_OCTAL_FLASH_ENABLE_DDR_CMD;
+                        g_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
+                        g_flashPropertyInfo.flashEnableOctalCmd   = MXIC_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_MXIC_Octal;
                         if (cfg_rootClkFreq == kFlexspiRootClkFreq_200MHz)
                         {
@@ -774,17 +479,17 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(jedecID.capacityID, false);
+                    mfb_flash_show_mem_size(jedecID.capacityID, false);
 #if GIGADEVICE_DEVICE_Quad
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_120MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashPropertyInfo.flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashPropertyInfo.flashQuadEnableCfg    = GIGADEVICE_FLASH_QUAD_ENABLE;
-                        s_flashPropertyInfo.flashQuadEnableBytes  = 2;
+                        g_flashPropertyInfo.flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
+                        g_flashPropertyInfo.flashQuadEnableCfg    = GIGADEVICE_FLASH_QUAD_ENABLE;
+                        g_flashPropertyInfo.flashQuadEnableBytes  = 2;
                         cfg_customLUTVendor     = s_customLUT_GIGADEVICE_Quad;
                     }
 #endif
@@ -792,9 +497,9 @@ void mfb_main(void)
                     if (sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_8PAD;
-                        s_flashPropertyInfo.flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashPropertyInfo.flashEnableOctalCmd   = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
+                        g_flashPropertyInfo.flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
+                        g_flashPropertyInfo.flashEnableOctalCmd   = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_GIGADEVICE_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
@@ -844,17 +549,17 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(jedecID.capacityID, false);
+                    mfb_flash_show_mem_size(jedecID.capacityID, false);
 #if ISSI_DEVICE_QUAD
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_80MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashPropertyInfo.flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
-                        s_flashPropertyInfo.flashQuadEnableBytes  = 1;
+                        g_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+                        g_flashPropertyInfo.flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
+                        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
                         cfg_customLUTVendor     = s_customLUT_ISSI_Quad;
                     }
 #endif
@@ -862,9 +567,9 @@ void mfb_main(void)
                     if (sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_8PAD;
-                        s_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashPropertyInfo.flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
+                        g_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+                        g_flashPropertyInfo.flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_ISSI_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
@@ -912,16 +617,16 @@ void mfb_main(void)
                             mfb_printf(" -- Unsupported Series.\r\n");
                             break;
                     }
-                    mfb_show_mem_size(jedecID.capacityID, false);
+                    mfb_flash_show_mem_size(jedecID.capacityID, false);
 #if MICRON_DEVICE_QUAD
                     if (!sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_120MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashPropertyInfo.flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
-                        //s_flashPropertyInfo.flashQuadEnableCfg    = MICRON_FLASH_QUAD_ENABLE;
+                        g_flashPropertyInfo.flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
+                        //g_flashPropertyInfo.flashQuadEnableCfg    = MICRON_FLASH_QUAD_ENABLE;
                         cfg_customLUTVendor     = s_customLUT_MICRON_Quad;
                         /* No need to enable quad mode for micron device. */
                     }
@@ -930,9 +635,9 @@ void mfb_main(void)
                     if (sta_isOctalFlash)
                     {
                         cfg_pad                 = kFLEXSPI_8PAD;
-                        s_flashPropertyInfo.flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashPropertyInfo.flashEnableOctalCmd   = MICRON_OCTAL_FLASH_ENABLE_DDR_CMD;
+                        g_flashPropertyInfo.flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
+                        g_flashPropertyInfo.flashEnableOctalCmd   = MICRON_OCTAL_FLASH_ENABLE_DDR_CMD;
                         cfg_customLUTVendor     = s_customLUT_MICRON_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_30MHz;
@@ -997,12 +702,12 @@ void mfb_main(void)
                     }
                     if (jedecID.memoryTypeID != 0x42)
                     {
-                        mfb_show_mem_size(jedecID.capacityID, true);
+                        mfb_flash_show_mem_size(jedecID.capacityID, true);
                         cfg_flashMemSizeInByte = mfb_decode_adesto_capacity_id(jedecID.capacityID);
                     }
                     else
                     {
-                        mfb_show_mem_size(jedecID.capacityID, false);
+                        mfb_flash_show_mem_size(jedecID.capacityID, false);
                         cfg_flashMemSizeInByte = mfb_decode_common_capacity_id(jedecID.capacityID);
                     }
 #if ADESTO_DEVICE_QUAD
@@ -1011,10 +716,10 @@ void mfb_main(void)
                         cfg_pad                 = kFLEXSPI_4PAD;
                         cfg_rootClkFreq         = kFlexspiRootClkFreq_133MHz;
                         cfg_readSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-                        s_flashPropertyInfo.flashBusyStatusPol    = ADESTO_FLASH_BUSY_STATUS_POL;
-                        s_flashPropertyInfo.flashBusyStatusOffset = ADESTO_FLASH_BUSY_STATUS_OFFSET;
-                        s_flashPropertyInfo.flashQuadEnableCfg    = ADESTO_FLASH_QUAD_ENABLE;
-                        s_flashPropertyInfo.flashQuadEnableBytes  = 1;
+                        g_flashPropertyInfo.flashBusyStatusPol    = ADESTO_FLASH_BUSY_STATUS_POL;
+                        g_flashPropertyInfo.flashBusyStatusOffset = ADESTO_FLASH_BUSY_STATUS_OFFSET;
+                        g_flashPropertyInfo.flashQuadEnableCfg    = ADESTO_FLASH_QUAD_ENABLE;
+                        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
                         cfg_customLUTVendor     = s_customLUT_ADESTO_Quad;
                     }
 #endif
@@ -1033,7 +738,7 @@ void mfb_main(void)
             flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, cfg_pad);
             /* Update root clock */
             //s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
-            s_deviceconfig.flashSize = cfg_flashMemSizeInByte / 0x400;
+            g_deviceconfig.flashSize = cfg_flashMemSizeInByte / 0x400;
             /* Re-init FlexSPI using custom LUT */
             flexspi_nor_flash_init(EXAMPLE_FLEXSPI, cfg_customLUTVendor, cfg_readSampleClock);
             mfb_printf("\r\nMFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
@@ -1114,7 +819,7 @@ void mfb_main(void)
             }
             if (status == kStatus_Success)
             {
-                mfb_show_flash_registers();
+                mfb_flash_show_registers();
                 /* Do patten verify test under Multi I/O fast read mode */
                 uint32_t round = 1;
                 while (round < 2)

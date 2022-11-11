@@ -8,8 +8,10 @@
 #ifndef _MFB_NOR_FLASH_H_
 #define _MFB_NOR_FLASH_H_
 
-#include "mfb_cfg.h"
-#include "mfb_def.h"
+#include "mfb.h"
+#include "fsl_common.h"
+#include "fsl_flexspi.h"
+#include "port_flexspi_info.h"
 
 /*******************************************************************************
  * Definitions
@@ -69,20 +71,6 @@ typedef struct _flash_reg_access
         uint32_t U;
     } regValue;
 } flash_reg_access_t;
-
-// Supported Flexspi clock defn
-typedef enum _flexspi_root_clk_freq
-{
-    kFlexspiRootClkFreq_30MHz  = 1,
-    kFlexspiRootClkFreq_50MHz  = 2,
-    kFlexspiRootClkFreq_60MHz  = 3,
-    kFlexspiRootClkFreq_80MHz  = 4,
-    kFlexspiRootClkFreq_100MHz = 5,
-    kFlexspiRootClkFreq_120MHz = 6,
-    kFlexspiRootClkFreq_133MHz = 7,
-    kFlexspiRootClkFreq_166MHz = 8,
-    kFlexspiRootClkFreq_200MHz = 9,
-} flexspi_root_clk_freq_t;
 
 // FlexSPI LUT seq defn (common)
 #define NOR_CMD_LUT_SEQ_IDX_READ            0
@@ -203,10 +191,28 @@ typedef enum _flexspi_root_clk_freq
  * Variables
  ******************************************************************************/
 
+extern flash_property_info_t g_flashPropertyInfo;
 
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
 
+extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
+extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
+extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
+extern status_t flexspi_nor_enable_qpi_mode(FLEXSPI_Type *base);
+extern status_t flexspi_nor_enable_opi_mode(FLEXSPI_Type *base);
+extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode);
+extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode);
+extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
+extern status_t flexspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess);
+
+extern uint32_t mfb_decode_common_capacity_id(uint8_t capacityID);
+extern uint32_t mfb_decode_adesto_capacity_id(uint8_t capacityID);
+extern void mfb_flash_show_mem_size(uint8_t capacityID, bool isAdesto);
+extern bool mfb_flash_pattern_verify_test(bool showError);
+extern bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode);
+extern void mfb_flash_memcpy_perf_test();
+extern void mfb_flash_show_registers(void);
 
 #endif /* _MFB_NOR_FLASH_H_ */

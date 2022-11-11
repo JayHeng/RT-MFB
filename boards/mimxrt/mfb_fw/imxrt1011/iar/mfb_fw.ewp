@@ -4387,13 +4387,13 @@
             <name>$PROJ_DIR$\..\..\src\mfb.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\src\mfb_cfg.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\mfb_def.h</name>
+            <name>$PROJ_DIR$\..\..\src\mfb.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_flexspi_nor_ops.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash.h</name>
@@ -4433,6 +4433,12 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_winbond.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_test_pattern.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_test_perf.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\microseconds_common.c</name>

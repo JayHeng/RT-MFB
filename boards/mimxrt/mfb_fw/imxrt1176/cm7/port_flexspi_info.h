@@ -12,7 +12,7 @@
 #include "fsl_iomuxc.h"
 #include "fsl_cache.h"
 #include "fsl_flexspi.h"
-#include "mfb_nor_flash.h"
+#include "mfb.h"
 
 /*******************************************************************************
  * Definitions

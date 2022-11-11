@@ -16,7 +16,7 @@
 #include "fsl_flexspi.h"
 #include "pin_mux.h"
 #include "board.h"
-#include "mfb_nor_flash.h"
+#include "mfb.h"
 /*${header:end}*/
 /*******************************************************************************
  * Definitions

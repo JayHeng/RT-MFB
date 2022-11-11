@@ -5,8 +5,10 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _MFB_CFG_H_
-#define _MFB_CFG_H_
+#ifndef _MFB_H_
+#define _MFB_H_
+
+#include <stdint.h>
 
 /*******************************************************************************
  * Definitions
@@ -36,14 +38,34 @@
 // Whether to show flash internal registers
 #define MFB_FLASH_REGS_READBACK_ENABLE   (0)
 
+// Supported Flexspi clock defn
+typedef enum _flexspi_root_clk_freq
+{
+    kFlexspiRootClkFreq_30MHz  = 1,
+    kFlexspiRootClkFreq_50MHz  = 2,
+    kFlexspiRootClkFreq_60MHz  = 3,
+    kFlexspiRootClkFreq_80MHz  = 4,
+    kFlexspiRootClkFreq_100MHz = 5,
+    kFlexspiRootClkFreq_120MHz = 6,
+    kFlexspiRootClkFreq_133MHz = 7,
+    kFlexspiRootClkFreq_166MHz = 8,
+    kFlexspiRootClkFreq_200MHz = 9,
+} flexspi_root_clk_freq_t;
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
 
+#if MFB_FLASH_MEMCPY_PERF_ENABLE | MFB_FLASH_PATTERN_VERIFY_ENABLE
+extern uint32_t g_flashRwBuffer[];
+#endif
 
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
 
+void mfb_main(void);
 
-#endif /* _MFB_CFG_H_ */
+int mfb_printf(const char *fmt_s, ...);
+
+#endif /* _MFB_H_ */
