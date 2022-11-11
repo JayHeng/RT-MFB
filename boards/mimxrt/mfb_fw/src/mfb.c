@@ -6,24 +6,6 @@
  */
 
 #include "mfb_nor_flash.h"
-#if WINBOND_DEVICE_SERIES
-#include "mfb_nor_flash_winbond.h"
-#endif
-#if MXIC_DEVICE_SERIES
-#include "mfb_nor_flash_mxic.h"
-#endif
-#if GIGADEVICE_DEVICE_SERIE
-#include "mfb_nor_flash_gigadevice.h"
-#endif
-#if ISSI_DEVICE_SERIES
-#include "mfb_nor_flash_issi.h"
-#endif
-#if MICRON_DEVICE_SERIES
-#include "mfb_nor_flash_micron.h"
-#endif
-#if ADESTO_DEVICE_SERIE
-#include "mfb_nor_flash_adesto.h"
-#endif
 #include "fsl_debug_console.h"
 /*******************************************************************************
  * Definitions
@@ -33,29 +15,24 @@
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-extern const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH];
-extern const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH];
-extern const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH];
-extern const uint32_t s_customLUT_GIGADEVICE_Quad[CUSTOM_LUT_LENGTH];
-extern const uint32_t s_customLUT_GIGADEVICE_Octal[CUSTOM_LUT_LENGTH];
-extern const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH];
-extern const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH];
-extern const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH];
-extern const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH];
-extern const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH];
+
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
 
+/* All flash vendor id list */
 static uint8_t s_flashVendorIDs[] = FLASH_DEVICE_VENDOR_ID_LIST;
 
+/* Flash Page buffer for r/w test */
 #if MFB_FLASH_MEMCPY_PERF_ENABLE | MFB_FLASH_PATTERN_VERIFY_ENABLE
 uint32_t g_flashRwBuffer[FLASH_PAGE_SIZE/4];
 #endif
 
+/* Main flash paramenter structure */
 flash_property_info_t g_flashPropertyInfo;
 
+/* Common FlexSPI config */
 flexspi_device_config_t g_deviceconfig = {
     .flexspiRootClk       = 27400000,
     .flashSize            = 0x2000, /* 64Mb/KByte */
@@ -74,6 +51,7 @@ flexspi_device_config_t g_deviceconfig = {
     .AHBWriteWaitInterval = 0,
 };
 
+/* Common FlexSPI LUT */
 const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     /*  Normal read */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =

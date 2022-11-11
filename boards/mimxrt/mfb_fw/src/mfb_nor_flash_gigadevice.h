@@ -18,7 +18,7 @@
 #define GIGADEVICE_FLASH_BUSY_STATUS_OFFSET 0
 
 #if GIGADEVICE_DEVICE_GD25LE128
-#define GIGADEVICE_FLASH_QUAD_ENABLE        0x0200
+#define GIGADEVICE_25LE_FLASH_QUAD_ENABLE        0x0200
 
 //------------------------------------------------------------------------------
 //   P[5:4]   |  dummy cycles  |Quad IO Fast Read(SPI) | Quad IO Fast Read(QPI) |
@@ -28,6 +28,10 @@
 //  2'b10     |       8        |        120MHz         |         120MHz         |
 //  2'b11     |       8        |        120MHz         |         120MHz         |
 //------------------------------------------------------------------------------
+#endif
+
+#if GIGADEVICE_DEVICE_GD25LT256
+#define GIGADEVICE_25LT_FLASH_QUAD_ENABLE        0x0000
 #endif
 
 #if GIGADEVICE_DEVICE_GD25LX256

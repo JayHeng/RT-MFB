@@ -143,7 +143,7 @@ typedef struct _flash_reg_access
 #define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
 #define GIGADEVICE_DEVICE_Quad      (1)
 #define GIGADEVICE_DEVICE_GD25LE128 (1)  // MIMXRT1180-MEM-BB&DS
-#define GIGADEVICE_DEVICE_GD25LT256 (0)  // MIMXRT1180-MEM-BB&DS
+#define GIGADEVICE_DEVICE_GD25LT256 (1)  // MIMXRT1180-MEM-BB&DS
 #define GIGADEVICE_DEVICE_OCTAL     (1)
 #define GIGADEVICE_DEVICE_GD25LX256 (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////

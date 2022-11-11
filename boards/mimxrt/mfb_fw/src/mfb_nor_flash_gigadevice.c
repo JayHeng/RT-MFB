@@ -20,8 +20,9 @@
  * Variables
  ******************************************************************************/
 
-#if GIGADEVICE_DEVICE_GD25LE128
+#if GIGADEVICE_DEVICE_GD25LE128 | GIGADEVICE_DEVICE_GD25LT256
 const uint32_t s_customLUT_GIGADEVICE_Quad[CUSTOM_LUT_LENGTH] = {
+#if !MFB_FLASH_QPI_MODE_ENABLE
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
@@ -29,6 +30,15 @@ const uint32_t s_customLUT_GIGADEVICE_Quad[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x04),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+#else
+    /* Fast read quad mode - QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x04),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+#endif
 
     /* Read status register - 1 */
     // opcode 0x05/0x35 to read Status Registers (1/2)
@@ -59,6 +69,24 @@ const uint32_t s_customLUT_GIGADEVICE_Quad[CUSTOM_LUT_LENGTH] = {
     /* Enter QPI mode */
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x38, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Read status register -QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x01),
+
+    /* Write Enable -QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_QPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Erase Sector - QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_QPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
+
+    /* Page Program - QPI-SDR */
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_QPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
 #endif
 
@@ -166,6 +194,10 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
             break;
         case 0x60:
             // GD25LD DualSPI
+            g_flashPropertyInfo.flashHasQpiSupport = true;
+            g_flashPropertyInfo.flexspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+            g_flashPropertyInfo.flashQuadEnableCfg = GIGADEVICE_25LE_FLASH_QUAD_ENABLE;
+            g_flashPropertyInfo.flashQuadEnableBytes = 2;
             mfb_printf(" -- GD25LE/GD25LQ QuadSPI 1.8V Series.\r\n");
             break;
         case 0x63:
@@ -176,6 +208,10 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
             mfb_printf(" -- GD25W/GD55W QuadSPI 1.8-3.3V Series.\r\n");
             break;
         case 0x66:
+            g_flashPropertyInfo.flashHasQpiSupport = true;
+            g_flashPropertyInfo.flexspiReadSampleClock = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+            g_flashPropertyInfo.flashQuadEnableCfg = GIGADEVICE_25LT_FLASH_QUAD_ENABLE;
+            g_flashPropertyInfo.flashQuadEnableBytes = 0;
             mfb_printf(" -- GD25LT/GD55LT QuadSPI 1.8V Series.\r\n");
             break;
         case 0x67:
@@ -198,11 +234,8 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
     {
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_120MHz;
-        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-        g_flashPropertyInfo.flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashQuadEnableCfg    = GIGADEVICE_FLASH_QUAD_ENABLE;
-        g_flashPropertyInfo.flashQuadEnableBytes  = 2;
+        g_flashPropertyInfo.flashBusyStatusPol         = GIGADEVICE_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset      = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_GIGADEVICE_Quad;
     }
 #endif
@@ -210,9 +243,9 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
     if (g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
-        g_flashPropertyInfo.flashBusyStatusPol    = GIGADEVICE_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashEnableOctalCmd   = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flashBusyStatusPol         = GIGADEVICE_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset      = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd        = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_GIGADEVICE_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_30MHz;

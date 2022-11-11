@@ -222,6 +222,11 @@ static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_
 {
     flexspi_transfer_t flashXfer;
     status_t status;
+    
+    if (!regAccess->regNum)
+    {
+        return kStatus_Success;
+    }
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
     flexspi_cache_status_t cacheStatus;
