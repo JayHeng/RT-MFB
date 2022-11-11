@@ -5,21 +5,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "fsl_flexspi.h"
 #include "mfb_nor_flash_mxic.h"
+#if MXIC_DEVICE_SERIES
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
 
 /*******************************************************************************
  * Variables
- ******************************************************************************/
-
-/*******************************************************************************
- * Code
  ******************************************************************************/
 
 #if MXIC_DEVICE_MX25L6433F | MXIC_DEVICE_MX25U6432F
@@ -168,3 +166,89 @@ const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x04),
 };
 #endif
+
+/*******************************************************************************
+ * Code
+ ******************************************************************************/
+
+void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
+{
+    mfb_printf(" -- MXIC Serial Flash.\r\n");
+    mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID->memoryTypeID);
+    switch (jedecID->memoryTypeID)
+    {
+        /////////////////////////QuadSPI////////////////////////
+        case 0x20:
+            mfb_printf(" -- MX25L/MX66L/MX25V QuadSPI 3.3V Series.\r\n");
+            break;
+        case 0x25:
+            mfb_printf(" -- MX25U/MX66U QuadSPI 1.8V Series.\r\n");
+            g_flashPropertyInfo.flashHasQpiSupport = true;
+            break;
+        case 0x28:
+            mfb_printf(" -- MX25R QuadSPI 1.8-3.3V Series.\r\n");
+            break;
+        case 0x75:
+            mfb_printf(" -- MX77L QuadSPI 3.3V Series.\r\n");
+            break;
+        ////////////////////////OctalSPI////////////////////////
+        case 0x80:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- MX25UM/MX66UM OctalSPI 1.8V Series.\r\n");
+            break;
+        case 0x81:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- MX25UM51345G OctalSPI 1.8V Series.\r\n");
+            break;
+        case 0x83:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- MX25UM25345G OctalSPI 1.8V Series.\r\n");
+            break;
+        case 0x84:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- MX25UW51345G OctalSPI 1.8V Series.\r\n");
+            break;
+        case 0x85:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- MX25LM/MX66LM OctalSPI 3.3V Series.\r\n");
+            break;
+        // Missing MX25LW51245G, MX66LW1G45G, MX66LW2G45G
+        // Missing MX25UW6445G, MX66UW12845G, MX25UW25645G, MX25UW51245G, MX66UW1G45G, MX66UW2G45G
+        // Missing MX25UW6345G, MX66LW12345G, MX66UW25345G      done                 , MX66UW2G345G
+        default:
+            mfb_printf(" -- Unsupported Series.\r\n");
+            break;
+    }
+    mfb_flash_show_mem_size(jedecID->capacityID, false);
+#if MXIC_DEVICE_QUAD
+    if (!g_flashPropertyInfo.flashIsOctal)
+    {
+        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_80MHz;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashQuadEnableCfg    = MXIC_FLASH_QUAD_ENABLE;
+        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
+        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_MXIC_Quad;
+    }
+#endif
+#if MXIC_DEVICE_OCTAL
+    if (g_flashPropertyInfo.flashIsOctal)
+    {
+        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_166MHz;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+        g_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd   = MXIC_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_MXIC_Octal;
+        if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_200MHz)
+        {
+            g_flashPropertyInfo.flashDummyValue = MXIC_OCTAL_FLASH_SET_DUMMY_CMD;
+        }
+    }
+#endif
+}
+#endif // MXIC_DEVICE_SERIES
+

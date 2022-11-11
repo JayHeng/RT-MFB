@@ -5,11 +5,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "fsl_flexspi.h"
 #include "mfb_nor_flash_issi.h"
+#if ISSI_DEVICE_SERIES
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -18,9 +20,6 @@
  * Variables
  ******************************************************************************/
 
-/*******************************************************************************
- * Code
- ******************************************************************************/
 #if ISSI_DEVICE_IS25WP064A
 const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
@@ -156,3 +155,75 @@ const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x70, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01),
 };
 #endif
+
+/*******************************************************************************
+ * Code
+ ******************************************************************************/
+
+void mfb_flash_set_param_for_issi(jedec_id_t *jedecID)
+{
+    mfb_printf(" -- ISSI Serial Flash.\r\n");
+    mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID->memoryTypeID);
+    switch (jedecID->memoryTypeID)
+    {
+        /////////////////////////QuadSPI////////////////////////
+        case 0x40:
+            mfb_printf(" -- IS25LQ/IS25LP QuadSPI 3.3V Series.\r\n");
+            break;
+        case 0x60:
+            mfb_printf(" -- IS25LP/IS25LE QuadSPI 3.3V Series.\r\n");
+            break;
+        case 0x70:
+            mfb_printf(" -- IS25WP/IS25WJ/IS25WE QuadSPI 1.8V Series.\r\n");
+            break;
+        ////////////////////////OctalSPI////////////////////////
+        case 0x5A:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- IS25LX OctalSPI 3.3V Series.\r\n");
+            break;
+        case 0x5B:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- IS25WX OctalSPI 1.8V Series.\r\n");
+            break;
+        default:
+            mfb_printf(" -- Unsupported Series.\r\n");
+            break;
+    }
+    mfb_flash_show_mem_size(jedecID->capacityID, false);
+#if ISSI_DEVICE_QUAD
+    if (!g_flashPropertyInfo.flashIsOctal)
+    {
+        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_80MHz;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
+        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
+        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_ISSI_Quad;
+    }
+#endif
+#if ISSI_DEVICE_OCTAL
+    if (g_flashPropertyInfo.flashIsOctal)
+    {
+        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
+        g_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_ISSI_Octal;
+#if MFB_FLASH_OPI_MODE_DISABLE
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_30MHz;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+#else
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_166MHz;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+        if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_200MHz)
+#endif
+        {
+            g_flashPropertyInfo.flashDummyValue = ISSI_OCTAL_FLASH_SET_DUMMY_CMD;
+        }
+    }
+#endif
+}
+#endif // ISSI_DEVICE_SERIES
+

@@ -5,22 +5,22 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "fsl_flexspi.h"
 #include "mfb_nor_flash_adesto.h"
+#if ADESTO_DEVICE_SERIE
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
+
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
 
-/*******************************************************************************
- * Code
- ******************************************************************************/
 #if ADESTO_DEVICE_AT25SF128A
 const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
@@ -57,3 +57,76 @@ const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x31, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
 };
 #endif
+
+/*******************************************************************************
+ * Code
+ ******************************************************************************/
+
+void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID)
+{
+    mfb_printf(" -- Adesto Serial Flash.\r\n");
+    if (jedecID->memoryTypeID != 0x42)
+    {
+        jedecID->capacityID = jedecID->memoryTypeID & 0x1F;
+        jedecID->memoryTypeID = (jedecID->memoryTypeID & 0xE0) >> 5;
+        mfb_printf("MFB: Flash Family Code: 0x%x", jedecID->memoryTypeID);
+    }
+    else
+    {
+        mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID->memoryTypeID);
+    }
+    switch (jedecID->memoryTypeID)
+    {
+        /////////////////////////QuadSPI////////////////////////
+        case 0x00:
+            mfb_printf(" -- AT25EU QuadSPI 1.8-3.3V Series.\r\n");
+            break;
+        case 0x01:
+            mfb_printf(" -- AT25DQ QuadSPI 2.5V Series.\r\n");
+            break;
+        case 0x02:
+            mfb_printf(" -- AT25FF/AT25XE/AT25XV QuadSPI 1.8-3.3V Series.\r\n");
+            break;
+        case 0x04:
+            mfb_printf(" -- AT25SF/AT25QF QuadSPI 3.3V Series.\r\n");
+            break;
+        // Only this type is same as other vendors
+        case 0x42:
+            mfb_printf(" -- AT25SL/AT25QL QuadSPI 1.8V Series.\r\n");
+            break;
+        ////////////////////////OctalSPI////////////////////////
+        case 0x05:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- ATXP OctalSPI 1.8V Series.\r\n");
+            break;
+        default:
+            mfb_printf(" -- Unsupported Series.\r\n");
+            break;
+    }
+    if (jedecID->memoryTypeID != 0x42)
+    {
+        mfb_flash_show_mem_size(jedecID->capacityID, true);
+        g_flashPropertyInfo.flashMemSizeInByte = mfb_decode_adesto_capacity_id(jedecID->capacityID);
+    }
+    else
+    {
+        mfb_flash_show_mem_size(jedecID->capacityID, false);
+        g_flashPropertyInfo.flashMemSizeInByte = mfb_decode_common_capacity_id(jedecID->capacityID);
+    }
+#if ADESTO_DEVICE_QUAD
+    if (!g_flashPropertyInfo.flashIsOctal)
+    {
+        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_133MHz;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.flashBusyStatusPol    = ADESTO_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset = ADESTO_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashQuadEnableCfg    = ADESTO_FLASH_QUAD_ENABLE;
+        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
+        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_ADESTO_Quad;
+    }
+#endif
+}
+
+#endif // ADESTO_DEVICE_SERIE
+

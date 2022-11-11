@@ -44,12 +44,21 @@ typedef enum _flash_inst_mode
 // Flash property info for operation
 typedef struct _flash_property_info
 {
-    uint8_t flashBusyStatusPol;
-    uint8_t flashBusyStatusOffset;
+    flexspi_pad_t               flexspiPad;
+    flexspi_root_clk_freq_t     flexspiRootClkFreq;
+    flexspi_read_sample_clock_t flexspiReadSampleClock;
+    const uint32_t             *flexspiCustomLUTVendor;
+
+    bool     flashIsOctal;
+    bool     flashHasQpiSupport;
+    uint32_t flashMemSizeInByte;
+    uint8_t  flashBusyStatusPol;
+    uint8_t  flashBusyStatusOffset;
     uint16_t flashQuadEnableCfg;
-    uint8_t flashQuadEnableBytes;
-    uint8_t flashEnableOctalCmd;
-    uint8_t reserved[2];
+    uint8_t  flashQuadEnableBytes;
+    uint8_t  flashEnableOctalCmd;
+    uint8_t  reserved[2];
+    uint32_t flashDummyValue;
 } flash_property_info_t;
 
 // Flash status/cfg register r/w access helper
@@ -214,5 +223,12 @@ extern bool mfb_flash_pattern_verify_test(bool showError);
 extern bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode);
 extern void mfb_flash_memcpy_perf_test();
 extern void mfb_flash_show_registers(void);
+
+extern void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID);
+extern void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID);
+extern void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID);
+extern void mfb_flash_set_param_for_issi(jedec_id_t *jedecID);
+extern void mfb_flash_set_param_for_micron(jedec_id_t *jedecID);
+extern void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID);
 
 #endif /* _MFB_NOR_FLASH_H_ */

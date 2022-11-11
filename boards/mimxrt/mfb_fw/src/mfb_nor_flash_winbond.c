@@ -5,22 +5,22 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "fsl_flexspi.h"
 #include "mfb_nor_flash_winbond.h"
+#if WINBOND_DEVICE_SERIES
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
+
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
 
-/*******************************************************************************
- * Code
- ******************************************************************************/
 #if WINBOND_DEVICE_W25Q128JW
 const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
@@ -63,3 +63,54 @@ const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x38, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
 #endif
+
+/*******************************************************************************
+ * Code
+ ******************************************************************************/
+
+void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
+{
+    mfb_printf(" -- Winbond Serial Flash.\r\n");
+    mfb_printf("MFB: Flash Memory Type ID: 0x%x", jedecID->memoryTypeID);
+    switch (jedecID->memoryTypeID)
+    {
+        /////////////////////////QuadSPI////////////////////////
+        case 0x30:
+            mfb_printf(" -- W25X DualSPI 3.3V Series.\r\n");
+            break;
+        case 0x40:
+            mfb_printf(" -- W25QxxxDV/FV/BV/CL/JV(-IQ/JQ) QuadlSPI 3.3V Series.\r\n");
+            break;
+        case 0x60:
+            mfb_printf(" -- W25QxxxFW/EW/NW(-IQ/IN) QuadlSPI 1.8V Series.\r\n");
+            break;
+        case 0x70:
+            mfb_printf(" -- W25QxxxJV(-IM/JM) QuadlSPI 3.3V Series.\r\n");
+            break;
+        case 0x80:
+            mfb_printf(" -- W25QxxxJW/NW(-IM) QuadlSPI 1.8V Series.\r\n");
+            break;
+        ////////////////////////OctalSPI////////////////////////
+        // Missing W25H, W25M, W25R
+        // Missing xxxJL, xxxDW, xxxRV
+        default:
+            mfb_printf(" -- Unsupported Series.\r\n");
+            break;
+    }
+    mfb_flash_show_mem_size(jedecID->capacityID, false);
+#if WINBOND_DEVICE_QUAD
+    if (!g_flashPropertyInfo.flashIsOctal)
+    {
+        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_100MHz;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.flashBusyStatusPol    = WINBOND_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset = WINBOND_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashQuadEnableCfg    = WINBOND_FLASH_QUAD_ENABLE;
+        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
+        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_WINBOND_Quad;
+    }
+#endif
+}
+#endif // WINBOND_DEVICE_SERIES
+
