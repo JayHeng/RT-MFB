@@ -222,12 +222,15 @@ extern void mfb_flash_show_mem_size(uint8_t capacityID, bool isAdesto);
 extern bool mfb_flash_pattern_verify_test(bool showError);
 extern bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode);
 extern void mfb_flash_memcpy_perf_test();
-extern void mfb_flash_show_registers(void);
+extern void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash);
 
 extern void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID);
 extern void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID);
 extern void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID);
+#if ISSI_DEVICE_SERIES
 extern void mfb_flash_set_param_for_issi(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_issi(bool isOctalFlash);
+#endif
 extern void mfb_flash_set_param_for_micron(jedec_id_t *jedecID);
 extern void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID);
 

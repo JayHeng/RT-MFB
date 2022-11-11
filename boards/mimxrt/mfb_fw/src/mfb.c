@@ -412,7 +412,8 @@ void mfb_main(void)
             }
             if (status == kStatus_Success)
             {
-                mfb_flash_show_registers();
+                /* Read internal regiters of Flash */
+                mfb_flash_show_registers(&jedecID, g_flashPropertyInfo.flashIsOctal);
                 /* Do patten verify test under Multi I/O fast read mode */
                 uint32_t round = 1;
                 while (round < 2)

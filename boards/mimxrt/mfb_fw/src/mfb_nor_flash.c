@@ -129,48 +129,53 @@ void mfb_flash_show_mem_size(uint8_t capacityID, bool isAdesto)
 #endif
 }
 
-void mfb_flash_show_registers(void)
+void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
 {
 #if MFB_FLASH_REGS_READBACK_ENABLE
-    flash_reg_access_t regAccess;
-    regAccess.regNum = 1;
-    regAccess.regAddr = 0x0;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000000;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000000;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000001;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000003;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000004;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000005;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000006;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000007;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-    flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-    mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-    regAccess.regAddr = 0x00000000;
-    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+    switch (jedecID->manufacturerID)
+    {
+#if WINBOND_DEVICE_SERIES
+        // Winbond
+        case WINBOND_DEVICE_VENDOR_ID:
+            break;
+#endif // WINBOND_DEVICE_SERIES
+
+#if MXIC_DEVICE_SERIES
+        // MXIC
+        case MXIC_DEVICE_VENDOR_ID:
+            break;
+#endif // MXIC_DEVICE_SERIES
+
+#if GIGADEVICE_DEVICE_SERIE
+        // GigaDevice
+        case GIGADEVICE_DEVICE_VENDOR_ID:
+            break;
+#endif // GIGADEVICE_DEVICE_SERIE
+
+#if ISSI_DEVICE_SERIES
+        // ISSI
+        case ISSI_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_issi(isOctalFlash);
+            break;
+#endif // ISSI_DEVICE_SERIES
+
+#if MICRON_DEVICE_SERIES
+        // Micron
+        case MICRON_DEVICE_VENDOR_ID:
+        case MICRON_DEVICE_VENDOR_ID2:
+            break;
+#endif // MICRON_DEVICE_SERIES
+
+#if ADESTO_DEVICE_SERIE
+        // Adesto
+        case ADESTO_DEVICE_VENDOR_ID:
+        case ADESTO_DEVICE_VENDOR_ID2:
+            break;
+#endif // ADESTO_DEVICE_SERIE
+
+        default:
+            break;
+    }
 #endif
 }
+

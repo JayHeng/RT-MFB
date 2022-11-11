@@ -109,6 +109,7 @@ const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /* Enter OPI mode */
     // Volatile Configuration Register address 000000h - I/O mode
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
@@ -142,17 +143,13 @@ const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x85, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
-    /*
-    [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0xB5, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 1] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x10, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01),
-    */
 
     /* READ FLAG STATUS REGISTER */
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x70, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x70, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x10),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
 #endif
 
@@ -196,10 +193,10 @@ void mfb_flash_set_param_for_issi(jedec_id_t *jedecID)
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_80MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-        g_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashQuadEnableCfg    = ISSI_FLASH_QUAD_ENABLE;
-        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
+        g_flashPropertyInfo.flashBusyStatusPol         = ISSI_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset      = ISSI_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashQuadEnableCfg         = ISSI_FLASH_QUAD_ENABLE;
+        g_flashPropertyInfo.flashQuadEnableBytes       = 1;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_ISSI_Quad;
     }
 #endif
@@ -207,9 +204,9 @@ void mfb_flash_set_param_for_issi(jedec_id_t *jedecID)
     if (g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
-        g_flashPropertyInfo.flashBusyStatusPol    = ISSI_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset = ISSI_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashEnableOctalCmd   = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flashBusyStatusPol         = ISSI_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset      = ISSI_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd        = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_ISSI_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_30MHz;
@@ -225,5 +222,53 @@ void mfb_flash_set_param_for_issi(jedec_id_t *jedecID)
     }
 #endif
 }
+
+void mfb_flash_show_registers_for_issi(bool isOctalFlash)
+{
+#if MFB_FLASH_REGS_READBACK_ENABLE
+    flash_reg_access_t regAccess;
+    if (isOctalFlash)
+    {
+        regAccess.regNum = 1;
+        regAccess.regAddr = 0x0;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00000000;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00000000;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00000001;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00000003;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00000004;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00000005;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00000006;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00000007;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+    }
+#endif
+}
+
 #endif // ISSI_DEVICE_SERIES
 
