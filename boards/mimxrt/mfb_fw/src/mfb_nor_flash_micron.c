@@ -172,8 +172,8 @@ void mfb_flash_set_param_for_micron(jedec_id_t *jedecID)
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_120MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-        g_flashPropertyInfo.flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashBusyStatusPol         = MICRON_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset      = MICRON_FLASH_BUSY_STATUS_OFFSET;
         //g_flashPropertyInfo.flashQuadEnableCfg    = MICRON_FLASH_QUAD_ENABLE;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_MICRON_Quad;
         /* No need to enable quad mode for micron device. */
@@ -183,9 +183,9 @@ void mfb_flash_set_param_for_micron(jedec_id_t *jedecID)
     if (g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
-        g_flashPropertyInfo.flashBusyStatusPol    = MICRON_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset = MICRON_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashEnableOctalCmd   = MICRON_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flashBusyStatusPol         = MICRON_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset      = MICRON_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd        = MICRON_OCTAL_FLASH_ENABLE_DDR_CMD;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_MICRON_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_30MHz;

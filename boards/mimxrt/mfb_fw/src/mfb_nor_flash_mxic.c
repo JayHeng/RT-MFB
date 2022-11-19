@@ -226,10 +226,10 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_80MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-        g_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashQuadEnableCfg    = MXIC_FLASH_QUAD_ENABLE;
-        g_flashPropertyInfo.flashQuadEnableBytes  = 1;
+        g_flashPropertyInfo.flashBusyStatusPol         = MXIC_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset      = MXIC_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashQuadEnableCfg         = MXIC_FLASH_QUAD_ENABLE;
+        g_flashPropertyInfo.flashQuadEnableBytes       = 1;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_MXIC_Quad;
     }
 #endif
@@ -239,9 +239,9 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_166MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
-        g_flashPropertyInfo.flashBusyStatusPol    = MXIC_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset = MXIC_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashEnableOctalCmd   = MXIC_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flashBusyStatusPol         = MXIC_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset      = MXIC_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd        = MXIC_OCTAL_FLASH_ENABLE_DDR_CMD;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_MXIC_Octal;
         if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_200MHz)
         {
