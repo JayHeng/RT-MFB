@@ -17,7 +17,6 @@
 #define MXIC_FLASH_BUSY_STATUS_OFFSET 0
 
 #if MXIC_DEVICE_MX25U6432F
-#define MXIC_QUAD_FLASH_JEDEC_ID      (0x003725C2)
 #define MXIC_FLASH_QUAD_ENABLE        0x40
 
 //------------------------------------------------------

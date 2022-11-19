@@ -21,8 +21,10 @@
  * Variables
  ******************************************************************************/
 
+#if !MFB_FLASH_FAKE_JEDEC_ID_ENABLE
 /* All flash vendor id list */
 static uint8_t s_flashVendorIDs[] = FLASH_DEVICE_VENDOR_ID_LIST;
+#endif
 
 /* Flash Page buffer for r/w test */
 #if MFB_FLASH_MEMCPY_PERF_ENABLE | MFB_FLASH_PATTERN_VERIFY_ENABLE
@@ -193,9 +195,13 @@ void mfb_main(void)
 
     /* Get JEDEC ID. */
 #if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
-    jedecID.manufacturerID = MXIC_QUAD_FLASH_JEDEC_ID & 0xFF;
-    jedecID.memoryTypeID = (MXIC_QUAD_FLASH_JEDEC_ID >> 8) & 0xFF;
-    jedecID.capacityID = (MXIC_QUAD_FLASH_JEDEC_ID >> 16) & 0xFF;
+    jedecID.manufacturerID = MICRON_OCTAL_FLASH_JEDEC_ID & 0xFF;
+    jedecID.memoryTypeID = (MICRON_OCTAL_FLASH_JEDEC_ID >> 8) & 0xFF;
+    jedecID.capacityID = (MICRON_OCTAL_FLASH_JEDEC_ID >> 16) & 0xFF;
+    /* Can change this variable according to Flash default state */
+    sta_flashInstMode = kFlashInstMode_SPI;
+    /* Init FlexSPI using common LUT */ 
+    mfb_flexspi_common_init(sta_flashInstMode);
 #else
     while (sta_flashInstMode < kFlashInstMode_MAX)
     {
