@@ -32,6 +32,7 @@ uint32_t mfb_decode_common_capacity_id(uint8_t capacityID)
     //| ISSI OctalSPI      |  MXIC QuadSPI U    |GigaDevice QuadSPI Q|
     //| MXIC QuadSPI R/L/V |                    |                    |
     //| Winbond QuadSPI    |                    |                    |
+    //| Winbond OctalSPI   |                    |                    |
     //| Micron OctalSPI    |                    |                    |
     //| GigaDevice QuadSPI |                    |                    |
     //| GigaDevice OctalSPI|                    |                    |

@@ -129,6 +129,8 @@ typedef struct _flash_reg_access
 #define WINBOND_DEVICE_QUAD         (1)
 #define WINBOND_DEVICE_W25Q128JW    (1)  // MIMXRT1180-MEM-BB&DS, MIMXRT1180-EVK
 #define WINBOND_DEVICE_W25M512JW    (0)  // MIMXRT1180-MEM-BB&DS
+#define WINBOND_DEVICE_OCTAL        (1)
+#define WINBOND_DEVICE_W35T51NW     (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
 #define MXIC_DEVICE_SERIES          (1)
 #define MXIC_DEVICE_VENDOR_ID       (0xC2)
