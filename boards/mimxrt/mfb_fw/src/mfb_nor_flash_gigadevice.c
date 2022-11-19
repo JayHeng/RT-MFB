@@ -102,7 +102,7 @@ const uint32_t s_customLUT_GIGADEVICE_Octal[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xCC, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_8PAD, 0x20),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_8PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_8PAD, 0x04),
 #endif
 
     /* Read status register -SPI */
@@ -115,8 +115,8 @@ const uint32_t s_customLUT_GIGADEVICE_Octal[CUSTOM_LUT_LENGTH] = {
 
     /* Set Dummy cycle */
     // Volatile Configuration Register address 000001h - Dummy cycle configuration
-    //   - Default dummy cycle for OPI DDR is 16, max freq is 171MHz
-    //   - To support freq 200MHz, min dummy cycle is 20
+    //   - Default dummy cycle for OPI DDR is 16, max freq is 200MHz
+    //   - To support freq 200MHz, min dummy cycle is 16
     [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x81, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 1] =
