@@ -30,7 +30,7 @@ uint32_t mfb_decode_common_capacity_id(uint8_t capacityID)
     uint32_t memSizeInBytes = 0;
     //| ISSI QuadSPI       |  MXIC OctalSPI     |  Micron QuadSPI    |
     //| ISSI OctalSPI      |  MXIC QuadSPI U    |GigaDevice QuadSPI Q|
-    //| MXIC QuadSPI R/L/V |                    |                    |
+    //| MXIC QuadSPI R/L/V |                    |Spansion QuadSPI FL-L|
     //| Winbond QuadSPI    |                    |                    |
     //| Winbond OctalSPI   |                    |                    |
     //| Micron OctalSPI    |                    |                    |

@@ -326,6 +326,13 @@ void mfb_main(void)
                 break;
 #endif // ADESTO_DEVICE_SERIE
 
+#if SPANSION_DEVICE_SERIE
+            // Spansion
+            case SPANSION_DEVICE_VENDOR_ID:
+                mfb_flash_set_param_for_spansion(&jedecID);
+                break;
+#endif // SPANSION_DEVICE_SERIE
+
             default:
                 mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
                 sta_isValidVendorId = false;

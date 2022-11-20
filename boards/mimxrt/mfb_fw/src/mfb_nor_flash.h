@@ -179,12 +179,12 @@ typedef struct _flash_reg_access
 #define ADESTO_DEVICE_OCTAL         (0)
 #define ADESTO_DEVICE_ATXP032       (0)  // Adesto octal flash is EOL
 ////////////////////////////////////////////////////////////////////////////////
-#define SPANSION_DEVICE_SERIE       (0)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon in 2019
+#define SPANSION_DEVICE_SERIE       (1)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon in 2019
 #define SPANSION_DEVICE_VENDOR_ID   (0x01)
 #define CYPRESS_DEVICE_VENDOR_ID    (0x01)
 #define INFINEON_DEVICE_VENDOR_ID   (0x34)
-#define SPANSION_DEVICE_QUAD        (0)
-#define SPANSION_DEVICE_S25FL128    (0)
+#define SPANSION_DEVICE_QUAD        (1)
+#define SPANSION_DEVICE_S25FL064L   (1)
 #define SPANSION_DEVICE_OCTAL       (0)
 #define SPANSION_DEVICE_S28HS512    (0)
 //#define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
@@ -237,5 +237,6 @@ extern void mfb_flash_show_registers_for_issi(bool isOctalFlash);
 #endif
 extern void mfb_flash_set_param_for_micron(jedec_id_t *jedecID);
 extern void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID);
+extern void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID);
 
 #endif /* _MFB_NOR_FLASH_H_ */
