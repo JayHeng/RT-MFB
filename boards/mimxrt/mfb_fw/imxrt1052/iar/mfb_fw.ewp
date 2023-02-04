@@ -350,6 +350,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/utilities/debug_console_lite</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/drivers</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052</state>
@@ -357,7 +358,6 @@
                     <state>$PROJ_DIR$/../../../../../components/lists</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/xip</state>
                     <state>$PROJ_DIR$/../../../xip</state>
-                    <state>$PROJ_DIR$/../../../../../components/silicon_id</state>
                     <state>$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
                 </option>
                 <option>
@@ -1156,7 +1156,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>9.30.1.48832</state>
+                    <state>9.30.1.50052</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -1438,6 +1438,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/utilities/debug_console_lite</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/drivers</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052</state>
@@ -1445,7 +1446,6 @@
                     <state>$PROJ_DIR$/../../../../../components/lists</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/xip</state>
                     <state>$PROJ_DIR$/../../../xip</state>
-                    <state>$PROJ_DIR$/../../../../../components/silicon_id</state>
                     <state>$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
                 </option>
                 <option>
@@ -2244,7 +2244,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>7.60.1.11206</state>
+                    <state>9.30.1.50052</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -2354,7 +2354,7 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>TrustZone</name>
@@ -2524,6 +2524,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/utilities/debug_console_lite</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/drivers</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052</state>
@@ -2531,8 +2532,7 @@
                     <state>$PROJ_DIR$/../../../../../components/lists</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/xip</state>
                     <state>$PROJ_DIR$/../../../xip</state>
-                    <state>$PROJ_DIR$/../../../../../components/silicon_id</state>
-                    <state>$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../components/silicon_i$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2557,7 +2557,7 @@
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>1</state>
+                    <state>3</state>
                 </option>
                 <option>
                     <name>CCPosIndRopi</name>
@@ -3330,7 +3330,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>7.60.1.11206</state>
+                    <state>9.30.1.50052</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -3440,7 +3440,7 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>TrustZone</name>
@@ -3612,6 +3612,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/utilities/debug_console_lite</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/drivers</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052</state>
@@ -3619,7 +3620,6 @@
                     <state>$PROJ_DIR$/../../../../../components/lists</state>
                     <state>$PROJ_DIR$/../../../../../devices/MIMXRT1052/xip</state>
                     <state>$PROJ_DIR$/../../../xip</state>
-                    <state>$PROJ_DIR$/../../../../../components/silicon_id</state>
                     <state>$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
                 </option>
                 <option>
@@ -4369,6 +4369,9 @@
         <file>
             <name>$PROJ_DIR$\..\pin_mux.h</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\..\port_flexspi_info.h</name>
+        </file>
     </group>
     <group>
         <name>CMSIS</name>
@@ -4452,13 +4455,13 @@
         </file>
     </group>
     <group>
-        <name>doc</name>
-        <file>
-            <name>$PROJ_DIR$\..\readme.txt</name>
-        </file>
-    </group>
-    <group>
         <name>drivers</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1052\drivers\fsl_cache.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1052\drivers\fsl_cache.h</name>
+        </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1052\drivers\fsl_clock.c</name>
         </file>
@@ -4476,6 +4479,12 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1052\drivers\fsl_common_arm.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1052\drivers\fsl_flexspi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1052\drivers\fsl_flexspi.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1052\drivers\fsl_gpio.c</name>
@@ -4497,6 +4506,75 @@
         <name>source</name>
         <file>
             <name>$PROJ_DIR$\..\main.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_flexspi_nor_ops.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_adesto.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_adesto.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_gigadevice.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_gigadevice.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_issi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_issi.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_micron.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_micron.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_spansion.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_spansion.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_winbond.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_winbond.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_test_pattern.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_test_perf.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\microseconds_common.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\microseconds_cortexm_systick.c</name>
         </file>
     </group>
     <group>
@@ -4520,10 +4598,10 @@
     <group>
         <name>xip</name>
         <file>
-            <name>$PROJ_DIR$\..\..\..\xip\evkbimxrt1050_flexspi_nor_config.c</name>
+            <name>$PROJ_DIR$\..\..\..\xip\flash_config.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\xip\evkbimxrt1050_flexspi_nor_config.h</name>
+            <name>$PROJ_DIR$\..\..\..\xip\flash_config_1bit_spi.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1052\xip\fsl_flexspi_nor_boot.c</name>
