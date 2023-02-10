@@ -237,6 +237,9 @@ extern void mfb_flash_show_registers_for_issi(bool isOctalFlash);
 #endif
 extern void mfb_flash_set_param_for_micron(jedec_id_t *jedecID);
 extern void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID);
+#if SPANSION_DEVICE_SERIE
 extern void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_spansion(bool isOctalFlash);
+#endif
 
 #endif /* _MFB_NOR_FLASH_H_ */
