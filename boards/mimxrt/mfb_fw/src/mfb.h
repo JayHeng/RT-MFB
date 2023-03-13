@@ -50,6 +50,10 @@ typedef enum _flexspi_root_clk_freq
     kFlexspiRootClkFreq_133MHz = 7,
     kFlexspiRootClkFreq_166MHz = 8,
     kFlexspiRootClkFreq_200MHz = 9,
+    kFlexspiRootClkFreq_240MHz = 10,
+    kFlexspiRootClkFreq_266MHz = 11,
+    kFlexspiRootClkFreq_332MHz = 12,
+    kFlexspiRootClkFreq_400MHz = 13,
 } flexspi_root_clk_freq_t;
 
 /*******************************************************************************

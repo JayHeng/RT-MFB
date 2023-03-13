@@ -308,6 +308,42 @@ static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFr
             rootCfg.div = 2;
             CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
         }
+        else if (clkFreq == kFlexspiRootClkFreq_240MHz)
+        {
+            /* Init System Pll2 (528MHz) pfd0. */
+            // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 20);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd0;
+            rootCfg.div = 2;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_266MHz)
+        {
+            /* Init System Pll2 (528MHz) pfd0. */
+            // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 35);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd0;
+            rootCfg.div = 1;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_332MHz)
+        {
+            /* Init System Pll2 (528MHz) pfd0. */
+            // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 28);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd0;
+            rootCfg.div = 1;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_400MHz)
+        {
+            /* Init System Pll2 (528MHz) pfd0. */
+            // 528*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 24);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll2Pfd0;
+            rootCfg.div = 1;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
     }
     else if (base == FLEXSPI2)
     {

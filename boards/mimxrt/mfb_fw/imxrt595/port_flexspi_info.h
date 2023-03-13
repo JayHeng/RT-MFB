@@ -393,6 +393,16 @@ static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFr
             /* Set FlexSPI clock: source AUX0_PLL, divide by 2 */
             BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 2U);
         }
+        else if (clkFreq == kFlexspiRootClkFreq_332MHz)
+        {
+            /* Set FlexSPI clock: source AUX1_PLL£¨327MHz£©, divide by 1 */
+            BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 4U, 1U);
+        }
+        else if (clkFreq == kFlexspiRootClkFreq_400MHz)
+        {
+            /* Set FlexSPI clock: source AUX0_PLL£¨396MHz£©, divide by 1 */
+            BOARD_SetFlexspiClock(EXAMPLE_FLEXSPI, 2U, 1U);
+        }
     }
     else if (base == FLEXSPI1)
     {
