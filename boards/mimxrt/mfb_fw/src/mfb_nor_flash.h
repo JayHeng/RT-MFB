@@ -135,8 +135,9 @@ typedef struct _flash_reg_access
 #define MXIC_DEVICE_SERIES          (1)
 #define MXIC_DEVICE_VENDOR_ID       (0xC2)
 #define MXIC_DEVICE_QUAD            (1)
-#define MXIC_DEVICE_MX25L6433F      (1)  // MIMXRT1180-MEM-BB&DS
+#define MXIC_DEVICE_MX25L6433F      (0)  // MIMXRT1180-MEM-BB&DS
 #define MXIC_DEVICE_MX25U6432F      (0)  // MIMXRT1180-MEM-BB&DS
+#define MXIC_DEVICE_MX25L25645G     (1)  // MIMXRT1180-MEM-BB&DS
 #define MXIC_DEVICE_MX25U25645G     (0)  // MIMXRT1180-MEM-BB&DS
 #define MXIC_QUAD_FLASH_JEDEC_ID    (0x003725C2)
 #define MXIC_DEVICE_OCTAL           (1)
@@ -229,7 +230,10 @@ extern void mfb_flash_memcpy_perf_test();
 extern void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash);
 
 extern void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID);
+#if MXIC_DEVICE_SERIES
 extern void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_mxic(bool isOctalFlash);
+#endif
 extern void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID);
 #if ISSI_DEVICE_SERIES
 extern void mfb_flash_set_param_for_issi(jedec_id_t *jedecID);

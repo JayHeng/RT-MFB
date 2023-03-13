@@ -144,6 +144,7 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
 #if MXIC_DEVICE_SERIES
         // MXIC
         case MXIC_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_mxic(isOctalFlash);
             break;
 #endif // MXIC_DEVICE_SERIES
 

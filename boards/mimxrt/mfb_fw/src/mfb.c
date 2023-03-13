@@ -386,7 +386,7 @@ void mfb_main(void)
                         {
                             mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
                             /* Read internal regiters of Flash */
-                            mfb_flash_show_registers(&jedecID, true);
+                            mfb_flash_show_registers(&jedecID, false);
                         }
                     }
                 }
