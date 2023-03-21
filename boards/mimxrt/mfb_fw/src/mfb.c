@@ -190,14 +190,16 @@ void mfb_main(void)
     flexspi_port_switch(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_1PAD);
     /* Move FlexSPI clock to a stable clock source */ 
     flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_30MHz);
+    /* Update root clock */
+    g_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
     /* Show FlexSPI clock source */
     flexspi_show_clock_source(EXAMPLE_FLEXSPI);
 
     /* Get JEDEC ID. */
 #if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
-    jedecID.manufacturerID = MICRON_OCTAL_FLASH_JEDEC_ID & 0xFF;
-    jedecID.memoryTypeID = (MICRON_OCTAL_FLASH_JEDEC_ID >> 8) & 0xFF;
-    jedecID.capacityID = (MICRON_OCTAL_FLASH_JEDEC_ID >> 16) & 0xFF;
+    jedecID.manufacturerID = MXIC_OCTAL_FLASH_JEDEC_ID & 0xFF;
+    jedecID.memoryTypeID = (MXIC_OCTAL_FLASH_JEDEC_ID >> 8) & 0xFF;
+    jedecID.capacityID = (MXIC_OCTAL_FLASH_JEDEC_ID >> 16) & 0xFF;
     /* Can change this variable according to Flash default state */
     sta_flashInstMode = kFlashInstMode_SPI;
     /* Init FlexSPI using common LUT */ 
@@ -342,8 +344,6 @@ void mfb_main(void)
         {
             /* Configure FlexSPI pinmux as user prescriptive */
             flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, g_flashPropertyInfo.flexspiPad);
-            /* Update root clock */
-            //s_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
             g_deviceconfig.flashSize = g_flashPropertyInfo.flashMemSizeInByte / 0x400;
             /* Re-init FlexSPI using custom LUT */
             flexspi_nor_flash_init(EXAMPLE_FLEXSPI, g_flashPropertyInfo.flexspiCustomLUTVendor, g_flashPropertyInfo.flexspiReadSampleClock);
@@ -455,8 +455,14 @@ void mfb_main(void)
                     {
                         /* Configure FlexSPI clock as user prescriptive */ 
                         flexspi_clock_init(EXAMPLE_FLEXSPI, g_flashPropertyInfo.flexspiRootClkFreq);
+                        /* Update root clock */
+                        g_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                         /* Show FlexSPI clock source */
                         flexspi_show_clock_source(EXAMPLE_FLEXSPI);
+                        /* Re-init FlexSPI using custom LUT */
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, g_flashPropertyInfo.flexspiCustomLUTVendor, g_flashPropertyInfo.flexspiReadSampleClock);
+                        mfb_printf("\r\nMFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
+
                         round = 2;
                     }
                 }
