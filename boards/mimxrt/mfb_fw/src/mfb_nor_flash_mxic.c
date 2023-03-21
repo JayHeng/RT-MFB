@@ -92,7 +92,7 @@ const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
 };
 #endif
 
-#if MXIC_DEVICE_MX25UM51345
+#if MXIC_DEVICE_MX25UM51345 | MXIC_DEVICE_MX25UW6345
 const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
     /* OPI DDR read */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
@@ -241,7 +241,7 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
     if (g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
-        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_166MHz;
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_332MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
         g_flashPropertyInfo.flashBusyStatusPol         = MXIC_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset      = MXIC_FLASH_BUSY_STATUS_OFFSET;

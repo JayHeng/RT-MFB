@@ -141,7 +141,9 @@ typedef struct _flash_reg_access
 #define MXIC_DEVICE_MX25U25645G     (0)  // MIMXRT1180-MEM-BB&DS
 #define MXIC_QUAD_FLASH_JEDEC_ID    (0x003725C2)
 #define MXIC_DEVICE_OCTAL           (1)
-#define MXIC_DEVICE_MX25UM51345     (1)  // MIMXRT1180-MEM-BB&DS, MIMXRT595-EVK
+#define MXIC_DEVICE_MX25UW6345      (1)  // MIMXRT1180-MEM-BB&DS
+#define MXIC_DEVICE_MX25UM51345     (0)  // MIMXRT1180-MEM-BB&DS, MIMXRT595-EVK
+#define MXIC_OCTAL_FLASH_JEDEC_ID   (0x003781C2)
 ////////////////////////////////////////////////////////////////////////////////
 #define GIGADEVICE_DEVICE_SERIE     (1)
 #define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
@@ -167,7 +169,7 @@ typedef struct _flash_reg_access
 #define MICRON_DEVICE_MT25QL256     (0)  // MIMXRT1170-EVKB(Rework)
 #define MICRON_DEVICE_OCTAL         (1)
 #define MICRON_DEVICE_MT35XU512_RW303 (1)  // MIMXRT1180-MEM-BB&DS
-#define MICRON_DEVICE_MT35XU512_RW304 (1)  // MIMXRT1180-EVK
+#define MICRON_DEVICE_MT35XU512_RW304 (0)  // MIMXRT1180-EVK
 #define MICRON_OCTAL_FLASH_JEDEC_ID (0x001a5B2C)
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021

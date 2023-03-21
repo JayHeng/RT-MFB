@@ -73,6 +73,27 @@
 //  3'b111    |      06        |         70MHz         |
 //------------------------------------------------------
 #define MXIC_OCTAL_FLASH_SET_DUMMY_CMD    0x01   // 200MHz OPI DDR
+#elif MXIC_DEVICE_MX25UW6345
+// 0x00 - SPI (default)
+// 0x01 - STR OPI enable
+// 0x02 - DTR OPI enable
+#define MXIC_OCTAL_FLASH_ENABLE_DDR_CMD   0x02
+
+//------------------------------------------------------
+//   DC[2:0]  |  dummy cycles  | OctalI/O SDR(1S-8S-8S)|
+//            |                |  Octal DDR(8D-8D-8D)  |
+//            |                |        BGA24          |
+//------------------------------------------------------
+//  3'b000    |  20(default)   |        200MHz         |
+//  3'b001    |      18        |        173MHz         |
+//  3'b010    |      16        |        166MHz         |
+//  3'b011    |      14        |        155MHz         |
+//  3'b100    |      12        |        133MHz         |
+//  3'b101    |      10        |        104MHz         |
+//  3'b110    |      08        |         84MHz         |
+//  3'b111    |      06        |         66MHz         |
+//------------------------------------------------------
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD    0x00   // 200MHz OPI DDR
 #endif
 
 /*******************************************************************************
