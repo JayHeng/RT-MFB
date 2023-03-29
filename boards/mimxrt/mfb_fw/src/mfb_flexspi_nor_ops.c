@@ -512,7 +512,15 @@ void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexs
     config.ahbConfig.enableAHBPrefetch = true;
     config.rxSampleClock               = rxSampleClock;
 #if !(defined(FSL_FEATURE_FLEXSPI_HAS_NO_MCR0_COMBINATIONEN) && FSL_FEATURE_FLEXSPI_HAS_NO_MCR0_COMBINATIONEN)
-    config.enableCombination = true;
+    flexspi_port_t port = FLASH_PORT;
+    if ((port == kFLEXSPI_PortA1) || (port == kFLEXSPI_PortA2))
+    {
+        config.enableCombination = true;
+    }
+    else
+    {
+        config.enableCombination = false;
+    }
 #endif
     config.ahbConfig.enableAHBBufferable = true;
     config.ahbConfig.enableAHBCachable   = true;
