@@ -30,6 +30,8 @@
 #define MFB_FLASH_ACCESS_REGION_SIZE     (0x10000U)
 // Whether to show flash to RAM memcpy perf result
 #define MFB_FLASH_MEMCPY_PERF_ENABLE     (1)
+// Whether to run flash to RAM memcpy stress test
+#define MFB_FLASH_MEMCPY_STRESS_ENABLE   (0)
 // Whether to write pattern data into flash to do readback verify
 #define MFB_FLASH_PATTERN_VERIFY_ENABLE  (1)
 
