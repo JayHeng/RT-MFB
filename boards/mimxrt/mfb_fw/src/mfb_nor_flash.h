@@ -236,7 +236,10 @@ extern void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID);
 extern void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_mxic(bool isOctalFlash);
 #endif
+#if GIGADEVICE_DEVICE_SERIES
 extern void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_gigadevice(bool isOctalFlash);
+#endif
 #if ISSI_DEVICE_SERIES
 extern void mfb_flash_set_param_for_issi(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_issi(bool isOctalFlash);

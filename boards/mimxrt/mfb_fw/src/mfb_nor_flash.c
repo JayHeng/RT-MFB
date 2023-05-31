@@ -151,6 +151,7 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
 #if GIGADEVICE_DEVICE_SERIES
         // GigaDevice
         case GIGADEVICE_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_gigadevice(isOctalFlash);
             break;
 #endif // GIGADEVICE_DEVICE_SERIES
 
