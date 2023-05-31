@@ -298,12 +298,12 @@ void mfb_main(void)
                 break;
 #endif // MXIC_DEVICE_SERIES
 
-#if GIGADEVICE_DEVICE_SERIE
+#if GIGADEVICE_DEVICE_SERIES
             // GigaDevice
             case GIGADEVICE_DEVICE_VENDOR_ID:
                 mfb_flash_set_param_for_gigadevice(&jedecID);
                 break;
-#endif // GIGADEVICE_DEVICE_SERIE
+#endif // GIGADEVICE_DEVICE_SERIES
 
 #if ISSI_DEVICE_SERIES
             // ISSI

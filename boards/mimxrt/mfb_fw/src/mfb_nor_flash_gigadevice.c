@@ -6,7 +6,7 @@
  */
 
 #include "mfb_nor_flash_gigadevice.h"
-#if GIGADEVICE_DEVICE_SERIE
+#if GIGADEVICE_DEVICE_SERIES
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -250,9 +250,9 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_30MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
 #else
-        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_166MHz;
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_332MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
-        if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_200MHz)
+        if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_400MHz)
 #endif
         {
             g_flashPropertyInfo.flashDummyValue = GIGADEVICE_OCTAL_FLASH_SET_DUMMY_CMD;
@@ -261,4 +261,4 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
 #endif
 }
 
-#endif // GIGADEVICE_DEVICE_SERIE
+#endif // GIGADEVICE_DEVICE_SERIES

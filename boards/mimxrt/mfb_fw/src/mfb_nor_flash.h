@@ -145,7 +145,7 @@ typedef struct _flash_reg_access
 #define MXIC_DEVICE_MX25UM51345     (0)  // MIMXRT1180-MEM-BB&DS, MIMXRT595-EVK
 #define MXIC_OCTAL_FLASH_JEDEC_ID   (0x003781C2)
 ////////////////////////////////////////////////////////////////////////////////
-#define GIGADEVICE_DEVICE_SERIE     (1)
+#define GIGADEVICE_DEVICE_SERIES    (1)
 #define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
 #define GIGADEVICE_DEVICE_Quad      (1)
 #define GIGADEVICE_DEVICE_GD25LE128 (1)  // MIMXRT1180-MEM-BB&DS

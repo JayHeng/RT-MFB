@@ -148,11 +148,11 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
             break;
 #endif // MXIC_DEVICE_SERIES
 
-#if GIGADEVICE_DEVICE_SERIE
+#if GIGADEVICE_DEVICE_SERIES
         // GigaDevice
         case GIGADEVICE_DEVICE_VENDOR_ID:
             break;
-#endif // GIGADEVICE_DEVICE_SERIE
+#endif // GIGADEVICE_DEVICE_SERIES
 
 #if ISSI_DEVICE_SERIES
         // ISSI

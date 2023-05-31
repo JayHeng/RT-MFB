@@ -247,7 +247,7 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
         g_flashPropertyInfo.flashBusyStatusOffset      = MXIC_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flashEnableOctalCmd        = MXIC_OCTAL_FLASH_ENABLE_DDR_CMD;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_MXIC_Octal;
-        if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_200MHz)
+        if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_400MHz)
         {
             g_flashPropertyInfo.flashDummyValue = MXIC_OCTAL_FLASH_SET_DUMMY_CMD;
         }
