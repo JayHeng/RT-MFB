@@ -19,7 +19,7 @@
  * Variables
  ******************************************************************************/
 
-#if GIGADEVICE_DEVICE_GD25LE128 | GIGADEVICE_DEVICE_GD25LT256
+#if GIGADEVICE_DEVICE_GD25LE128 | GIGADEVICE_DEVICE_GD25LT256 | GIGADEVICE_DEVICE_GD25Q80E
 const uint32_t s_customLUT_GIGADEVICE_Quad[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_QPI_MODE_ENABLE
     /* Fast read quad mode - SDR */
@@ -188,6 +188,10 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
         case 0x40:
             // GD25D DualSPI
             mfb_printf(" -- GD25Q/GD25B/GD25S QuadSPI 3.3V Series.\r\n");
+            g_flashPropertyInfo.flashHasQpiSupport = false;
+            g_flashPropertyInfo.flexspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+            g_flashPropertyInfo.flashQuadEnableCfg = GIGADEVICE_25LE_25Q_FLASH_QUAD_ENABLE;
+            g_flashPropertyInfo.flashQuadEnableBytes = 2;
             break;
         case 0x42:
             mfb_printf(" -- GD25VQ/GD25VE QuadSPI 2.5V Series.\r\n");
@@ -199,7 +203,7 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
             // GD25LD DualSPI
             g_flashPropertyInfo.flashHasQpiSupport = true;
             g_flashPropertyInfo.flexspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-            g_flashPropertyInfo.flashQuadEnableCfg = GIGADEVICE_25LE_FLASH_QUAD_ENABLE;
+            g_flashPropertyInfo.flashQuadEnableCfg = GIGADEVICE_25LE_25Q_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
             mfb_printf(" -- GD25LE/GD25LQ QuadSPI 1.8V Series.\r\n");
             break;

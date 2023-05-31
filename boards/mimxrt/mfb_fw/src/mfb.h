@@ -19,7 +19,7 @@
 #define MFB_APP_IMAGE_OFFSET             (0xC000)
 
 // Whether to enable QPI mode for Quad Flash
-#define MFB_FLASH_QPI_MODE_ENABLE        (1)
+#define MFB_FLASH_QPI_MODE_ENABLE        (0)
 // Whether to disable OPI mode for Octal Flash (test dummy cycle setting for Octal Flash)
 #define MFB_FLASH_OPI_MODE_DISABLE       (0)
 
