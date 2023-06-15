@@ -232,7 +232,10 @@ extern bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode);
 extern void mfb_flash_memcpy_perf_test();
 extern void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash);
 
+#if WINBOND_DEVICE_SERIES
 extern void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_winbond(bool isOctalFlash);
+#endif
 #if MXIC_DEVICE_SERIES
 extern void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_mxic(bool isOctalFlash);

@@ -138,6 +138,7 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
 #if WINBOND_DEVICE_SERIES
         // Winbond
         case WINBOND_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_winbond(isOctalFlash);
             break;
 #endif // WINBOND_DEVICE_SERIES
 
