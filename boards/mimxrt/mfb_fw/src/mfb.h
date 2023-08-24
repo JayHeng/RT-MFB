@@ -34,6 +34,8 @@
 #define MFB_FLASH_MEMCPY_STRESS_ENABLE   (0)
 // Whether to write pattern data into flash to do readback verify
 #define MFB_FLASH_PATTERN_VERIFY_ENABLE  (1)
+// Whether to use static pattern word or dynamic value (when it is 0)
+#define MFB_FLASH_PATTERN_STATIC_WORD    (0xFF00FF00)
 
 // Whether to use fake jedec id (appliable when there is no id in flash device)
 #define MFB_FLASH_FAKE_JEDEC_ID_ENABLE   (0)

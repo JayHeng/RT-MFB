@@ -28,11 +28,19 @@
 #if MFB_FLASH_PATTERN_VERIFY_ENABLE
 static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen, bool showError)
 {
+    uint32_t patternWord = MFB_FLASH_PATTERN_STATIC_WORD;
     if (isDataGen)
     {
         for (uint32_t idx = 0; idx < FLASH_PAGE_SIZE / sizeof(uint32_t); idx++)
         {
-            g_flashRwBuffer[idx] = pageAddr + idx * sizeof(uint32_t);
+            if (patternWord)
+            {
+                g_flashRwBuffer[idx] = patternWord;
+            }
+            else
+            {
+                g_flashRwBuffer[idx] = pageAddr + idx * sizeof(uint32_t);
+            }
         }
     }
     else
@@ -41,7 +49,16 @@ static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen,
         memcpy(g_flashRwBuffer, (uint8_t*)srcAddr, FLASH_PAGE_SIZE);
         for (uint32_t idx = 0; idx < FLASH_PAGE_SIZE / sizeof(uint32_t); idx++)
         {
-            if (g_flashRwBuffer[idx] != pageAddr + idx * sizeof(uint32_t))
+            uint32_t compareWord;
+            if (patternWord)
+            {
+                compareWord = patternWord;
+            }
+            else
+            {
+                compareWord = pageAddr + idx * sizeof(uint32_t);
+            }
+            if (g_flashRwBuffer[idx] != compareWord)
             {
                 if (showError)
                 {
