@@ -30,6 +30,7 @@
 #define BOARD_IS_RT1180_EVK_SKT_OCTAL       (0)
 #define BOARD_IS_RT1180_MEM_DC_MUX1         (1)
 #define BOARD_IS_RT1180_MEM_DC_MUX2         (0)
+#define BOARD_IS_RT1180_MEM_DC_MUX3         (0)
 
 /*
  * If cache is enabled, this example should maintain the cache to make sure
@@ -105,14 +106,14 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
         {
             case kFLEXSPI_PortA1:
             case kFLEXSPI_PortA2:
-#if BOARD_IS_RT1180_MEM_DC_MUX1 | BOARD_IS_RT1180_MEM_DC_MUX2
                 RGPIO_PinWrite(RGPIO4, 23, 0);
-#endif
                 break;
             case kFLEXSPI_PortB1:
             case kFLEXSPI_PortB2:
-#if BOARD_IS_RT1180_MEM_DC_MUX1 | BOARD_IS_RT1180_MEM_DC_MUX2
-                // TBD
+#if BOARD_IS_RT1180_MEM_DC_MUX1
+                RGPIO_PinWrite(RGPIO4, 23, 0);
+#elif BOARD_IS_RT1180_MEM_DC_MUX2
+                RGPIO_PinWrite(RGPIO4, 23, 1);
 #endif
 #if BOARD_IS_RT1180_EVK_SKT_QUAD
                 RGPIO_PinWrite(RGPIO4, 4, 0);
@@ -126,7 +127,7 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
     }
     else if (base == FLEXSPI2)
     {
-#if BOARD_IS_RT1180_MEM_DC_MUX1 | BOARD_IS_RT1180_MEM_DC_MUX2
+#if BOARD_IS_RT1180_MEM_DC_MUX1 | BOARD_IS_RT1180_MEM_DC_MUX2 | BOARD_IS_RT1180_MEM_DC_MUX3
         IOMUXC_SetPinMux(IOMUXC_GPIO_AD_22_GPIO4_IO22, 0U);
         RGPIO_PinInit(RGPIO4, 22, &do_config);
 #endif
@@ -142,7 +143,11 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
                 break;
             case kFLEXSPI_PortB1:
             case kFLEXSPI_PortB2:
-                // TBD
+#if BOARD_IS_RT1180_MEM_DC_MUX1
+                RGPIO_PinWrite(RGPIO4, 22, 0);
+#elif BOARD_IS_RT1180_MEM_DC_MUX2 | BOARD_IS_RT1180_MEM_DC_MUX3
+                RGPIO_PinWrite(RGPIO4, 22, 1);
+#endif
                 break;
             default:
                 break;
@@ -171,7 +176,6 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B2_12_FLEXSPI1_BUS2BIT_A_DATA02, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B2_13_FLEXSPI1_BUS2BIT_A_DATA03, 1U);
 
-                IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_07_FLEXSPI1_BUS2BIT_B_SCLK, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B2_03_FLEXSPI1_BUS2BIT_A_DATA04, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B2_04_FLEXSPI1_BUS2BIT_A_DATA05, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B2_05_FLEXSPI1_BUS2BIT_A_DATA06, 1U);
@@ -179,6 +183,7 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
                 break;
             case kFLEXSPI_PortB1:
             case kFLEXSPI_PortB2:
+#if BOARD_IS_RT1180_MEM_DC_MUX1
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_05_FLEXSPI1_BUS2BIT_B_DQS,    1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_06_FLEXSPI1_BUS2BIT_B_SS0_B,  1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_07_FLEXSPI1_BUS2BIT_B_SCLK,   1U);
@@ -191,6 +196,20 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_01_FLEXSPI1_BUS2BIT_B_DATA05, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_02_FLEXSPI1_BUS2BIT_B_DATA06, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_03_FLEXSPI1_BUS2BIT_B_DATA07, 1U);
+#elif BOARD_IS_RT1180_MEM_DC_MUX2
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_03_FLEXSPI1_BUS2BIT_B_DQS,    1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_04_FLEXSPI1_BUS2BIT_B_SS0_B,  1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_05_FLEXSPI1_BUS2BIT_B_SCLK,   1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_13_FLEXSPI1_BUS2BIT_B_DATA00, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_12_FLEXSPI1_BUS2BIT_B_DATA01, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_11_FLEXSPI1_BUS2BIT_B_DATA02, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_10_FLEXSPI1_BUS2BIT_B_DATA03, 1U);
+                
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_09_FLEXSPI1_BUS2BIT_B_DATA04, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_08_FLEXSPI1_BUS2BIT_B_DATA05, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_07_FLEXSPI1_BUS2BIT_B_DATA06, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_B1_06_FLEXSPI1_BUS2BIT_B_DATA07, 1U);
+#endif
                 break;
             default:
                 break;
@@ -214,32 +233,44 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_40_FLEXSPI2_BUS2BIT_A_DQS,    1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_41_FLEXSPI2_BUS2BIT_A_SCLK,   1U);
 
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_28_FLEXSPI2_BUS2BIT_B_SS0_B,  1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_29_FLEXSPI2_BUS2BIT_B_DQS,    1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_30_FLEXSPI2_BUS2BIT_B_DATA03, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_31_FLEXSPI2_BUS2BIT_B_DATA02, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_32_FLEXSPI2_BUS2BIT_B_DATA01, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_33_FLEXSPI2_BUS2BIT_B_DATA00, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_34_FLEXSPI2_BUS2BIT_B_SCLK,   1U);
 #elif BOARD_IS_RT1180_MEM_DC_MUX2
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_21_FLEXSPI2_BUS2BIT_A_DQS,       1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_22_FLEXSPI2_BUS2BIT_A_SS0_B,     1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_23_FLEXSPI2_BUS2BIT_A_SCLK,      1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_24_FLEXSPI2_BUS2BIT_A_DATA00,    1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_25_FLEXSPI2_BUS2BIT_A_DATA01,    1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_26_FLEXSPI2_BUS2BIT_A_DATA02,    1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_27_FLEXSPI2_BUS2BIT_A_DATA03,    1U);
-                if (pads == kFLEXSPI_4PAD)
-                {
-                    // It is internal PAD
-                    IOMUXC_SetPinMux(IOMUXC_GPIO_AON_28_DUMMY_FLEXSPI2_BUS2BIT_A_DQS, 1U);
-                }
 
+#if BOARD_IS_RT1180_MEM_DC_MUX3
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_22_FLEXSPI2_BUS2BIT_B_DATA03, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_23_FLEXSPI2_BUS2BIT_B_DATA02, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_24_FLEXSPI2_BUS2BIT_B_DATA01, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_25_FLEXSPI2_BUS2BIT_B_DATA00, 1U);
+#else
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_15_FLEXSPI2_BUS2BIT_B_DATA03, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_16_FLEXSPI2_BUS2BIT_B_DATA02, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_17_FLEXSPI2_BUS2BIT_B_DATA01, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_18_FLEXSPI2_BUS2BIT_B_DATA00, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_AON_19_FLEXSPI2_BUS2BIT_B_SCLK,   1U);
-                if (pads == kFLEXSPI_8PAD)
-                {
-                    IOMUXC_SetPinMux(IOMUXC_GPIO_AON_20_FLEXSPI2_BUS2BIT_B_DQS,    1U);
-                }
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_20_FLEXSPI2_BUS2BIT_B_DQS,    1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_21_FLEXSPI2_BUS2BIT_B_SS0_B,  1U);
+#endif
+#elif BOARD_IS_RT1180_MEM_DC_MUX3
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_28_FLEXSPI2_BUS2BIT_B_SS0_B,  1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_34_FLEXSPI2_BUS2BIT_B_SCLK,   1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_21_FLEXSPI2_BUS2BIT_B_DQS,    1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_22_FLEXSPI2_BUS2BIT_B_DATA03, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_23_FLEXSPI2_BUS2BIT_B_DATA02, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_24_FLEXSPI2_BUS2BIT_B_DATA01, 1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_25_FLEXSPI2_BUS2BIT_B_DATA00, 1U);
 #endif
                 break;
             default:
