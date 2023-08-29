@@ -130,11 +130,11 @@ bool mfb_flash_pattern_verify_test(bool showError)
 
     if (result)
     {
-        mfb_printf("MFB: Flash Pattern data readback verification - Passed.\r\n");
+        mfb_printf("MFB: Pass Flash Pattern data readback verification.\r\n");
     }
     else
     {
-        //mfb_printf("MFB: Flash Pattern data readback verification - Failed.\r\n");
+        //mfb_printf("MFB: Failed to verify Flash Pattern data via readback.\r\n");
     }
 #endif
     
