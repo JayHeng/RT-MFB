@@ -431,7 +431,7 @@ void mfb_main(void)
             {
                 /* Do patten verify test under Multi I/O fast read mode */
                 uint32_t round = 1;
-                while (round < 2)
+                while (round <= 2)
                 {
                     bool showError = (round == 2);
                     /* Don't show error info when it is 1st round, as flash may be blank this time */
@@ -464,6 +464,10 @@ void mfb_main(void)
                         mfb_printf("\r\nMFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
 
                         round = 2;
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
                 /* Get perf test result under Multi I/O fast read mode */
