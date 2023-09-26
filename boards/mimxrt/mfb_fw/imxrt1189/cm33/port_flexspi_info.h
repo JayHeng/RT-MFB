@@ -26,8 +26,11 @@
 #define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_Flexspi1
 #define FLASH_PORT                      kFLEXSPI_PortA1
 
-#define BOARD_IS_RT1180_EVK_SKT_QUAD        (0)
-#define BOARD_IS_RT1180_EVK_SKT_OCTAL       (0)
+//#define BOARD_IS_RT1180_EVK_PORTA_QUAD      (0)
+//#define BOARD_IS_RT1180_EVK_PORTA_OCTAL     (0)
+#define BOARD_IS_RT1180_EVK_PORTB_QUAD      (0)
+#define BOARD_IS_RT1180_EVK_PORTB_OCTAL     (0)
+
 #define BOARD_IS_RT1180_MEM_DC_MUX1         (1)
 #define BOARD_IS_RT1180_MEM_DC_MUX2         (0)
 #define BOARD_IS_RT1180_MEM_DC_MUX3         (0)
@@ -98,7 +101,7 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
         IOMUXC_SetPinMux(IOMUXC_GPIO_AD_23_GPIO4_IO23, 0U);
         RGPIO_PinInit(RGPIO4, 23, &do_config);
 #endif
-#if BOARD_IS_RT1180_EVK_SKT_QUAD | BOARD_IS_RT1180_EVK_SKT_OCTAL
+#if BOARD_IS_RT1180_EVK_PORTB_QUAD | BOARD_IS_RT1180_EVK_PORTB_OCTAL
         IOMUXC_SetPinMux(IOMUXC_GPIO_AD_04_GPIO4_IO04, 0U);
         RGPIO_PinInit(RGPIO4, 4, &do_config);
 #endif
@@ -115,9 +118,9 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
 #elif BOARD_IS_RT1180_MEM_DC_MUX2
                 RGPIO_PinWrite(RGPIO4, 23, 1);
 #endif
-#if BOARD_IS_RT1180_EVK_SKT_QUAD
+#if BOARD_IS_RT1180_EVK_PORTB_QUAD
                 RGPIO_PinWrite(RGPIO4, 4, 0);
-#elif BOARD_IS_RT1180_EVK_SKT_OCTAL
+#elif BOARD_IS_RT1180_EVK_PORTB_OCTAL
                 RGPIO_PinWrite(RGPIO4, 4, 1);
 #endif
                 break;
@@ -183,7 +186,7 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
                 break;
             case kFLEXSPI_PortB1:
             case kFLEXSPI_PortB2:
-#if BOARD_IS_RT1180_MEM_DC_MUX1
+#if BOARD_IS_RT1180_MEM_DC_MUX1 | BOARD_IS_RT1180_EVK_PORTB_QUAD | BOARD_IS_RT1180_EVK_PORTB_OCTAL
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_05_FLEXSPI1_BUS2BIT_B_DQS,    1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_06_FLEXSPI1_BUS2BIT_B_SS0_B,  1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_07_FLEXSPI1_BUS2BIT_B_SCLK,   1U);
@@ -265,7 +268,8 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
 #endif
 #elif BOARD_IS_RT1180_MEM_DC_MUX3
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_28_FLEXSPI2_BUS2BIT_B_SS0_B,  1U);
-                IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_34_FLEXSPI2_BUS2BIT_B_SCLK,   1U);
+                IOMUXC_SetPinMux(IOMUXC_GPIO_AON_19_FLEXSPI2_BUS2BIT_B_SCLK,   1U);
+
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_21_FLEXSPI2_BUS2BIT_B_DQS,    1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_22_FLEXSPI2_BUS2BIT_B_DATA03, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_23_FLEXSPI2_BUS2BIT_B_DATA02, 1U);
