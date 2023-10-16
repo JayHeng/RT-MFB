@@ -375,7 +375,7 @@ void mfb_main(void)
             /* Do patten verify test under 1bit SPI mode */
             mfb_flash_pattern_verify_test(false);
             /* Get perf test result under 1bit SPI mode */
-            mfb_flash_memcpy_perf_test();
+            mfb_flash_memcpy_perf_test(false);
         }
         if (sta_isValidVendorId)
         {
@@ -493,7 +493,7 @@ void mfb_main(void)
                     if (round != 2)
                     {
                         /* Get perf test result under Multi I/O fast read mode and pre-set speed*/
-                        mfb_flash_memcpy_perf_test();
+                        mfb_flash_memcpy_perf_test(false);
 
                         mfb_printf("\r\nMFB: Set FlexSPI root clock to %dMHz.\r\n", decode_flexspi_root_clk_defn(g_flashPropertyInfo.flexspiRootClkFreq));
                         /* Configure FlexSPI clock as user prescriptive */ 
@@ -514,7 +514,7 @@ void mfb_main(void)
                     }
                 }
                 /* Get perf test result under Multi I/O fast read mode and user-set speed */
-                mfb_flash_memcpy_perf_test();
+                mfb_flash_memcpy_perf_test(true);
                 /* Jump into user application */
                 mfb_jump_to_application(EXAMPLE_FLEXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
             }

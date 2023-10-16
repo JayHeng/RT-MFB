@@ -229,7 +229,7 @@ extern uint32_t mfb_decode_adesto_capacity_id(uint8_t capacityID);
 extern void mfb_flash_show_mem_size(uint8_t capacityID, bool isAdesto);
 extern bool mfb_flash_pattern_verify_test(bool showError);
 extern bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode);
-extern void mfb_flash_memcpy_perf_test();
+extern void mfb_flash_memcpy_perf_test(bool stressTestEnable);
 extern void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash);
 
 #if WINBOND_DEVICE_SERIES

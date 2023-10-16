@@ -26,7 +26,7 @@
  * Code
  ******************************************************************************/
 
-void mfb_flash_memcpy_perf_test()
+void mfb_flash_memcpy_perf_test(bool stressTestEnable)
 {
 #if MFB_FLASH_MEMCPY_PERF_ENABLE
     microseconds_shutdown();
@@ -39,6 +39,12 @@ void mfb_flash_memcpy_perf_test()
     uint32_t idxMax = MFB_FLASH_ACCESS_REGION_SIZE / unitSize;
     uint32_t srcAddr = 0;
 #if MFB_FLASH_MEMCPY_STRESS_ENABLE
+    if (!stressTestEnable)
+    {
+        microseconds_shutdown();
+        return;
+    }
+    mfb_printf("MFB: Starting memcpy stress test...\r\n");
     while (1)
 #endif
     {
