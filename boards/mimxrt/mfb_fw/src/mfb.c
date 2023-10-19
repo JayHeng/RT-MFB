@@ -37,7 +37,7 @@ flash_property_info_t g_flashPropertyInfo;
 /* Common FlexSPI config */
 flexspi_device_config_t g_deviceconfig = {
     .flexspiRootClk       = 27400000,
-    .flashSize            = 0x2000, /* 64Mb/KByte */
+    .flashSize            = 0x4000, /* 128Mb/KByte */
     .CSIntervalUnit       = kFLEXSPI_CsIntervalUnit1SckCycle,
     .CSInterval           = 2,
     .CSHoldTime           = 3,
@@ -372,10 +372,17 @@ void mfb_main(void)
         /* Only run 1st perf and pattern verify when default flash state is Ext SPI mode */
         if (sta_flashInstMode == kFlashInstMode_SPI)
         {
-            /* Do patten verify test under 1bit SPI mode */
-            mfb_flash_pattern_verify_test(false);
-            /* Get perf test result under 1bit SPI mode */
-            mfb_flash_memcpy_perf_test(false);
+            if (MFB_FLASH_ACCESS_REGION_START + MFB_FLASH_ACCESS_REGION_SIZE > (16*1024*1024UL))
+            {
+                mfb_printf("\r\nMFB: perf and pattern verify test is bypassed under Ext SPI mode as flash access region is larger than 16MB\r\n");
+            }
+            else
+            {
+                /* Do patten verify test under 1bit SPI mode */
+                mfb_flash_pattern_verify_test(false);
+                /* Get perf test result under 1bit SPI mode */
+                mfb_flash_memcpy_perf_test(false);
+            }
         }
         if (sta_isValidVendorId)
         {
