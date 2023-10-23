@@ -521,4 +521,19 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
 #endif
 }
 
+#define FREQ_1MHz (1000000U)
+static void flexspi_sw_delay_us(uint64_t us)
+{
+    uint32_t ticks_per_us = CLOCK_GetFreq(kCLOCK_CoreSysClk) / FREQ_1MHz;
+    while (us--)
+    {
+        // Measured on RTL testbench, the below loop needs 5 ticks
+        register uint32_t ticks = ticks_per_us / 5;
+        while (ticks--)
+        {
+            __NOP();
+        }
+    }
+}
+
 #endif /* _PORT_FLEXSPI_INFO_H_ */

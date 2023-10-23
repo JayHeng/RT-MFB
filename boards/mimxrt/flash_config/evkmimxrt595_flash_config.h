@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
-#ifndef __FLASH_CONFIG_H__
-#define __FLASH_CONFIG_H__
+#ifndef __EVKMIMXRT595_FLASH_CONFIG_H__
+#define __EVKMIMXRT595_FLASH_CONFIG_H__
 #include <stdint.h>
 #include "fsl_iap.h"
 

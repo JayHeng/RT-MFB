@@ -62,7 +62,7 @@
                 </option>
                 <option>
                     <name>RTDescription</name>
-                    <state>Use the normal configuration of the C/C++ runtime library. No locale interface, C locale, no file descriptor support, no multibytes in printf and scanf, and no hex floats in strtod.</state>
+                    <state>A compact configuration of the C/C++14 runtime library. No locale interface, C locale, no file descriptor support, no multibytes in printf and scanf, and no hex floats in strtod.</state>
                 </option>
                 <option>
                     <name>OGProductVersion</name>
@@ -4528,7 +4528,7 @@
     <group>
         <name>flash_config</name>
         <file>
-            <name>$PROJ_DIR$\..\..\..\flash_config\flash_config.h</name>
+            <name>$PROJ_DIR$\..\..\..\flash_config\evkmimxrt595_flash_config.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\flash_config\flash_config_1bit_spi.c</name>
