@@ -261,12 +261,12 @@ static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_
         (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_ENABLEQE))
     {
         status = flexspi_nor_wait_bus_busy(base, kFlashInstMode_SPI);
-        //flexspi_sw_delay_us(100UL);
+        flexspi_sw_delay_us(100UL);
     }
     else if (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_ENTEROPI)
     {
         status = flexspi_nor_wait_bus_busy(base, kFlashInstMode_OPI);
-        //flexspi_sw_delay_us(100UL);
+        flexspi_sw_delay_us(100UL);
     }
 
     /* Do software reset. */

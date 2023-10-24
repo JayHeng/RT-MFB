@@ -174,6 +174,15 @@ static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFr
             rootCfg.div = 4;
             CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
         }
+        else if (clkFreq == kFlexspiRootClkFreq_120MHz)
+        {
+            /* Init System Pll3 (480MHz) pfd0. */
+            // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 13-35.
+            CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd0, 18);
+            rootCfg.mux = kCLOCK_FLEXSPI1_ClockRoot_MuxSysPll3Pfd0;
+            rootCfg.div = 4;
+            CLOCK_SetRootClock(kCLOCK_Root_Flexspi1, &rootCfg);
+        }
         else if (clkFreq == kFlexspiRootClkFreq_133MHz)
         {
             /* Init System Pll3 (480MHz) pfd0. */
@@ -331,6 +340,19 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
     mfb_printf("MFB: FLEXSPI%d Clk Source Divider: %d.\r\n", index, clkDiv);
     mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, flexspi_get_clock(EXAMPLE_FLEXSPI));
 #endif
+}
+
+static void flexspi_sw_delay_us(uint64_t us)
+{
+    uint32_t ticks_per_us = CLOCK_GetFreq(kCLOCK_CpuClk) / 1000000;
+    while (us--)
+    {
+        register uint32_t ticks = 1 + ticks_per_us / 4;
+        while (ticks--)
+        {
+            __NOP();
+        }
+    }
 }
 
 #endif /* _PORT_FLEXSPI_INFO_H_ */

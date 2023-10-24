@@ -148,4 +148,17 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
 #endif
 }
 
+static void flexspi_sw_delay_us(uint64_t us)
+{
+    uint32_t ticks_per_us = CLOCK_GetFreq(kCLOCK_CpuClk) / 1000000;
+    while (us--)
+    {
+        register uint32_t ticks = 1 + ticks_per_us / 4;
+        while (ticks--)
+        {
+            __NOP();
+        }
+    }
+}
+
 #endif /* _PORT_FLEXSPI_INFO_H_ */
