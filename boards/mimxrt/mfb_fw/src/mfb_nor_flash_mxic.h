@@ -72,7 +72,11 @@
 //  3'b110    |      08        |         86MHz         |
 //  3'b111    |      06        |         70MHz         |
 //------------------------------------------------------
-#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD    0x01   // 200MHz OPI DDR
+#if MFB_FLASH_OPI_MODE_DISABLE
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x06
+#else
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x14   // 200MHz OPI DDR
+#endif
 #elif MXIC_DEVICE_MX25UW6345
 // 0x00 - SPI (default)
 // 0x01 - STR OPI enable
@@ -93,7 +97,11 @@
 //  3'b110    |      08        |         84MHz         |
 //  3'b111    |      06        |         66MHz         |
 //------------------------------------------------------
-#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD    0x00   // 200MHz OPI DDR
+#if MFB_FLASH_OPI_MODE_DISABLE
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x06
+#else
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x14   // 200MHz OPI DDR
+#endif
 #endif
 
 /*******************************************************************************
