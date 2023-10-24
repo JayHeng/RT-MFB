@@ -255,15 +255,15 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_MXIC_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_50MHz;
-        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackInternally;
 #else
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_400MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
         if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_400MHz)
+#endif
         {
             g_flashPropertyInfo.flashDummyValue = MXIC_OCTAL_FLASH_SET_DUMMY_CMD;
         }
-#endif
     }
 #endif
 }

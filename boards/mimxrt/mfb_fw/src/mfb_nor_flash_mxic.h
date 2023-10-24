@@ -73,7 +73,7 @@
 //  3'b111    |      06        |         70MHz         |
 //------------------------------------------------------
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x06
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x08
 #else
 #define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x14   // 200MHz OPI DDR
 #endif
@@ -98,7 +98,7 @@
 //  3'b111    |      06        |         66MHz         |
 //------------------------------------------------------
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x06
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x08
 #else
 #define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x14   // 200MHz OPI DDR
 #endif
