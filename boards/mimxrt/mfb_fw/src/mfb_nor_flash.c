@@ -133,6 +133,7 @@ void mfb_flash_show_mem_size(uint8_t capacityID, bool isAdesto)
 void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
 {
 #if MFB_FLASH_REGS_READBACK_ENABLE
+    mfb_printf("MFB: Read internal registers from Flash.\r\n");
     switch (jedecID->manufacturerID)
     {
 #if WINBOND_DEVICE_SERIES
