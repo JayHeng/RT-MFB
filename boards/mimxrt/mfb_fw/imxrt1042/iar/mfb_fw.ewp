@@ -4602,10 +4602,10 @@
     <group>
         <name>xip</name>
         <file>
-            <name>$PROJ_DIR$\..\..\..\xip\flash_config.h</name>
+            <name>$PROJ_DIR$\..\..\..\xip\flexspi_nor_config.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\xip\flash_config_1bit_spi.c</name>
+            <name>$PROJ_DIR$\..\..\..\xip\flexspi_nor_config_1bit_spi.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1042\xip\fsl_flexspi_nor_boot.c</name>

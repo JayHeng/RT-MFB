@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __FLASH_CONFIG__
-#define __FLASH_CONFIG__
+#ifndef __FLEXSPI_NOR_CONFIG__
+#define __FLEXSPI_NOR_CONFIG__
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -265,4 +265,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif /* __FLASH_CONFIG__ */
+#endif /* __FLEXSPI_NOR_CONFIG__ */
