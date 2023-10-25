@@ -4,7 +4,7 @@
  *
  * SPDXLicense-Identifier: BSD-3-Clause
  */
-#include "flash_config.h"
+#include "evkmimxrt595_flash_config.h"
 #include "board.h"
 
 /* Component ID definition, used by tools. */
