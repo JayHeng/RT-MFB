@@ -436,12 +436,14 @@ void BOARD_BootClockRUN(void)
 
     /* Init Sys Pll2. */
     CLOCK_InitSysPll2(&sysPll2Config_BOARD_BootClockRUN);
-#ifndef USE_SDRAM
     /* Init System Pll2 pfd0. */
-    CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 27);
-#endif
+    // FlexSPI1 clock source opt2
+    ////////////////////////////////////////////////////////////////////////////
+    CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 29);
     /* Init System Pll2 pfd1. */
-    CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd1, 16);
+    // FlexSPI2 clock source opt3
+    ////////////////////////////////////////////////////////////////////////////
+    CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd1, 29);
     /* Init System Pll2 pfd2. */
     CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd2, 24);
     /* Init System Pll2 pfd3. */
@@ -450,11 +452,15 @@ void BOARD_BootClockRUN(void)
     /* Init Sys Pll3. */
     CLOCK_InitSysPll3();
     /* Init System Pll3 pfd0. */
+    // FlexSPI1 clock source opt3
+    ////////////////////////////////////////////////////////////////////////////
     CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd0, 22);
     /* Init System Pll3 pfd1. */
     CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd1, 33);
     /* Init System Pll3 pfd2. */
-    CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd2, 26);
+    // FlexSPI2 clock source opt2
+    ////////////////////////////////////////////////////////////////////////////
+    CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd2, 22);
     /* Init System Pll3 pfd3. */
     CLOCK_InitPfd(kCLOCK_PllSys3, kCLOCK_Pfd3, 18);
 
