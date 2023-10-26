@@ -272,7 +272,7 @@ void mfb_flash_show_registers_for_issi(bool isOctalFlash)
             regAccess.regAddr = 0x00000000 + idx;
             regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
             flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-            mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+            mfb_printf("MFB: Flash Volatile Configuration Register (0x%x): 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
         }
         
         regAccess.regAddr = 0x00000000;

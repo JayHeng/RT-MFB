@@ -177,6 +177,22 @@ const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x12, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xED),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x04),
+
+    /* READ CONFIGURATION REGISTER */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 0] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x15, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xEA),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x08),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* READ CONFIGURATION REGISTER 2 */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2 + 0] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x71, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x8E),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x08),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2 + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
 #endif
 
@@ -269,6 +285,8 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
 #endif
 }
 
+const uint32_t mxic_octal_cfg_reg2_addrs[] = {0x00000000u, 0x00000200, 0x00000300, 0x00000400, 0x00000500, 0x00000800, 0x00000c00, 0x00000d00, 0x00000e00, 0x00000f00, 0x40000000, 0x80000000};
+
 void mfb_flash_show_registers_for_mxic(bool isOctalFlash)
 {
 #if MFB_FLASH_REGS_READBACK_ENABLE
@@ -283,6 +301,27 @@ void mfb_flash_show_registers_for_mxic(bool isOctalFlash)
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
         flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Configuration Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+    }
+    else
+    {
+        regAccess.regNum = 1;
+        regAccess.regAddr = 0x0;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+
+        regAccess.regAddr = 0x01000000;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Configuration Register (0x%x): 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+
+        for (uint32_t idx = 0; idx <= sizeof(mxic_octal_cfg_reg2_addrs)/sizeof(uint32_t); idx++)
+        {
+            regAccess.regAddr = mxic_octal_cfg_reg2_addrs[idx];
+            regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
+            flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+            mfb_printf("MFB: Flash Configuration Register 2 (0x%x): 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        }
     }
 #endif
 }
