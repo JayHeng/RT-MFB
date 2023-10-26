@@ -184,6 +184,14 @@ const uint32_t s_customLUT_GIGADEVICE_Octal[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x70, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x10),
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Read Extended Addr Register */
+    /*
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0xC8, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x10),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+    */
 };
 #endif
 
