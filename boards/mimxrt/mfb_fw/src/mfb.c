@@ -467,6 +467,8 @@ void mfb_main(void)
                 {
 #if !MFB_FLASH_OPI_MODE_DISABLE
                     mfb_printf("MFB: Flash remained in default OPI DDR mode.\r\n");
+                    /* Read internal regiters of Flash */
+                    mfb_flash_show_registers(&jedecID, true);
 #else
 #warning "Do not support loopback dqs option when flash default state in OPI DDR"
 #endif
