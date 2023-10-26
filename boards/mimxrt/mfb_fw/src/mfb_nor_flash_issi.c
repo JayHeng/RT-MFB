@@ -79,6 +79,7 @@ const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
     /*  DDR OCTAL I/O FAST READ */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0xFD, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
+    // Don't care the dummy value setting here, as it uses external DQS
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04),
 #else
@@ -261,34 +262,19 @@ void mfb_flash_show_registers_for_issi(bool isOctalFlash)
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
         flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
-        regAccess.regAddr = 0x00000000;
-        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-        regAccess.regAddr = 0x00000001;
-        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-        regAccess.regAddr = 0x00000003;
-        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-        regAccess.regAddr = 0x00000004;
-        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-        regAccess.regAddr = 0x00000005;
-        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-        regAccess.regAddr = 0x00000006;
-        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
-        regAccess.regAddr = 0x00000007;
-        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
-        mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        
+        for (uint32_t idx = 0; idx <= 0x11; idx++)
+        {
+            if (!(idx != 2 && idx != 4 && idx != 8 && idx != 9))
+            {
+                continue;
+            }
+            regAccess.regAddr = 0x00000000 + idx;
+            regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+            flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+            mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        }
+        
         regAccess.regAddr = 0x00000000;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
         flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);

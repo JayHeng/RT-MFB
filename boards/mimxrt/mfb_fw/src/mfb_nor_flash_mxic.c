@@ -98,6 +98,7 @@ const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
     /* OPI DDR read */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xEE, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x11),
+    // Don't care the dummy value setting here, as it uses external DQS
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x08),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] =

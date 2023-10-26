@@ -78,6 +78,7 @@ const uint32_t s_customLUT_WINBOND_Octal[CUSTOM_LUT_LENGTH] = {
     /*  DDR OCTAL I/O FAST READ */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0xFD, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
+    // Don't care the dummy value setting here, as it uses external DQS
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04),
 #else
