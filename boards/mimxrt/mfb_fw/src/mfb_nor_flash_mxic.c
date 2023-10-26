@@ -258,7 +258,7 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
         g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_50MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackInternally;
 #else
-        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_400MHz;
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_332MHz;
         g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
         if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_400MHz)
 #endif

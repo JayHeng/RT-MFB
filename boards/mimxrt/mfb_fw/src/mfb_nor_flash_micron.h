@@ -17,7 +17,7 @@
 #define MICRON_FLASH_BUSY_STATUS_POL    1
 #define MICRON_FLASH_BUSY_STATUS_OFFSET 0
 
-#if MICRON_DEVICE_MT25QU128
+#if MICRON_DEVICE_MT25QU128 | MICRON_DEVICE_MT25QL256
 #define MICRON_FLASH_QUAD_ENABLE        0x00
 
 //------------------------------------------------------

@@ -218,7 +218,9 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
         case 0x66:
             g_flashPropertyInfo.flashHasQpiSupport = true;
             g_flashPropertyInfo.flexspiReadSampleClock = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+#if GIGADEVICE_DEVICE_GD25LT256
             g_flashPropertyInfo.flashQuadEnableCfg = GIGADEVICE_25LT_FLASH_QUAD_ENABLE;
+#endif
             g_flashPropertyInfo.flashQuadEnableBytes = 0;
             mfb_printf(" -- GD25LT/GD55LT QuadSPI 1.8V Series.\r\n");
             break;
@@ -237,7 +239,7 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
             break;
     }
     mfb_flash_show_mem_size(jedecID->capacityID, false);
-#if GIGADEVICE_DEVICE_Quad
+#if GIGADEVICE_DEVICE_QUAD
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;

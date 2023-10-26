@@ -147,10 +147,10 @@ typedef struct _flash_reg_access
 ////////////////////////////////////////////////////////////////////////////////
 #define GIGADEVICE_DEVICE_SERIES    (1)
 #define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
-#define GIGADEVICE_DEVICE_Quad      (1)
+#define GIGADEVICE_DEVICE_QUAD      (1)
 #define GIGADEVICE_DEVICE_GD25Q80E  (1)  // MIMXRT1040-EVK(Rework)
-#define GIGADEVICE_DEVICE_GD25LE128 (1)  // MIMXRT1180-MEM-BB&DS
-#define GIGADEVICE_DEVICE_GD25LT256 (1)  // MIMXRT1180-MEM-BB&DS
+#define GIGADEVICE_DEVICE_GD25LE128 (0)  // MIMXRT1180-MEM-BB&DS
+#define GIGADEVICE_DEVICE_GD25LT256 (0)  // MIMXRT1180-MEM-BB&DS
 #define GIGADEVICE_DEVICE_OCTAL     (1)
 #define GIGADEVICE_DEVICE_GD25LX256 (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////
@@ -169,8 +169,8 @@ typedef struct _flash_reg_access
 #define MICRON_DEVICE_MT25QU128     (1)  // MIMXRT1180-MEM-BB&DS
 #define MICRON_DEVICE_MT25QL256     (0)  // MIMXRT1170-EVKB(Rework)
 #define MICRON_DEVICE_OCTAL         (1)
-#define MICRON_DEVICE_MT35XU512_RW303 (0)  // MIMXRT1180-MEM-BB&DS
-#define MICRON_DEVICE_MT35XU512_RW304 (1)  // MIMXRT1180-EVK
+#define MICRON_DEVICE_MT35XU512_RW303 (1)  // MIMXRT1180-MEM-BB&DS
+#define MICRON_DEVICE_MT35XU512_RW304 (0)  // MIMXRT1180-EVK
 #define MICRON_OCTAL_FLASH_JEDEC_ID (0x001a5B2C)
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
@@ -191,7 +191,8 @@ typedef struct _flash_reg_access
 #define SPANSION_DEVICE_S25FL064L   (1)
 #define SPANSION_DEVICE_OCTAL       (0)
 #define SPANSION_DEVICE_S28HS512    (0)
-//#define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
+#define SPANSION_DEVICE_HYPERBUS    (0)
+#define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
    
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \

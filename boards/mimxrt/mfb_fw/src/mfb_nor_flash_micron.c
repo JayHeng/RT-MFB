@@ -21,7 +21,7 @@
  * Variables
  ******************************************************************************/
 
-#if MICRON_DEVICE_MT25QU128
+#if MICRON_DEVICE_MT25QU128 | MICRON_DEVICE_MT25QL256
 const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
