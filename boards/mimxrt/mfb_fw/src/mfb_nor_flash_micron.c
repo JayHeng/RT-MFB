@@ -60,6 +60,7 @@ const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH] = {
     /*  DDR OCTAL I/O FAST READ */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0xFD, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
+    // Don't care the dummy value setting here, as it uses external DQS
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04),
 #else
@@ -132,6 +133,16 @@ const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x12, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* READ VOLATILE CONFIGURATION REGISTER */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x85, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* READ FLAG STATUS REGISTER */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x70, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01),
 };
 #endif
 
@@ -198,6 +209,42 @@ void mfb_flash_set_param_for_micron(jedec_id_t *jedecID)
         {
             g_flashPropertyInfo.flashDummyValue = MICRON_OCTAL_FLASH_SET_DUMMY_CMD;
         }
+    }
+#endif
+}
+
+void mfb_flash_show_registers_for_micron(bool isOctalFlash)
+{
+#if MFB_FLASH_REGS_READBACK_ENABLE
+    flash_reg_access_t regAccess;
+    if (!isOctalFlash)
+    {
+
+    }
+    else
+    {
+        regAccess.regNum = 1;
+        regAccess.regAddr = 0x0;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+
+        for (uint32_t idx = 0; idx <= 0x07; idx++)
+        {
+            if (!(idx != 2 && idx != 4))
+            {
+                continue;
+            }
+            regAccess.regAddr = 0x00000000 + idx;
+            regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+            flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+            mfb_printf("MFB: Flash Volatile Configuration Register 0x%x: 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
+        }
+
+        regAccess.regAddr = 0x00000000;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
     }
 #endif
 }

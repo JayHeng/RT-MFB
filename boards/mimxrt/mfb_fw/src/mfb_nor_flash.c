@@ -168,6 +168,7 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
         // Micron
         case MICRON_DEVICE_VENDOR_ID:
         case MICRON_DEVICE_VENDOR_ID2:
+            mfb_flash_show_registers_for_micron(isOctalFlash);
             break;
 #endif // MICRON_DEVICE_SERIES
 
