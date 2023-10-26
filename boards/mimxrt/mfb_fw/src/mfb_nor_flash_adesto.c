@@ -6,7 +6,7 @@
  */
 
 #include "mfb_nor_flash_adesto.h"
-#if ADESTO_DEVICE_SERIE
+#if ADESTO_DEVICE_SERIES
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -128,5 +128,5 @@ void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID)
 #endif
 }
 
-#endif // ADESTO_DEVICE_SERIE
+#endif // ADESTO_DEVICE_SERIES
 

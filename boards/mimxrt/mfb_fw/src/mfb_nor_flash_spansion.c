@@ -6,7 +6,7 @@
  */
 
 #include "mfb_nor_flash_spansion.h"
-#if SPANSION_DEVICE_SERIE
+#if SPANSION_DEVICE_SERIES
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -183,6 +183,14 @@ const uint32_t s_customLUT_SPANSION_Octal[CUSTOM_LUT_LENGTH] = {
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x12, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x12),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x18, kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x04),
+
+    /* READ ANY REGISTER */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 0] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x65, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x65),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x08),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 };
 #endif
 
@@ -308,8 +316,33 @@ void mfb_flash_show_registers_for_spansion(bool isOctalFlash)
         flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Protection Register (PR): 0x%x\r\n", regAccess.regValue.B.reg1);
     }
+    else
+    {
+        regAccess.regNum = 1;
+        regAccess.regAddr = 0x0;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register 1: 0x%x\r\n", regAccess.regValue.B.reg1);
+
+        //regAccess.regAddr = 0x00800000;
+        //regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        //flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        //mfb_printf("MFB: Flash Status Register 1: 0x%x\r\n", regAccess.regValue.B.reg1);
+        regAccess.regAddr = 0x00800001;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register 2: 0x%x\r\n", regAccess.regValue.B.reg1);
+
+        for (uint32_t idx = 2; idx <= 6; idx++)
+        {
+            regAccess.regAddr = 0x00800000 + idx;
+            regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+            flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+            mfb_printf("MFB: Flash Configuration Register %d: 0x%x\r\n", idx - 1, regAccess.regValue.B.reg1);
+        }
+    }
 #endif
 }
 
-#endif // SPANSION_DEVICE_SERIE
+#endif // SPANSION_DEVICE_SERIES
 

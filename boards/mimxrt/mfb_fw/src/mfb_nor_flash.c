@@ -172,19 +172,20 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
             break;
 #endif // MICRON_DEVICE_SERIES
 
-#if ADESTO_DEVICE_SERIE
+#if ADESTO_DEVICE_SERIES
         // Adesto
         case ADESTO_DEVICE_VENDOR_ID:
         case ADESTO_DEVICE_VENDOR_ID2:
             break;
-#endif // ADESTO_DEVICE_SERIE
+#endif // ADESTO_DEVICE_SERIES
 
-#if SPANSION_DEVICE_SERIE
+#if SPANSION_DEVICE_SERIES
         // Spansion
         case SPANSION_DEVICE_VENDOR_ID:
+        case INFINEON_DEVICE_VENDOR_ID:
             mfb_flash_show_registers_for_spansion(isOctalFlash);
             break;
-#endif // SPANSION_DEVICE_SERIE
+#endif // SPANSION_DEVICE_SERIES
 
         default:
             break;

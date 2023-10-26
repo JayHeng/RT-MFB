@@ -349,21 +349,21 @@ void mfb_main(void)
                 break;
 #endif // MICRON_DEVICE_SERIES
 
-#if ADESTO_DEVICE_SERIE
+#if ADESTO_DEVICE_SERIES
             // Adesto
             case ADESTO_DEVICE_VENDOR_ID:
             case ADESTO_DEVICE_VENDOR_ID2:
                 mfb_flash_set_param_for_adesto(&jedecID);
                 break;
-#endif // ADESTO_DEVICE_SERIE
+#endif // ADESTO_DEVICE_SERIES
 
-#if SPANSION_DEVICE_SERIE
+#if SPANSION_DEVICE_SERIES
             // Spansion
             case SPANSION_DEVICE_VENDOR_ID:
             case INFINEON_DEVICE_VENDOR_ID:
                 mfb_flash_set_param_for_spansion(&jedecID);
                 break;
-#endif // SPANSION_DEVICE_SERIE
+#endif // SPANSION_DEVICE_SERIES
 
             default:
                 mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");

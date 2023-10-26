@@ -173,7 +173,7 @@ typedef struct _flash_reg_access
 #define MICRON_DEVICE_MT35XU512_RW304 (0)  // MIMXRT1180-EVK
 #define MICRON_OCTAL_FLASH_JEDEC_ID (0x001a5B2C)
 ////////////////////////////////////////////////////////////////////////////////
-#define ADESTO_DEVICE_SERIE         (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
+#define ADESTO_DEVICE_SERIES        (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
 #define ADESTO_DEVICE_VENDOR_ID     (0x1F)
 #define ADESTO_DEVICE_VENDOR_ID2    (0x43)
 #define DIALOG_DEVICE_VENDOR_ID     (0x1F)
@@ -183,7 +183,7 @@ typedef struct _flash_reg_access
 #define ADESTO_DEVICE_OCTAL         (0)
 #define ADESTO_DEVICE_ATXP032       (0)  // Adesto octal flash is EOL
 ////////////////////////////////////////////////////////////////////////////////
-#define SPANSION_DEVICE_SERIE       (1)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon in 2019
+#define SPANSION_DEVICE_SERIES      (1)  // Spansion is acquired by Cypress in 2014, Cypress is acquired by Infineon in 2019
 #define SPANSION_DEVICE_VENDOR_ID   (0x01)
 #define CYPRESS_DEVICE_VENDOR_ID    (0x01)
 #define INFINEON_DEVICE_VENDOR_ID   (0x34)
@@ -254,7 +254,7 @@ extern void mfb_flash_set_param_for_micron(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_micron(bool isOctalFlash);
 #endif
 extern void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID);
-#if SPANSION_DEVICE_SERIE
+#if SPANSION_DEVICE_SERIES
 extern void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_spansion(bool isOctalFlash);
 #endif

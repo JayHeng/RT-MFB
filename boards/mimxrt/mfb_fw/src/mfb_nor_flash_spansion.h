@@ -40,7 +40,7 @@
 // CFR5N/V
 // bit0 - SPI/OPI enable
 // bit1 - SDR/DDR enable
-#define SPANSION_OCTAL_FLASH_ENABLE_DDR_CMD     0x03
+#define SPANSION_OCTAL_FLASH_ENABLE_DDR_CMD     0x43
 
 //------------------------------------------------------------------------------
 //CFR2N/V[3:0]|  dummy cycles  |  Octal SDR(8S-8S-8S)   |Octal SPI SDR(1S-1S-8S)|
