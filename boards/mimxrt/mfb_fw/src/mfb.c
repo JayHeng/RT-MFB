@@ -360,6 +360,7 @@ void mfb_main(void)
 #if SPANSION_DEVICE_SERIE
             // Spansion
             case SPANSION_DEVICE_VENDOR_ID:
+            case INFINEON_DEVICE_VENDOR_ID:
                 mfb_flash_set_param_for_spansion(&jedecID);
                 break;
 #endif // SPANSION_DEVICE_SERIE

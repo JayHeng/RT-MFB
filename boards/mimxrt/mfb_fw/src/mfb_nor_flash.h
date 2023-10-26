@@ -189,8 +189,8 @@ typedef struct _flash_reg_access
 #define INFINEON_DEVICE_VENDOR_ID   (0x34)
 #define SPANSION_DEVICE_QUAD        (1)
 #define SPANSION_DEVICE_S25FL064L   (1)
-#define SPANSION_DEVICE_OCTAL       (0)
-#define SPANSION_DEVICE_S28HS512    (0)
+#define SPANSION_DEVICE_OCTAL       (1)
+#define SPANSION_DEVICE_S28HS512    (1)
 #define SPANSION_DEVICE_HYPERBUS    (0)
 #define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB
    

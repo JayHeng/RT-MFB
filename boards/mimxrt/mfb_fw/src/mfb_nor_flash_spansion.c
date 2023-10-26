@@ -97,6 +97,95 @@ const uint32_t s_customLUT_SPANSION_Quad[CUSTOM_LUT_LENGTH] = {
 };
 #endif
 
+#if SPANSION_DEVICE_S28HS512
+const uint32_t s_customLUT_SPANSION_Octal[CUSTOM_LUT_LENGTH] = {
+#if !MFB_FLASH_OPI_MODE_DISABLE
+    /*  DDR OCTAL I/O FAST READ */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xEE, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xEE),
+    // Don't care the dummy value setting here, as it uses external DQS
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x18, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x06),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+#else
+    /*  3-BYTE READ (1S-1S-8S) */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x7C, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_8PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+#endif
+
+    /* Read status register -SPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x01),
+
+    /* Write Enable - SPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Set Dummy cycle */
+    // Volatile Configuration Register address 800003h - Dummy cycle configuration
+    //   - Default dummy cycle for OPI DDR is 20, max freq is 200MHz
+    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x71, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x80),
+    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x03),
+    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Erase Sector - SPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x21, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+
+    /* 3-BYTE Page Program - SPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x12, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Dummy write, do nothing when AHB write command is triggered. */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /* Enter OPI mode */
+    // Volatile Configuration Register address 800006h - I/O mode
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x71, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x80),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x06),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Read status register using Octal DDR read */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 2] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 3] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x01),
+
+    /* Write Enable - OPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x06),
+
+    /* Erase Sector - OPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x21, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x21),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x18, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* 3-BYTE Page Program - OPI */
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x12, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x12),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x18, kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x04),
+};
+#endif
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -117,6 +206,14 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
             mfb_printf(" -- S25FL-L QuadSPI 3.3V Series.\r\n");
             break;
         ////////////////////////OctalSPI////////////////////////
+        case 0x5A:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- S28HL OctalSPI 3.3V Series.\r\n");
+            break;
+        case 0x5B:
+            g_flashPropertyInfo.flashIsOctal = true;
+            mfb_printf(" -- S28HS OctalSPI 1.8V Series.\r\n");
+            break;
         default:
             mfb_printf(" -- Unsupported Series.\r\n");
             break;
@@ -130,6 +227,27 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
         g_flashPropertyInfo.flashBusyStatusPol         = SPANSION_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset      = SPANSION_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_SPANSION_Quad;
+    }
+#endif
+#if SPANSION_DEVICE_OCTAL
+    if (g_flashPropertyInfo.flashIsOctal)
+    {
+        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
+        g_flashPropertyInfo.flashBusyStatusPol         = SPANSION_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset      = SPANSION_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd        = SPANSION_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_SPANSION_Octal;
+#if MFB_FLASH_OPI_MODE_DISABLE
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_30MHz;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+#else
+        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_100MHz;
+        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+        if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_400MHz)
+#endif
+        {
+            g_flashPropertyInfo.flashDummyValue = SPANSION_OCTAL_FLASH_SET_DUMMY_CMD;
+        }
     }
 #endif
 }

@@ -14,11 +14,11 @@
  * Definitions
  ******************************************************************************/
 
-#if SPANSION_DEVICE_S25FL064L
-#define SPANSION_25FL_L_FLASH_QUAD_ENABLE    0x0200
 #define SPANSION_FLASH_BUSY_STATUS_POL    1
 #define SPANSION_FLASH_BUSY_STATUS_OFFSET 0
 
+#if SPANSION_DEVICE_S25FL064L
+#define SPANSION_25FL_L_FLASH_QUAD_ENABLE    0x0200
 //------------------------------------------------------
 // CR3NV[3:0] |  dummy cycles  |Quad IO Fast Read(SPI) |
 //            |                |Quad IO Fast Read(QPI) |
@@ -34,6 +34,28 @@
 //   ...      |       ..       |        108MHz         |
 //  4'b1111   |       15       |        108MHz         |
 //------------------------------------------------------------------------------
+#endif
+
+#if SPANSION_DEVICE_S28HS512
+// CFR5N/V
+// bit0 - SPI/OPI enable
+// bit1 - SDR/DDR enable
+#define SPANSION_OCTAL_FLASH_ENABLE_DDR_CMD     0x03
+
+//------------------------------------------------------------------------------
+//CFR2N/V[3:0]|  dummy cycles  |  Octal SDR(8S-8S-8S)   |Octal SPI SDR(1S-1S-8S)|
+//            |                |  Octal DDR(8D-8D-8D)   |                       |
+//            |                |        BGA24           |                       |
+//-------------------------------------------------------------------------------
+//    0x0     |      5/0       |        42/50MHz        |           50MHz       |
+//  0x8(def)  |     20/8       |      166/200MHz        |         156MHz        |
+//    0xf     |     28/15      |         200MHz         |         166MHz        |
+//-------------------------------------------------------------------------------
+#if MFB_FLASH_OPI_MODE_DISABLE
+#define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#else
+#define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x08   // 200MHz OPI DDR
+#endif
 #endif
 /*******************************************************************************
  * Variables
