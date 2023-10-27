@@ -53,8 +53,9 @@
 //    0x9     |     22/9       |      200/192MHz        |         166MHz        |
 //    0xf     |     28/15      |         200MHz         |         166MHz        |
 //-------------------------------------------------------------------------------
+// bit7 - 3B/4B addr
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x09
+#define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x89
 #else
 #define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x08   // 200MHz OPI DDR
 #endif
