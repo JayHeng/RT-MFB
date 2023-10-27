@@ -55,6 +55,10 @@ const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH] = {
     // opcode 0x01/0x31/0x11 to write Status Registers (1/2/3)
     [4 * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x31, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
+
+    /* Read status register */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x03),
 };
 #endif
 
@@ -124,6 +128,23 @@ void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID)
         g_flashPropertyInfo.flashQuadEnableCfg         = ADESTO_FLASH_QUAD_ENABLE;
         g_flashPropertyInfo.flashQuadEnableBytes       = 1;
         g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_ADESTO_Quad;
+    }
+#endif
+}
+
+void mfb_flash_show_registers_for_adesto(bool isOctalFlash)
+{
+#if MFB_FLASH_REGS_READBACK_ENABLE
+    flash_reg_access_t regAccess;
+    if (!isOctalFlash)
+    {
+        regAccess.regNum = 3;
+        regAccess.regAddr = 0x0;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register [7:0]: 0x%x\r\n", regAccess.regValue.B.reg1);
+        mfb_printf("MFB: Flash Status Register [15:8]: 0x%x\r\n", regAccess.regValue.B.reg2);
+        mfb_printf("MFB: Flash Status Register [23:16]: 0x%x\r\n", regAccess.regValue.B.reg3);
     }
 #endif
 }

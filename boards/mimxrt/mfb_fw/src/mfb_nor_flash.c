@@ -176,6 +176,7 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
         // Adesto
         case ADESTO_DEVICE_VENDOR_ID:
         case ADESTO_DEVICE_VENDOR_ID2:
+            mfb_flash_show_registers_for_adesto(isOctalFlash);
             break;
 #endif // ADESTO_DEVICE_SERIES
 

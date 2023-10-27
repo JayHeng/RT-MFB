@@ -253,7 +253,10 @@ extern void mfb_flash_show_registers_for_issi(bool isOctalFlash);
 extern void mfb_flash_set_param_for_micron(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_micron(bool isOctalFlash);
 #endif
+#if ADESTO_DEVICE_SERIES
 extern void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_adesto(bool isOctalFlash);
+#endif
 #if SPANSION_DEVICE_SERIES
 extern void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_spansion(bool isOctalFlash);
