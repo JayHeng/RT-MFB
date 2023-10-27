@@ -40,6 +40,7 @@
 // CFR5N/V
 // bit0 - SPI/OPI enable
 // bit1 - SDR/DDR enable
+// bit6 - reserved 1
 #define SPANSION_OCTAL_FLASH_ENABLE_DDR_CMD     0x43
 
 //------------------------------------------------------------------------------
@@ -47,12 +48,13 @@
 //            |                |  Octal DDR(8D-8D-8D)   |                       |
 //            |                |        BGA24           |                       |
 //-------------------------------------------------------------------------------
-//    0x0     |      5/0       |        42/50MHz        |           50MHz       |
-//  0x8(def)  |     20/8       |      166/200MHz        |         156MHz        |
+//    0x0     |      5/0       |        50/42MHz        |           50MHz       |
+//  0x8(def)  |     20/8       |      200/178MHz        |         156MHz        |
+//    0x9     |     22/9       |      200/192MHz        |         166MHz        |
 //    0xf     |     28/15      |         200MHz         |         166MHz        |
 //-------------------------------------------------------------------------------
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x09
 #else
 #define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x08   // 200MHz OPI DDR
 #endif
