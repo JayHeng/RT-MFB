@@ -398,7 +398,7 @@ void mfb_main(void)
             if (g_flashPropertyInfo.flashDummyValue != DUMMY_VALUE_INVALID)
             {
                 flexspi_nor_set_dummy_cycle(EXAMPLE_FLEXSPI, (uint8_t)(g_flashPropertyInfo.flashDummyValue & 0xFF));
-                mfb_printf("MFB: Flash dummy cycle is set to %d.\r\n", g_flashPropertyInfo.flashDummyValue);
+                mfb_printf("MFB: Flash register (with dummy cycle) is set to %d.\r\n", g_flashPropertyInfo.flashDummyValue);
             }
             if (!g_flashPropertyInfo.flashIsOctal)
             {
