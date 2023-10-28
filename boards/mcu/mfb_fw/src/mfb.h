@@ -40,7 +40,7 @@
 // Whether to use fake jedec id (appliable when there is no id in flash device)
 #define MFB_FLASH_FAKE_JEDEC_ID_ENABLE   (0)
 // Whether to show flash internal registers
-#define MFB_FLASH_REGS_READBACK_ENABLE   (0)
+#define MFB_FLASH_REGS_READBACK_ENABLE   (1)
 
 // Supported Flexspi clock defn
 typedef enum _flexspi_root_clk_freq
