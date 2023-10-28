@@ -84,7 +84,7 @@ bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode)
     for (uint32_t sectorId = 0; sectorId < sectorMax; sectorId++)
     {
         uint32_t sectorAddr = MFB_FLASH_ACCESS_REGION_START + sectorId * SECTOR_SIZE;
-        status_t status = flexspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, sectorAddr, flashInstMode);
+        status_t status = mixspi_nor_flash_erase_sector(EXAMPLE_FLEXSPI, sectorAddr, flashInstMode);
         if (status != kStatus_Success)
         {
             mfb_printf("MFB: Erase flash sector failure at address 0x%x!\r\n", sectorAddr);
@@ -94,7 +94,7 @@ bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode)
         {
             uint32_t pageAddr = sectorAddr + pageId * FLASH_PAGE_SIZE;
             mfb_flash_handle_one_pattern_page(pageAddr, true, false);
-            status = flexspi_nor_flash_page_program(EXAMPLE_FLEXSPI, pageAddr, (const uint32_t *)g_flashRwBuffer, FLASH_PAGE_SIZE, flashInstMode);
+            status = mixspi_nor_flash_page_program(EXAMPLE_FLEXSPI, pageAddr, (const uint32_t *)g_flashRwBuffer, FLASH_PAGE_SIZE, flashInstMode);
             if (status != kStatus_Success)
             {
                 mfb_printf("MFB: Program flash page failure at address 0x%x!\r\n", pageAddr);

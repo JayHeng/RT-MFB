@@ -25,6 +25,7 @@
 #if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
 #define flexspi_pad_t                mixspi_pad_t
 #define flexspi_read_sample_clock_t  mixspi_read_sample_clock_t
+#define FLEXSPI_Type                 MIXSPI_Type
 #endif
 
 /*******************************************************************************

@@ -92,7 +92,7 @@ static void cpu_show_clock_source(void)
 #endif
 }
 
-static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
+static void mixspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
 {
     rgpio_pin_config_t do_config = {kRGPIO_DigitalOutput, 0};
     if (base == FLEXSPI1)
@@ -161,7 +161,7 @@ static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi
     }
 }
 
-static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
+static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
 {
     CLOCK_EnableClock(kCLOCK_Iomuxc1);          /* Turn on LPCG: LPCG is ON. */
     CLOCK_EnableClock(kCLOCK_Iomuxc2);          /* Turn on LPCG: LPCG is ON. */
@@ -286,7 +286,7 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
     }
 }
 
-static void flexspi_clock_init(FLEXSPI_Type *base, mixspi_root_clk_freq_t clkFreq)
+static void mixspi_clock_init(FLEXSPI_Type *base, mixspi_root_clk_freq_t clkFreq)
 {
     clock_root_config_t rootCfg = {0};
     if (base == FLEXSPI1)
@@ -496,7 +496,7 @@ static void flexspi_clock_init(FLEXSPI_Type *base, mixspi_root_clk_freq_t clkFre
     }
 }
 
-static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
+static uint32_t mixspi_get_clock(FLEXSPI_Type *base)
 {
     if (base == FLEXSPI1)
     {
@@ -512,7 +512,7 @@ static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
     }
 }
 
-static void flexspi_show_clock_source(FLEXSPI_Type *base)
+static void mixspi_show_clock_source(FLEXSPI_Type *base)
 {
 #if MFB_DEBUG_LOG_INFO_ENABLE
     uint32_t index = 0;
@@ -576,11 +576,11 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
     index = (root - kCLOCK_Root_Flexspi1) + 1;
     uint32_t clkDiv = CLOCK_GetRootClockDiv(root);
     mfb_printf("MFB: FLEXSPI%d Clk Source Divider: %d.\r\n", index, clkDiv);
-    mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, flexspi_get_clock(EXAMPLE_FLEXSPI));
+    mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, mixspi_get_clock(EXAMPLE_FLEXSPI));
 #endif
 }
 
-static void flexspi_sw_delay_us(uint64_t us)
+static void mixspi_sw_delay_us(uint64_t us)
 {
     uint32_t ticks_per_us = CLOCK_GetFreq(kCLOCK_CpuClk) / 1000000;
     while (us--)

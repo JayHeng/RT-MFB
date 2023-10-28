@@ -98,11 +98,11 @@ static void cpu_show_clock_source(void)
 #endif
 }
 
-static void flexspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
+static void mixspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
 {
 }
 
-static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
+static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
 {
     CLOCK_EnableClock(kCLOCK_Iomuxc);           /* LPCG on: LPCG is ON. */
     if (base == FLEXSPI1)
@@ -144,7 +144,7 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
     }
 }
 
-static void flexspi_clock_init(FLEXSPI_Type *base, mixspi_root_clk_freq_t clkFreq)
+static void mixspi_clock_init(FLEXSPI_Type *base, mixspi_root_clk_freq_t clkFreq)
 {
     clock_root_config_t rootCfg = {0};
     if (base == FLEXSPI1)
@@ -284,7 +284,7 @@ static void flexspi_clock_init(FLEXSPI_Type *base, mixspi_root_clk_freq_t clkFre
     }
 }
 
-static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
+static uint32_t mixspi_get_clock(FLEXSPI_Type *base)
 {
     if (base == FLEXSPI1)
     {
@@ -300,7 +300,7 @@ static uint32_t flexspi_get_clock(FLEXSPI_Type *base)
     }
 }
 
-static void flexspi_show_clock_source(FLEXSPI_Type *base)
+static void mixspi_show_clock_source(FLEXSPI_Type *base)
 {
 #if MFB_DEBUG_LOG_INFO_ENABLE
     uint32_t index = 0;
@@ -400,7 +400,7 @@ static void flexspi_show_clock_source(FLEXSPI_Type *base)
 #endif
 }
 
-static void flexspi_sw_delay_us(uint64_t us)
+static void mixspi_sw_delay_us(uint64_t us)
 {
     uint32_t ticks_per_us = CLOCK_GetFreq(kCLOCK_CpuClk) / 1000000;
     while (us--)

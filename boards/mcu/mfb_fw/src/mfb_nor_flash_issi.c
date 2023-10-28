@@ -246,13 +246,13 @@ void mfb_flash_show_registers_for_issi(bool isOctalFlash)
         regAccess.regNum = 1;
         regAccess.regAddr = 0x0;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Function Register: 0x%x\r\n", regAccess.regValue.B.reg1);
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Read Parameters: 0x%x\r\n", regAccess.regValue.B.reg1);
     }
     else
@@ -260,7 +260,7 @@ void mfb_flash_show_registers_for_issi(bool isOctalFlash)
         regAccess.regNum = 1;
         regAccess.regAddr = 0x0;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
         
         for (uint32_t idx = 0; idx <= 0x11; idx++)
@@ -271,13 +271,13 @@ void mfb_flash_show_registers_for_issi(bool isOctalFlash)
             }
             regAccess.regAddr = 0x00000000 + idx;
             regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-            flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+            mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
             mfb_printf("MFB: Flash Volatile Configuration Register (0x%x): 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
         }
         
         regAccess.regAddr = 0x00000000;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
-        flexspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
         mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
     }
 #endif

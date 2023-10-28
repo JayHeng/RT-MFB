@@ -21,7 +21,7 @@ extern flexspi_device_config_t g_deviceconfig;
 /*******************************************************************************
  * Code
  ******************************************************************************/
-void flexspi_nor_disable_cache(flexspi_cache_status_t *cacheStatus)
+void mixspi_nor_disable_cache(flexspi_cache_status_t *cacheStatus)
 {
 #if (defined __CORTEX_M) && (__CORTEX_M == 7U)
 #if defined(__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
@@ -62,7 +62,7 @@ void flexspi_nor_disable_cache(flexspi_cache_status_t *cacheStatus)
 #endif
 }
 
-void flexspi_nor_enable_cache(flexspi_cache_status_t cacheStatus)
+void mixspi_nor_enable_cache(flexspi_cache_status_t cacheStatus)
 {
 #if (defined __CORTEX_M) && (__CORTEX_M == 7U)
 #if defined(__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
@@ -102,7 +102,7 @@ void flexspi_nor_enable_cache(flexspi_cache_status_t cacheStatus)
 #endif
 }
 
-status_t flexspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, flash_inst_mode_t flashInstMode)
+status_t mixspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, flash_inst_mode_t flashInstMode)
 {
     flexspi_transfer_t flashXfer;
     status_t status;
@@ -134,7 +134,7 @@ status_t flexspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, flash_i
     return status;
 }
 
-status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashInstMode)
+status_t mixspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashInstMode)
 {
     /* Wait status ready. */
     bool isBusy;
@@ -201,7 +201,7 @@ status_t flexspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashIn
     return status;
 }
 
-status_t flexspi_nor_enable_qpi_mode(FLEXSPI_Type *base)
+status_t mixspi_nor_enable_qpi_mode(FLEXSPI_Type *base)
 {
     flexspi_transfer_t flashXfer;
     status_t status;
@@ -218,7 +218,7 @@ status_t flexspi_nor_enable_qpi_mode(FLEXSPI_Type *base)
     return status;
 }
 
-static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess)
+static status_t mixspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess)
 {
     flexspi_transfer_t flashXfer;
     status_t status;
@@ -230,13 +230,13 @@ static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
     flexspi_cache_status_t cacheStatus;
-    flexspi_nor_disable_cache(&cacheStatus);
+    mixspi_nor_disable_cache(&cacheStatus);
 #endif
 
     uint32_t writeValue = regAccess->regValue.U;
 
     /* Write enable */
-    status = flexspi_nor_write_enable(base, 0, kFlashInstMode_SPI);
+    status = mixspi_nor_write_enable(base, 0, kFlashInstMode_SPI);
 
     if (status != kStatus_Success)
     {
@@ -260,53 +260,53 @@ static status_t flexspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_
     if ((regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_SETDUMMY) || \
         (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_ENABLEQE))
     {
-        status = flexspi_nor_wait_bus_busy(base, kFlashInstMode_SPI);
-        flexspi_sw_delay_us(100UL);
+        status = mixspi_nor_wait_bus_busy(base, kFlashInstMode_SPI);
+        mixspi_sw_delay_us(100UL);
     }
     else if (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_ENTEROPI)
     {
-        status = flexspi_nor_wait_bus_busy(base, kFlashInstMode_OPI);
-        flexspi_sw_delay_us(100UL);
+        status = mixspi_nor_wait_bus_busy(base, kFlashInstMode_OPI);
+        mixspi_sw_delay_us(100UL);
     }
 
     /* Do software reset. */
     FLEXSPI_SoftwareReset(base);
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-    flexspi_nor_enable_cache(cacheStatus);
+    mixspi_nor_enable_cache(cacheStatus);
 #endif
 
     return status;
 }
 
-status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
+status_t mixspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
 {
     flash_reg_access_t regAccess;
     regAccess.regNum = 1;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_SETDUMMY;
     regAccess.regValue.U = dummyCmd;
-    return flexspi_nor_write_register(base, &regAccess);
+    return mixspi_nor_write_register(base, &regAccess);
 }
 
-status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base)
+status_t mixspi_nor_enable_quad_mode(FLEXSPI_Type *base)
 {
     flash_reg_access_t regAccess;
     regAccess.regNum = g_flashPropertyInfo.flashQuadEnableBytes;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_ENABLEQE;
     regAccess.regValue.U = g_flashPropertyInfo.flashQuadEnableCfg;
-    return flexspi_nor_write_register(base, &regAccess);
+    return mixspi_nor_write_register(base, &regAccess);
 }
 
-status_t flexspi_nor_enable_opi_mode(FLEXSPI_Type *base)
+status_t mixspi_nor_enable_opi_mode(FLEXSPI_Type *base)
 {
     flash_reg_access_t regAccess;
     regAccess.regNum = 1;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_ENTEROPI;
     regAccess.regValue.U = g_flashPropertyInfo.flashEnableOctalCmd;
-    return flexspi_nor_write_register(base, &regAccess);
+    return mixspi_nor_write_register(base, &regAccess);
 }
 
-status_t flexspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess)
+status_t mixspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess)
 {
     uint32_t regVal = 0;
     flexspi_transfer_t flashXfer;
@@ -334,18 +334,18 @@ status_t flexspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAc
     return status;
 }
 
-status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode)
+status_t mixspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode)
 {
     status_t status;
     flexspi_transfer_t flashXfer;
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
     flexspi_cache_status_t cacheStatus;
-    flexspi_nor_disable_cache(&cacheStatus);
+    mixspi_nor_disable_cache(&cacheStatus);
 #endif
 
     /* Write enable */
-    status = flexspi_nor_write_enable(base, address, flashInstMode);
+    status = mixspi_nor_write_enable(base, address, flashInstMode);
 
     if (status != kStatus_Success)
     {
@@ -379,30 +379,30 @@ status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, fl
         return status;
     }
 
-    status = flexspi_nor_wait_bus_busy(base, flashInstMode);
+    status = mixspi_nor_wait_bus_busy(base, flashInstMode);
 
     /* Do software reset. */
     FLEXSPI_SoftwareReset(base);
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-    flexspi_nor_enable_cache(cacheStatus);
+    mixspi_nor_enable_cache(cacheStatus);
 #endif
 
     return status;
 }
 
-status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode)
+status_t mixspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode)
 {
     status_t status;
     flexspi_transfer_t flashXfer;
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
     flexspi_cache_status_t cacheStatus;
-    flexspi_nor_disable_cache(&cacheStatus);
+    mixspi_nor_disable_cache(&cacheStatus);
 #endif
 
     /* Write enable */
-    status = flexspi_nor_write_enable(base, address, flashInstMode);
+    status = mixspi_nor_write_enable(base, address, flashInstMode);
 
     if (status != kStatus_Success)
     {
@@ -439,7 +439,7 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
         return status;
     }
 
-    status = flexspi_nor_wait_bus_busy(base, flashInstMode);
+    status = mixspi_nor_wait_bus_busy(base, flashInstMode);
 
     /* Do software reset or clear AHB buffer directly. */
 #if defined(FSL_FEATURE_SOC_OTFAD_COUNT) && defined(FLEXSPI_AHBCR_CLRAHBRXBUF_MASK) && \
@@ -451,7 +451,7 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
 #endif
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-    flexspi_nor_enable_cache(cacheStatus);
+    mixspi_nor_enable_cache(cacheStatus);
 #endif
 
     return status;
@@ -460,7 +460,7 @@ status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, co
 #if defined(__ICCARM__)
 #pragma optimize = none
 #endif
-status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode)
+status_t mixspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode)
 {
     uint32_t temp = 0;
     flexspi_transfer_t flashXfer;
@@ -497,13 +497,13 @@ status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_i
     return status;
 }
 
-void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock)
+void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock)
 {
     flexspi_config_t config;
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
     flexspi_cache_status_t cacheStatus;
-    flexspi_nor_disable_cache(&cacheStatus);
+    mixspi_nor_disable_cache(&cacheStatus);
 #endif
 
     /*Get FLEXSPI default settings and configure the flexspi. */
@@ -542,6 +542,6 @@ void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexs
 #endif
 
 #if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
-    flexspi_nor_enable_cache(cacheStatus);
+    mixspi_nor_enable_cache(cacheStatus);
 #endif
 }

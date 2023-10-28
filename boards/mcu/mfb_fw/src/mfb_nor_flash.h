@@ -215,15 +215,15 @@ extern flash_property_info_t g_flashPropertyInfo;
  * Prototypes
  ******************************************************************************/
 
-extern status_t flexspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
-extern status_t flexspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd);
-extern status_t flexspi_nor_enable_quad_mode(FLEXSPI_Type *base);
-extern status_t flexspi_nor_enable_qpi_mode(FLEXSPI_Type *base);
-extern status_t flexspi_nor_enable_opi_mode(FLEXSPI_Type *base);
-extern status_t flexspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode);
-extern status_t flexspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode);
-extern void flexspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock);
-extern status_t flexspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess);
+extern status_t mixspi_nor_get_jedec_id(MIXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
+extern status_t mixspi_nor_set_dummy_cycle(MIXSPI_Type *base, uint8_t dummyCmd);
+extern status_t mixspi_nor_enable_quad_mode(MIXSPI_Type *base);
+extern status_t mixspi_nor_enable_qpi_mode(MIXSPI_Type *base);
+extern status_t mixspi_nor_enable_opi_mode(MIXSPI_Type *base);
+extern status_t mixspi_nor_flash_erase_sector(MIXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode);
+extern status_t mixspi_nor_flash_page_program(MIXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode);
+extern void mixspi_nor_flash_init(MIXSPI_Type *base, const uint32_t *customLUT, mixspi_read_sample_clock_t rxSampleClock);
+extern status_t mixspi_nor_read_register(MIXSPI_Type *base, flash_reg_access_t *regAccess);
 
 extern uint32_t mfb_decode_common_capacity_id(uint8_t capacityID);
 extern uint32_t mfb_decode_adesto_capacity_id(uint8_t capacityID);
