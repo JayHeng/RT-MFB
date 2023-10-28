@@ -115,35 +115,35 @@ int mfb_printf(const char *fmt_s, ...)
     return 0;
 }
 
-uint32_t decode_flexspi_root_clk_defn(flexspi_root_clk_freq_t flexspiRootClkFreq)
+uint32_t decode_flexspi_root_clk_defn(mixspi_root_clk_freq_t mixspiRootClkFreq)
 {
-    switch(flexspiRootClkFreq)
+    switch(mixspiRootClkFreq)
     {
-        case kFlexspiRootClkFreq_50MHz: 
+        case kMixspiRootClkFreq_50MHz: 
             return 50;
-        case kFlexspiRootClkFreq_60MHz: 
+        case kMixspiRootClkFreq_60MHz: 
             return 60;
-        case kFlexspiRootClkFreq_80MHz: 
+        case kMixspiRootClkFreq_80MHz: 
             return 80;
-        case kFlexspiRootClkFreq_100MHz: 
+        case kMixspiRootClkFreq_100MHz: 
             return 100;
-        case kFlexspiRootClkFreq_120MHz: 
+        case kMixspiRootClkFreq_120MHz: 
             return 120;
-        case kFlexspiRootClkFreq_133MHz: 
+        case kMixspiRootClkFreq_133MHz: 
             return 133;
-        case kFlexspiRootClkFreq_166MHz: 
+        case kMixspiRootClkFreq_166MHz: 
             return 166;
-        case kFlexspiRootClkFreq_200MHz: 
+        case kMixspiRootClkFreq_200MHz: 
             return 200;
-        case kFlexspiRootClkFreq_240MHz: 
+        case kMixspiRootClkFreq_240MHz: 
             return 240;
-        case kFlexspiRootClkFreq_266MHz: 
+        case kMixspiRootClkFreq_266MHz: 
             return 266;
-        case kFlexspiRootClkFreq_332MHz: 
+        case kMixspiRootClkFreq_332MHz: 
             return 332;
-        case kFlexspiRootClkFreq_400MHz: 
+        case kMixspiRootClkFreq_400MHz: 
             return 400;
-        case kFlexspiRootClkFreq_30MHz:
+        case kMixspiRootClkFreq_30MHz:
         default:
             return 30;
     }
@@ -226,7 +226,7 @@ void mfb_main(void)
     flexspi_port_switch(EXAMPLE_FLEXSPI, FLASH_PORT, kFLEXSPI_1PAD);
     mfb_printf("MFB: Set FlexSPI root clock to 30MHz.\r\n");
     /* Move FlexSPI clock to a stable clock source */ 
-    flexspi_clock_init(EXAMPLE_FLEXSPI, kFlexspiRootClkFreq_30MHz);
+    flexspi_clock_init(EXAMPLE_FLEXSPI, kMixspiRootClkFreq_30MHz);
     /* Update root clock */
     g_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
     /* Show FlexSPI clock source */
@@ -303,9 +303,9 @@ void mfb_main(void)
         /* Set default paramenters */
         g_flashPropertyInfo.flashHasQpiSupport = false;
         g_flashPropertyInfo.flashIsOctal = false;
-        g_flashPropertyInfo.flexspiPad = kFLEXSPI_4PAD;
-        g_flashPropertyInfo.flexspiRootClkFreq = kFlexspiRootClkFreq_100MHz;
-        g_flashPropertyInfo.flexspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.mixspiPad = kFLEXSPI_4PAD;
+        g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+        g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
         g_flashPropertyInfo.flashDummyValue = DUMMY_VALUE_INVALID;
         /* Get real flash size according to jedec id result (it may not be appliable to some specifal adesto device) */
         g_flashPropertyInfo.flashMemSizeInByte = mfb_decode_common_capacity_id(jedecID.capacityID);
@@ -387,12 +387,12 @@ void mfb_main(void)
         }
         if (sta_isValidVendorId)
         {
-            mfb_printf("\r\nMFB: Set FlexSPI port to %d-bit pad.\r\n", 1u << (uint32_t)g_flashPropertyInfo.flexspiPad);
+            mfb_printf("\r\nMFB: Set FlexSPI port to %d-bit pad.\r\n", 1u << (uint32_t)g_flashPropertyInfo.mixspiPad);
             /* Configure FlexSPI pinmux as user prescriptive */
-            flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, g_flashPropertyInfo.flexspiPad);
+            flexspi_pin_init(EXAMPLE_FLEXSPI, FLASH_PORT, g_flashPropertyInfo.mixspiPad);
             g_deviceconfig.flashSize = g_flashPropertyInfo.flashMemSizeInByte / 0x400;
             /* Re-init FlexSPI using custom LUT */
-            flexspi_nor_flash_init(EXAMPLE_FLEXSPI, g_flashPropertyInfo.flexspiCustomLUTVendor, g_flashPropertyInfo.flexspiReadSampleClock);
+            flexspi_nor_flash_init(EXAMPLE_FLEXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock);
             mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
             /* Write dummy cycle value into flash if needed */
             if (g_flashPropertyInfo.flashDummyValue != DUMMY_VALUE_INVALID)
@@ -504,15 +504,15 @@ void mfb_main(void)
                         /* Get perf test result under Multi I/O fast read mode and pre-set speed*/
                         mfb_flash_memcpy_perf_test(false);
 
-                        mfb_printf("\r\nMFB: Set FlexSPI root clock to %dMHz.\r\n", decode_flexspi_root_clk_defn(g_flashPropertyInfo.flexspiRootClkFreq));
+                        mfb_printf("\r\nMFB: Set FlexSPI root clock to %dMHz.\r\n", decode_flexspi_root_clk_defn(g_flashPropertyInfo.mixspiRootClkFreq));
                         /* Configure FlexSPI clock as user prescriptive */ 
-                        flexspi_clock_init(EXAMPLE_FLEXSPI, g_flashPropertyInfo.flexspiRootClkFreq);
+                        flexspi_clock_init(EXAMPLE_FLEXSPI, g_flashPropertyInfo.mixspiRootClkFreq);
                         /* Update root clock */
                         g_deviceconfig.flexspiRootClk = flexspi_get_clock(EXAMPLE_FLEXSPI);
                         /* Show FlexSPI clock source */
                         flexspi_show_clock_source(EXAMPLE_FLEXSPI);
                         /* Re-init FlexSPI using custom LUT */
-                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, g_flashPropertyInfo.flexspiCustomLUTVendor, g_flashPropertyInfo.flexspiReadSampleClock);
+                        flexspi_nor_flash_init(EXAMPLE_FLEXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock);
                         mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
 
                         round = 2;

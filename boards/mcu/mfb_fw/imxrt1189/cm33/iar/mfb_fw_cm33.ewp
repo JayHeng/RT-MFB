@@ -4547,6 +4547,9 @@
             <name>$PROJ_DIR$\..\..\..\src\mfb.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_adapter.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_flexspi_nor_ops.c</name>
         </file>
         <file>

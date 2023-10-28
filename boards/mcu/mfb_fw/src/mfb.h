@@ -9,6 +9,7 @@
 #define _MFB_H_
 
 #include <stdint.h>
+#include "mfb_adapter.h"
 
 /*******************************************************************************
  * Definitions
@@ -40,25 +41,25 @@
 // Whether to use fake jedec id (appliable when there is no id in flash device)
 #define MFB_FLASH_FAKE_JEDEC_ID_ENABLE   (0)
 // Whether to show flash internal registers
-#define MFB_FLASH_REGS_READBACK_ENABLE   (1)
+#define MFB_FLASH_REGS_READBACK_ENABLE   (0)
 
-// Supported Flexspi clock defn
-typedef enum _flexspi_root_clk_freq
+// Supported Mixspi clock defn
+typedef enum _mixspi_root_clk_freq
 {
-    kFlexspiRootClkFreq_30MHz  = 1,
-    kFlexspiRootClkFreq_50MHz  = 2,
-    kFlexspiRootClkFreq_60MHz  = 3,
-    kFlexspiRootClkFreq_80MHz  = 4,
-    kFlexspiRootClkFreq_100MHz = 5,
-    kFlexspiRootClkFreq_120MHz = 6,
-    kFlexspiRootClkFreq_133MHz = 7,
-    kFlexspiRootClkFreq_166MHz = 8,
-    kFlexspiRootClkFreq_200MHz = 9,
-    kFlexspiRootClkFreq_240MHz = 10,
-    kFlexspiRootClkFreq_266MHz = 11,
-    kFlexspiRootClkFreq_332MHz = 12,
-    kFlexspiRootClkFreq_400MHz = 13,
-} flexspi_root_clk_freq_t;
+    kMixspiRootClkFreq_30MHz  = 1,
+    kMixspiRootClkFreq_50MHz  = 2,
+    kMixspiRootClkFreq_60MHz  = 3,
+    kMixspiRootClkFreq_80MHz  = 4,
+    kMixspiRootClkFreq_100MHz = 5,
+    kMixspiRootClkFreq_120MHz = 6,
+    kMixspiRootClkFreq_133MHz = 7,
+    kMixspiRootClkFreq_166MHz = 8,
+    kMixspiRootClkFreq_200MHz = 9,
+    kMixspiRootClkFreq_240MHz = 10,
+    kMixspiRootClkFreq_266MHz = 11,
+    kMixspiRootClkFreq_332MHz = 12,
+    kMixspiRootClkFreq_400MHz = 13,
+} mixspi_root_clk_freq_t;
 
 /*******************************************************************************
  * Variables

@@ -210,7 +210,7 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
             // GD25D DualSPI
             mfb_printf(" -- GD25Q/GD25B/GD25S QuadSPI 3.3V Series.\r\n");
             g_flashPropertyInfo.flashHasQpiSupport = false;
-            g_flashPropertyInfo.flexspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+            g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
             g_flashPropertyInfo.flashQuadEnableCfg = GIGADEVICE_25LE_25Q_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
             break;
@@ -223,7 +223,7 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
         case 0x60:
             // GD25LD DualSPI
             g_flashPropertyInfo.flashHasQpiSupport = true;
-            g_flashPropertyInfo.flexspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+            g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
             g_flashPropertyInfo.flashQuadEnableCfg = GIGADEVICE_25LE_25Q_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
             mfb_printf(" -- GD25LE/GD25LQ QuadSPI 1.8V Series.\r\n");
@@ -237,7 +237,7 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
             break;
         case 0x66:
             g_flashPropertyInfo.flashHasQpiSupport = true;
-            g_flashPropertyInfo.flexspiReadSampleClock = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+            g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
 #if GIGADEVICE_DEVICE_GD25LT256
             g_flashPropertyInfo.flashQuadEnableCfg = GIGADEVICE_25LT_FLASH_QUAD_ENABLE;
 #endif
@@ -262,28 +262,28 @@ void mfb_flash_set_param_for_gigadevice(jedec_id_t *jedecID)
 #if GIGADEVICE_DEVICE_QUAD
     if (!g_flashPropertyInfo.flashIsOctal)
     {
-        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
-        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_120MHz;
+        g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_4PAD;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_120MHz;
         g_flashPropertyInfo.flashBusyStatusPol         = GIGADEVICE_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset      = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_GIGADEVICE_Quad;
+        g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_GIGADEVICE_Quad;
     }
 #endif
 #if GIGADEVICE_DEVICE_OCTAL
     if (g_flashPropertyInfo.flashIsOctal)
     {
-        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
+        g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_8PAD;
         g_flashPropertyInfo.flashBusyStatusPol         = GIGADEVICE_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset      = GIGADEVICE_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flashEnableOctalCmd        = GIGADEVICE_OCTAL_FLASH_ENABLE_DDR_CMD;
-        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_GIGADEVICE_Octal;
+        g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_GIGADEVICE_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
-        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_30MHz;
-        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_30MHz;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
 #else
-        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_332MHz;
-        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
-        if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_400MHz)
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_332MHz;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+        if (g_flashPropertyInfo.mixspiRootClkFreq == kMixspiRootClkFreq_400MHz)
 #endif
         {
             g_flashPropertyInfo.flashDummyValue = GIGADEVICE_OCTAL_FLASH_SET_DUMMY_CMD;

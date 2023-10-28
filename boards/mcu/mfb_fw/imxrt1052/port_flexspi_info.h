@@ -152,86 +152,86 @@ static void flexspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pa
     }
 }
 
-static void flexspi_clock_init(FLEXSPI_Type *base, flexspi_root_clk_freq_t clkFreq)
+static void flexspi_clock_init(FLEXSPI_Type *base, mixspi_root_clk_freq_t clkFreq)
 {
     if (base == FLEXSPI)
     {
         const clock_usb_pll_config_t g_ccmConfigUsbPll = {.loopDivider = 0U};
         CLOCK_InitUsb1Pll(&g_ccmConfigUsbPll);
         // 480*18/PFDx_FRAC where PFDx_FRAC is in the range 12-35.
-        if (clkFreq == kFlexspiRootClkFreq_30MHz)
+        if (clkFreq == kMixspiRootClkFreq_30MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 30);   /* Set PLL3 PFD0 clock 288MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 7);   /* flexspi clock 36M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_50MHz)
+        else if (clkFreq == kMixspiRootClkFreq_50MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 22);   /* Set PLL3 PFD0 clock 392.7MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 7);   /* flexspi clock 49.1M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_60MHz)
+        else if (clkFreq == kMixspiRootClkFreq_60MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 18);   /* Set PLL3 PFD0 clock 480MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 7);   /* flexspi clock 60M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_80MHz)
+        else if (clkFreq == kMixspiRootClkFreq_80MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 18);   /* Set PLL3 PFD0 clock 480MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 5);   /* flexspi clock 80M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_100MHz)
+        else if (clkFreq == kMixspiRootClkFreq_100MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 13);   /* Set PLL3 PFD0 clock 664.6MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 6);   /* flexspi clock 94.9M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_120MHz)
+        else if (clkFreq == kMixspiRootClkFreq_120MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 18);   /* Set PLL3 PFD0 clock 480MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 3);   /* flexspi clock 120M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_133MHz)
+        else if (clkFreq == kMixspiRootClkFreq_133MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 33);   /* Set PLL3 PFD0 clock 261.8MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 1);   /* flexspi clock 130.9M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_166MHz)
+        else if (clkFreq == kMixspiRootClkFreq_166MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 26);   /* Set PLL3 PFD0 clock 332.3MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 1);   /* flexspi clock 166.1M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_200MHz)
+        else if (clkFreq == kMixspiRootClkFreq_200MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 22);   /* Set PLL3 PFD0 clock 392.7MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 1);   /* flexspi clock 196.3M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_240MHz)
+        else if (clkFreq == kMixspiRootClkFreq_240MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 18);   /* Set PLL3 PFD0 clock 480MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 1);   /* flexspi clock 240M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_266MHz)
+        else if (clkFreq == kMixspiRootClkFreq_266MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 33);   /* Set PLL3 PFD0 clock 261.8MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 0);   /* flexspi clock 261.8M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_332MHz)
+        else if (clkFreq == kMixspiRootClkFreq_332MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 26);   /* Set PLL3 PFD0 clock 332.3MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */
             CLOCK_SetDiv(kCLOCK_FlexspiDiv, 0);   /* flexspi clock 332.3M. */
         }
-        else if (clkFreq == kFlexspiRootClkFreq_400MHz)
+        else if (clkFreq == kMixspiRootClkFreq_400MHz)
         {
             CLOCK_InitUsb1Pfd(kCLOCK_Pfd0, 22);   /* Set PLL3 PFD0 clock 392.7MHZ. */
             CLOCK_SetMux(kCLOCK_FlexspiMux, 0x3); /* Choose PLL3 PFD0 clock as flexspi source clock. */

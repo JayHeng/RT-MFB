@@ -207,31 +207,31 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
 #if WINBOND_DEVICE_QUAD
     if (!g_flashPropertyInfo.flashIsOctal)
     {
-        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_4PAD;
-        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_100MHz;
-        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_4PAD;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_100MHz;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
         g_flashPropertyInfo.flashBusyStatusPol         = WINBOND_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset      = WINBOND_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flashQuadEnableCfg         = WINBOND_FLASH_QUAD_ENABLE;
         g_flashPropertyInfo.flashQuadEnableBytes       = 1;
-        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_WINBOND_Quad;
+        g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_WINBOND_Quad;
     }
 #endif
 #if WINBOND_DEVICE_OCTAL
     if (g_flashPropertyInfo.flashIsOctal)
     {
-        g_flashPropertyInfo.flexspiPad                 = kFLEXSPI_8PAD;
+        g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_8PAD;
         g_flashPropertyInfo.flashBusyStatusPol         = WINBOND_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset      = WINBOND_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flashEnableOctalCmd        = WINBOND_OCTAL_FLASH_ENABLE_DDR_CMD;
-        g_flashPropertyInfo.flexspiCustomLUTVendor     = s_customLUT_WINBOND_Octal;
+        g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_WINBOND_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
-        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_30MHz;
-        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_30MHz;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
 #else
-        g_flashPropertyInfo.flexspiRootClkFreq         = kFlexspiRootClkFreq_332MHz;
-        g_flashPropertyInfo.flexspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
-        if (g_flashPropertyInfo.flexspiRootClkFreq == kFlexspiRootClkFreq_400MHz)
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_332MHz;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+        if (g_flashPropertyInfo.mixspiRootClkFreq == kMixspiRootClkFreq_400MHz)
 #endif
         {
             g_flashPropertyInfo.flashDummyValue = WINBOND_OCTAL_FLASH_SET_DUMMY_CMD;

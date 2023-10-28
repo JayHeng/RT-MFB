@@ -44,10 +44,10 @@ typedef enum _flash_inst_mode
 // Flash property info for operation
 typedef struct _flash_property_info
 {
-    flexspi_pad_t               flexspiPad;
-    flexspi_root_clk_freq_t     flexspiRootClkFreq;
-    flexspi_read_sample_clock_t flexspiReadSampleClock;
-    const uint32_t             *flexspiCustomLUTVendor;
+    mixspi_pad_t                mixspiPad;
+    mixspi_root_clk_freq_t      mixspiRootClkFreq;
+    mixspi_read_sample_clock_t  mixspiReadSampleClock;
+    const uint32_t             *mixspiCustomLUTVendor;
 
     bool     flashIsOctal;
     bool     flashHasQpiSupport;
