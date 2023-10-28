@@ -22,13 +22,13 @@
  * Definitions
  ******************************************************************************/
 /*${macro:start}*/
-#define EXAMPLE_FLEXSPI                 FLEXSPI0
+#define EXAMPLE_MIXSPI                  FLEXSPI0
 #define EXAMPLE_CACHE                   CACHE64_CTRL0
-#define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI0_AMBA_BASE
-#define FLASH_PAGE_SIZE                 256
-#define SECTOR_SIZE                     0x1000 /* 4K */
-#define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_FlexSpi0
-#define FLASH_PORT                      kFLEXSPI_PortA1
+#define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI0_AMBA_BASE
+#define EXAMPLE_FLASH_PAGE_SIZE         256
+#define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
+#define EXAMPLE_MIXSPI_CLOCK            kCLOCK_FlexSpi0
+#define EXAMPLE_MIXSPI_PORT             kFLEXSPI_PortA1
 
 #define CACHE_MAINTAIN           1
 #define EXAMPLE_INVALIDATE_FLEXSPI_CACHE()                                                                          \

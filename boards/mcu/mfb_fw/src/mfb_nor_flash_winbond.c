@@ -249,13 +249,13 @@ void mfb_flash_show_registers_for_winbond(bool isOctalFlash)
         regAccess.regNum = 1;
         regAccess.regAddr = 0x0;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS;
-        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register [7:0]: 0x%x\r\n", regAccess.regValue.B.reg1);
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register [15:8]: 0x%x\r\n", regAccess.regValue.B.reg1);
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
-        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register [23:16]: 0x%x\r\n", regAccess.regValue.B.reg1);
     }
     else
@@ -263,20 +263,20 @@ void mfb_flash_show_registers_for_winbond(bool isOctalFlash)
         regAccess.regNum = 1;
         regAccess.regAddr = 0x0;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI;
-        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
 
         for (uint32_t idx = 0; idx <= 0x07; idx++)
         {
             regAccess.regAddr = 0x00000000 + idx;
             regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-            mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+            mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
             mfb_printf("MFB: Flash Volatile Configuration Register (0x%x): 0x%x\r\n", regAccess.regAddr, regAccess.regValue.B.reg1);
         }
 
         regAccess.regAddr = 0x00000000;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
-        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Flag Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
     }
 #endif

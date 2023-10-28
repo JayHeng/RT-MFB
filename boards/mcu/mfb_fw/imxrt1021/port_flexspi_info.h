@@ -17,13 +17,13 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define EXAMPLE_FLEXSPI                 FLEXSPI
+#define EXAMPLE_MIXSPI                  FLEXSPI
 #define FLASH_SIZE                      0x2000 /* 64Mb/KByte */
-#define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI_AMBA_BASE
-#define FLASH_PAGE_SIZE                 256
-#define SECTOR_SIZE                     0x1000 /* 4K */
-#define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_FlexSpi
-#define FLASH_PORT                      kFLEXSPI_PortA1
+#define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI_AMBA_BASE
+#define EXAMPLE_FLASH_PAGE_SIZE         256
+#define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
+#define EXAMPLE_MIXSPI_CLOCK            kCLOCK_FlexSpi
+#define EXAMPLE_MIXSPI_PORT             kFLEXSPI_PortA1
 
 /*
  * If cache is enabled, this example should maintain the cache to make sure

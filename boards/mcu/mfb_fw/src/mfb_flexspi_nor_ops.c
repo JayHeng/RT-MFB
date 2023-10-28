@@ -109,7 +109,7 @@ status_t mixspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, flash_in
 
     /* Write enable */
     flashXfer.deviceAddress = baseAddr;
-    flashXfer.port          = FLASH_PORT;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Command;
     flashXfer.SeqNumber     = 1;
     switch (flashInstMode)
@@ -143,7 +143,7 @@ status_t mixspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashIns
     flexspi_transfer_t flashXfer;
 
     flashXfer.deviceAddress = 0;
-    flashXfer.port          = FLASH_PORT;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Read;
     flashXfer.SeqNumber     = 1;
     switch (flashInstMode)
@@ -208,7 +208,7 @@ status_t mixspi_nor_enable_qpi_mode(FLEXSPI_Type *base)
 
     /* Write enable */
     flashXfer.deviceAddress = 0;
-    flashXfer.port          = FLASH_PORT;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Command;
     flashXfer.SeqNumber     = 1;
     flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ENTERQPI;
@@ -244,7 +244,7 @@ static status_t mixspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t
     }
 
     flashXfer.deviceAddress = 0;
-    flashXfer.port          = FLASH_PORT;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Write;
     flashXfer.SeqNumber     = 1;
     flashXfer.seqIndex      = regAccess->regSeqIdx;
@@ -311,7 +311,7 @@ status_t mixspi_nor_read_register(FLEXSPI_Type *base, flash_reg_access_t *regAcc
     uint32_t regVal = 0;
     flexspi_transfer_t flashXfer;
     flashXfer.deviceAddress = regAccess->regAddr;
-    flashXfer.port          = FLASH_PORT;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Read;
     flashXfer.SeqNumber     = 1;
     flashXfer.seqIndex      = regAccess->regSeqIdx;
@@ -353,7 +353,7 @@ status_t mixspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, fla
     }
 
     flashXfer.deviceAddress = address;
-    flashXfer.port          = FLASH_PORT;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Command;
     flashXfer.SeqNumber     = 1;
     switch (flashInstMode)
@@ -411,7 +411,7 @@ status_t mixspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, con
 
     /* Prepare page program command */
     flashXfer.deviceAddress = address;
-    flashXfer.port          = FLASH_PORT;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Write;
     flashXfer.SeqNumber     = 1;
     switch (flashInstMode)
@@ -465,7 +465,7 @@ status_t mixspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_in
     uint32_t temp = 0;
     flexspi_transfer_t flashXfer;
     flashXfer.deviceAddress = 0;
-    flashXfer.port          = FLASH_PORT;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Read;
     flashXfer.SeqNumber     = 1;
     switch (flashInstMode)
@@ -513,7 +513,7 @@ void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexsp
     config.ahbConfig.enableAHBPrefetch = true;
     config.rxSampleClock               = rxSampleClock;
 #if !(defined(FSL_FEATURE_FLEXSPI_HAS_NO_MCR0_COMBINATIONEN) && FSL_FEATURE_FLEXSPI_HAS_NO_MCR0_COMBINATIONEN)
-    flexspi_port_t port = FLASH_PORT;
+    flexspi_port_t port = EXAMPLE_MIXSPI_PORT;
     if ((port == kFLEXSPI_PortA1) || (port == kFLEXSPI_PortA2))
     {
         config.enableCombination = true;
@@ -528,7 +528,7 @@ void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexsp
     FLEXSPI_Init(base, &config);
 
     /* Configure flash settings according to serial flash feature. */
-    FLEXSPI_SetFlashConfig(base, &g_deviceconfig, FLASH_PORT);
+    FLEXSPI_SetFlashConfig(base, &g_deviceconfig, EXAMPLE_MIXSPI_PORT);
 
     /* Update LUT table into a specific mode, such as octal SDR mode or octal DDR mode based on application's
      * requirement. */

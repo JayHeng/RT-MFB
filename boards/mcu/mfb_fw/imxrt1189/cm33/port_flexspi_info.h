@@ -18,13 +18,13 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define EXAMPLE_FLEXSPI                 FLEXSPI1
+#define EXAMPLE_MIXSPI                  FLEXSPI1
 #define FLASH_SIZE                      0x4000 /* 16Mb/KByte */
-#define EXAMPLE_FLEXSPI_AMBA_BASE       FlexSPI1_AMBA_BASE
-#define FLASH_PAGE_SIZE                 256
-#define SECTOR_SIZE                     0x1000 /* 4K */
-#define EXAMPLE_FLEXSPI_CLOCK           kCLOCK_Flexspi1
-#define FLASH_PORT                      kFLEXSPI_PortA1
+#define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI1_AMBA_BASE
+#define EXAMPLE_FLASH_PAGE_SIZE         256
+#define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
+#define EXAMPLE_MIXSPI_CLOCK            kCLOCK_Flexspi1
+#define EXAMPLE_MIXSPI_PORT             kFLEXSPI_PortA1
 
 //#define BOARD_IS_RT1180_EVK_PORTA_QUAD      (0)
 //#define BOARD_IS_RT1180_EVK_PORTA_OCTAL     (0)
@@ -576,7 +576,7 @@ static void mixspi_show_clock_source(FLEXSPI_Type *base)
     index = (root - kCLOCK_Root_Flexspi1) + 1;
     uint32_t clkDiv = CLOCK_GetRootClockDiv(root);
     mfb_printf("MFB: FLEXSPI%d Clk Source Divider: %d.\r\n", index, clkDiv);
-    mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, mixspi_get_clock(EXAMPLE_FLEXSPI));
+    mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, mixspi_get_clock(EXAMPLE_MIXSPI));
 #endif
 }
 

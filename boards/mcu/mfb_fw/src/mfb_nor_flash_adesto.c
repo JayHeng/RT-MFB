@@ -141,7 +141,7 @@ void mfb_flash_show_registers_for_adesto(bool isOctalFlash)
         regAccess.regNum = 3;
         regAccess.regAddr = 0x0;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
-        mixspi_nor_read_register(EXAMPLE_FLEXSPI, &regAccess);
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register [7:0]: 0x%x\r\n", regAccess.regValue.B.reg1);
         mfb_printf("MFB: Flash Status Register [15:8]: 0x%x\r\n", regAccess.regValue.B.reg2);
         mfb_printf("MFB: Flash Status Register [23:16]: 0x%x\r\n", regAccess.regValue.B.reg3);

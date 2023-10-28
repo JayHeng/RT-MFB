@@ -35,7 +35,7 @@ void mfb_flash_memcpy_perf_test(bool stressTestEnable)
     uint64_t startTicks = microseconds_get_ticks();
     uint64_t totalSize = (8UL*1024*1024);
     uint32_t loopMax = totalSize / MFB_FLASH_ACCESS_REGION_SIZE;
-    uint32_t unitSize = FLASH_PAGE_SIZE;
+    uint32_t unitSize = EXAMPLE_FLASH_PAGE_SIZE;
     uint32_t idxMax = MFB_FLASH_ACCESS_REGION_SIZE / unitSize;
     uint32_t srcAddr = 0;
 #if MFB_FLASH_MEMCPY_STRESS_ENABLE
@@ -54,7 +54,7 @@ void mfb_flash_memcpy_perf_test(bool stressTestEnable)
             /* Min NOR Flash size is 64KB */
             for (uint32_t idx = 0; idx < idxMax; idx++)
             {
-                srcAddr = EXAMPLE_FLEXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START + idx * unitSize;
+                srcAddr = EXAMPLE_MIXSPI_AMBA_BASE + MFB_FLASH_ACCESS_REGION_START + idx * unitSize;
                 memcpy(g_flashRwBuffer, (uint8_t*)srcAddr, unitSize);
             }
         }
