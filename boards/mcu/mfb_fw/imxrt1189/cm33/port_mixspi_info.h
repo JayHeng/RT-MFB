@@ -5,19 +5,24 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _PORT_FLEXSPI_INFO_H_
-#define _PORT_FLEXSPI_INFO_H_
+#ifndef _PORT_MIXSPI_INFO_H_
+#define _PORT_MIXSPI_INFO_H_
+
+#include "mfb_config.h"
+#include "mfb_define.h"
 
 #include "fsl_clock.h"
 #include "fsl_iomuxc.h"
 #include "fsl_cache.h"
 #include "fsl_rgpio.h"
 #include "fsl_flexspi.h"
-#include "mfb.h"
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+#define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
+
 #define EXAMPLE_MIXSPI                  FLEXSPI1
 #define FLASH_SIZE                      0x4000 /* 16Mb/KByte */
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI1_AMBA_BASE
@@ -593,4 +598,4 @@ static void mixspi_sw_delay_us(uint64_t us)
     }
 }
 
-#endif /* _PORT_FLEXSPI_INFO_H_ */
+#endif /* _PORT_MIXSPI_INFO_H_ */

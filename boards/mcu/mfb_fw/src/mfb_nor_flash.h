@@ -9,9 +9,6 @@
 #define _MFB_NOR_FLASH_H_
 
 #include "mfb.h"
-#include "fsl_common.h"
-#include "fsl_flexspi.h"
-#include "port_flexspi_info.h"
 
 /*******************************************************************************
  * Definitions

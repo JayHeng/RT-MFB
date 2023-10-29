@@ -4382,7 +4382,7 @@
             <name>$PROJ_DIR$\..\pin_mux.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\port_flexspi_info.h</name>
+            <name>$PROJ_DIR$\..\port_mixspi_info.h</name>
         </file>
     </group>
     <group>
@@ -4430,15 +4430,6 @@
             </file>
         </group>
         <group>
-            <name>silicon_id</name>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\..\components\silicon_id\fsl_silicon_id.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\..\components\silicon_id\fsl_silicon_id.h</name>
-            </file>
-        </group>
-        <group>
             <name>uart</name>
             <file>
                 <name>$PROJ_DIR$\..\..\..\..\..\..\components\uart\fsl_adapter_lpuart.c</name>
@@ -4464,12 +4455,6 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT1189\system_MIMXRT1189_cm33.h</name>
-        </file>
-    </group>
-    <group>
-        <name>doc</name>
-        <file>
-            <name>$PROJ_DIR$\..\readme.txt</name>
         </file>
     </group>
     <group>
@@ -4548,6 +4533,12 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_adapter.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_config.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_define.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_flexspi_nor_ops.c</name>

@@ -5,14 +5,17 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _MFB_DEF_H_
-#define _MFB_DEF_H_
+#ifndef _MFB_DEFINE_H_
+#define _MFB_DEFINE_H_
 
 #include <stdint.h>
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+#define MFB_MIXSPI_MODULE_IS_FLEXSPI 0U
+#define MFB_MIXSPI_MODULE_IS_QUADSPI 1U
 
 // MFB cfg block tag
 #define MFB_CFG_BLK_TAG                  (0x4246U)   // Ascii "FB" Big Endian
@@ -46,6 +49,23 @@ typedef struct _mfb_cfg
 // The app image offset in flash device
 #define MFB_APP_CFG_OFFSET               (0x20)
 
+// Supported Mixspi clock defn
+typedef enum _mixspi_root_clk_freq
+{
+    kMixspiRootClkFreq_30MHz  = 1,
+    kMixspiRootClkFreq_50MHz  = 2,
+    kMixspiRootClkFreq_60MHz  = 3,
+    kMixspiRootClkFreq_80MHz  = 4,
+    kMixspiRootClkFreq_100MHz = 5,
+    kMixspiRootClkFreq_120MHz = 6,
+    kMixspiRootClkFreq_133MHz = 7,
+    kMixspiRootClkFreq_166MHz = 8,
+    kMixspiRootClkFreq_200MHz = 9,
+    kMixspiRootClkFreq_240MHz = 10,
+    kMixspiRootClkFreq_266MHz = 11,
+    kMixspiRootClkFreq_332MHz = 12,
+    kMixspiRootClkFreq_400MHz = 13,
+} mixspi_root_clk_freq_t;
 
 /*******************************************************************************
  * Variables
@@ -55,5 +75,6 @@ typedef struct _mfb_cfg
  * Prototypes
  ******************************************************************************/
 
+int mfb_printf(const char *fmt_s, ...);
 
-#endif /* _MFB_DEF_H_ */
+#endif /* _MFB_DEFINE_H_ */

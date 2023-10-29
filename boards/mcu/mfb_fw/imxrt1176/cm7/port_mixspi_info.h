@@ -5,18 +5,23 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _PORT_FLEXSPI_INFO_H_
-#define _PORT_FLEXSPI_INFO_H_
+#ifndef _PORT_MIXSPI_INFO_H_
+#define _PORT_MIXSPI_INFO_H_
+
+#include "mfb_config.h"
+#include "mfb_define.h"
 
 #include "fsl_clock.h"
 #include "fsl_iomuxc.h"
 #include "fsl_cache.h"
 #include "fsl_flexspi.h"
-#include "mfb.h"
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+ 
+ #define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
+ 
 #define EXAMPLE_MIXSPI                  FLEXSPI1
 #define FLASH_SIZE                      0x8000 /* 32MB/KByte */
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI1_AMBA_BASE
@@ -396,7 +401,7 @@ static void mixspi_show_clock_source(FLEXSPI_Type *base)
     index = (root - kCLOCK_Root_Flexspi1) + 1;
     uint32_t clkDiv = CLOCK_GetRootClockDiv(root);
     mfb_printf("MFB: FLEXSPI%d Clk Source Divider: %d.\r\n", index, clkDiv);
-    mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, flexspi_get_clock(EXAMPLE_FLEXSPI));
+    mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, mixspi_get_clock(EXAMPLE_MIXSPI));
 #endif
 }
 
@@ -413,4 +418,4 @@ static void mixspi_sw_delay_us(uint64_t us)
     }
 }
 
-#endif /* _PORT_FLEXSPI_INFO_H_ */
+#endif /* _PORT_MIXSPI_INFO_H_ */

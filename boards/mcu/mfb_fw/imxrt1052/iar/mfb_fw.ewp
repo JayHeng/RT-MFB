@@ -4370,7 +4370,7 @@
             <name>$PROJ_DIR$\..\pin_mux.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\port_flexspi_info.h</name>
+            <name>$PROJ_DIR$\..\port_mixspi_info.h</name>
         </file>
     </group>
     <group>
@@ -4515,6 +4515,12 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_adapter.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_config.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_define.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_flexspi_nor_ops.c</name>

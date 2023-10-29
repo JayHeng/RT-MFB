@@ -5,20 +5,25 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _PORT_FLEXSPI_INFO_H_
-#define _PORT_FLEXSPI_INFO_H_
+#ifndef _PORT_MIXSPI_INFO_H_
+#define _PORT_MIXSPI_INFO_H_
+
+#include "mfb_config.h"
+#include "mfb_define.h"
 
 #include "fsl_clock.h"
 #include "fsl_iomuxc.h"
 #include "fsl_cache.h"
 #include "fsl_flexspi.h"
-#include "mfb.h"
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+#define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
+
 #define EXAMPLE_MIXSPI                  FLEXSPI
-#define FLASH_SIZE                      0x2000 /* 64Mb/KByte */
+#define FLASH_SIZE                      0x4000 /* 128Mb/KByte */
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI_AMBA_BASE
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
@@ -63,23 +68,23 @@ static void mixspi_port_switch(FLEXSPI_Type *base, flexspi_port_t port, flexspi_
 
 static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad_t pads)
 {
-    CLOCK_EnableClock(kCLOCK_Iomuxc);   
+    CLOCK_EnableClock(kCLOCK_Iomuxc);
     if (base == FLEXSPI)
     {
-        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_05_FLEXSPI_A_DQS, 1U); 
-        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_06_FLEXSPI_A_DATA03, 1U); 
-        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_07_FLEXSPI_A_SCLK, 1U); 
-        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_08_FLEXSPI_A_DATA00, 1U); 
-        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_09_FLEXSPI_A_DATA02, 1U); 
-        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_10_FLEXSPI_A_DATA01, 1U); 
-        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_11_FLEXSPI_A_SS0_B, 1U); 
-        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_05_FLEXSPI_A_DQS, 0x10F1U); 
-        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_06_FLEXSPI_A_DATA03, 0x10F1U); 
-        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_07_FLEXSPI_A_SCLK, 0x10F1U); 
-        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_08_FLEXSPI_A_DATA00, 0x10F1U); 
-        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_09_FLEXSPI_A_DATA02, 0x10F1U); 
-        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_10_FLEXSPI_A_DATA01, 0x10F1U); 
-        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_11_FLEXSPI_A_SS0_B, 0x10F1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_06_FLEXSPI_A_SS0_B, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_07_FLEXSPI_A_DATA1, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_08_FLEXSPI_A_DATA2, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_09_FLEXSPI_A_DATA0, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_10_FLEXSPI_A_SCLK, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_11_FLEXSPI_A_DATA3, 1U); 
+        IOMUXC_SetPinMux(IOMUXC_GPIO_SD_12_FLEXSPI_A_DQS, 1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_06_FLEXSPI_A_SS0_B, 0x10E1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_07_FLEXSPI_A_DATA1, 0x10E1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_08_FLEXSPI_A_DATA2, 0x10E1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_09_FLEXSPI_A_DATA0, 0x10E1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_10_FLEXSPI_A_SCLK, 0x10E1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_11_FLEXSPI_A_DATA3, 0x10E1U); 
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_12_FLEXSPI_A_DQS, 0x10E1U);
     }
     else
     {
@@ -196,8 +201,7 @@ static uint32_t mixspi_get_clock(FLEXSPI_Type *base)
 static void mixspi_show_clock_source(FLEXSPI_Type *base)
 {
 #if MFB_DEBUG_LOG_INFO_ENABLE
-    uint32_t index = 0;
-    mfb_printf("MFB: FLEXSPI%d Clk Frequency: %dHz.\r\n", index, flexspi_get_clock(EXAMPLE_FLEXSPI));
+    mfb_printf("MFB: FLEXSPI Clk Frequency: %dHz.\r\n", mixspi_get_clock(EXAMPLE_MIXSPI));
 #endif
 }
 
@@ -214,4 +218,4 @@ static void mixspi_sw_delay_us(uint64_t us)
     }
 }
 
-#endif /* _PORT_FLEXSPI_INFO_H_ */
+#endif /* _PORT_MIXSPI_INFO_H_ */
