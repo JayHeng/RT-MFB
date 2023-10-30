@@ -12,6 +12,8 @@
 #include "mfb_define.h"
 
 #include "fsl_clock.h"
+#include "fsl_port.h"
+#include "pin_mux.h"
 #include "fsl_qspi.h"
 
 /*******************************************************************************
@@ -52,7 +54,46 @@ static void mixspi_pin_init(QuadSPI_Type *base, uint32_t port, uint32_t pads)
 {
     if (base == QuadSPI0)
     {
+        /* Port E Clock Gate Control: Clock enabled */
+        CLOCK_EnableClock(kCLOCK_PortE);
 
+        /* PORTE5 (pin 8) is configured as QSPI0A_SS0_B */
+        PORT_SetPinMux(PORTE, 5U, kPORT_MuxAlt5);
+
+        /* PORTE1 (pin 2) is configured as QSPI0A_SCLK */
+        PORT_SetPinMux(PORTE, 1U, kPORT_MuxAlt5);
+
+        /* PORTE2 (pin 3) is configured as QSPI0A_DATA0 */
+        PORT_SetPinMux(PORTE, 2U, kPORT_MuxAlt5);
+
+        /* PORTE4 (pin 7) is configured as QSPI0A_DATA1 */
+        PORT_SetPinMux(PORTE, 4U, kPORT_MuxAlt5);
+
+        /* PORTE3 (pin 4) is configured as QSPI0A_DATA2 */
+        PORT_SetPinMux(PORTE, 3U, kPORT_MuxAlt5);
+
+        /* PORTE0 (pin 1) is configured as QSPI0A_DATA3 */
+        PORT_SetPinMux(PORTE, 0U, kPORT_MuxAlt5);
+
+
+
+        /* PORTE11 (pin 14) is configured as QSPI0B_SS0_B */
+        PORT_SetPinMux(PORTE, 11U, kPORT_MuxAlt5);
+
+        /* PORTE7 (pin 10) is configured as QSPI0B_SCLK */
+        PORT_SetPinMux(PORTE, 7U, kPORT_MuxAlt5);
+
+        /* PORTE8 (pin 11) is configured as QSPI0B_DATA0 */
+        PORT_SetPinMux(PORTE, 8U, kPORT_MuxAlt5);
+
+        /* PORTE10 (pin 13) is configured as QSPI0B_DATA1 */
+        PORT_SetPinMux(PORTE, 10U, kPORT_MuxAlt5);
+
+        /* PORTE9 (pin 12) is configured as QSPI0B_DATA2 */
+        PORT_SetPinMux(PORTE, 9U, kPORT_MuxAlt5);
+
+        /* PORTE6 (pin 9) is configured as QSPI0B_DATA3 */
+        PORT_SetPinMux(PORTE, 6U, kPORT_MuxAlt5);
     }
     else
     {

@@ -188,6 +188,8 @@ void mfb_main(void)
     BOARD_InitPins();
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
+    
+    mixspi_pin_init(EXAMPLE_MIXSPI, 0, 0);
 
     /*Enable QSPI clock */
     PRINTF("QSPI example started!\r\n");
