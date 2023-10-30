@@ -5,7 +5,7 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include "app.h"
+#include "mfb.h"
 #include "board.h"
 #include "fsl_debug_console.h"
 #include "fsl_qspi.h"
@@ -123,26 +123,26 @@ void qspi_polling(void)
 
 #if !defined(FSL_FEATURE_QSPI_CLOCK_CONTROL_EXTERNAL) || (!FSL_FEATURE_QSPI_CLOCK_CONTROL_EXTERNAL)
     /* Reduce frequency while clock divder is less than 2 */
-    uint8_t qspiClockDiv = ((EXAMPLE_QSPI->MCR & QuadSPI_MCR_SCLKCFG_MASK) >> QuadSPI_MCR_SCLKCFG_SHIFT) + 1U;
+    uint8_t qspiClockDiv = ((EXAMPLE_MIXSPI->MCR & QuadSPI_MCR_SCLKCFG_MASK) >> QuadSPI_MCR_SCLKCFG_SHIFT) + 1U;
     if (qspiClockDiv == 1U)
     {
         /* Reduce the frequency */
         isDivNeedRestore = true;
-        QSPI_Enable(EXAMPLE_QSPI, false);
-        EXAMPLE_QSPI->MCR &= ~QuadSPI_MCR_SCLKCFG_MASK;
-        EXAMPLE_QSPI->MCR |= QuadSPI_MCR_SCLKCFG(1U);
-        QSPI_Enable(EXAMPLE_QSPI, true);
+        QSPI_Enable(EXAMPLE_MIXSPI, false);
+        EXAMPLE_MIXSPI->MCR &= ~QuadSPI_MCR_SCLKCFG_MASK;
+        EXAMPLE_MIXSPI->MCR |= QuadSPI_MCR_SCLKCFG(1U);
+        QSPI_Enable(EXAMPLE_MIXSPI, true);
     }
 #endif
 
 #if defined(FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE)
-    BOARD_SetQspiClock(EXAMPLE_QSPI, CLKCTL0_OSPIFCLKSEL_SEL(0), 10);
+    BOARD_SetQspiClock(EXAMPLE_MIXSPI, CLKCTL0_OSPIFCLKSEL_SEL(0), 10);
 #endif
 
     /* Program pages in a sector */
-    for (i = 0; i < FLASH_SECTORE_SIZE / FLASH_PAGE_SIZE; i++)
+    for (i = 0; i < EXAMPLE_FLASH_SECTOR_SIZE / EXAMPLE_FLASH_PAGE_SIZE; i++)
     {
-        program_page(addr + i * FLASH_PAGE_SIZE, buff);
+        program_page(addr + i * EXAMPLE_FLASH_PAGE_SIZE, buff);
     }
     PRINTF("Program data finished!\r\n");
 
@@ -150,23 +150,23 @@ void qspi_polling(void)
     /* Restore the frequency if needed */
     if (isDivNeedRestore)
     {
-        QSPI_Enable(EXAMPLE_QSPI, false);
-        EXAMPLE_QSPI->MCR &= ~QuadSPI_MCR_SCLKCFG_MASK;
-        EXAMPLE_QSPI->MCR |= QuadSPI_MCR_SCLKCFG(0U);
-        QSPI_Enable(EXAMPLE_QSPI, true);
+        QSPI_Enable(EXAMPLE_MIXSPI, false);
+        EXAMPLE_MIXSPI->MCR &= ~QuadSPI_MCR_SCLKCFG_MASK;
+        EXAMPLE_MIXSPI->MCR |= QuadSPI_MCR_SCLKCFG(0U);
+        QSPI_Enable(EXAMPLE_MIXSPI, true);
     }
 #endif
 
 #if defined(FLASH_NEED_DQS)
 #if defined(FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE)
-    BOARD_SetQspiClock(EXAMPLE_QSPI, CLKCTL0_OSPIFCLKSEL_SEL(0), 2);
+    BOARD_SetQspiClock(EXAMPLE_MIXSPI, CLKCTL0_OSPIFCLKSEL_SEL(0), 2);
 #else
     /* Re-configure QSPI Serial clock frequency in order to acheive high performance. */
-    QSPI_ClockUpdate(EXAMPLE_QSPI);
+    QSPI_ClockUpdate(EXAMPLE_MIXSPI);
 #endif
 #endif
 
-    for (i = 0; i < FLASH_SECTORE_SIZE / 4; i++)
+    for (i = 0; i < EXAMPLE_FLASH_SECTOR_SIZE / 4; i++)
     {
         if (((uint32_t *)addr)[i] != buff[i % 64])
         {
@@ -181,7 +181,7 @@ void qspi_polling(void)
     }
 }
 
-int main(void)
+void mfb_main(void)
 {
     uint32_t i = 0;
 
@@ -195,7 +195,7 @@ int main(void)
     /* Copy the LUT table */
     memcpy(single_config.lookuptable, lut, sizeof(lut));
 
-    qspi_nor_flash_init(EXAMPLE_QSPI);
+    qspi_nor_flash_init(EXAMPLE_MIXSPI);
 
     /*Initialize data buffer */
     for (i = 0; i < 64; i++)

@@ -353,6 +353,7 @@
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
                     <state>$PROJ_DIR$/../../..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
                     <state>$PROJ_DIR$/../../../../../devices</state>
                     <state>$PROJ_DIR$/../../../../../devices/MK82F25615/drivers</state>
@@ -2099,7 +2100,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>mfb_fw_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -2200,6 +2201,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\pin_mux.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\port_mixspi_info.h</name>
         </file>
     </group>
     <group>
@@ -2313,42 +2317,6 @@
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_common.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_flash.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_adapter.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_cache.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_cache.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_controller.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_controller.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_features.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_flash.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_flash.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_flexnvm.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_flexnvm.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_ftfx_utilities.h</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_gpio.c</name>
         </file>
         <file>
@@ -2364,6 +2332,12 @@
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_port.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_qspi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_qspi.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MK82F25615\drivers\fsl_smc.c</name>
         </file>
         <file>
@@ -2374,6 +2348,21 @@
         <name>source</name>
         <file>
             <name>$PROJ_DIR$\..\main.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_adapter.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_config.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_define.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_quadspi_nor_ops.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\quadspi_polling_transfer.c</name>
         </file>
     </group>
     <group>
