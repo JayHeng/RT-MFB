@@ -27,7 +27,7 @@ const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x0A, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, MICRON_QUAD_FLASH_DUMMY_CYCLES, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04),
 
     /* Read status register */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
@@ -55,6 +55,10 @@ const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x70, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x01),
 
+    /* Set Dummy cycle */
+    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x81, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x00),
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /* Enter QPI mode */
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
@@ -76,7 +80,7 @@ const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xCC, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_8PAD, 0x20),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_8PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_8PAD, MICRON_OCTAL_FLASH_DUMMY_CYCLES, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_8PAD, 0x04),
 #endif
 
     /* Read status register - SPI */
@@ -189,12 +193,13 @@ void mfb_flash_set_param_for_micron(jedec_id_t *jedecID)
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_4PAD;
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_120MHz;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
         g_flashPropertyInfo.flashBusyStatusPol         = MICRON_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset      = MICRON_FLASH_BUSY_STATUS_OFFSET;
         //g_flashPropertyInfo.flashQuadEnableCfg    = MICRON_FLASH_QUAD_ENABLE;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_MICRON_Quad;
+        g_flashPropertyInfo.flashDummyValue           = MICRON_QUAD_FLASH_SET_DUMMY_CMD;
         /* No need to enable quad mode for micron device. */
     }
 #endif

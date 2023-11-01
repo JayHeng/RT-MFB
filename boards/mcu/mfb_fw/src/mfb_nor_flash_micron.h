@@ -17,8 +17,11 @@
 #define MICRON_FLASH_BUSY_STATUS_POL    1
 #define MICRON_FLASH_BUSY_STATUS_OFFSET 0
 
-#if MICRON_DEVICE_MT25QU128 | MICRON_DEVICE_MT25QL256
+#if MICRON_DEVICE_MT25QU128
 #define MICRON_FLASH_QUAD_ENABLE        0x00
+
+#define MICRON_QUAD_FLASH_SET_DUMMY_CMD 0xEB
+#define MICRON_QUAD_FLASH_DUMMY_CYCLES  0x0e
 
 //------------------------------------------------------
 //   DC[7:4]  |  dummy cycles  |   Quad IO Fast Read   |
@@ -39,6 +42,34 @@
 //    0xc     |      12        |        143MHz         |
 //    0xd     |      13        |        156MHz         |
 //    0xe     |      14        |        166MHz         |
+//    0xf     |      10        |        125MHz         |
+//------------------------------------------------------
+
+#elif MICRON_DEVICE_MT25QL256
+#define MICRON_FLASH_QUAD_ENABLE        0x00
+
+#define MICRON_QUAD_FLASH_SET_DUMMY_CMD 0xBB
+#define MICRON_QUAD_FLASH_DUMMY_CYCLES  0x0b
+
+//------------------------------------------------------
+//   DC[7:4]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//    0x0     |   10(default)  |        125MHz         |
+//    0x1     |       1        |         39MHz         |
+//    0x2     |       2        |         48MHz         |
+//    0x3     |       3        |         58MHz         |
+//    0x4     |       4        |         69MHz         |
+//    0x5     |       5        |         78MHz         |
+//    0x6     |       6        |         86MHz         |
+//    0x7     |       7        |         97MHz         |
+//    0x8     |       8        |        106MHz         |
+//    0x9     |       9        |        115MHz         |
+//    0xa     |      10        |        125MHz         |
+//    0xb     |      11        |        133MHz         |
+//    0xc     |      12        |        133MHz         |
+//    0xd     |      13        |        133MHz         |
+//    0xe     |      14        |        133MHz         |
 //    0xf     |      10        |        125MHz         |
 //------------------------------------------------------
 
@@ -82,9 +113,11 @@
 //   0x1F     |  16(default)   |        171MHz          |         166MHz        |
 //-------------------------------------------------------------------------------
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define MICRON_OCTAL_FLASH_SET_DUMMY_CMD     0x06
+#define MICRON_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#define MICRON_OCTAL_FLASH_DUMMY_CYCLES      0x10   // 166MHz SPI SDR
 #else
-#define MICRON_OCTAL_FLASH_SET_DUMMY_CMD     0x14   // 200MHz OPI DDR
+#define MICRON_OCTAL_FLASH_SET_DUMMY_CMD     0x14
+#define MICRON_OCTAL_FLASH_DUMMY_CYCLES      0x14   // 200MHz OPI DDR
 #endif
 #endif
 /*******************************************************************************
