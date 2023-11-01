@@ -1,0 +1,26 @@
+var modules =
+[
+    [ "mcuxClAes_Constants", "a00651.html", "a00651" ],
+    [ "mcuxClAes_KeyTypes", "a00652.html", "a00652" ],
+    [ "MCUX CL – API", "a00655.html", "a00655" ],
+    [ "mcuxClEcc", "a00661.html", "a00661" ],
+    [ "mcuxClEls", "a00670.html", "a00670" ],
+    [ "mcuxClHash", "a00751.html", "a00751" ],
+    [ "mcuxClMath", "a00787.html", "a00787" ],
+    [ "mcuxClMemory", "a00790.html", "a00790" ],
+    [ "mcuxClOsccaPkc", "a00798.html", "a00798" ],
+    [ "mcuxClOsccaSm3", "a00800.html", null ],
+    [ "mcuxClOsccaSm3_Modes", "a00801.html", null ],
+    [ "MCUXCLOSCCASM3_OUTPUT_SIZE_", "a00802.html", "a00802" ],
+    [ "MCUXCLOSCCASM3_WA", "a00803.html", "a00803" ],
+    [ "MCUXCLOSCCASM3_CONTEXT", "a00804.html", "a00804" ],
+    [ "Constants definitions", "a00805.html", "a00805" ],
+    [ "Padding type definitions", "a00806.html", "a00806" ],
+    [ "mcuxClPkc", "a00807.html", "a00807" ],
+    [ "mcuxClRandom", "a00810.html", "a00810" ],
+    [ "mcuxClRsa", "a00820.html", "a00820" ],
+    [ "mcuxClSession", "a00835.html", "a00835" ],
+    [ "MCUX CSSL – API", "a00841.html", "a00841" ],
+    [ "MCUX CSSL – Configurations", "a00845.html", "a00845" ],
+    [ "MCUX CSSL – Implementations", "a00847.html", "a00847" ]
+];
