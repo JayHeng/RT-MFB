@@ -27,7 +27,7 @@ const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, MXIC_QUAD_FLASH_DUMMY_CYCLES - 2),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 #else
@@ -35,7 +35,7 @@ const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, MXIC_QUAD_FLASH_DUMMY_CYCLES - 2),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 #endif
@@ -60,8 +60,9 @@ const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
 
     /* Enable Quad mode */
     // QE bit in 8bit Status Register[6], there is only one Status Register
+    // First byte is SR, second byte is CR
     [4 * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x02),
 
     /* Read configuration register */
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
@@ -253,12 +254,12 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_4PAD;
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_80MHz;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
         g_flashPropertyInfo.flashBusyStatusPol         = MXIC_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset      = MXIC_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flashQuadEnableCfg         = MXIC_FLASH_QUAD_ENABLE;
-        g_flashPropertyInfo.flashQuadEnableBytes       = 1;
+        g_flashPropertyInfo.flashQuadEnableBytes       = 2;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_MXIC_Quad;
     }
 #endif

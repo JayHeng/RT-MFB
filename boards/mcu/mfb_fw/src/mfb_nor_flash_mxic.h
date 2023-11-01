@@ -17,7 +17,8 @@
 #define MXIC_FLASH_BUSY_STATUS_OFFSET 0
 
 #if MXIC_DEVICE_MX25U6432F
-#define MXIC_FLASH_QUAD_ENABLE        0x40
+#define MXIC_FLASH_QUAD_ENABLE        0xC740
+#define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
 //------------------------------------------------------
 //   DC[7:6]  |  dummy cycles  |Quad IO Fast Read(SPI) |
@@ -30,7 +31,8 @@
 //------------------------------------------------------
 
 #elif MXIC_DEVICE_MX25L6433F
-#define MXIC_FLASH_QUAD_ENABLE        0x40
+#define MXIC_FLASH_QUAD_ENABLE        0x4040
+#define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
 //------------------------------------------------------
 //    DC[6]   |  dummy cycles  |Quad IO Fast Read(SPI) |
@@ -40,7 +42,8 @@
 //------------------------------------------------------
 
 #elif MXIC_DEVICE_MX25L12845G | MXIC_DEVICE_MX25L25645G
-#define MXIC_FLASH_QUAD_ENABLE        0x40
+#define MXIC_FLASH_QUAD_ENABLE        0xC740
+#define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
 //------------------------------------------------------
 //   DC[7:6]  |  dummy cycles  |Quad IO Fast Read(SPI) |
@@ -52,7 +55,8 @@
 //------------------------------------------------------
 
 #elif MXIC_DEVICE_MX25U25645G | MXIC_DEVICE_MX25U51245G
-#define MXIC_FLASH_QUAD_ENABLE        0x40
+#define MXIC_FLASH_QUAD_ENABLE        0xC740
+#define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
 //------------------------------------------------------
 //   DC[7:6]  |  dummy cycles  |Quad IO Fast Read(SPI) |
@@ -86,9 +90,11 @@
 //  3'b111    |      06        |         70MHz         |
 //------------------------------------------------------
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x08
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x05
+#define MXIC_OCTAL_FLASH_DUMMY_CYCLES      0x0A   // 121MHz SPI SDR
 #else
-#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x14   // 200MHz OPI DDR
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#define MXIC_OCTAL_FLASH_DUMMY_CYCLES      0x14   // 200MHz OPI DDR
 #endif
 #elif MXIC_DEVICE_MX25UW6345
 // 0x00 - SPI (default)
@@ -111,9 +117,11 @@
 //  3'b111    |      06        |         66MHz         |
 //------------------------------------------------------
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x08
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x06
+#define MXIC_OCTAL_FLASH_DUMMY_CYCLES      0x08   // 84MHz SPI SDR
 #else
-#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x14   // 200MHz OPI DDR
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#define MXIC_OCTAL_FLASH_DUMMY_CYCLES      0x14   // 200MHz OPI DDR
 #endif
 #endif
 
