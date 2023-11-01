@@ -11,6 +11,7 @@
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "board.h"
+#include "mfb.h"
 
 /*******************************************************************************
  * Definitions
@@ -29,18 +30,17 @@
  */
 int main(void)
 {
-    char ch;
-
     /* Init board hardware. */
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitDebugConsole();
 
-    PRINTF("hello world.\r\n");
+    mfb_printf("\r\nMFB: Target RW612.\r\n");
+    mfb_printf("\r\n-------------------------------------\r\n");
+    mfb_main();
+    mfb_printf("-------------------------------------\r\n");
 
     while (1)
     {
-        ch = GETCHAR();
-        PUTCHAR(ch);
     }
 }

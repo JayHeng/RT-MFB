@@ -40,7 +40,7 @@
 
 /*! @brief Definition to select sdk or toolchain printf, scanf. */
 #ifndef SDK_DEBUGCONSOLE
-#define SDK_DEBUGCONSOLE DEBUGCONSOLE_REDIRECT_TO_TOOLCHAIN
+#define SDK_DEBUGCONSOLE DEBUGCONSOLE_REDIRECT_TO_SDK
 #endif
 
 #if defined(SDK_DEBUGCONSOLE) && !(SDK_DEBUGCONSOLE)

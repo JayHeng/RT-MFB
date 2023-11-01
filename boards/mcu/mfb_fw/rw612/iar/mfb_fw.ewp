@@ -347,6 +347,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/utilities/str</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/utilities/debug_console_lite</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/drivers</state>
@@ -691,7 +692,7 @@
             <data>
                 <extensions></extensions>
                 <cmdline></cmdline>
-                <hasPrio>0</hasPrio>
+                <hasPrio>144</hasPrio>
                 <buildSequence>inputOutputBased</buildSequence>
             </data>
         </settings>
@@ -1168,7 +1169,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>9.30.1.48832</state>
+                    <state>9.30.1.50052</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -1214,7 +1215,7 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>32</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
@@ -1237,7 +1238,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>32</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -1446,6 +1447,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/utilities/str</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/utilities/debug_console_lite</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/drivers</state>
@@ -2267,7 +2269,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.30.2.18207</state>
+                    <state>9.30.1.50052</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -2313,7 +2315,7 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>32</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
@@ -2336,7 +2338,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>32</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -2544,6 +2546,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/utilities/str</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/utilities/debug_console_lite</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/drivers</state>
@@ -2593,7 +2596,7 @@
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>1</state>
+                    <state>3</state>
                 </option>
                 <option>
                     <name>CCPosIndRopi</name>
@@ -3365,7 +3368,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.30.2.18207</state>
+                    <state>9.30.1.50052</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -3411,7 +3414,7 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>32</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
@@ -3434,7 +3437,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>32</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -3582,7 +3585,7 @@
                 <option>
                     <name>CCAllowList</name>
                     <version>1</version>
-                    <state>00100000</state>
+                    <state>11111110</state>
                 </option>
                 <option>
                     <name>CCDebugInfo</name>
@@ -3643,6 +3646,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../src</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/utilities/str</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/utilities/debug_console_lite</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/drivers</state>
@@ -3692,7 +3696,7 @@
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>1</state>
+                    <state>3</state>
                 </option>
                 <option>
                     <name>CCPosIndRopi</name>
@@ -4415,6 +4419,9 @@
         <file>
             <name>$PROJ_DIR$\..\pin_mux.h</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\..\port_mixspi_info.h</name>
+        </file>
     </group>
     <group>
         <name>CMSIS</name>
@@ -4909,6 +4916,84 @@
         <name>source</name>
         <file>
             <name>$PROJ_DIR$\..\main.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_adapter.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_config.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_define.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_flexspi_nor_ops.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_adesto.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_adesto.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_gigadevice.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_gigadevice.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_issi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_issi.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_micron.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_micron.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_spansion.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_spansion.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_winbond.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_winbond.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_test_pattern.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_test_perf.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\microseconds_common.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\microseconds_cortexm_systick.c</name>
         </file>
     </group>
     <group>
