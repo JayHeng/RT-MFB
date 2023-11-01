@@ -19,13 +19,13 @@
  * Variables
  ******************************************************************************/
 
-#if ISSI_DEVICE_IS25WP064A
+#if ISSI_DEVICE_IS25WP064A | ISSI_DEVICE_IS25LP064A | ISSI_DEVICE_IS25LP064D | ISSI_DEVICE_IS25WP064D | ISSI_DEVICE_IS25WP128
 const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, ISSI_QUAD_FLASH_DUMMY_CYCLES - 2),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
@@ -51,6 +51,10 @@ const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
     // QE bit in 8bit Status Register[6], there is only one Status Register
     [4 * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
+
+    /* Set Dummy cycle */
+    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xC0, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
 
     /* Read function register */
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
@@ -87,7 +91,7 @@ const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xCC, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_8PAD, 0x20),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_8PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_8PAD, ISSI_OCTAL_FLASH_DUMMY_CYCLES, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_8PAD, 0x04),
 #endif
 
     /* Read status register -SPI */
@@ -205,22 +209,23 @@ void mfb_flash_set_param_for_issi(jedec_id_t *jedecID)
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_4PAD;
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_80MHz;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-        g_flashPropertyInfo.flashBusyStatusPol         = ISSI_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset      = ISSI_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashQuadEnableCfg         = ISSI_FLASH_QUAD_ENABLE;
-        g_flashPropertyInfo.flashQuadEnableBytes       = 1;
+        g_flashPropertyInfo.flashBusyStatusPol        = ISSI_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset     = ISSI_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashQuadEnableCfg        = ISSI_FLASH_QUAD_ENABLE;
+        g_flashPropertyInfo.flashQuadEnableBytes      = 1;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_ISSI_Quad;
+        g_flashPropertyInfo.flashDummyValue           = ISSI_QUAD_FLASH_SET_DUMMY_CMD;
     }
 #endif
 #if ISSI_DEVICE_OCTAL
     if (g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_8PAD;
-        g_flashPropertyInfo.flashBusyStatusPol         = ISSI_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset      = ISSI_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashEnableOctalCmd        = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flashBusyStatusPol        = ISSI_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset     = ISSI_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd       = ISSI_OCTAL_FLASH_ENABLE_DDR_CMD;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_ISSI_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_30MHz;

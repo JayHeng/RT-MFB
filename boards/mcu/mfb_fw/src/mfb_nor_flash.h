@@ -158,6 +158,9 @@ typedef struct _flash_reg_access
 #define ISSI_DEVICE_QUAD            (1)
 #define ISSI_DEVICE_IS25LP064A      (0)  // MIMXRT1020-EVK
 #define ISSI_DEVICE_IS25WP064A      (1)  // MIMXRT1060-EVK, MIMXRT1170-EVK/PMIC
+#define ISSI_DEVICE_IS25LP064D      (0)  // MIMXRT1180-MEM-BB&DS
+#define ISSI_DEVICE_IS25WP064D      (0)  // MIMXRT1180-MEM-BB&DS
+#define ISSI_DEVICE_IS25WP128       (0)  // MIMXRT1180-MEM-BB&DS
 #define ISSI_DEVICE_OCTAL           (1)
 #define ISSI_DEVICE_IS25WX256       (1)  // MIMXRT1180-MEM-BB&DS
 ////////////////////////////////////////////////////////////////////////////////

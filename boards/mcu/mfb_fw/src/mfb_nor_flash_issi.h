@@ -20,6 +20,59 @@
 #if ISSI_DEVICE_IS25WP064A
 #define ISSI_FLASH_QUAD_ENABLE        0x40
 
+#define ISSI_QUAD_FLASH_SET_DUMMY_CMD 0x40
+#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x08
+
+//------------------------------------------------------
+//    P[6:3]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//    0x0     |    6(default)  |        104MHz         |
+//    0x1     |       1        |         33MHz         |
+//    0x2     |       2        |         50MHz         |
+//    0x3     |       3        |         60MHz         |
+//    0x4     |       4        |         70MHz         |
+//    0x5     |       5        |         84MHz         |
+//    0x6     |       6        |        104MHz         |
+//    0x7     |       7        |        115MHz         |
+//    0x8     |       8        |        133MHz         |
+//    0x9     |       9        |        133MHz         |
+//    0xa     |      10        |        133MHz         |
+//    0xb     |      11        |        133MHz         |
+//    0xc     |      12        |        133MHz         |
+//    0xd     |      13        |        133MHz         |
+//    0xe     |      14        |        133MHz         |
+//    0xf     |      15        |        133MHz         |
+//------------------------------------------------------
+#elif ISSI_DEVICE_IS25WP064D | ISSI_DEVICE_IS25LP064D
+#define ISSI_FLASH_QUAD_ENABLE        0x40
+
+#define ISSI_QUAD_FLASH_SET_DUMMY_CMD 0x70
+#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x0E
+
+// VDD = 2.70~3.6V, 125°„C
+//------------------------------------------------------
+//    P[6:3]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//    0x0     |    6(default)  |         90MHz         |
+//    0x1     |       1        |         33MHz         |
+//    0x2     |       2        |         50MHz         |
+//    0x3     |       3        |         60MHz         |
+//    0x4     |       4        |         70MHz         |
+//    0x5     |       5        |         80MHz         |
+//    0x6     |       6        |         90MHz         |
+//    0x7     |       7        |        104MHz         |
+//    0x8     |       8        |        120MHz         |
+//    0x9     |       9        |        133MHz         |
+//    0xa     |      10        |        140MHz         |
+//    0xb     |      11        |        150MHz         |
+//    0xc     |      12        |        160MHz         |
+//    0xd     |      13        |        166MHz         |
+//    0xe     |      14        |        166MHz         |
+//    0xf     |      15        |        166MHz         |
+//------------------------------------------------------
+// VDD = 1.70~1.95V, 105°„C
 //------------------------------------------------------
 //    P[6:3]  |  dummy cycles  |   Quad IO Fast Read   |
 //            |                |Quad IO Fast Read(QPI) |
@@ -40,6 +93,48 @@
 //    0xd     |      13        |        162MHz         |
 //    0xe     |      14        |        166MHz         |
 //    0xf     |      15        |        166MHz         |
+//------------------------------------------------------
+#elif ISSI_DEVICE_IS25WP128
+#define ISSI_FLASH_QUAD_ENABLE        0x40
+
+#define ISSI_QUAD_FLASH_SET_DUMMY_CMD 0x48
+#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x09
+
+//------------------------------------------------------
+//    P[6:3]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//    0x0     |    6(default)  |        104MHz         |
+//    0x1     |       1        |         33MHz         |
+//    0x2     |       2        |         50MHz         |
+//    0x3     |       3        |         60MHz         |
+//    0x4     |       4        |         70MHz         |
+//    0x5     |       5        |         84MHz         |
+//    0x6     |       6        |        104MHz         |
+//    0x7     |       7        |        115MHz         |
+//    0x8     |       8        |        128MHz         |
+//    0x9     |       9        |        133MHz         |
+//    0xa     |      10        |        133MHz         |
+//    0xb     |      11        |        133MHz         |
+//    0xc     |      12        |        133MHz         |
+//    0xd     |      13        |        133MHz         |
+//    0xe     |      14        |        133MHz         |
+//    0xf     |      15        |        133MHz         |
+//------------------------------------------------------
+#elif ISSI_DEVICE_IS25LP064A
+#define ISSI_FLASH_QUAD_ENABLE        0x40
+
+#define ISSI_QUAD_FLASH_SET_DUMMY_CMD 0xF0
+#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x08
+
+//------------------------------------------------------
+//    P[4:3]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//    0x0     |    6(default)  |        104MHz         |
+//    0x1     |       4        |         84MHz         |
+//    0x2     |       8        |        133MHz         |
+//    0x3     |      10        |        133MHz         |
 //------------------------------------------------------
 #endif
 
@@ -81,9 +176,11 @@
 //   0x1F     |  16(default)   |        171MHz          |         166MHz        |
 //-------------------------------------------------------------------------------
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define ISSI_OCTAL_FLASH_SET_DUMMY_CMD     0x06
+#define ISSI_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#define ISSI_OCTAL_FLASH_DUMMY_CYCLES      0x10   // 166MHz SPI SDR
 #else
-#define ISSI_OCTAL_FLASH_SET_DUMMY_CMD     0x14   // 200MHz OPI DDR
+#define ISSI_OCTAL_FLASH_SET_DUMMY_CMD     0x14
+#define ISSI_OCTAL_FLASH_DUMMY_CYCLES      0x14   // 200MHz OPI DDR
 #endif
 #endif
 /*******************************************************************************
