@@ -19,6 +19,9 @@
 
 #if SPANSION_DEVICE_S25FL064L
 #define SPANSION_25FL_L_FLASH_QUAD_ENABLE    0x0200
+
+#define SPANSION_QUAD_FLASH_DUMMY_CYCLES     0x08
+
 //------------------------------------------------------
 // CR3NV[3:0] |  dummy cycles  |Quad IO Fast Read(SPI) |
 //            |                |Quad IO Fast Read(QPI) |
@@ -56,8 +59,10 @@
 // bit7 - 3B/4B addr
 #if MFB_FLASH_OPI_MODE_DISABLE
 #define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x89
+#define SPANSION_OCTAL_FLASH_DUMMY_CYCLES      0x09   // 166MHz SPI SDR
 #else
-#define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x08   // 200MHz OPI DDR
+#define SPANSION_OCTAL_FLASH_SET_DUMMY_CMD     0x08
+#define SPANSION_OCTAL_FLASH_DUMMY_CYCLES      0x14   // 200MHz OPI DDR
 #endif
 #endif
 /*******************************************************************************
