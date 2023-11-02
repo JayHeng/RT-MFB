@@ -21,13 +21,13 @@
  * Variables
  ******************************************************************************/
 
-#if WINBOND_DEVICE_W25Q128JW
+#if WINBOND_DEVICE_W25Q128JW | WINBOND_DEVICE_W25M512JW
 const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0xF0, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0xF0, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, WINBOND_QUAD_FLASH_DUMMY_CYCLES - 2),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 

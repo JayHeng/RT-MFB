@@ -17,8 +17,17 @@
 #define WINBOND_FLASH_BUSY_STATUS_POL    1
 #define WINBOND_FLASH_BUSY_STATUS_OFFSET 0
 
-#if WINBOND_DEVICE_W25Q128JW
+#if WINBOND_DEVICE_W25Q128JW | WINBOND_DEVICE_W25M512JW
 #define WINBOND_FLASH_QUAD_ENABLE        0x02
+
+// In Standard SPI mode, the ¡°Set Read Parameters (C0h)¡± instruction is not accepted. The dummy clocks
+//  for various Fast Read instructions in Standard/Dual/Quad SPI mode are fixed
+
+// In QPI mode, to accommodate a wide range of applications with different needs for either maximum read
+//  frequency or minimum data access latency, ¡°Set Read Parameters (C0h)¡± instruction can be used to
+//  configure the number of dummy clocks for ¡°Fast Read (0Bh)¡±, ¡°Fast Read Quad I/O (EBh)¡± & ¡°Burst Read
+//  with Wrap (0Ch)¡± instructions
+#define WINBOND_QUAD_FLASH_DUMMY_CYCLES  0x06
 
 //------------------------------------------------------------------------------
 //   P[5:4]   |  dummy cycles  |Quad IO Fast Read(SPI) | Quad IO Fast Read(QPI) |
@@ -79,9 +88,11 @@
 //   0x1F     |  16(default)   |        200MHz          |         200MHz        |
 //-------------------------------------------------------------------------------
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define WINBOND_OCTAL_FLASH_SET_DUMMY_CMD     0x08
+#define WINBOND_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#define WINBOND_OCTAL_FLASH_DUMMY_CYCLES      0x10   // 143MHz SPI SDR
 #else
-#define WINBOND_OCTAL_FLASH_SET_DUMMY_CMD     0x16   // 200MHz OPI DDR
+#define WINBOND_OCTAL_FLASH_SET_DUMMY_CMD     0x16
+#define WINBOND_OCTAL_FLASH_DUMMY_CYCLES      0x16   // 200MHz OPI DDR
 #endif
 #endif
 /*******************************************************************************
