@@ -234,9 +234,9 @@ void mfb_main(void)
 
     /* Get JEDEC ID. */
 #if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
-    jedecID.manufacturerID = MXIC_OCTAL_FLASH_JEDEC_ID & 0xFF;
-    jedecID.memoryTypeID = (MXIC_OCTAL_FLASH_JEDEC_ID >> 8) & 0xFF;
-    jedecID.capacityID = (MXIC_OCTAL_FLASH_JEDEC_ID >> 16) & 0xFF;
+    jedecID.manufacturerID = MXIC_QUAD_FLASH_JEDEC_ID & 0xFF;
+    jedecID.memoryTypeID = (MXIC_QUAD_FLASH_JEDEC_ID >> 8) & 0xFF;
+    jedecID.capacityID = (MXIC_QUAD_FLASH_JEDEC_ID >> 16) & 0xFF;
     /* Can change this variable according to Flash default state */
     sta_flashInstMode = kFlashInstMode_SPI;
     /* Init FlexSPI using common LUT */ 

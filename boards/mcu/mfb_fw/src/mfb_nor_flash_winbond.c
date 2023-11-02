@@ -21,7 +21,7 @@
  * Variables
  ******************************************************************************/
 
-#if WINBOND_DEVICE_W25Q128JW | WINBOND_DEVICE_W25M512JW
+#if WINBOND_DEVICE_QUAD
 const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
@@ -72,7 +72,7 @@ const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
 };
 #endif
 
-#if WINBOND_DEVICE_W35T51NW
+#if WINBOND_DEVICE_OCTAL
 const uint32_t s_customLUT_WINBOND_Octal[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_OPI_MODE_DISABLE
     /*  DDR OCTAL I/O FAST READ */
@@ -179,25 +179,48 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
         /////////////////////////QuadSPI////////////////////////
         case 0x30:
             mfb_printf(" -- W25X DualSPI 3.3V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
             break;
         case 0x40:
             mfb_printf(" -- W25QxxxDV/FV/BV/CL/JV(-IQ/JQ) QuadlSPI 3.3V Series.\r\n");
+#if WINBOND_DEVICE_W25QxxxJV
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
+#elif WINBOND_DEVICE_W25QxxxDV
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_80MHz;
+#else
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+#endif
             break;
         case 0x60:
-            mfb_printf(" -- W25QxxxFW/EW/NW(-IQ/IN) QuadlSPI 1.8V Series.\r\n");
+            mfb_printf(" -- W25QxxxJW/FW/EW/NW(-IQ/IN) QuadlSPI 1.8V Series.\r\n");
+#if WINBOND_DEVICE_W25QxxxFW | WINBOND_DEVICE_W25QxxxEW
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+#else
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
+#endif
+            break;
+        case 0x61:
+            mfb_printf(" -- W25MxxxJW QuadlSPI 1.8V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+            break;
+        case 0x65:
+            mfb_printf(" -- W25QxxxNE QuadlSPI 1.2V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_80MHz;
             break;
         case 0x70:
             mfb_printf(" -- W25QxxxJV(-IM/JM) QuadlSPI 3.3V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
             break;
         case 0x80:
             mfb_printf(" -- W25QxxxJW/NW(-IM) QuadlSPI 1.8V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
             break;
         ////////////////////////OctalSPI////////////////////////
         case 0x5B:
             g_flashPropertyInfo.flashIsOctal = true;
             mfb_printf(" -- W35TxxxNW OctalSPI 1.8V Series.\r\n");
             break;
-        // Missing W25H, W25M, W25R
+        // Missing W25H, W25R
         // Missing xxxJL, xxxDW, xxxRV
         default:
             mfb_printf(" -- Unsupported Series.\r\n");
@@ -208,12 +231,11 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_4PAD;
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_100MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-        g_flashPropertyInfo.flashBusyStatusPol         = WINBOND_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset      = WINBOND_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashQuadEnableCfg         = WINBOND_FLASH_QUAD_ENABLE;
-        g_flashPropertyInfo.flashQuadEnableBytes       = 1;
+        g_flashPropertyInfo.flashBusyStatusPol        = WINBOND_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset     = WINBOND_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashQuadEnableCfg        = WINBOND_FLASH_QUAD_ENABLE;
+        g_flashPropertyInfo.flashQuadEnableBytes      = 1;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_WINBOND_Quad;
     }
 #endif
@@ -221,21 +243,18 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
     if (g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_8PAD;
-        g_flashPropertyInfo.flashBusyStatusPol         = WINBOND_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset      = WINBOND_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashEnableOctalCmd        = WINBOND_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flashBusyStatusPol        = WINBOND_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset     = WINBOND_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd       = WINBOND_OCTAL_FLASH_ENABLE_DDR_CMD;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_WINBOND_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_30MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
 #else
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_332MHz;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_200MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
-        if (g_flashPropertyInfo.mixspiRootClkFreq == kMixspiRootClkFreq_400MHz)
 #endif
-        {
-            g_flashPropertyInfo.flashDummyValue = WINBOND_OCTAL_FLASH_SET_DUMMY_CMD;
-        }
+        g_flashPropertyInfo.flashDummyValue           = WINBOND_OCTAL_FLASH_SET_DUMMY_CMD;
     }
 #endif
 }

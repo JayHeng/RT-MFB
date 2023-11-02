@@ -16,7 +16,17 @@
 #define MXIC_FLASH_BUSY_STATUS_POL    1
 #define MXIC_FLASH_BUSY_STATUS_OFFSET 0
 
-#if MXIC_DEVICE_MX25U6432F
+#if MXIC_DEVICE_MX25Uxxx35F
+#define MXIC_FLASH_QUAD_ENABLE        0x40
+#define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x06
+
+//------------------------------------------------------
+//    NTR     |  dummy cycles  |Quad IO Fast Read(SPI) | 
+//------------------------------------------------------
+//    N/A     | 6(def for SPI) |        104MHz         |
+//------------------------------------------------------
+
+#elif MXIC_DEVICE_MX25Uxxx32F
 #define MXIC_FLASH_QUAD_ENABLE        0xC740
 #define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
@@ -30,7 +40,7 @@
 //  2'b11     |      10        |        133MHz         |
 //------------------------------------------------------
 
-#elif MXIC_DEVICE_MX25L6433F
+#elif MXIC_DEVICE_MX25Lxxx33F | MXIC_DEVICE_MX25Vxxx35F
 #define MXIC_FLASH_QUAD_ENABLE        0x4040
 #define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
@@ -41,7 +51,7 @@
 //   1'b1     |      10        |        133MHz         |
 //------------------------------------------------------
 
-#elif MXIC_DEVICE_MX25L12845G | MXIC_DEVICE_MX25L25645G
+#elif MXIC_DEVICE_MX25Lxxx45G
 #define MXIC_FLASH_QUAD_ENABLE        0xC740
 #define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
@@ -54,7 +64,7 @@
 //  2'b11     |     10         |      120/133MHz       |
 //------------------------------------------------------
 
-#elif MXIC_DEVICE_MX25U25645G | MXIC_DEVICE_MX25U51245G
+#elif MXIC_DEVICE_MX25Uxxx45G
 #define MXIC_FLASH_QUAD_ENABLE        0xC740
 #define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
@@ -69,7 +79,7 @@
 
 #endif
 
-#if MXIC_DEVICE_MX25UM51345
+#if MXIC_DEVICE_MX25UMxx345
 // 0x00 - SPI (default)
 // 0x01 - STR OPI enable
 // 0x02 - DTR OPI enable
@@ -96,7 +106,34 @@
 #define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x00
 #define MXIC_OCTAL_FLASH_DUMMY_CYCLES      0x14   // 200MHz OPI DDR
 #endif
-#elif MXIC_DEVICE_MX25UW6345
+#elif MXIC_DEVICE_MX25LMxx245
+// 0x00 - SPI (default)
+// 0x01 - STR OPI enable
+// 0x02 - DTR OPI enable
+#define MXIC_OCTAL_FLASH_ENABLE_DDR_CMD   0x02
+
+//------------------------------------------------------
+//   DC[2:0]  |  dummy cycles  | OctalI/O SDR(1S-8S-8S)|
+//            |                |  Octal DDR(8D-8D-8D)  |
+//            |                |        BGA24          |
+//------------------------------------------------------
+//  3'b000    |  20(default)   |        133MHz         |
+//  3'b001    |      18        |        133MHz         |
+//  3'b010    |      16        |        133MHz         |
+//  3'b011    |      14        |        133MHz         |
+//  3'b100    |      12        |        104MHz         |
+//  3'b101    |      10        |        104MHz         |
+//  3'b110    |      08        |         84MHz         |
+//  3'b111    |      06        |         66MHz         |
+//------------------------------------------------------
+#if MFB_FLASH_OPI_MODE_DISABLE
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#define MXIC_OCTAL_FLASH_DUMMY_CYCLES      0x14   // 133MHz SPI SDR
+#else
+#define MXIC_OCTAL_FLASH_SET_DUMMY_CMD     0x03
+#define MXIC_OCTAL_FLASH_DUMMY_CYCLES      0x0e   // 133MHz OPI DDR
+#endif
+#elif MXIC_DEVICE_MX25UWxx345
 // 0x00 - SPI (default)
 // 0x01 - STR OPI enable
 // 0x02 - DTR OPI enable

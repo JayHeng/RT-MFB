@@ -17,7 +17,14 @@
 #define WINBOND_FLASH_BUSY_STATUS_POL    1
 #define WINBOND_FLASH_BUSY_STATUS_OFFSET 0
 
-#if WINBOND_DEVICE_W25Q128JW | WINBOND_DEVICE_W25M512JW
+#if WINBOND_DEVICE_W25QxxxJW | \
+    WINBOND_DEVICE_W25QxxxJV | \
+    WINBOND_DEVICE_W25QxxxCL | \
+    WINBOND_DEVICE_W25QxxxFW | \
+    WINBOND_DEVICE_W25QxxxNE | \
+    WINBOND_DEVICE_W25QxxxEW | \
+    WINBOND_DEVICE_W25QxxxDV | \
+    WINBOND_DEVICE_W25MxxxJW
 #define WINBOND_FLASH_QUAD_ENABLE        0x02
 
 // In Standard SPI mode, the ¡°Set Read Parameters (C0h)¡± instruction is not accepted. The dummy clocks

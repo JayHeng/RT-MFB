@@ -20,7 +20,7 @@
  * Variables
  ******************************************************************************/
 
-#if MXIC_DEVICE_MX25L6433F | MXIC_DEVICE_MX25U6432F | MXIC_DEVICE_MX25L12845G | MXIC_DEVICE_MX25L25645G | MXIC_DEVICE_MX25U25645G | MXIC_DEVICE_MX25U51245G
+#if MXIC_DEVICE_QUAD
 const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_QPI_MODE_ENABLE
     /* Fast read quad mode - SDR */
@@ -93,7 +93,7 @@ const uint32_t s_customLUT_MXIC_Quad[CUSTOM_LUT_LENGTH] = {
 };
 #endif
 
-#if MXIC_DEVICE_MX25UM51345 | MXIC_DEVICE_MX25UW6345
+#if MXIC_DEVICE_OCTAL
 const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_OPI_MODE_DISABLE
     /* OPI DDR read */
@@ -109,7 +109,7 @@ const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x0C, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x20),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_1PAD, MXIC_OCTAL_FLASH_DUMMY_CYCLES, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
 #endif
 
     /* Read status register -SPI */
@@ -209,11 +209,25 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
     {
         /////////////////////////QuadSPI////////////////////////
         case 0x20:
-            mfb_printf(" -- MX25L/MX66L/MX25V QuadSPI 3.3V Series.\r\n");
+            mfb_printf(" -- MX25L/MX66L QuadSPI 3.3V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
+            g_flashPropertyInfo.flashQuadEnableBytes = 2;
+            break;
+        case 0x23:
+            mfb_printf(" -- MX25V QuadSPI 3.3V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+            g_flashPropertyInfo.flashQuadEnableBytes = 2;
             break;
         case 0x25:
             mfb_printf(" -- MX25U/MX66U QuadSPI 1.8V Series.\r\n");
+#if MXIC_DEVICE_MX25Uxxx35F
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+            g_flashPropertyInfo.flashQuadEnableBytes = 1;
+#else
             g_flashPropertyInfo.flashHasQpiSupport = true;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
+            g_flashPropertyInfo.flashQuadEnableBytes = 2;
+#endif
             break;
         case 0x28:
             mfb_printf(" -- MX25R QuadSPI 1.8-3.3V Series.\r\n");
@@ -224,22 +238,27 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
         ////////////////////////OctalSPI////////////////////////
         case 0x80:
             g_flashPropertyInfo.flashIsOctal = true;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_400MHz;
             mfb_printf(" -- MX25UM/MX66UM OctalSPI 1.8V Series.\r\n");
             break;
         case 0x81:
             g_flashPropertyInfo.flashIsOctal = true;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_400MHz;
             mfb_printf(" -- MX25UM51345G OctalSPI 1.8V Series.\r\n");
             break;
         case 0x83:
             g_flashPropertyInfo.flashIsOctal = true;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_400MHz;
             mfb_printf(" -- MX25UM25345G OctalSPI 1.8V Series.\r\n");
             break;
         case 0x84:
             g_flashPropertyInfo.flashIsOctal = true;
-            mfb_printf(" -- MX25UW51345G OctalSPI 1.8V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_400MHz;
+            mfb_printf(" -- MX25UWxx345G OctalSPI 1.8V Series.\r\n");
             break;
         case 0x85:
             g_flashPropertyInfo.flashIsOctal = true;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_266MHz;
             mfb_printf(" -- MX25LM/MX66LM OctalSPI 3.3V Series.\r\n");
             break;
         // Missing MX25LW51245G, MX66LW1G45G, MX66LW2G45G
@@ -254,12 +273,10 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_4PAD;
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
         g_flashPropertyInfo.flashBusyStatusPol        = MXIC_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset     = MXIC_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flashQuadEnableCfg        = MXIC_FLASH_QUAD_ENABLE;
-        g_flashPropertyInfo.flashQuadEnableBytes      = 2;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_MXIC_Quad;
     }
 #endif
@@ -275,13 +292,9 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_50MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackInternally;
 #else
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_332MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
-        if (g_flashPropertyInfo.mixspiRootClkFreq == kMixspiRootClkFreq_400MHz)
 #endif
-        {
-            g_flashPropertyInfo.flashDummyValue = MXIC_OCTAL_FLASH_SET_DUMMY_CMD;
-        }
+        g_flashPropertyInfo.flashDummyValue           = MXIC_OCTAL_FLASH_SET_DUMMY_CMD;
     }
 #endif
 }

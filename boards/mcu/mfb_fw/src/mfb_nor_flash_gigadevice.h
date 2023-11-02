@@ -17,7 +17,25 @@
 #define GIGADEVICE_FLASH_BUSY_STATUS_POL    1
 #define GIGADEVICE_FLASH_BUSY_STATUS_OFFSET 0
 
-#if GIGADEVICE_DEVICE_GD25Q80E
+#if GIGADEVICE_DEVICE_GD25QxxxC
+#define GIGADEVICE_FLASH_QUAD_ENABLE        0x02
+#define GIGADEVICE_QUAD_FLASH_DUMMY_CYCLES  0x06
+
+// Q64C
+//------------------------------------------------------
+//    NTR     |  dummy cycles  |Quad IO Fast Read(SPI) | 
+//------------------------------------------------------
+//    N/A     | 6(def for SPI) |        120MHz         |
+//------------------------------------------------------
+
+// Q127C
+//------------------------------------------------------
+//    NTR     |  dummy cycles  |Quad IO Fast Read(SPI) | 
+//------------------------------------------------------
+//    N/A     | 6(def for SPI) |        104MHz         |
+//------------------------------------------------------
+
+#elif GIGADEVICE_DEVICE_GD25QxxxE 
 #define GIGADEVICE_FLASH_QUAD_ENABLE        0x1200
 #define GIGADEVICE_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
@@ -28,11 +46,34 @@
 //   1'b1     |     10        |        133MHz         |
 //------------------------------------------------------
 
-#elif GIGADEVICE_DEVICE_GD25LE128D
+#elif GIGADEVICE_DEVICE_GD25BxxxE 
+#define GIGADEVICE_FLASH_QUAD_ENABLE        0x02
+
+#define GIGADEVICE_QUAD_FLASH_SET_DUMMY_CMD 0x21
+#define GIGADEVICE_QUAD_FLASH_DUMMY_CYCLES  0x0A
+
+//-----------------------------------------------------
+//   SR3[0]   |  dummy cycles  |Quad IO Fast Read(SPI) |
+//-----------------------------------------------------
+//   1'b0     |    6(def)     |        104MHz         |
+//   1'b1     |     10        |        133MHz         |
+//------------------------------------------------------
+
+#elif GIGADEVICE_DEVICE_GD25LExxxD | GIGADEVICE_DEVICE_GD25LQxxxC
 #define GIGADEVICE_FLASH_QUAD_ENABLE        0x0200
 
-#define GIGADEVICE_QUAD_FLASH_SET_DUMMY_CMD 0x20
-#define GIGADEVICE_QUAD_FLASH_DUMMY_CYCLES  0x08
+#define GIGADEVICE_QUAD_FLASH_DUMMY_CYCLES  0x06
+
+// In Standard SPI mode, the ¡°Set Read Parameters (C0h)¡± instruction is not accepted. The dummy clocks
+//  for various Fast Read instructions in Standard/Dual/Quad SPI mode are fixed
+
+// In QPI mode, to accommodate a wide range of applications with different needs for either maximum read
+//  frequency or minimum data access latency, ¡°Set Read Parameters (C0h)¡± instruction can be used to
+//  configure the number of dummy clocks for ¡°Fast Read (0Bh)¡±, ¡°Fast Read Quad I/O (EBh)¡± & ¡°Burst Read
+//  with Wrap (0Ch)¡± instructions
+
+//#define GIGADEVICE_QUAD_FLASH_SET_DUMMY_CMD 0x20
+//#define GIGADEVICE_QUAD_FLASH_DUMMY_CYCLES  0x08
 
 //------------------------------------------------------
 //   P[5:4]   |  dummy cycles  |Quad IO Fast Read(SPI) |
@@ -43,7 +84,34 @@
 //  2'b11     |       8        |        120MHz         |
 //------------------------------------------------------
 
-#elif GIGADEVICE_DEVICE_GD25LT256E
+#elif GIGADEVICE_DEVICE_GD25LBxxxE
+#define GIGADEVICE_FLASH_QUAD_ENABLE        0x0000
+
+#define GIGADEVICE_QUAD_FLASH_SET_DUMMY_CMD 0x0A
+#define GIGADEVICE_QUAD_FLASH_DUMMY_CYCLES  0x0A
+
+//-------------------------------------------------------
+//   DC[7:0]  |  dummy cycles  | Quad IO Fast Read(SPI) |
+//            |                |      TFBGA24           |
+//-------------------------------------------------------
+//   0x00     |  16(default)   |        133MHz          |
+//   0x01     |      01        |         N/A            |
+//   0x02     |      02        |         N/A            |
+//   0x03     |      03        |         20MHz          |
+//   0x04     |      04        |         40MHz          |
+//   0x05     |      05        |         60MHz          |
+//   0x06     |      06        |         84MHz          |
+//   0x07     |      07        |         84MHz          |
+//   0x08     |      08        |        104MHz          |
+//   0x09     |      09        |        104MHz          |
+//   0x0a     |      10        |        133MHz          |
+//   0x0b     |      11        |        133MHz          |
+//   ...      |      ..        |        133MHz          |
+//   0x1E     |      30        |        133MHz          |
+//   0x1F     |  16(default)   |        133MHz          |
+//-------------------------------------------------------
+
+#elif GIGADEVICE_DEVICE_GD25LTxxxE
 #define GIGADEVICE_FLASH_QUAD_ENABLE        0x0000
 
 #define GIGADEVICE_QUAD_FLASH_SET_DUMMY_CMD 0x0E
@@ -81,7 +149,7 @@
 
 #endif
 
-#if GIGADEVICE_DEVICE_GD25LX256
+#if GIGADEVICE_DEVICE_GD25LX | GIGADEVICE_DEVICE_GD25X
 // 0xFF - SPI with DQS (Default)
 // 0xDF - SPI W/O DQS
 // 0xE7 - Octal DTR with DQS
