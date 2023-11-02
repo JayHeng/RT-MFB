@@ -4588,12 +4588,6 @@
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_winbond.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\src\mfb_test_pattern.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\src\mfb_test_perf.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\..\src\microseconds_common.c</name>
         </file>
         <file>

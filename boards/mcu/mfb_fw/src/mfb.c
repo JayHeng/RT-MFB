@@ -307,69 +307,12 @@ void mfb_main(void)
         g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
         g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
         g_flashPropertyInfo.flashDummyValue = DUMMY_VALUE_INVALID;
+        g_flashPropertyInfo.flashQuadEnableBytes = 0;
         /* Get real flash size according to jedec id result (it may not be appliable to some specifal adesto device) */
-        g_flashPropertyInfo.flashMemSizeInByte = mfb_decode_common_capacity_id(jedecID.capacityID);
+        g_flashPropertyInfo.flashMemSizeInByte = mfb_flash_decode_common_capacity_id(jedecID.capacityID);
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID.manufacturerID);
         /* Check Vendor ID. */
-        switch (jedecID.manufacturerID)
-        {
-#if WINBOND_DEVICE_SERIES
-            // Winbond
-            case WINBOND_DEVICE_VENDOR_ID:
-                mfb_flash_set_param_for_winbond(&jedecID);
-                break;
-#endif // WINBOND_DEVICE_SERIES
-
-#if MXIC_DEVICE_SERIES
-            // MXIC
-            case MXIC_DEVICE_VENDOR_ID:
-                mfb_flash_set_param_for_mxic(&jedecID);
-                break;
-#endif // MXIC_DEVICE_SERIES
-
-#if GIGADEVICE_DEVICE_SERIES
-            // GigaDevice
-            case GIGADEVICE_DEVICE_VENDOR_ID:
-                mfb_flash_set_param_for_gigadevice(&jedecID);
-                break;
-#endif // GIGADEVICE_DEVICE_SERIES
-
-#if ISSI_DEVICE_SERIES
-            // ISSI
-            case ISSI_DEVICE_VENDOR_ID:
-                mfb_flash_set_param_for_issi(&jedecID);
-                break;
-#endif // ISSI_DEVICE_SERIES
-
-#if MICRON_DEVICE_SERIES
-            // Micron
-            case MICRON_DEVICE_VENDOR_ID:
-            case MICRON_DEVICE_VENDOR_ID2:
-                mfb_flash_set_param_for_micron(&jedecID);
-                break;
-#endif // MICRON_DEVICE_SERIES
-
-#if ADESTO_DEVICE_SERIES
-            // Adesto
-            case ADESTO_DEVICE_VENDOR_ID:
-            case ADESTO_DEVICE_VENDOR_ID2:
-                mfb_flash_set_param_for_adesto(&jedecID);
-                break;
-#endif // ADESTO_DEVICE_SERIES
-
-#if SPANSION_DEVICE_SERIES
-            // Spansion
-            case SPANSION_DEVICE_VENDOR_ID:
-            case INFINEON_DEVICE_VENDOR_ID:
-                mfb_flash_set_param_for_spansion(&jedecID);
-                break;
-#endif // SPANSION_DEVICE_SERIES
-
-            default:
-                mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
-                sta_isValidVendorId = false;
-                break;
-        }
+        sta_isValidVendorId = mfb_flash_is_valid_jedec_id(&jedecID);
         /* Only run 1st perf and pattern verify when default flash state is Ext SPI mode */
         if (sta_flashInstMode == kFlashInstMode_SPI)
         {

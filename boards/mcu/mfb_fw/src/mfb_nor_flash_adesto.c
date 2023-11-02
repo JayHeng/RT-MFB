@@ -110,12 +110,12 @@ void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID)
     if (jedecID->memoryTypeID != 0x42)
     {
         mfb_flash_show_mem_size(jedecID->capacityID, true);
-        g_flashPropertyInfo.flashMemSizeInByte = mfb_decode_adesto_capacity_id(jedecID->capacityID);
+        g_flashPropertyInfo.flashMemSizeInByte = mfb_flash_decode_adesto_capacity_id(jedecID->capacityID);
     }
     else
     {
         mfb_flash_show_mem_size(jedecID->capacityID, false);
-        g_flashPropertyInfo.flashMemSizeInByte = mfb_decode_common_capacity_id(jedecID->capacityID);
+        g_flashPropertyInfo.flashMemSizeInByte = mfb_flash_decode_common_capacity_id(jedecID->capacityID);
     }
 #if ADESTO_DEVICE_QUAD
     if (!g_flashPropertyInfo.flashIsOctal)
