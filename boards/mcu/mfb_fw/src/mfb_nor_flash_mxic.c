@@ -220,7 +220,7 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
             break;
         case 0x25:
             mfb_printf(" -- MX25U/MX66U QuadSPI 1.8V Series.\r\n");
-#if MXIC_DEVICE_MX25Uxxx35F
+#if MXIC_DEVICE_MX25Uxx35F
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
             g_flashPropertyInfo.flashQuadEnableBytes = 1;
 #else

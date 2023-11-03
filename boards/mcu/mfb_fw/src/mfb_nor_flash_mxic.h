@@ -16,7 +16,7 @@
 #define MXIC_FLASH_BUSY_STATUS_POL    1
 #define MXIC_FLASH_BUSY_STATUS_OFFSET 0
 
-#if MXIC_DEVICE_MX25Uxxx35F
+#if MXIC_DEVICE_MX25Uxx35F
 #define MXIC_FLASH_QUAD_ENABLE        0x40
 #define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x06
 
@@ -24,6 +24,17 @@
 //    NTR     |  dummy cycles  |Quad IO Fast Read(SPI) | 
 //------------------------------------------------------
 //    N/A     | 6(def for SPI) |        104MHz         |
+//------------------------------------------------------
+
+#elif MXIC_DEVICE_MX25Lxx33F | MXIC_DEVICE_MX25Vxx35F
+#define MXIC_FLASH_QUAD_ENABLE        0x4040
+#define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
+
+//------------------------------------------------------
+//    DC[6]   |  dummy cycles  |Quad IO Fast Read(SPI) |
+//------------------------------------------------------
+//   1'b0     |   6(default)   |       80/104MHz       |
+//   1'b1     |      10        |        133MHz         |
 //------------------------------------------------------
 
 #elif MXIC_DEVICE_MX25Uxxx32F
@@ -40,18 +51,7 @@
 //  2'b11     |      10        |        133MHz         |
 //------------------------------------------------------
 
-#elif MXIC_DEVICE_MX25Lxxx33F | MXIC_DEVICE_MX25Vxxx35F
-#define MXIC_FLASH_QUAD_ENABLE        0x4040
-#define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
-
-//------------------------------------------------------
-//    DC[6]   |  dummy cycles  |Quad IO Fast Read(SPI) |
-//------------------------------------------------------
-//   1'b0     |   6(default)   |       80/104MHz       |
-//   1'b1     |      10        |        133MHz         |
-//------------------------------------------------------
-
-#elif MXIC_DEVICE_MX25Lxxx45G
+#elif MXIC_DEVICE_MX25Lxxx45G | MXIC_DEVICE_MX25Lxxx33F
 #define MXIC_FLASH_QUAD_ENABLE        0xC740
 #define MXIC_QUAD_FLASH_DUMMY_CYCLES  0x0A
 
