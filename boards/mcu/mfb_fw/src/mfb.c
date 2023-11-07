@@ -115,40 +115,6 @@ int mfb_printf(const char *fmt_s, ...)
     return 0;
 }
 
-uint32_t decode_mixspi_root_clk_defn(mixspi_root_clk_freq_t mixspiRootClkFreq)
-{
-    switch(mixspiRootClkFreq)
-    {
-        case kMixspiRootClkFreq_50MHz: 
-            return 50;
-        case kMixspiRootClkFreq_60MHz: 
-            return 60;
-        case kMixspiRootClkFreq_80MHz: 
-            return 80;
-        case kMixspiRootClkFreq_100MHz: 
-            return 100;
-        case kMixspiRootClkFreq_120MHz: 
-            return 120;
-        case kMixspiRootClkFreq_133MHz: 
-            return 133;
-        case kMixspiRootClkFreq_166MHz: 
-            return 166;
-        case kMixspiRootClkFreq_200MHz: 
-            return 200;
-        case kMixspiRootClkFreq_240MHz: 
-            return 240;
-        case kMixspiRootClkFreq_266MHz: 
-            return 266;
-        case kMixspiRootClkFreq_332MHz: 
-            return 332;
-        case kMixspiRootClkFreq_400MHz: 
-            return 400;
-        case kMixspiRootClkFreq_30MHz:
-        default:
-            return 30;
-    }
-}
-
 void mfb_jump_to_application(uint32_t vectorStartAddr)
 {
 #if MFB_APP_JUMP_ENABLE
@@ -188,7 +154,7 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
             /* Init FlexSPI pinmux */
             mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kFLEXSPI_4PAD);
             /* Init FlexSPI using common LUT */ 
-            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
+            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally, flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to Quad-I/O for default QPI SDR mode.\r\n");
             break;
 
@@ -196,7 +162,7 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
             /* Init FlexSPI pinmux */
             mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kFLEXSPI_8PAD);
             /* Init FlexSPI using common LUT */ 
-            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad);
+            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad, flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to Octal-I/O for default OPI DDR mode.\r\n");
             break;
 
@@ -205,10 +171,57 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
             /* Init FlexSPI pinmux */
             mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kFLEXSPI_1PAD);
             /* Init FlexSPI using common LUT */ 
-            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally);
+            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally, flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to 1bit SPI SDR normal read mode.\r\n");
             break;
     }
+}
+
+void mfb_hyper_flash_test(void)
+{
+    /* Adjust device parammenter */
+    g_deviceconfig.isSck2Enabled        = false;
+    g_deviceconfig.CSInterval           = 2;
+    g_deviceconfig.CSHoldTime           = 0;
+    g_deviceconfig.CSSetupTime          = 3;
+    g_deviceconfig.dataValidTime        = 1;
+    g_deviceconfig.columnspace          = 3;
+    g_deviceconfig.enableWordAddress    = true;
+    g_deviceconfig.AHBWriteWaitInterval = 20;
+  
+    mfb_hyperflash_set_param_for_spansion();
+    g_flashPropertyInfo.flashMemSizeInByte = FLASH_SIZE * 0x400;
+
+    /* Configure FlexSPI pinmux&clock as user prescriptive */
+    mfb_printf("\r\nMFB: Set FlexSPI port to %d-bit pad.\r\n", 1u << (uint32_t)g_flashPropertyInfo.mixspiPad);
+    mixspi_pin_init(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, g_flashPropertyInfo.mixspiPad);
+    mfb_printf("MFB: Set FlexSPI root clock to %dMHz.\r\n", decode_mixspi_root_clk_defn(g_flashPropertyInfo.mixspiRootClkFreq));
+    mixspi_clock_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiRootClkFreq);
+    /* Show FlexSPI clock source */
+    mixspi_show_clock_source(EXAMPLE_MIXSPI);
+    /* Update root clock and flash size */
+    g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
+    g_deviceconfig.flashSize = g_flashPropertyInfo.flashMemSizeInByte / 0x400;
+    /* Init FlexSPI using custom LUT */
+    mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, kFlashInstMode_Hyper);
+    mfb_printf("MFB: FLEXSPI module is initialized to hyperbus read mode.\r\n");
+
+    /* Don't show error info when it is 1st round, as flash may be blank this time */
+    if (!mfb_flash_pattern_verify_test(false))
+    {
+         /* Try to write pattern into flash when error occurs in 1st round */
+         if (!mfb_flash_write_pattern_region(kFlashInstMode_Hyper))
+         {
+             return;
+         }
+    }
+    /* Do 2nd round patten verify test */
+    mfb_flash_pattern_verify_test(true);
+    /* Get perf test result */
+    mfb_flash_memcpy_perf_test(true);
+
+    /* Jump into user application */
+    mfb_jump_to_application(EXAMPLE_MIXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
 }
 
 void mfb_main(void)
@@ -221,6 +234,13 @@ void mfb_main(void)
     mfb_printf("MFB: Get CPU root clock.\r\n");
     /* Show CPU clock source */
     cpu_show_clock_source();
+
+#if MFB_FLASH_HYPER_FLASH_ENABLE
+    mfb_hyper_flash_test();
+    
+    return;
+#endif
+
     mfb_printf("\r\nMFB: Set FlexSPI port to 1-bit pad.\r\n");
     /* Switch FlexSPI port if needed */
     mixspi_port_switch(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, kFLEXSPI_1PAD);
@@ -335,7 +355,7 @@ void mfb_main(void)
             mixspi_pin_init(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, g_flashPropertyInfo.mixspiPad);
             g_deviceconfig.flashSize = g_flashPropertyInfo.flashMemSizeInByte / 0x400;
             /* Re-init FlexSPI using custom LUT */
-            mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock);
+            mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
             /* Write dummy cycle value into flash if needed */
             if (g_flashPropertyInfo.flashDummyValue != DUMMY_VALUE_INVALID)
@@ -455,7 +475,7 @@ void mfb_main(void)
                         /* Show FlexSPI clock source */
                         mixspi_show_clock_source(EXAMPLE_MIXSPI);
                         /* Re-init FlexSPI using custom LUT */
-                        mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock);
+                        mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
                         mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
 
                         round = 2;

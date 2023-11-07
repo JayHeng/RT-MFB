@@ -111,7 +111,14 @@ status_t mixspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, flash_in
     flashXfer.deviceAddress = baseAddr;
     flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Command;
-    flashXfer.SeqNumber     = 1;
+    if (flashInstMode == kFlashInstMode_Hyper)
+    {
+        flashXfer.SeqNumber = 2;
+    }
+    else
+    {
+        flashXfer.SeqNumber = 1;
+    }
     switch (flashInstMode)
     {
         case kFlashInstMode_QPI_1:
@@ -124,6 +131,7 @@ status_t mixspi_nor_write_enable(FLEXSPI_Type *base, uint32_t baseAddr, flash_in
             break;
 
         case kFlashInstMode_SPI:
+        case kFlashInstMode_Hyper:
         default:
             flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_WRITEENABLE;
             break;
@@ -145,7 +153,16 @@ status_t mixspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashIns
     flashXfer.deviceAddress = 0;
     flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Read;
-    flashXfer.SeqNumber     = 1;
+    if (flashInstMode == kFlashInstMode_Hyper)
+    {
+        flashXfer.SeqNumber = 2;
+        flashXfer.dataSize = 2;
+    }
+    else
+    {
+        flashXfer.SeqNumber = 1;
+        flashXfer.dataSize = 1;
+    }
     switch (flashInstMode)
     {
         case kFlashInstMode_QPI_1:
@@ -158,12 +175,12 @@ status_t mixspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashIns
             break;
 
         case kFlashInstMode_SPI:
+        case kFlashInstMode_Hyper:
         default:
             flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_READSTATUS;
             break;
     }
     flashXfer.data     = &readValue;
-    flashXfer.dataSize = 1;
 
     do
     {
@@ -173,26 +190,45 @@ status_t mixspi_nor_wait_bus_busy(FLEXSPI_Type *base, flash_inst_mode_t flashIns
         {
             return status;
         }
-        if (g_flashPropertyInfo.flashBusyStatusPol)
+        if (flashInstMode == kFlashInstMode_Hyper)
         {
-            if (readValue & (1U << g_flashPropertyInfo.flashBusyStatusOffset))
+            if (readValue & (1U << (g_flashPropertyInfo.flashBusyStatusOffset + 8)))
             {
-                isBusy = true;
+                isBusy = false;
             }
             else
             {
-                isBusy = false;
+                isBusy = true;
+            }
+            if (readValue & ((uint16_t)g_flashPropertyInfo.flashMixStatusMask << 8))
+            {
+                status = kStatus_Fail;
+                break;
             }
         }
         else
         {
-            if (readValue & (1U << g_flashPropertyInfo.flashBusyStatusOffset))
+            if (g_flashPropertyInfo.flashBusyStatusPol)
             {
-                isBusy = false;
+                if (readValue & (1U << g_flashPropertyInfo.flashBusyStatusOffset))
+                {
+                    isBusy = true;
+                }
+                else
+                {
+                    isBusy = false;
+                }
             }
             else
             {
-                isBusy = true;
+                if (readValue & (1U << g_flashPropertyInfo.flashBusyStatusOffset))
+                {
+                    isBusy = false;
+                }
+                else
+                {
+                    isBusy = true;
+                }
             }
         }
 
@@ -355,7 +391,14 @@ status_t mixspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, fla
     flashXfer.deviceAddress = address;
     flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Command;
-    flashXfer.SeqNumber     = 1;
+    if (flashInstMode == kFlashInstMode_Hyper)
+    {
+        flashXfer.SeqNumber = 4;
+    }
+    else
+    {
+        flashXfer.SeqNumber = 1;
+    }
     switch (flashInstMode)
     {
         case kFlashInstMode_QPI_1:
@@ -368,12 +411,13 @@ status_t mixspi_nor_flash_erase_sector(FLEXSPI_Type *base, uint32_t address, fla
             break;
 
         case kFlashInstMode_SPI:
+        case kFlashInstMode_Hyper:
         default:
             flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_ERASESECTOR;
             break;
     }
 
-    status                  = FLEXSPI_TransferBlocking(base, &flashXfer);
+    status = FLEXSPI_TransferBlocking(base, &flashXfer);
     if (status != kStatus_Success)
     {
         return status;
@@ -401,6 +445,22 @@ status_t mixspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, con
     mixspi_nor_disable_cache(&cacheStatus);
 #endif
 
+    if (flashInstMode == kFlashInstMode_Hyper)
+    {
+        /* Speed down flexspi clock, beacuse 50 MHz timings are only relevant when a burst write is used to load data during
+         * a HyperFlash Word Program command. */
+        mixspi_clock_init(EXAMPLE_MIXSPI, kMixspiRootClkFreq_50MHz);
+
+        /* Get current flexspi root clock. */
+        g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
+
+        /* Update DLL value depending on flexspi root clock. */
+        FLEXSPI_UpdateDllValue(base, &g_deviceconfig, EXAMPLE_MIXSPI_PORT);
+
+        /* Do software reset. */
+        FLEXSPI_SoftwareReset(base);
+    }
+
     /* Write enable */
     status = mixspi_nor_write_enable(base, address, flashInstMode);
 
@@ -413,7 +473,14 @@ status_t mixspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, con
     flashXfer.deviceAddress = address;
     flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Write;
-    flashXfer.SeqNumber     = 1;
+    if (flashInstMode == kFlashInstMode_Hyper)
+    {
+        flashXfer.SeqNumber = 2;
+    }
+    else
+    {
+        flashXfer.SeqNumber = 1;
+    }
     switch (flashInstMode)
     {
         case kFlashInstMode_QPI_1:
@@ -426,6 +493,7 @@ status_t mixspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, con
             break;
 
         case kFlashInstMode_SPI:
+        case kFlashInstMode_Hyper:
         default:
             flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM;
             break;
@@ -440,6 +508,18 @@ status_t mixspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, con
     }
 
     status = mixspi_nor_wait_bus_busy(base, flashInstMode);
+
+    if (flashInstMode == kFlashInstMode_Hyper)
+    {
+        /* Speed up flexspi clock for a high read performance. */
+        mixspi_clock_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiRootClkFreq);
+
+        /* Get current flexspi root clock. */
+        g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
+
+        /* Update DLL value depending on flexspi root clock. */
+        FLEXSPI_UpdateDllValue(base, &g_deviceconfig, EXAMPLE_MIXSPI_PORT);
+    }
 
     /* Do software reset or clear AHB buffer directly. */
 #if defined(FSL_FEATURE_SOC_OTFAD_COUNT) && defined(FLEXSPI_AHBCR_CLRAHBRXBUF_MASK) && \
@@ -497,7 +577,7 @@ status_t mixspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_in
     return status;
 }
 
-void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock)
+void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock, flash_inst_mode_t flashInstMode)
 {
     flexspi_config_t config;
 
@@ -525,6 +605,16 @@ void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexsp
 #endif
     config.ahbConfig.enableAHBBufferable = true;
     config.ahbConfig.enableAHBCachable   = true;
+    if (flashInstMode == kFlashInstMode_Hyper)
+    {
+        /*Allow AHB read start address do not follow the alignment requirement. */
+        config.ahbConfig.enableReadAddressOpt = true;
+#if !(defined(FSL_FEATURE_FLEXSPI_HAS_NO_MCR2_SCKBDIFFOPT) && FSL_FEATURE_FLEXSPI_HAS_NO_MCR2_SCKBDIFFOPT)
+        /* enable diff clock  */
+        config.enableSckBDiffOpt = true;
+#endif
+    }
+
     FLEXSPI_Init(base, &config);
 
     /* Configure flash settings according to serial flash feature. */

@@ -21,10 +21,70 @@
  * Variables
  ******************************************************************************/
 
+const uint32_t g_mixspiRootClkFreqInMHz[] = {0, 30, 50, 60, 80, 100, 120, 133, 166, 200, 240, 266, 332, 400};
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
+
+uint32_t decode_mixspi_root_clk_defn(mixspi_root_clk_freq_t mixspiRootClkFreq)
+{
+    /*
+    switch(mixspiRootClkFreq)
+    {
+        case kMixspiRootClkFreq_50MHz: 
+            return 50;
+        case kMixspiRootClkFreq_60MHz: 
+            return 60;
+        case kMixspiRootClkFreq_80MHz: 
+            return 80;
+        case kMixspiRootClkFreq_100MHz: 
+            return 100;
+        case kMixspiRootClkFreq_120MHz: 
+            return 120;
+        case kMixspiRootClkFreq_133MHz: 
+            return 133;
+        case kMixspiRootClkFreq_166MHz: 
+            return 166;
+        case kMixspiRootClkFreq_200MHz: 
+            return 200;
+        case kMixspiRootClkFreq_240MHz: 
+            return 240;
+        case kMixspiRootClkFreq_266MHz: 
+            return 266;
+        case kMixspiRootClkFreq_332MHz: 
+            return 332;
+        case kMixspiRootClkFreq_400MHz: 
+            return 400;
+        case kMixspiRootClkFreq_30MHz:
+        default:
+            return 30;
+    }
+   */
+    
+    return g_mixspiRootClkFreqInMHz[(uint32_t)mixspiRootClkFreq];
+}
+
+mixspi_root_clk_freq_t get_current_mixspi_root_clk(uint32_t clkInHz)
+{
+    uint32_t clkInMHz = clkInHz / 1000000;
+    uint32_t idx = 1;
+    for (; idx < sizeof(g_mixspiRootClkFreqInMHz)/sizeof(uint32_t) - 1; idx++)
+    {
+        if (clkInMHz < g_mixspiRootClkFreqInMHz[idx + 1])
+        {
+            uint32_t delta1 = (g_mixspiRootClkFreqInMHz[idx] >= clkInMHz)?(g_mixspiRootClkFreqInMHz[idx] - clkInMHz):(clkInMHz - g_mixspiRootClkFreqInMHz[idx]);
+            uint32_t delta2 = g_mixspiRootClkFreqInMHz[idx + 1] - clkInMHz;
+            if (delta1 < delta2)
+            {
+                idx++;
+            }
+            break;
+        }
+    }
+    
+    return (mixspi_root_clk_freq_t)idx;
+}
 
 uint32_t mfb_flash_decode_common_capacity_id(uint8_t capacityID)
 {

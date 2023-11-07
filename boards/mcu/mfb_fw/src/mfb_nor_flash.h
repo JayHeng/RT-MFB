@@ -34,8 +34,9 @@ typedef enum _flash_inst_mode
     kFlashInstMode_QPI_1  = 1,
     kFlashInstMode_QPI_2  = 2,
     kFlashInstMode_OPI    = 3,
+    kFlashInstMode_Hyper  = 4,
 
-    kFlashInstMode_MAX    = 4,
+    kFlashInstMode_MAX    = 5,
 } flash_inst_mode_t;
 
 // Flash property info for operation
@@ -51,10 +52,11 @@ typedef struct _flash_property_info
     uint32_t flashMemSizeInByte;
     uint8_t  flashBusyStatusPol;
     uint8_t  flashBusyStatusOffset;
+    uint8_t  flashMixStatusMask;
+    uint8_t  reserved;
     uint16_t flashQuadEnableCfg;
     uint8_t  flashQuadEnableBytes;
     uint8_t  flashEnableOctalCmd;
-    uint8_t  reserved[2];
     uint32_t flashDummyValue;
 } flash_property_info_t;
 
@@ -80,32 +82,31 @@ typedef struct _flash_reg_access
 
 // FlexSPI LUT seq defn (common)
 #define NOR_CMD_LUT_SEQ_IDX_READ            0
-#define NOR_CMD_LUT_SEQ_IDX_READSTATUS      1
-#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     2
-#define NOR_CMD_LUT_SEQ_IDX_SETDUMMY        3
-#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR     4
-#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     5
-#define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        6
-#define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        7
-#define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        8
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR     1
+#define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        2
+#define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        3
+#define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        4
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS      5
+#define NOR_CMD_LUT_SEQ_IDX_SETDUMMY        6
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     7
+#define NOR_CMD_LUT_SEQ_IDX_READREG         8
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     10
+#define NOR_CMD_LUT_SEQ_IDX_READREG2        11
 // FlexSPI LUT seq defn (1bit spi)
-#define NOR_CMD_LUT_SEQ_IDX_READID          10
-#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_1    11
-#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_2    12
-#define NOR_CMD_LUT_SEQ_IDX_READID_OPI      13
+#define NOR_CMD_LUT_SEQ_IDX_READID          12
+#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_1    13
+#define NOR_CMD_LUT_SEQ_IDX_READID_QPI_2    14
+#define NOR_CMD_LUT_SEQ_IDX_READID_OPI      15
 // FlexSPI LUT seq defn (quad lut)
-#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI  10
-#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_QPI 11
-#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_QPI 12
-#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_QPI 13
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI  12
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_QPI 13
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_QPI 14
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_QPI 15
 // FlexSPI LUT seq defn (octal lut)
-#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  10
-#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI 11
-#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI 12
-#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI 13
-
-#define NOR_CMD_LUT_SEQ_IDX_READREG         14
-#define NOR_CMD_LUT_SEQ_IDX_READREG2        15
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI  12
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI 13
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI 14
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI 15
 
 /* NOTE: Workaround for debugger.
    Must define AHB write FlexSPI sequence index to 9 to avoid debugger issue.
@@ -176,6 +177,8 @@ typedef struct _flash_reg_access
 #define ISSI_DEVICE_IS25WP128       (0)  // MIMXRT1180-MEM-BB&DS
 #define ISSI_DEVICE_OCTAL           (1)
 #define ISSI_DEVICE_IS25WX256       (1)  // MIMXRT1180-MEM-BB&DS
+#define ISSI_DEVICE_HYPERBUS        (0)
+#define ISSI_DEVICE_IS26KS256       (0)
 ////////////////////////////////////////////////////////////////////////////////
 #define MICRON_DEVICE_SERIES        (1)
 #define MICRON_DEVICE_VENDOR_ID     (0x20)
@@ -206,8 +209,8 @@ typedef struct _flash_reg_access
 #define SPANSION_DEVICE_S25FL064L   (1)
 #define SPANSION_DEVICE_OCTAL       (1)
 #define SPANSION_DEVICE_S28HS512    (1)
-#define SPANSION_DEVICE_HYPERBUS    (0)
-#define SPANSION_DEVICE_S26KS512    (0)  // MIMXRT1050-EVKB (S26KS512)
+#define SPANSION_DEVICE_HYPERBUS    (1)
+#define SPANSION_DEVICE_S26KS512    (1)  // MIMXRT1050-EVKB (S26KS512)
    
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \
@@ -226,6 +229,8 @@ typedef struct _flash_reg_access
 
 extern flash_property_info_t g_flashPropertyInfo;
 
+extern const uint32_t g_mixspiRootClkFreqInMHz[];
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -237,9 +242,11 @@ extern status_t mixspi_nor_enable_qpi_mode(MIXSPI_Type *base);
 extern status_t mixspi_nor_enable_opi_mode(MIXSPI_Type *base);
 extern status_t mixspi_nor_flash_erase_sector(MIXSPI_Type *base, uint32_t address, flash_inst_mode_t flashInstMode);
 extern status_t mixspi_nor_flash_page_program(MIXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode);
-extern void mixspi_nor_flash_init(MIXSPI_Type *base, const uint32_t *customLUT, mixspi_read_sample_clock_t rxSampleClock);
+extern void mixspi_nor_flash_init(MIXSPI_Type *base, const uint32_t *customLUT, mixspi_read_sample_clock_t rxSampleClock, flash_inst_mode_t flashInstMode);
 extern status_t mixspi_nor_read_register(MIXSPI_Type *base, flash_reg_access_t *regAccess);
 
+extern uint32_t decode_mixspi_root_clk_defn(mixspi_root_clk_freq_t mixspiRootClkFreq);
+extern mixspi_root_clk_freq_t get_current_mixspi_root_clk(uint32_t clkInHz);
 extern uint32_t mfb_flash_decode_common_capacity_id(uint8_t capacityID);
 extern uint32_t mfb_flash_decode_adesto_capacity_id(uint8_t capacityID);
 extern void mfb_flash_show_mem_size(uint8_t capacityID, bool isAdesto);
@@ -271,6 +278,7 @@ extern void mfb_flash_show_registers_for_adesto(bool isOctalFlash);
 #if SPANSION_DEVICE_SERIES
 extern void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_spansion(bool isOctalFlash);
+extern void mfb_hyperflash_set_param_for_spansion(void);
 #endif
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);
 extern bool mfb_flash_pattern_verify_test(bool showError);
