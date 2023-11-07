@@ -179,6 +179,7 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
 
 void mfb_hyper_flash_test(void)
 {
+    status_t status = kStatus_Success;
     /* Adjust device parammenter */
     g_deviceconfig.isSck2Enabled        = false;
     g_deviceconfig.CSInterval           = 2;
@@ -205,6 +206,19 @@ void mfb_hyper_flash_test(void)
     /* Init FlexSPI using custom LUT */
     mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, kFlashInstMode_Hyper);
     mfb_printf("MFB: FLEXSPI module is initialized to hyperbus read mode.\r\n");
+    
+    /* Get CFI device ID. */
+    cfi_device_id_t cfiDeviceId;
+    memset((void *)&cfiDeviceId, 0x00, sizeof(cfiDeviceId));
+    status = mixspi_nor_get_cfi_id(EXAMPLE_MIXSPI, &cfiDeviceId);
+    if (status != kStatus_Success)
+    {
+        mfb_printf("MFB: Get Flash CFI device ID failed");
+    }
+    else
+    {
+        mfb_hyperflash_show_info_for_spansion(&cfiDeviceId);
+    }
 
     /* Don't show error info when it is 1st round, as flash may be blank this time */
     if (!mfb_flash_pattern_verify_test(false))

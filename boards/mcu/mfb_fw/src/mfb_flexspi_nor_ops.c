@@ -577,6 +577,109 @@ status_t mixspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_in
     return status;
 }
 
+static status_t mixspi_nor_read_cfi(FLEXSPI_Type *base, uint32_t addr, uint32_t *buffer, uint32_t bytes)
+{
+    flexspi_transfer_t flashXfer;
+    status_t status;
+
+    flashXfer.deviceAddress = addr * 2;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
+    flashXfer.cmdType       = kFLEXSPI_Read;
+    flashXfer.SeqNumber     = 1;
+    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_READ;
+    flashXfer.data          = buffer;
+    flashXfer.dataSize      = bytes;
+    status                  = FLEXSPI_TransferBlocking(base, &flashXfer);
+
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    return status;
+}
+
+static status_t mixspi_nor_write_cfi(FLEXSPI_Type *base, uint32_t addr, uint32_t *buffer, uint32_t bytes)
+{
+    flexspi_transfer_t flashXfer;
+    status_t status;
+
+    flashXfer.deviceAddress = addr * 2;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
+    flashXfer.cmdType       = kFLEXSPI_Write;
+    flashXfer.SeqNumber     = 1;
+    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_WRITE;
+    flashXfer.data          = buffer;
+    flashXfer.dataSize      = bytes;
+    status                  = FLEXSPI_TransferBlocking(base, &flashXfer);
+
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    return status;
+}
+
+#if defined(__ICCARM__)
+#pragma optimize = none
+#endif
+status_t mixspi_nor_get_cfi_id(FLEXSPI_Type *base, cfi_device_id_t *cfiDeviceId)
+{
+    /*
+     * Read ID-CFI Parameters
+     */
+    // CFI Entry
+    status_t status;
+    uint32_t buffer[2];
+    uint8_t data[4] = {0x00, 0x98};
+    status          = mixspi_nor_write_cfi(base, 0x555, (uint32_t *)data, 2);
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    // ID-CFI Read
+    // Read Query Unique ASCII String
+    status = mixspi_nor_read_cfi(base, 0x10, &buffer[0], sizeof(buffer));
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+    buffer[1] &= 0xFFFF;
+    // Check that the data read out is  unicode "QRY" in big-endian order
+    if ((buffer[0] != 0x52005100) || (buffer[1] != 0x5900))
+    {
+        status = kStatus_Fail;
+        return status;
+    }
+    // ID-CFI Read
+    // Read Device id
+    status = mixspi_nor_read_cfi(base, 0x01, &buffer[0], 4);
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+    status = mixspi_nor_read_cfi(base, 0x0e, &buffer[1], 4);
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+    memcpy((void *)cfiDeviceId, (void *)buffer, sizeof(cfiDeviceId));
+    // ASO Exit 0xF000
+    data[1] = 0xF0;
+    status  = mixspi_nor_write_cfi(base, 0x0, (uint32_t *)data, 2);
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    /* Do software reset. */
+    FLEXSPI_SoftwareReset(base);
+
+    return status;
+}
+
 void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock, flash_inst_mode_t flashInstMode)
 {
     flexspi_config_t config;

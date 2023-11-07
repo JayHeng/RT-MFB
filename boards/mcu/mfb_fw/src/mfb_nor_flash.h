@@ -27,6 +27,18 @@ typedef struct _jedec_id
     uint8_t reserved;
 } jedec_id_t;
 
+/*! @brief CFI device id structure. */
+typedef struct _cfi_device_id
+{
+    uint8_t reserved0;
+    uint8_t manufacturerID;
+    uint8_t reserved1;
+    uint8_t memoryTypeID;
+    uint8_t reserved2;
+    uint8_t capacityID;
+    uint8_t reserved3[2];
+} cfi_device_id_t;
+
 // Supported Flash inst mode
 typedef enum _flash_inst_mode
 {
@@ -236,6 +248,7 @@ extern const uint32_t g_mixspiRootClkFreqInMHz[];
  ******************************************************************************/
 
 extern status_t mixspi_nor_get_jedec_id(MIXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
+extern status_t mixspi_nor_get_cfi_id(MIXSPI_Type *base, cfi_device_id_t *cfiDeviceId);
 extern status_t mixspi_nor_set_dummy_cycle(MIXSPI_Type *base, uint8_t dummyCmd);
 extern status_t mixspi_nor_enable_quad_mode(MIXSPI_Type *base);
 extern status_t mixspi_nor_enable_qpi_mode(MIXSPI_Type *base);
@@ -279,6 +292,7 @@ extern void mfb_flash_show_registers_for_adesto(bool isOctalFlash);
 extern void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_spansion(bool isOctalFlash);
 extern void mfb_hyperflash_set_param_for_spansion(void);
+extern void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId);
 #endif
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);
 extern bool mfb_flash_pattern_verify_test(bool showError);
