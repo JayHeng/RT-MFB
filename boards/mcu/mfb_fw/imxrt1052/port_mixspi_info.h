@@ -23,10 +23,16 @@
 #define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
 
 #define EXAMPLE_MIXSPI                  FLEXSPI
-#define FLASH_SIZE                      0x10000 /* 512Mb/KByte */
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI_AMBA_BASE
+#if MFB_FLASH_HYPER_FLASH_ENABLE
+#define FLASH_SIZE                      0x10000 /* 512Mb/KByte */
 #define EXAMPLE_FLASH_PAGE_SIZE         512
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x40000 /* 256K */
+#else
+#define FLASH_SIZE                      0x2000  /* 64Mb/KByte */
+#define EXAMPLE_FLASH_PAGE_SIZE         256
+#define EXAMPLE_FLASH_SECTOR_SIZE       0x1000  /* 4K */
+#endif
 #define EXAMPLE_MIXSPI_CLOCK            kCLOCK_FlexSpi
 #define EXAMPLE_MIXSPI_PORT             kFLEXSPI_PortA1
 
