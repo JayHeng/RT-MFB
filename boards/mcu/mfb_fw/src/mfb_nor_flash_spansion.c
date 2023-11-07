@@ -452,7 +452,7 @@ void mfb_hyperflash_set_param_for_spansion(void)
 
 void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId)
 {
-    mfb_printf(" -- Spansion Serial Flash.\r\n");
+    mfb_printf("MFB: Flash Manufacturer ID: 0x%x -- Spansion Serial Flash.\r\n", cfiDeviceId->manufacturerID);
     mfb_printf("MFB: Flash Memory Type ID: 0x%x", cfiDeviceId->memoryTypeID);
     switch (cfiDeviceId->capacityID)
     {

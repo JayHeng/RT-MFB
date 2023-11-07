@@ -655,7 +655,7 @@ status_t mixspi_nor_get_cfi_id(FLEXSPI_Type *base, cfi_device_id_t *cfiDeviceId)
     }
     // ID-CFI Read
     // Read Device id
-    status = mixspi_nor_read_cfi(base, 0x01, &buffer[0], 4);
+    status = mixspi_nor_read_cfi(base, 0x00, &buffer[0], 4);
     if (status != kStatus_Success)
     {
         return status;
@@ -665,7 +665,12 @@ status_t mixspi_nor_get_cfi_id(FLEXSPI_Type *base, cfi_device_id_t *cfiDeviceId)
     {
         return status;
     }
-    memcpy((void *)cfiDeviceId, (void *)buffer, sizeof(cfiDeviceId));
+    /*
+    cfiDeviceId->manufacturerID = (buffer[0] >> 8) & 0xFF;
+    cfiDeviceId->memoryTypeID = (buffer[0] >> 24) & 0xFF;
+    cfiDeviceId->capacityID = (buffer[1] >> 8) & 0xFF;
+   */
+    memcpy((void *)cfiDeviceId, (void *)buffer, sizeof(cfi_device_id_t));
     // ASO Exit 0xF000
     data[1] = 0xF0;
     status  = mixspi_nor_write_cfi(base, 0x0, (uint32_t *)data, 2);
