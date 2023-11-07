@@ -51,7 +51,7 @@
 //            |                |  Octal DDR(8D-8D-8D)   |                       |
 //            |                |        BGA24           |                       |
 //-------------------------------------------------------------------------------
-//    0x0     |      5/0       |        50/42MHz        |           50MHz       |
+//    0x0     |      5/0       |        50/42MHz        |          50MHz        |
 //  0x8(def)  |     20/8       |      200/178MHz        |         156MHz        |
 //    0x9     |     22/9       |      200/192MHz        |         166MHz        |
 //    0xf     |     28/15      |         200MHz         |         166MHz        |
@@ -65,6 +65,14 @@
 #define SPANSION_OCTAL_FLASH_DUMMY_CYCLES      0x14   // 200MHz OPI DDR
 #endif
 #endif
+
+
+#if SPANSION_DEVICE_S26KS512
+#define SPANSION_HYPERFLASH_BUSY_STATUS_OFFSET 7
+#define SPANSION_HYPERFLASH_MIX_STATUS_MASK    0x32
+
+#endif
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/

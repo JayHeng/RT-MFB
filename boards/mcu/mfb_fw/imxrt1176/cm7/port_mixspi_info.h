@@ -20,7 +20,7 @@
  * Definitions
  ******************************************************************************/
  
- #define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
+#define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
  
 #define EXAMPLE_MIXSPI                  FLEXSPI1
 #define FLASH_SIZE                      0x8000 /* 32MB/KByte */

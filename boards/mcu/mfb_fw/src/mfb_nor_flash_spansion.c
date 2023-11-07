@@ -194,6 +194,102 @@ const uint32_t s_customLUT_SPANSION_Octal[CUSTOM_LUT_LENGTH] = {
 };
 #endif
 
+#if SPANSION_DEVICE_HYPERBUS
+const uint32_t s_customLUT_SPANSION_Hyper[CUSTOM_LUT_LENGTH] = {
+    /* Read Data */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xA0, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kFLEXSPI_8PAD, 0x10, kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04),
+
+    /* Write Data */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITE + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kFLEXSPI_8PAD, 0x10, kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x02),
+
+    /* Read Status */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xAA), // ADDR 0x555
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 3] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x70), // DATA 0x70
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 4] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xA0, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 5] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kFLEXSPI_8PAD, 0x10, kFLEXSPI_Command_DUMMY_RWDS_DDR, kFLEXSPI_8PAD, 0x0B),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 6] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x0),
+
+    /* Write Enable */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xAA), // ADDR 0x555
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05),
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 3] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xAA), // DATA 0xAA
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 4] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 5] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x55),
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 6] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x02),
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 7] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x55),
+
+    /* Erase Sector  */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xAA), // ADDR 0x555
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 3] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x80), // DATA 0x80
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 4] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 5] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xAA),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 6] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 7] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xAA), // ADDR 0x555
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 8] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 9] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x55),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 10] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x02),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 11] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x55),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 12] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 13] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kFLEXSPI_8PAD, 0x10, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 14] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x30, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* program page with word program command sequence */
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xAA), // ADDR 0x555
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 2] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x05),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 3] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0xA0), // DATA 0xA0
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 4] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kFLEXSPI_8PAD, 0x20, kFLEXSPI_Command_RADDR_DDR, kFLEXSPI_8PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 5] = 
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kFLEXSPI_8PAD, 0x10, kFLEXSPI_Command_WRITE_DDR, kFLEXSPI_8PAD, 0x80),
+};
+#endif
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -232,8 +328,8 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
     {
         g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_4PAD;
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_100MHz;
-        g_flashPropertyInfo.flashBusyStatusPol         = SPANSION_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset      = SPANSION_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashBusyStatusPol        = SPANSION_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset     = SPANSION_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_SPANSION_Quad;
     }
 #endif
@@ -241,9 +337,9 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
     if (g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_8PAD;
-        g_flashPropertyInfo.flashBusyStatusPol         = SPANSION_FLASH_BUSY_STATUS_POL;
-        g_flashPropertyInfo.flashBusyStatusOffset      = SPANSION_FLASH_BUSY_STATUS_OFFSET;
-        g_flashPropertyInfo.flashEnableOctalCmd        = SPANSION_OCTAL_FLASH_ENABLE_DDR_CMD;
+        g_flashPropertyInfo.flashBusyStatusPol        = SPANSION_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset     = SPANSION_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashEnableOctalCmd       = SPANSION_OCTAL_FLASH_ENABLE_DDR_CMD;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_SPANSION_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_30MHz;
@@ -342,6 +438,16 @@ void mfb_flash_show_registers_for_spansion(bool isOctalFlash)
         }
     }
 #endif
+}
+
+void mfb_hyperflash_set_param_for_spansion(void)
+{
+    g_flashPropertyInfo.mixspiPad             = kFLEXSPI_8PAD;
+    g_flashPropertyInfo.mixspiRootClkFreq     = kMixspiRootClkFreq_332MHz;
+    g_flashPropertyInfo.flashBusyStatusOffset = SPANSION_HYPERFLASH_BUSY_STATUS_OFFSET;
+    g_flashPropertyInfo.flashMixStatusMask    = SPANSION_HYPERFLASH_MIX_STATUS_MASK;
+    g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+    g_flashPropertyInfo.mixspiCustomLUTVendor = s_customLUT_SPANSION_Hyper;
 }
 
 #endif // SPANSION_DEVICE_SERIES
