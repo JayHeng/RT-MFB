@@ -137,70 +137,70 @@ typedef struct _flash_reg_access
 #define WINBOND_DEVICE_SERIES       (1)
 #define WINBOND_DEVICE_VENDOR_ID    (0xEF)
 #define WINBOND_DEVICE_QUAD         (1)
-#define WINBOND_DEVICE_W25QxxxJW    (1)  // MIMXRT1180-MEM-BB&DS, MIMXRT1180-EVK (W25Q128JW)
-#define WINBOND_DEVICE_W25QxxxJV    (0)  // MIMXRT1180-MEM-BB&DS
+#define WINBOND_DEVICE_W25QxxxJW    (1)  // MIMXRT1180-EVK (W25Q128JW)
+#define WINBOND_DEVICE_W25QxxxJV    (0)
 #define WINBOND_DEVICE_W25QxxxCL    (0)  // Small package not supported on MIMXRT1180-MEM-BB&DS
-#define WINBOND_DEVICE_W25QxxxNE    (0)  // MIMXRT1180-MEM-BB&DS
+#define WINBOND_DEVICE_W25QxxxNE    (0)
 #define WINBOND_DEVICE_W25QxxxFW    (0)
 #define WINBOND_DEVICE_W25QxxxEW    (0)
 #define WINBOND_DEVICE_W25QxxxDV    (0)
-#define WINBOND_DEVICE_W25MxxxJW    (0)  // MIMXRT1180-MEM-BB&DS
+#define WINBOND_DEVICE_W25MxxxJW    (0)
 #define WINBOND_DEVICE_OCTAL        (1)
-#define WINBOND_DEVICE_W35T51NW     (1)  // MIMXRT1180-MEM-BB&DS
+#define WINBOND_DEVICE_W35T51NW     (1)
 ////////////////////////////////////////////////////////////////////////////////
 #define MXIC_DEVICE_SERIES          (1)
 #define MXIC_DEVICE_VENDOR_ID       (0xC2)
 #define MXIC_DEVICE_QUAD            (1)
-#define MXIC_DEVICE_MX25Vxx35F      (0)  // MIMXRT1180-MEM-BB&DS
-#define MXIC_DEVICE_MX25Lxx33F      (1)  // MIMXRT1180-MEM-BB&DS
-#define MXIC_DEVICE_MX25Uxx35F      (0)  // MIMXRT1180-MEM-BB&DS, FRDM-K82F (MX25U3235F)
-#define MXIC_DEVICE_MX25Lxxx33F     (0)  // MIMXRT1180-MEM-BB&DS
-#define MXIC_DEVICE_MX25Uxxx32F     (0)  // MIMXRT1180-MEM-BB&DS
-#define MXIC_DEVICE_MX25Lxxx45G     (0)  // MIMXRT1180-MEM-BB&DS
-#define MXIC_DEVICE_MX25Uxxx45G     (0)  // MIMXRT1180-MEM-BB&DS, RD-RW612-BGA (MX25U51245G)
+#define MXIC_DEVICE_MX25Vxx35F      (0)
+#define MXIC_DEVICE_MX25Lxx33F      (1)
+#define MXIC_DEVICE_MX25Uxx35F      (0)  // FRDM-K82F (MX25U3235F)
+#define MXIC_DEVICE_MX25Lxxx33F     (0)
+#define MXIC_DEVICE_MX25Uxxx32F     (0)
+#define MXIC_DEVICE_MX25Lxxx45G     (0)
+#define MXIC_DEVICE_MX25Uxxx45G     (0)  // RD-RW612-BGA (MX25U51245G)
 #define MXIC_QUAD_FLASH_JEDEC_ID    (0x003725C2)
 #define MXIC_DEVICE_OCTAL           (1)
-#define MXIC_DEVICE_MX25UWxx345     (1)  // MIMXRT1180-MEM-BB&DS
-#define MXIC_DEVICE_MX25UMxx345     (0)  // MIMXRT1180-MEM-BB&DS, MIMXRT595-EVK (MX25UM51345), MIMXRT685-EVK (MX25UM51345)
-#define MXIC_DEVICE_MX25LMxx245     (0)  // MIMXRT1180-MEM-BB&DS
+#define MXIC_DEVICE_MX25UWxx345     (1)
+#define MXIC_DEVICE_MX25UMxx345     (0)  // MIMXRT595-EVK (MX25UM51345), MIMXRT685-EVK (MX25UM51345)
+#define MXIC_DEVICE_MX25LMxx245     (0)
 #define MXIC_OCTAL_FLASH_JEDEC_ID   (0x003781C2)
 ////////////////////////////////////////////////////////////////////////////////
 #define GIGADEVICE_DEVICE_SERIES    (1)
 #define GIGADEVICE_DEVICE_VENDOR_ID (0xC8)
 #define GIGADEVICE_DEVICE_QUAD      (1)
-#define GIGADEVICE_DEVICE_GD25QxxxC (1)  // MIMXRT1180-MEM-BB&DS
-#define GIGADEVICE_DEVICE_GD25BxxxE (0)  // MIMXRT1180-MEM-BB&DS
+#define GIGADEVICE_DEVICE_GD25QxxxC (1)
+#define GIGADEVICE_DEVICE_GD25BxxxE (0)
 #define GIGADEVICE_DEVICE_GD25QxxxE (0)  // MIMXRT1040-EVK(Rework-GD25Q80E)
-#define GIGADEVICE_DEVICE_GD25LQxxxC (0)  // MIMXRT1180-MEM-BB&DS
-#define GIGADEVICE_DEVICE_GD25LExxxD (0)  // MIMXRT1180-MEM-BB&DS
-#define GIGADEVICE_DEVICE_GD25LBxxxE (0)  // MIMXRT1180-MEM-BB&DS
-#define GIGADEVICE_DEVICE_GD25LTxxxE (0)  // MIMXRT1180-MEM-BB&DS
+#define GIGADEVICE_DEVICE_GD25LQxxxC (0)
+#define GIGADEVICE_DEVICE_GD25LExxxD (0)
+#define GIGADEVICE_DEVICE_GD25LBxxxE (0)
+#define GIGADEVICE_DEVICE_GD25LTxxxE (0)
 #define GIGADEVICE_DEVICE_OCTAL     (1)
-#define GIGADEVICE_DEVICE_GD25LX    (1)  // MIMXRT1180-MEM-BB&DS
-#define GIGADEVICE_DEVICE_GD25X     (0)  // MIMXRT1180-MEM-BB&DS
+#define GIGADEVICE_DEVICE_GD25LX    (1)
+#define GIGADEVICE_DEVICE_GD25X     (0)
 ////////////////////////////////////////////////////////////////////////////////
 #define ISSI_DEVICE_SERIES          (1)  // ISSI is acquired by 北京矽成 in 2015, 北京矽成 is acquired Ingenic by in 2020
 #define ISSI_DEVICE_VENDOR_ID       (0x9D)
 #define ISSI_DEVICE_QUAD            (1)
 #define ISSI_DEVICE_IS25LP064A      (0)  // MIMXRT1020-EVK (IS25LP064A)
 #define ISSI_DEVICE_IS25WP064A      (1)  // MIMXRT1060-EVK (IS25WP064A), MIMXRT1170-EVK/PMIC (IS25WP064A)
-#define ISSI_DEVICE_IS25LP064D      (0)  // MIMXRT1180-MEM-BB&DS
-#define ISSI_DEVICE_IS25WP064D      (0)  // MIMXRT1180-MEM-BB&DS
-#define ISSI_DEVICE_IS25WP128       (0)  // MIMXRT1180-MEM-BB&DS
+#define ISSI_DEVICE_IS25LP064D      (0)
+#define ISSI_DEVICE_IS25WP064D      (0)
+#define ISSI_DEVICE_IS25WP128       (0)
 #define ISSI_DEVICE_OCTAL           (1)
-#define ISSI_DEVICE_IS25WX256       (1)  // MIMXRT1180-MEM-BB&DS
+#define ISSI_DEVICE_IS25WX256       (1)
 #define ISSI_DEVICE_HYPERBUS        (0)
-#define ISSI_DEVICE_IS26KS256       (0)
+#define ISSI_DEVICE_IS26KS256       (0)  // ISSI hyperflash seems to be EOL
 ////////////////////////////////////////////////////////////////////////////////
 #define MICRON_DEVICE_SERIES        (1)
 #define MICRON_DEVICE_VENDOR_ID     (0x20)
 #define MICRON_DEVICE_VENDOR_ID2    (0x2C)
 #define MICRON_DEVICE_QUAD          (1)
-#define MICRON_DEVICE_MT25QU128     (1)  // MIMXRT1180-MEM-BB&DS
+#define MICRON_DEVICE_MT25QU128     (1)
 #define MICRON_DEVICE_MT25QL256     (0)  // MIMXRT1170-EVKB(Rework-MT25QL256)
 #define MICRON_DEVICE_OCTAL         (1)
-#define MICRON_DEVICE_MT35XU512_RW303 (1)  // MIMXRT1180-MEM-BB&DS
-#define MICRON_DEVICE_MT35XU512_RW304 (0)  // MIMXRT1180-EVK (MT35XU512_RW304)
+#define MICRON_DEVICE_MT35XU512_RW303 (1)
+#define MICRON_DEVICE_MT35XU512_RW304 (0)// MIMXRT1180-EVK (MT35XU512_RW304)
 #define MICRON_OCTAL_FLASH_JEDEC_ID (0x001a5B2C)
 ////////////////////////////////////////////////////////////////////////////////
 #define ADESTO_DEVICE_SERIES        (1)  // Adesto is acquired by Dialog in 2020, Dialog is acquired by Renesas in 2021
