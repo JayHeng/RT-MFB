@@ -24,7 +24,7 @@
 define symbol vector_table_size        = 0x00000400;
 define symbol ram_vector_table_size    = isdefinedsymbol(__ram_vector_table__) ? vector_table_size : 0;
 
-define symbol m_code_tcm_start         = 0x0FFE0000;
+define symbol m_code_tcm_start         = 0x0FFE3000;
 define symbol m_code_tcm_size          = 0x00020000;
 
 define symbol m_system_tcm_start       = 0x20000000;
