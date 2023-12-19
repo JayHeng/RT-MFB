@@ -26,6 +26,7 @@
 #define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
 
 #define EXAMPLE_MIXSPI                  FLEXSPI0
+#define FLASH_SIZE                      0x10000 /* 64MB/KByte */
 #define EXAMPLE_CACHE                   CACHE64_CTRL0
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI0_AMBA_BASE
 #define EXAMPLE_FLASH_PAGE_SIZE         256
