@@ -35,7 +35,7 @@ int main(void)
     BOARD_InitBootClocks();
     BOARD_InitDebugConsole();
 
-    mfb_printf("\r\nMFB: Target RW612.\r\n");
+    mfb_printf("\r\nMFB: Target RW610.\r\n");
     mfb_printf("\r\n-------------------------------------\r\n");
     mfb_main();
     mfb_printf("-------------------------------------\r\n");
