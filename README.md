@@ -214,91 +214,91 @@
     </tr>
     <tr>
         <td rowspan="18">兆易创新 GigaDevice</td>
-        <td>GD32LE32</td>
+        <td>GD25LE32</td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>GD32Q64CSIG</td>
+        <td>GD25Q64CSIG</td>
         <td>2.7 - 3.6V</td>
         <td>QuadSPI 120MHz SDR</td>
         <td>通过</td>
     </tr>
     <tr>
-        <td>GD32LQ64</td>
+        <td>GD25LQ64</td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>GD32LE64</td>
+        <td>GD25LE64</td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>GD32LB64ESIG</td>
+        <td>GD25LB64ESIG</td>
         <td>1.65 - 2.0V</td>
         <td>QuadSPI 133MHz SDR</td>
         <td>回读校验失败</td>
     </tr>
     <tr>
-        <td>GD32Q127CSIG</td>
+        <td>GD25Q127CSIG</td>
         <td>2.7 - 3.6V</td>
         <td>QuadSPI 104MHz SDR</td>
         <td>通过</td>
     </tr>
     <tr>
-        <td>GD32B128ESIG</td>
+        <td>GD25B128ESIG</td>
         <td>2.7 - 3.6V</td>
         <td>QuadSPI 133MHz SDR</td>
         <td>通过</td>
     </tr>
     <tr>
-        <td>GD32LE128DSIG</td>
+        <td>GD25LE128DSIG</td>
         <td>1.65 - 2.0V</td>
         <td>QuadSPI 120MHz SDR</td>
         <td>通过</td>
     </tr>
     <tr>
-        <td>GD32LQ128</td>
+        <td>GD25LQ128</td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>GD32LF128</td>
+        <td>GD25LF128</td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>GD32LT256EB1R</td>
+        <td>GD25LT256EB1R</td>
         <td>1.65 - 2.0V</td>
         <td>QuadSPI 166MHz SDR</td>
         <td>通过</td>
     </tr>
     <tr>
-        <td>GD32LB256</td>
+        <td>GD25LB256</td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>GD32LQ256</td>
+        <td>GD25LQ256</td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>GD32LF255</td>
+        <td>GD25LF255</td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>GD32LT512</td>
+        <td>GD25LT512</td>
         <td></td>
         <td></td>
         <td></td>
@@ -310,7 +310,7 @@
         <td></td>
     </tr>
     <tr>
-        <td>GD32X512MEB2R</td>
+        <td>GD25X512MEB2R</td>
         <td>2.7 - 3.6V</td>
         <td>OctalSPI 166MHz DDR<br>
             OctalSPI 200MHz DDR</td>
@@ -318,7 +318,7 @@
             回读校验失败</td>
     </tr>
     <tr>
-        <td>GD32LX512MEB1R</td>
+        <td>GD25LX512MEB1R</td>
         <td>1.65 - 2.0V</td>
         <td>OctalSPI 166MHz DDR<br>
             OctalSPI 200MHz DDR</td>
