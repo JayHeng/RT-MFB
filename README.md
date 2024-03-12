@@ -19,7 +19,8 @@
         <th>备注</th>
     </tr>
     <tr>
-        <td rowspan="9">华邦 Winbond</td>
+        <td rowspan="9">华邦<br>
+		                Winbond</td>
         <td>W25Q40CLNIG</td>
         <td>2.3-3.6V</td>
         <td>QSPI 104M SDR</td>
@@ -80,7 +81,8 @@
             回读校验失败</td>
     </tr>
     <tr>
-        <td rowspan="21">旺宏 Macronix</td>
+        <td rowspan="21">旺宏<br>
+		                 Macronix</td>
         <td>MX25V4035F</td>
         <td>2.3-3.6V</td>
         <td>QSPI 104M SDR</td>
@@ -213,7 +215,8 @@
         <td></td>
     </tr>
     <tr>
-        <td rowspan="18">兆易创新 GigaDevice</td>
+        <td rowspan="18">兆易创新<br>
+		                 GigaDevice</td>
         <td>GD25LE32</td>
         <td></td>
         <td></td>
@@ -357,7 +360,8 @@
         <td></td>
     </tr>
     <tr>
-        <td rowspan="5">镁光 Micron</td>
+        <td rowspan="5">镁光<br>
+		                Micron</td>
         <td>MT25QU128_RW138</td>
         <td>1.7-2.0V</td>
         <td>QSPI 166M SDR</td>
@@ -388,7 +392,8 @@
         <td></td>
     </tr>
     <tr>
-        <td rowspan="6">Renesas (Adesto)</td>
+        <td rowspan="6">Renesas<br>
+		                (Adesto)</td>
         <td>AT25QF641</td>
         <td></td>
         <td></td>
@@ -425,7 +430,8 @@
         <td></td>
     </tr>
     <tr>
-        <td rowspan="2">Infineon (Spansion)</td>
+        <td rowspan="2">Infineon<br>
+		                (Spansion)</td>
         <td>S25FL064L</td>
         <td></td>
         <td></td>
