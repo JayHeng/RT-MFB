@@ -154,7 +154,7 @@
 //------------------------------------------------------
 #endif
 
-#if ISSI_DEVICE_IS25WX256
+#if ISSI_DEVICE_IS25WX256 || ISSI_DEVICE_IS25LX256
 // 0xFF - Extended SPI (Default)
 // 0xDF - Extended SPI without DQS
 // 0xE7 - Octal DDR

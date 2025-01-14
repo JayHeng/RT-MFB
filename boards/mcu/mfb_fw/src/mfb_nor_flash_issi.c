@@ -77,7 +77,7 @@ const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
 };
 #endif
 
-#if ISSI_DEVICE_IS25WX256
+#if ISSI_DEVICE_IS25WX256 || ISSI_DEVICE_IS25LX256
 const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_OPI_MODE_DISABLE
     /*  DDR OCTAL I/O FAST READ */
@@ -202,6 +202,7 @@ void mfb_flash_set_param_for_issi(jedec_id_t *jedecID)
         case 0x5A:
             g_flashPropertyInfo.flashIsOctal = true;
             mfb_printf(" -- IS25LX OctalSPI 3.3V Series.\r\n");
+            g_flashPropertyInfo.flashDriveStrength = 0xFD;
             break;
         case 0x5B:
             g_flashPropertyInfo.flashIsOctal = true;

@@ -205,7 +205,8 @@ typedef struct _flash_reg_access
 #define ISSI_DEVICE_IS25WP064D      (0)
 #define ISSI_DEVICE_IS25WP128       (1)  // MIMXRT1170-EVK/PMIC (IS25WP128)
 #define ISSI_DEVICE_OCTAL           (1)
-#define ISSI_DEVICE_IS25WX256       (1)
+#define ISSI_DEVICE_IS25WX256       (0)
+#define ISSI_DEVICE_IS25LX256       (1)
 #define ISSI_DEVICE_HYPERBUS        (0)
 #define ISSI_DEVICE_IS26KS256       (0)  // ISSI hyperflash seems to be EOL
 ////////////////////////////////////////////////////////////////////////////////
