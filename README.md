@@ -456,7 +456,7 @@ FlexSPI2 pin multiplex options performance specifications:
             回读校验失败</td>
     </tr>
     <tr>
-        <td rowspan="10">芯成 ISSI</td>
+        <td rowspan="11">芯成 ISSI</td>
         <td>IS25LP064A</td>
         <td>2.3-3.6V</td>
         <td>133M (x4)</td>
@@ -504,8 +504,15 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>IS25LP128F</td>
         <td>2.3-3.6V</td>
         <td>166M (x4)</td>
-        <td></td>
-        <td></td>
+        <td>S133Mx4</td>
+        <td>通过</td>
+    </tr>
+    <tr>
+        <td>IS25LP512M</td>
+        <td>2.3-3.6V</td>
+        <td>133M (x4)</td>
+        <td>S133Mx4</td>
+        <td>通过</td>
     </tr>
     <tr>
         <td>IS25LP01G</td>

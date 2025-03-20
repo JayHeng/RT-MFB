@@ -51,11 +51,11 @@
 #elif ISSI_DEVICE_IS25WP064D | ISSI_DEVICE_IS25LP064D
 #define ISSI_FLASH_QUAD_ENABLE        0x40
 
-#define ISSI_QUAD_FLASH_SET_DUMMY_CMD 0x70
+#define ISSI_QUAD_FLASH_SET_DUMMY_CMD 0x48
 #if MFB_FLASH_USE_DEFAULT_DUMMY
 #define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x06
 #else
-#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x0E
+#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x09
 #endif
 
 // VDD = 2.70~3.6V, 125°„C
@@ -133,6 +133,38 @@
 //    0xe     |      14        |        133MHz         |
 //    0xf     |      15        |        133MHz         |
 //------------------------------------------------------
+#elif ISSI_DEVICE_IS25LP512M
+#define ISSI_FLASH_QUAD_ENABLE        0x40
+
+#define ISSI_QUAD_FLASH_SET_DUMMY_CMD 0x70
+#if MFB_FLASH_USE_DEFAULT_DUMMY
+#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x06
+#else
+#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x0E
+#endif
+
+//------------------------------------------------------
+//    P[6:3]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//    0x0     |    6(default)  |         75MHz         |
+//    0x1     |       1        |         25MHz         |
+//    0x2     |       2        |         33MHz         |
+//    0x3     |       3        |         40MHz         |
+//    0x4     |       4        |         50MHz         |
+//    0x5     |       5        |         60MHz         |
+//    0x6     |       6        |         75MHz         |
+//    0x7     |       7        |         84MHz         |
+//    0x8     |       8        |         95MHz         |
+//    0x9     |       9        |        104MHz         |
+//    0xa     |      10        |        110MHz         |
+//    0xb     |      11        |        117MHz         |
+//    0xc     |      12        |        120MHz         |
+//    0xd     |      13        |        125MHz         |
+//    0xe     |      14        |        133MHz         |
+//    0xf     |      15        |        133MHz         |
+//------------------------------------------------------
+
 #elif ISSI_DEVICE_IS25LP064A
 #define ISSI_FLASH_QUAD_ENABLE        0x40
 
