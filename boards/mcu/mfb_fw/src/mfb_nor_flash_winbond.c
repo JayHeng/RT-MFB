@@ -237,6 +237,10 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
 #endif
 #endif
             break;
+        case 0x90:
+            mfb_printf(" -- W25HxxxJV QuadlSPI 3.3V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+            break;
         ////////////////////////OctalSPI////////////////////////
         case 0x5B:
             g_flashPropertyInfo.flashIsOctal = true;

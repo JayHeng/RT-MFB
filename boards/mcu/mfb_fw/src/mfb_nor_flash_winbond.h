@@ -29,7 +29,8 @@
     WINBOND_DEVICE_W25QxxxNE | \
     WINBOND_DEVICE_W25QxxxEW | \
     WINBOND_DEVICE_W25QxxxDV | \
-    WINBOND_DEVICE_W25MxxxJW
+    WINBOND_DEVICE_W25MxxxJW | \
+    WINBOND_DEVICE_W25HxxxJV
 #define WINBOND_FLASH_QUAD_ENABLE        0x02
 
 // In Standard SPI mode, the ¡°Set Read Parameters (C0h)¡± instruction is not accepted. The dummy clocks

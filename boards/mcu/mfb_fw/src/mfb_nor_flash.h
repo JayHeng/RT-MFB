@@ -161,6 +161,7 @@ typedef struct _flash_reg_access
 #define WINBOND_DEVICE_W25QxxxDV    (0)
 #define WINBOND_DEVICE_W25QxxxNW    (0)  // MIMXRT1170-EVKB_Rev.Cx (W25Q512NW)
 #define WINBOND_DEVICE_W25MxxxJW    (0)
+#define WINBOND_DEVICE_W25HxxxJV    (0)
 #define WINBOND_QUAD_FLASH_JEDEC_ID (0x003740EF)
 #define WINBOND_DEVICE_OCTAL        (1)
 #define WINBOND_DEVICE_W35T51NW     (1)
