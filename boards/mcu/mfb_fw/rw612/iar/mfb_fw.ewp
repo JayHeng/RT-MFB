@@ -70,11 +70,11 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>9.40.2.67586</state>
+                    <state>9.50.1.69462</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
-                    <state>RW612	NXP RW612</state>
+                    <state>Default	None</state>
                 </option>
                 <option>
                     <name>GenLowLevelInterface</name>
@@ -116,21 +116,21 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>33</version>
-                    <state>61</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state>RW612	NXP RW612</state>
+                    <state>Default	None</state>
                 </option>
                 <option>
                     <name>FPU2</name>
                     <version>0</version>
-                    <state>6</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>NrRegs</name>
                     <version>0</version>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>NEON</name>
@@ -139,7 +139,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>33</version>
-                    <state>61</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -184,7 +184,7 @@
                 </option>
                 <option>
                     <name>TrustZone</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>TrustZoneModes</name>
@@ -214,7 +214,7 @@
                 <option>
                     <name>OG_32_64DeviceCoreSlave</name>
                     <version>33</version>
-                    <state>61</state>
+                    <state>0</state>
                 </option>
             </data>
         </settings>
