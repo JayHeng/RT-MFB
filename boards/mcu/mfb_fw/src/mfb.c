@@ -250,6 +250,86 @@ static void mfb_show_final_result(bool isTrue)
     }
 }
 
+static bool mfb_validate_jedec_id(flash_inst_mode_t *sta_flashInstMode, jedec_id_t *jedecID)
+{
+    bool sta_isValidVendorId = false;
+#if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
+    jedecID->manufacturerID = WINBOND_QUAD_FLASH_JEDEC_ID & 0xFF;
+    jedecID->memoryTypeID = (WINBOND_QUAD_FLASH_JEDEC_ID >> 8) & 0xFF;
+    jedecID->capacityID = (WINBOND_QUAD_FLASH_JEDEC_ID >> 16) & 0xFF;
+    /* Can change this variable according to Flash default state */
+    *sta_flashInstMode = kFlashInstMode_SPI;
+    /* Init FlexSPI using common LUT */ 
+    mfb_mixspi_common_init(*sta_flashInstMode);
+    sta_isValidVendorId = true;
+#else
+    status_t status = kStatus_Success;
+    while (*sta_flashInstMode < kFlashInstMode_MAX)
+    {
+        /* Init FlexSPI using common LUT */ 
+        mfb_mixspi_common_init(*sta_flashInstMode);
+        /* Read JEDEC id from flash */
+        status = mixspi_nor_get_jedec_id(EXAMPLE_MIXSPI, (uint32_t *)jedecID, *sta_flashInstMode);
+        if (status != kStatus_Success)
+        {
+            mfb_printf("MFB: Get Flash Vendor ID failed");
+        }
+        else
+        {
+            uint32_t idx;
+            for (idx = 0; idx < sizeof(s_flashVendorIDs); idx++)
+            {
+                if (jedecID->manufacturerID == s_flashVendorIDs[idx])
+                {
+                    break;
+                }
+            }
+            if (idx != sizeof(s_flashVendorIDs))
+            {
+                mfb_printf("MFB: Get Valid Flash Vendor ID.\r\n");
+                break;
+            }
+            else
+            {
+                mfb_printf("MFB: Get Invalid Flash Vendor ID 0x%x", jedecID->manufacturerID);
+            }
+        }
+        switch (*sta_flashInstMode)
+        {
+            case kFlashInstMode_OPI:
+                mfb_printf(" under OPI DDR mode.\r\n");
+                *sta_flashInstMode = kFlashInstMode_MAX;
+                break;
+
+            case kFlashInstMode_QPI_2:
+                mfb_printf(" under QPI_2 SDR mode.\r\n");
+                *sta_flashInstMode = kFlashInstMode_OPI;
+                break;
+
+            case kFlashInstMode_QPI_1:
+                mfb_printf(" under QPI_1 SDR mode.\r\n");
+                *sta_flashInstMode = kFlashInstMode_QPI_2;
+                break;
+
+            case kFlashInstMode_SPI:
+            default:
+                mfb_printf(" under Std/Ext SPI mode.\r\n");
+                *sta_flashInstMode = kFlashInstMode_QPI_1;
+                break;
+        }
+    }
+    if (status == kStatus_Success)
+#endif
+    {
+        /* Get real flash size according to jedec id result (it may not be appliable to some specifal adesto device) */
+        g_flashPropertyInfo.flashMemSizeInByte = mfb_flash_decode_common_capacity_id(jedecID->capacityID);
+        mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID->manufacturerID);
+        /* Check Vendor ID. */
+        sta_isValidVendorId = mfb_flash_is_valid_jedec_id(jedecID);
+    }
+    return sta_isValidVendorId;
+}
+
 void mfb_main(void)
 {
     status_t status = kStatus_Success;
@@ -277,90 +357,19 @@ void mfb_main(void)
     g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
     /* Show FlexSPI clock source */
     mixspi_show_clock_source(EXAMPLE_MIXSPI);
-
+    /* Set default paramenters */
+    g_flashPropertyInfo.flashHasQpiSupport = false;
+    g_flashPropertyInfo.flashIsOctal = false;
+    g_flashPropertyInfo.mixspiPad = kFLEXSPI_4PAD;
+    g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+    g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+    g_flashPropertyInfo.flashDummyValue = U32_VALUE_INVALID;
+    g_flashPropertyInfo.flashDriveStrength = U32_VALUE_INVALID;
+    g_flashPropertyInfo.flashQuadEnableBytes = 0;
+    g_flashPropertyInfo.flashUniqueCfg = U32_VALUE_INVALID;
     /* Get JEDEC ID. */
-#if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
-    jedecID.manufacturerID = WINBOND_QUAD_FLASH_JEDEC_ID & 0xFF;
-    jedecID.memoryTypeID = (WINBOND_QUAD_FLASH_JEDEC_ID >> 8) & 0xFF;
-    jedecID.capacityID = (WINBOND_QUAD_FLASH_JEDEC_ID >> 16) & 0xFF;
-    /* Can change this variable according to Flash default state */
-    sta_flashInstMode = kFlashInstMode_SPI;
-    /* Init FlexSPI using common LUT */ 
-    mfb_mixspi_common_init(sta_flashInstMode);
-#else
-    while (sta_flashInstMode < kFlashInstMode_MAX)
+    if (mfb_validate_jedec_id(&sta_flashInstMode, &jedecID))
     {
-        /* Init FlexSPI using common LUT */ 
-        mfb_mixspi_common_init(sta_flashInstMode);
-        /* Read JEDEC id from flash */
-        status = mixspi_nor_get_jedec_id(EXAMPLE_MIXSPI, (uint32_t *)&jedecID, sta_flashInstMode);
-        if (status != kStatus_Success)
-        {
-            mfb_printf("MFB: Get Flash Vendor ID failed");
-        }
-        else
-        {
-            uint32_t idx;
-            for (idx = 0; idx < sizeof(s_flashVendorIDs); idx++)
-            {
-                if (jedecID.manufacturerID == s_flashVendorIDs[idx])
-                {
-                    break;
-                }
-            }
-            if (idx != sizeof(s_flashVendorIDs))
-            {
-                mfb_printf("MFB: Get Valid Flash Vendor ID.\r\n");
-                break;
-            }
-            else
-            {
-                mfb_printf("MFB: Get Invalid Flash Vendor ID 0x%x", jedecID.manufacturerID);
-            }
-        }
-        switch (sta_flashInstMode)
-        {
-            case kFlashInstMode_OPI:
-                mfb_printf(" under OPI DDR mode.\r\n");
-                sta_flashInstMode = kFlashInstMode_MAX;
-                break;
-
-            case kFlashInstMode_QPI_2:
-                mfb_printf(" under QPI_2 SDR mode.\r\n");
-                sta_flashInstMode = kFlashInstMode_OPI;
-                break;
-
-            case kFlashInstMode_QPI_1:
-                mfb_printf(" under QPI_1 SDR mode.\r\n");
-                sta_flashInstMode = kFlashInstMode_QPI_2;
-                break;
-
-            case kFlashInstMode_SPI:
-            default:
-                mfb_printf(" under Std/Ext SPI mode.\r\n");
-                sta_flashInstMode = kFlashInstMode_QPI_1;
-                break;
-        }
-    }
-    if (status == kStatus_Success)
-#endif
-    {
-        bool sta_isValidVendorId = true;
-        /* Set default paramenters */
-        g_flashPropertyInfo.flashHasQpiSupport = false;
-        g_flashPropertyInfo.flashIsOctal = false;
-        g_flashPropertyInfo.mixspiPad = kFLEXSPI_4PAD;
-        g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
-        g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
-        g_flashPropertyInfo.flashDummyValue = U32_VALUE_INVALID;
-        g_flashPropertyInfo.flashDriveStrength = U32_VALUE_INVALID;
-        g_flashPropertyInfo.flashQuadEnableBytes = 0;
-        g_flashPropertyInfo.flashUniqueCfg = U32_VALUE_INVALID;
-        /* Get real flash size according to jedec id result (it may not be appliable to some specifal adesto device) */
-        g_flashPropertyInfo.flashMemSizeInByte = mfb_flash_decode_common_capacity_id(jedecID.capacityID);
-        mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID.manufacturerID);
-        /* Check Vendor ID. */
-        sta_isValidVendorId = mfb_flash_is_valid_jedec_id(&jedecID);
         /* Only run 1st perf and pattern verify when default flash state is Ext SPI mode */
         if (sta_flashInstMode == kFlashInstMode_SPI)
         {
@@ -376,170 +385,168 @@ void mfb_main(void)
                 mfb_flash_memcpy_perf_test(false);
             }
         }
-        if (sta_isValidVendorId)
+
+        mfb_printf("\r\nMFB: Set FlexSPI port to %d-bit pad.\r\n", 1u << (uint32_t)g_flashPropertyInfo.mixspiPad);
+        /* Configure FlexSPI pinmux as user prescriptive */
+        mixspi_pin_init(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, g_flashPropertyInfo.mixspiPad);
+        g_deviceconfig.flashSize = g_flashPropertyInfo.flashMemSizeInByte / 0x400;
+        /* Re-init FlexSPI using custom LUT */
+        mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
+        mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
+        /* Write dummy cycle value into flash if needed */
+        if (g_flashPropertyInfo.flashDummyValue != U32_VALUE_INVALID)
         {
-            mfb_printf("\r\nMFB: Set FlexSPI port to %d-bit pad.\r\n", 1u << (uint32_t)g_flashPropertyInfo.mixspiPad);
-            /* Configure FlexSPI pinmux as user prescriptive */
-            mixspi_pin_init(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, g_flashPropertyInfo.mixspiPad);
-            g_deviceconfig.flashSize = g_flashPropertyInfo.flashMemSizeInByte / 0x400;
-            /* Re-init FlexSPI using custom LUT */
-            mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
-            mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
-            /* Write dummy cycle value into flash if needed */
-            if (g_flashPropertyInfo.flashDummyValue != U32_VALUE_INVALID)
+            mixspi_nor_set_dummy_cycle(EXAMPLE_MIXSPI, (uint8_t)(g_flashPropertyInfo.flashDummyValue & 0xFF));
+            mfb_printf("MFB: Flash register (with dummy cycle) is set to 0x%x.\r\n", g_flashPropertyInfo.flashDummyValue);
+        }
+        /* Write drive strength value into flash if needed */
+        if (g_flashPropertyInfo.flashDriveStrength != U32_VALUE_INVALID)
+        {
+            mixspi_nor_set_drive_strength(EXAMPLE_MIXSPI, (uint8_t)(g_flashPropertyInfo.flashDriveStrength & 0xFF));
+            mfb_printf("MFB: Flash register (with drive strength) is set to 0x%x.\r\n", g_flashPropertyInfo.flashDriveStrength);
+        }
+        /* Write unique config value into flash if needed */
+        if (g_flashPropertyInfo.flashUniqueCfg != U32_VALUE_INVALID)
+        {
+            mixspi_nor_set_unique_cfg(EXAMPLE_MIXSPI, (uint8_t)(g_flashPropertyInfo.flashUniqueCfg & 0xFF));
+            mfb_printf("MFB: Flash register (for unique cfg) is set to 0x%x.\r\n", g_flashPropertyInfo.flashUniqueCfg);
+        }
+        if (!g_flashPropertyInfo.flashIsOctal)
+        {
+            if (sta_flashInstMode == kFlashInstMode_SPI)
             {
-                mixspi_nor_set_dummy_cycle(EXAMPLE_MIXSPI, (uint8_t)(g_flashPropertyInfo.flashDummyValue & 0xFF));
-                mfb_printf("MFB: Flash register (with dummy cycle) is set to 0x%x.\r\n", g_flashPropertyInfo.flashDummyValue);
-            }
-            /* Write drive strength value into flash if needed */
-            if (g_flashPropertyInfo.flashDriveStrength != U32_VALUE_INVALID)
-            {
-                mixspi_nor_set_drive_strength(EXAMPLE_MIXSPI, (uint8_t)(g_flashPropertyInfo.flashDriveStrength & 0xFF));
-                mfb_printf("MFB: Flash register (with drive strength) is set to 0x%x.\r\n", g_flashPropertyInfo.flashDriveStrength);
-            }
-            /* Write unique config value into flash if needed */
-            if (g_flashPropertyInfo.flashUniqueCfg != U32_VALUE_INVALID)
-            {
-                mixspi_nor_set_unique_cfg(EXAMPLE_MIXSPI, (uint8_t)(g_flashPropertyInfo.flashUniqueCfg & 0xFF));
-                mfb_printf("MFB: Flash register (for unique cfg) is set to 0x%x.\r\n", g_flashPropertyInfo.flashUniqueCfg);
-            }
-            if (!g_flashPropertyInfo.flashIsOctal)
-            {
-                if (sta_flashInstMode == kFlashInstMode_SPI)
-                {
 #if MFB_FLASH_QPI_MODE_ENABLE
-                    if (g_flashPropertyInfo.flashHasQpiSupport)
+                if (g_flashPropertyInfo.flashHasQpiSupport)
+                {
+                    /* Enter QPI SDR mode. */
+                    status = mixspi_nor_enable_qpi_mode(EXAMPLE_MIXSPI);
+                    if (status != kStatus_Success)
                     {
-                        /* Enter QPI SDR mode. */
-                        status = mixspi_nor_enable_qpi_mode(EXAMPLE_MIXSPI);
-                        if (status != kStatus_Success)
-                        {
-                            mfb_printf("MFB: Flash failed to Enter QPI SDR mode.\r\n");
-                        }
-                        else
-                        {
-                            sta_flashInstMode = kFlashInstMode_QPI_1;
-                            mfb_printf("MFB: Flash entered QPI SDR mode.\r\n");
-                        }
+                        mfb_printf("MFB: Flash failed to Enter QPI SDR mode.\r\n");
                     }
                     else
-#endif
                     {
-                        /* Enable quad mode. */
-                        if (g_flashPropertyInfo.flashQuadEnableBytes)
-                        {
-                            status = mixspi_nor_enable_quad_mode(EXAMPLE_MIXSPI);
-                            if (status != kStatus_Success)
-                            {
-                                mfb_printf("MFB: Flash failed to Enter Quad I/O SDR mode.\r\n");
-                            }
-                            else
-                            {
-                                mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
-                            }
-                        }
-                        else
-                        {
-                            mfb_printf("MFB: Flash remained in default Quad Enable mode.\r\n");
-                        }
-                        /* Read internal registers of Flash */
-                        mfb_flash_show_registers(&jedecID, false);
+                        sta_flashInstMode = kFlashInstMode_QPI_1;
+                        mfb_printf("MFB: Flash entered QPI SDR mode.\r\n");
                     }
                 }
                 else
+#endif
                 {
-                    mfb_printf("MFB: Flash remained in default QPI SDR mode.\r\n");
+                    /* Enable quad mode. */
+                    if (g_flashPropertyInfo.flashQuadEnableBytes)
+                    {
+                        status = mixspi_nor_enable_quad_mode(EXAMPLE_MIXSPI);
+                        if (status != kStatus_Success)
+                        {
+                            mfb_printf("MFB: Flash failed to Enter Quad I/O SDR mode.\r\n");
+                        }
+                        else
+                        {
+                            mfb_printf("MFB: Flash entered Quad I/O SDR mode.\r\n");
+                        }
+                    }
+                    else
+                    {
+                        mfb_printf("MFB: Flash remained in default Quad Enable mode.\r\n");
+                    }
+                    /* Read internal registers of Flash */
+                    mfb_flash_show_registers(&jedecID, false);
                 }
             }
             else
             {
-                /* Only When defult flash is Ext SPI mode, Enter OPI DDR mode then */
-                if (sta_flashInstMode != kFlashInstMode_OPI)
-                {
-                    /* Enter OPI DDR mode. */
+                mfb_printf("MFB: Flash remained in default QPI SDR mode.\r\n");
+            }
+        }
+        else
+        {
+            /* Only When defult flash is Ext SPI mode, Enter OPI DDR mode then */
+            if (sta_flashInstMode != kFlashInstMode_OPI)
+            {
+                /* Enter OPI DDR mode. */
 #if !MFB_FLASH_OPI_MODE_DISABLE
-                    status = mixspi_nor_enable_opi_mode(EXAMPLE_MIXSPI);
-                    if (status != kStatus_Success)
-                    {
-                        mfb_printf("MFB: Flash failed to Enter OPI DDR mode.\r\n");
-                    }
-                    else
-                    {
-                        sta_flashInstMode = kFlashInstMode_OPI;
-                        mfb_printf("MFB: Flash entered OPI DDR mode.\r\n");
-                        /* Read internal regiters of Flash */
-                        mfb_flash_show_registers(&jedecID, true);
-                    }
-#else
-                    mfb_printf("MFB: Flash ran in Octal I/O SPI mode.\r\n");
-#endif
+                status = mixspi_nor_enable_opi_mode(EXAMPLE_MIXSPI);
+                if (status != kStatus_Success)
+                {
+                    mfb_printf("MFB: Flash failed to Enter OPI DDR mode.\r\n");
                 }
                 else
                 {
-#if !MFB_FLASH_OPI_MODE_DISABLE
-                    mfb_printf("MFB: Flash remained in default OPI DDR mode.\r\n");
+                    sta_flashInstMode = kFlashInstMode_OPI;
+                    mfb_printf("MFB: Flash entered OPI DDR mode.\r\n");
                     /* Read internal regiters of Flash */
                     mfb_flash_show_registers(&jedecID, true);
+                }
+#else
+                mfb_printf("MFB: Flash ran in Octal I/O SPI mode.\r\n");
+#endif
+            }
+            else
+            {
+#if !MFB_FLASH_OPI_MODE_DISABLE
+                mfb_printf("MFB: Flash remained in default OPI DDR mode.\r\n");
+                /* Read internal regiters of Flash */
+                mfb_flash_show_registers(&jedecID, true);
 #else
 #warning "Do not support loopback dqs option when flash default state in OPI DDR"
 #endif
-                }
             }
-            if (status == kStatus_Success)
+        }
+        if (status == kStatus_Success)
+        {
+            /* Do patten verify test under Multi I/O fast read mode */
+            uint32_t round = 1;
+            while (round <= 2)
             {
-                /* Do patten verify test under Multi I/O fast read mode */
-                uint32_t round = 1;
-                while (round <= 2)
+                //bool showError = (round == 2);
+                /* Don't show error info when it is 1st round, as flash may be blank this time */
+                if (!mfb_flash_pattern_verify_test(true))
                 {
-                    //bool showError = (round == 2);
-                    /* Don't show error info when it is 1st round, as flash may be blank this time */
-                    if (!mfb_flash_pattern_verify_test(true))
-                    {
-                         /* Try to write pattern into flash when error occurs in 1st round */
-                         if (round == 1)
-                         {
-                             if (!mfb_flash_write_pattern_region(sta_flashInstMode))
-                             {
-                                 mfb_show_final_result(false);
-                                 return;
-                             }
-                         }
-                         else
+                     /* Try to write pattern into flash when error occurs in 1st round */
+                     if (round == 1)
+                     {
+                         if (!mfb_flash_write_pattern_region(sta_flashInstMode))
                          {
                              mfb_show_final_result(false);
                              return;
                          }
-                    }
-                    /* Increase speed for 2nd round */
-                    if (round != 2)
-                    {
-                        /* Get perf test result under Multi I/O fast read mode and pre-set speed*/
-                        mfb_flash_memcpy_perf_test(false);
-
-                        mfb_printf("\r\nMFB: Set FlexSPI root clock to %dMHz.\r\n", decode_mixspi_root_clk_defn(g_flashPropertyInfo.mixspiRootClkFreq));
-                        /* Configure FlexSPI clock as user prescriptive */ 
-                        mixspi_clock_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiRootClkFreq);
-                        /* Update root clock */
-                        g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
-                        /* Show FlexSPI clock source */
-                        mixspi_show_clock_source(EXAMPLE_MIXSPI);
-                        /* Re-init FlexSPI using custom LUT */
-                        mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
-                        mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
-
-                        round = 2;
-                    }
-                    else
-                    {
-                        break;
-                    }
+                     }
+                     else
+                     {
+                         mfb_show_final_result(false);
+                         return;
+                     }
                 }
-                /* Get perf test result under Multi I/O fast read mode and user-set speed */
-                mfb_flash_memcpy_perf_test(true);
-                mfb_show_final_result(true);
-                /* Jump into user application */
-                mfb_jump_to_application(EXAMPLE_MIXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
+                /* Increase speed for 2nd round */
+                if (round != 2)
+                {
+                    /* Get perf test result under Multi I/O fast read mode and pre-set speed*/
+                    mfb_flash_memcpy_perf_test(false);
+
+                    mfb_printf("\r\nMFB: Set FlexSPI root clock to %dMHz.\r\n", decode_mixspi_root_clk_defn(g_flashPropertyInfo.mixspiRootClkFreq));
+                    /* Configure FlexSPI clock as user prescriptive */ 
+                    mixspi_clock_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiRootClkFreq);
+                    /* Update root clock */
+                    g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
+                    /* Show FlexSPI clock source */
+                    mixspi_show_clock_source(EXAMPLE_MIXSPI);
+                    /* Re-init FlexSPI using custom LUT */
+                    mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
+                    mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
+
+                    round = 2;
+                }
+                else
+                {
+                    break;
+                }
             }
+            /* Get perf test result under Multi I/O fast read mode and user-set speed */
+            mfb_flash_memcpy_perf_test(true);
+            mfb_show_final_result(true);
+            /* Jump into user application */
+            mfb_jump_to_application(EXAMPLE_MIXSPI_AMBA_BASE + MFB_APP_IMAGE_OFFSET);
         }
     }
 }
