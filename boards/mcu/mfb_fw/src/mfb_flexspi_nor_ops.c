@@ -600,6 +600,25 @@ status_t mixspi_nor_get_jedec_id(FLEXSPI_Type *base, uint32_t *jedecId, flash_in
     return status;
 }
 
+#if defined(__ICCARM__)
+#pragma optimize = none
+#endif
+status_t mixspi_nor_get_jedec_sfdp(FLEXSPI_Type *base, uint32_t addr, uint32_t *jedecSfdp, uint32_t sfdpSize)
+{
+    flexspi_transfer_t flashXfer;
+    flashXfer.deviceAddress = addr;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
+    flashXfer.cmdType       = kFLEXSPI_Read;
+    flashXfer.SeqNumber     = 1;
+    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_READSFDP;
+    flashXfer.data          = jedecSfdp;
+    flashXfer.dataSize      = sfdpSize;
+
+    status_t status = FLEXSPI_TransferBlocking(base, &flashXfer);
+
+    return status;
+}
+
 static status_t mixspi_nor_read_cfi(FLEXSPI_Type *base, uint32_t addr, uint32_t *buffer, uint32_t bytes)
 {
     flexspi_transfer_t flashXfer;

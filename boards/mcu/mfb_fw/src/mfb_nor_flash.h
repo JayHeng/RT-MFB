@@ -62,6 +62,31 @@ typedef enum _flash_inst_mode
     kFlashInstMode_MAX    = 5,
 } flash_inst_mode_t;
 
+//!@brief SFDP related definitions
+#define SFDP_SIGNATURE 0x50444653 /* ASCII: SFDP */
+enum
+{
+    kSfdp_Version_Major_1_0 = 1,
+    kSfdp_Version_Minor_0 = 0, // JESD216
+    kSfdp_Version_Minor_A = 5, // JESD216A
+    kSfdp_Version_Minor_B = 6, // JESD216B
+    kSfdp_Version_Minor_C = 7, // JESD216C
+
+    kSfdp_BasicProtocolTableSize_Rev0 = 36,
+    kSfdp_BasicProtocolTableSize_RevA = 64,
+    kSfdp_BasicProtocolTableSize_RevB = kSfdp_BasicProtocolTableSize_RevA,
+    kSfdp_BasicProtocolTableSize_RevC = 80,
+};
+
+typedef struct _sfdp_header
+{
+    uint32_t signature;
+    uint8_t minor_rev;
+    uint8_t major_rev;
+    uint8_t param_hdr_num;
+    uint8_t sfdp_access_protocol; // Defined in JESD216C, reserved for older version
+} sfdp_header_t;
+
 // Flash property info for operation
 typedef struct _flash_property_info
 {
@@ -120,6 +145,7 @@ typedef struct _flash_reg_access
 #define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     10
 #define NOR_CMD_LUT_SEQ_IDX_READREG2        11
 // FlexSPI LUT seq defn (1bit spi)
+#define NOR_CMD_LUT_SEQ_IDX_READSFDP        11
 #define NOR_CMD_LUT_SEQ_IDX_READID          12
 #define NOR_CMD_LUT_SEQ_IDX_READID_QPI_1    13
 #define NOR_CMD_LUT_SEQ_IDX_READID_QPI_2    14
@@ -270,6 +296,7 @@ extern const uint32_t g_mixspiRootClkFreqInMHz[];
 
 extern status_t mixspi_nor_get_jedec_id(MIXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
 extern status_t mixspi_nor_get_cfi_id(MIXSPI_Type *base, cfi_device_id_t *cfiDeviceId);
+extern status_t mixspi_nor_get_jedec_sfdp(MIXSPI_Type *base, uint32_t addr, uint32_t *jedecSfdp, uint32_t sfdpSize);
 extern status_t mixspi_nor_set_dummy_cycle(MIXSPI_Type *base, uint8_t dummyCmd);
 extern status_t mixspi_nor_set_drive_strength(FLEXSPI_Type *base, uint8_t driveCmd);
 extern status_t mixspi_nor_set_unique_cfg(FLEXSPI_Type *base, uint8_t driveCmd);

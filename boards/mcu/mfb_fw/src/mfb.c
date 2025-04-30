@@ -87,6 +87,11 @@ const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     [4 * NOR_CMD_LUT_SEQ_IDX_READID_OPI + 1] = 
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
 
+    /* Read SFDP */
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSFDP] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x5A, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0xFF),
+
     /* Dummy write, do nothing when AHB write command is triggered. */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
@@ -250,7 +255,7 @@ static void mfb_show_final_result(bool isTrue)
     }
 }
 
-static bool mfb_validate_jedec_id(flash_inst_mode_t *sta_flashInstMode, jedec_id_t *jedecID)
+static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t *jedecID)
 {
     bool sta_isValidVendorId = false;
 #if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
@@ -326,6 +331,48 @@ static bool mfb_validate_jedec_id(flash_inst_mode_t *sta_flashInstMode, jedec_id
         mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID->manufacturerID);
         /* Check Vendor ID. */
         sta_isValidVendorId = mfb_flash_is_valid_jedec_id(jedecID);
+        if (sta_isValidVendorId && (*sta_flashInstMode == kFlashInstMode_SPI))
+        {
+            sfdp_header_t sfdp_header;
+            status = mixspi_nor_get_jedec_sfdp(EXAMPLE_MIXSPI, 0, (uint32_t *)&sfdp_header, sizeof(sfdp_header));
+            if (status == kStatus_Success)
+            {
+                if (sfdp_header.signature == SFDP_SIGNATURE)
+                {
+                    mfb_printf("MFB: Get Valid Flash SFDP.\r\n");
+                    if (sfdp_header.major_rev == kSfdp_Version_Major_1_0)
+                    {
+                        mfb_printf("MFB: Flash SFDP Version is JESD216");
+                        switch (sfdp_header.minor_rev)
+                        {
+                            case kSfdp_Version_Minor_C:
+                                mfb_printf("C");
+                                break;
+                            case kSfdp_Version_Minor_B:
+                                mfb_printf("B");
+                                break;
+                            case kSfdp_Version_Minor_A:
+                                mfb_printf("A");
+                                break;
+                            case kSfdp_Version_Minor_0:
+                                break;
+                            default:
+                                mfb_printf("x");
+                                break;
+                        }
+                        mfb_printf(" - minor_rev = %d.\r\n", sfdp_header.minor_rev);
+                    }
+                }
+                else
+                {
+                    mfb_printf("MFB: Get Invalid Flash SFDP, Signature = 0x%x.\r\n", sfdp_header.signature);
+                }
+            }
+            else
+            {
+                mfb_printf("MFB: Get Flash SFDP failed\r\n");
+            }
+        }
     }
     return sta_isValidVendorId;
 }
@@ -367,8 +414,8 @@ void mfb_main(void)
     g_flashPropertyInfo.flashDriveStrength = U32_VALUE_INVALID;
     g_flashPropertyInfo.flashQuadEnableBytes = 0;
     g_flashPropertyInfo.flashUniqueCfg = U32_VALUE_INVALID;
-    /* Get JEDEC ID. */
-    if (mfb_validate_jedec_id(&sta_flashInstMode, &jedecID))
+    /* Validate JEDEC ID and SFDP. */
+    if (mfb_validate_jedec(&sta_flashInstMode, &jedecID))
     {
         /* Only run 1st perf and pattern verify when default flash state is Ext SPI mode */
         if (sta_flashInstMode == kFlashInstMode_SPI)
