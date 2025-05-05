@@ -145,6 +145,8 @@ typedef struct _flash_reg_access
 #define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     10
 #define NOR_CMD_LUT_SEQ_IDX_READREG2        11
 // FlexSPI LUT seq defn (1bit spi)
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECSFDP    6
+#define NOR_CMD_LUT_SEQ_IDX_WRITESECSFDP    8
 #define NOR_CMD_LUT_SEQ_IDX_READSFDP        11
 #define NOR_CMD_LUT_SEQ_IDX_READID          12
 #define NOR_CMD_LUT_SEQ_IDX_READID_QPI_1    13
@@ -297,6 +299,8 @@ extern const uint32_t g_mixspiRootClkFreqInMHz[];
 extern status_t mixspi_nor_get_jedec_id(MIXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
 extern status_t mixspi_nor_get_cfi_id(MIXSPI_Type *base, cfi_device_id_t *cfiDeviceId);
 extern status_t mixspi_nor_get_jedec_sfdp(MIXSPI_Type *base, uint32_t addr, uint32_t *jedecSfdp, uint32_t sfdpSize);
+extern status_t mixspi_nor_sfdp_sec_erase(FLEXSPI_Type *base, uint32_t addr);
+extern status_t mixspi_nor_sfdp_sec_program(FLEXSPI_Type *base, uint32_t addr, const uint32_t *src, uint32_t length);
 extern status_t mixspi_nor_set_dummy_cycle(MIXSPI_Type *base, uint8_t dummyCmd);
 extern status_t mixspi_nor_set_drive_strength(FLEXSPI_Type *base, uint8_t driveCmd);
 extern status_t mixspi_nor_set_unique_cfg(FLEXSPI_Type *base, uint8_t driveCmd);

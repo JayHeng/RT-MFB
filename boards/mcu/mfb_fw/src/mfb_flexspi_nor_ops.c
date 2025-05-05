@@ -619,6 +619,81 @@ status_t mixspi_nor_get_jedec_sfdp(FLEXSPI_Type *base, uint32_t addr, uint32_t *
     return status;
 }
 
+status_t mixspi_nor_sfdp_sec_erase(FLEXSPI_Type *base, uint32_t addr)
+{
+    status_t status;
+    flexspi_transfer_t flashXfer;
+
+    /* Write enable */
+    status = mixspi_nor_write_enable(base, addr, kFlashInstMode_SPI);
+
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    flashXfer.deviceAddress = addr;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
+    flashXfer.cmdType       = kFLEXSPI_Command;
+    flashXfer.SeqNumber     = 1;
+    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_ERASESECSFDP;
+
+    status = FLEXSPI_TransferBlocking(base, &flashXfer);
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    status = mixspi_nor_wait_bus_busy(base, kFlashInstMode_SPI);
+
+    /* Do software reset. */
+    FLEXSPI_SoftwareReset(base);
+
+    return status;
+}
+
+status_t mixspi_nor_sfdp_sec_program(FLEXSPI_Type *base, uint32_t addr, const uint32_t *src, uint32_t length)
+{
+    status_t status;
+    flexspi_transfer_t flashXfer;
+
+    /* Write enable */
+    status = mixspi_nor_write_enable(base, addr, kFlashInstMode_SPI);
+
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    /* Prepare program sfdp command */
+    flashXfer.deviceAddress = addr;
+    flashXfer.port          = EXAMPLE_MIXSPI_PORT;
+    flashXfer.cmdType       = kFLEXSPI_Write;
+    flashXfer.SeqNumber     = 1;
+    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_WRITESECSFDP;
+    flashXfer.data          = (uint32_t *)src;
+    flashXfer.dataSize      = length;
+    status                  = FLEXSPI_TransferBlocking(base, &flashXfer);
+
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+
+    status = mixspi_nor_wait_bus_busy(base, kFlashInstMode_SPI);
+
+    /* Do software reset or clear AHB buffer directly. */
+#if defined(FSL_FEATURE_SOC_OTFAD_COUNT) && defined(FLEXSPI_AHBCR_CLRAHBRXBUF_MASK) && \
+    defined(FLEXSPI_AHBCR_CLRAHBTXBUF_MASK)
+    base->AHBCR |= FLEXSPI_AHBCR_CLRAHBRXBUF_MASK | FLEXSPI_AHBCR_CLRAHBTXBUF_MASK;
+    base->AHBCR &= ~(FLEXSPI_AHBCR_CLRAHBRXBUF_MASK | FLEXSPI_AHBCR_CLRAHBTXBUF_MASK);
+#else
+    FLEXSPI_SoftwareReset(base);
+#endif
+
+    return status;
+}
+
 static status_t mixspi_nor_read_cfi(FLEXSPI_Type *base, uint32_t addr, uint32_t *buffer, uint32_t bytes)
 {
     flexspi_transfer_t flashXfer;

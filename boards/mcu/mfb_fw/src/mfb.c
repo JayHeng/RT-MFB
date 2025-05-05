@@ -90,7 +90,18 @@ const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     /* Read SFDP */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSFDP] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x5A, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_READSFDP + 1] =
         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0xFF),
+
+    /* Program Security registers or SFDP */
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITESECSFDP] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x42, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+    [4 * NOR_CMD_LUT_SEQ_IDX_WRITESECSFDP + 1] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0xFF, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
+    /* Erase Security registers or SFDP */
+    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECSFDP] =
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x44, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
 
     /* Dummy write, do nothing when AHB write command is triggered. */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
@@ -366,6 +377,32 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
                 else
                 {
                     mfb_printf("MFB: Get Invalid Flash SFDP, Signature = 0x%x.\r\n", sfdp_header.signature);
+#if MFB_FLASH_PROG_JEDEC_SFDP_ENABLE
+                    status = mixspi_nor_sfdp_sec_erase(EXAMPLE_MIXSPI, 0x000000);
+                    mfb_printf("MFB: Erased Flash SFDP Region - ");
+                    if (status == kStatus_Success)
+                    {
+                        mfb_printf(" Done.\r\n");
+                        memset((void *)&sfdp_header, 0xFF, sizeof(sfdp_header));
+                        sfdp_header.signature = SFDP_SIGNATURE;
+                        sfdp_header.major_rev = kSfdp_Version_Major_1_0;
+                        sfdp_header.minor_rev = kSfdp_Version_Minor_A;
+                        status = mixspi_nor_sfdp_sec_program(EXAMPLE_MIXSPI, 0x000000, (uint32_t *)&sfdp_header, sizeof(sfdp_header));
+                        mfb_printf("MFB: Programmed Flash SFDP Region - ");
+                        if (status == kStatus_Success)
+                        {
+                            mfb_printf(" Done.\r\n");
+                        }
+                        else
+                        {
+                            mfb_printf(" Failed.\r\n");
+                        }
+                    }
+                    else
+                    {
+                        mfb_printf(" Failed.\r\n");
+                    }
+#endif
                 }
             }
             else
