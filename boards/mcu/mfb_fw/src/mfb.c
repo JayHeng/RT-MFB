@@ -26,6 +26,10 @@
 static uint8_t s_flashVendorIDs[] = FLASH_DEVICE_VENDOR_ID_LIST;
 #endif
 
+#if MFB_FLASH_PROG_JEDEC_SFDP_ENABLE
+static sfdp_table_t s_sfdp_table;
+#endif
+
 /* Flash Page buffer for r/w test */
 #if MFB_FLASH_MEMCPY_PERF_ENABLE | MFB_FLASH_PATTERN_VERIFY_ENABLE
 uint32_t g_flashRwBuffer[EXAMPLE_FLASH_PAGE_SIZE/4];
@@ -345,7 +349,12 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
         if (sta_isValidVendorId && (*sta_flashInstMode == kFlashInstMode_SPI))
         {
             sfdp_header_t sfdp_header;
+#if MFB_FLASH_PROG_JEDEC_SFDP_ENABLE
+            status = mixspi_nor_get_jedec_sfdp(EXAMPLE_MIXSPI, 0, (uint32_t *)&s_sfdp_table, sizeof(sfdp_table_t));
+            memcpy((uint8_t *)&sfdp_header, (uint8_t *)&s_sfdp_table, sizeof(sfdp_header));
+#else
             status = mixspi_nor_get_jedec_sfdp(EXAMPLE_MIXSPI, 0, (uint32_t *)&sfdp_header, sizeof(sfdp_header));
+#endif
             if (status == kStatus_Success)
             {
                 if (sfdp_header.signature == SFDP_SIGNATURE)
@@ -383,11 +392,19 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
                     if (status == kStatus_Success)
                     {
                         mfb_printf(" Done.\r\n");
+#if 0
                         memset((void *)&sfdp_header, 0xFF, sizeof(sfdp_header));
                         sfdp_header.signature = SFDP_SIGNATURE;
                         sfdp_header.major_rev = kSfdp_Version_Major_1_0;
                         sfdp_header.minor_rev = kSfdp_Version_Minor_A;
                         status = mixspi_nor_sfdp_sec_program(EXAMPLE_MIXSPI, 0x000000, (uint32_t *)&sfdp_header, sizeof(sfdp_header));
+#else
+                        {
+                            #pragma section = "__sfdp_table"
+                            uint32_t *sfdpStart = __section_begin("__sfdp_table");
+                            status = mixspi_nor_sfdp_sec_program(EXAMPLE_MIXSPI, 0x000000, sfdpStart, sizeof(sfdp_table_t));
+                        }
+#endif
                         mfb_printf("MFB: Programmed Flash SFDP Region - ");
                         if (status == kStatus_Success)
                         {

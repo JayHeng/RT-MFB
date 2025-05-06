@@ -736,23 +736,24 @@
                 </option>
                 <option>
                     <name>IlinkKeepSymbols</name>
-                    <state></state>
+                    <state>
+_w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>IlinkRawBinaryFile</name>
-                    <state></state>
+                    <state>$PROJ_DIR$\..\..\..\sfdp\w25q32jv_sfdp.bin</state>
                 </option>
                 <option>
                     <name>IlinkRawBinarySymbol</name>
-                    <state></state>
+                    <state>_w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>IlinkRawBinarySegment</name>
-                    <state></state>
+                    <state>__sfdp_table</state>
                 </option>
                 <option>
                     <name>IlinkRawBinaryAlign</name>
-                    <state></state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>IlinkDefines</name>
@@ -2302,7 +2303,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>9.40.2.67586</state>
+                    <state>9.60.2.5384</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -2968,23 +2969,24 @@
                 </option>
                 <option>
                     <name>IlinkKeepSymbols</name>
-                    <state></state>
+                    <state>
+_w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>IlinkRawBinaryFile</name>
-                    <state></state>
+                    <state>$PROJ_DIR$\..\..\..\sfdp\w25q32jv_sfdp.bin</state>
                 </option>
                 <option>
                     <name>IlinkRawBinarySymbol</name>
-                    <state></state>
+                    <state>_w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>IlinkRawBinarySegment</name>
-                    <state></state>
+                    <state>__sfdp_table</state>
                 </option>
                 <option>
                     <name>IlinkRawBinaryAlign</name>
-                    <state></state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>IlinkDefines</name>
@@ -3257,7 +3259,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>mfb_fw_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>

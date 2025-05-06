@@ -87,6 +87,12 @@ typedef struct _sfdp_header
     uint8_t sfdp_access_protocol; // Defined in JESD216C, reserved for older version
 } sfdp_header_t;
 
+typedef struct _sfdp_table
+{
+    sfdp_header_t header;
+    uint32_t tbd[62];
+} sfdp_table_t;
+
 // Flash property info for operation
 typedef struct _flash_property_info
 {
