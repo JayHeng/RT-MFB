@@ -57,7 +57,7 @@ const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
 
     /* Set Dummy cycle */
     [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x81, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x81, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /* Enter QPI mode */
