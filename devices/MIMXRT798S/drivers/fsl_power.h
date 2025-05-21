@@ -1,6 +1,5 @@
 /*
  * Copyright 2023-2024 NXP
- * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,9 +19,23 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief power driver version 2.2.0. */
-#define FSL_POWER_DRIVER_VERSION (MAKE_VERSION(2, 2, 0))
+/*! @brief power driver version 2.4.0. */
+#define FSL_POWER_DRIVER_VERSION (MAKE_VERSION(2, 4, 0))
 /*@}*/
+
+/* Define the default PMIC modes for power modes. */
+#ifndef POWER_DEFAULT_PMICMODE_DS
+#define POWER_DEFAULT_PMICMODE_DS 1U
+#endif
+#ifndef POWER_DEFAULT_PMICMODE_DSR
+#define POWER_DEFAULT_PMICMODE_DSR 1U
+#endif
+#ifndef POWER_DEFAULT_PMICMODE_DPD
+#define POWER_DEFAULT_PMICMODE_DPD 2U
+#endif
+#ifndef POWER_DEFAULT_PMICMODE_FDPD
+#define POWER_DEFAULT_PMICMODE_FDPD 3U
+#endif
 
 #define MAKE_PD_BITS(reg, slot)   (((reg) << 8) | (slot))
 #define GET_PD_REG_FROM_BITS(bit) (((uint32_t)(bit) >> 8U) & 0xFFU)
@@ -277,8 +290,6 @@ typedef enum lp_bits
         SHA_SEN_TCTRL0_OFFSET, 5U, SHA_MEDSEN_TSTAT0_OFFSET, 19U), /*!< LPI2C15 bus low power request. */
     kPower_LPI2C15_F_LPREQ = POWER_MAKE_LP_BITS(
         SHA_SEN_TCTRL0_OFFSET, 7U, SHA_MEDSEN_TSTAT0_OFFSET, 20U), /*!< LPI2C15 function low power request. */
-    kPower_GDET2_LPREQ =
-        POWER_MAKE_LP_BITS(SHA_SEN_TCTRL0_OFFSET, 8U, SHA_MEDSEN_TSTAT0_OFFSET, 21U), /*!< GDET2 low power request. */
     kPower_GDET3_LPREQ =
         POWER_MAKE_LP_BITS(SHA_SEN_TCTRL0_OFFSET, 9U, SHA_MEDSEN_TSTAT0_OFFSET, 22U), /*!< GDET3 low power request. */
     kPower_RTC_STOP = POWER_MAKE_LP_BITS(
@@ -381,8 +392,6 @@ typedef enum lp_bits
         POWER_MAKE_LP_BITS(PRIVATE_TCTRL2_OFFSET, 17U, PRIVATE_TSTAT1_OFFSET, 17U), /*!< I3C1 stop request. */
     kPower_GDET0_LPREQ =
         POWER_MAKE_LP_BITS(PRIVATE_TCTRL2_OFFSET, 18U, PRIVATE_TSTAT1_OFFSET, 0U),  /*!< GDET0 low power request. */
-    kPower_GDET1_LPREQ =
-        POWER_MAKE_LP_BITS(PRIVATE_TCTRL2_OFFSET, 19U, PRIVATE_TSTAT1_OFFSET, 1U),  /*!< GDET1 low power request. */
 #else
     kPower_EDMA2_STOP =
         POWER_MAKE_LP_BITS(PRIVATE_CCTRL0_OFFSET, 0U, PRIVATE_CSTAT0_OFFSET, 0U), /*!< EDMA2 stop request. */
@@ -443,14 +452,13 @@ typedef enum _power_mode_config
  */
 enum _power_hwwake_src
 {
-    kPower_HWWakeSrcMicfil,     /*!< Enables DMA to wakeup by MICFIL DMA request.*/
-    kPower_HWWakeSrcFlexio,     /*!< Enables DMA to wakeup by FLEXIO DMA request.*/
-    kPower_HWWakeSrcLpFlexcomm, /*!< Enables DMA to wakeup by LP_FLEXCOMM0-13(CPU0), LP_FLEXCOMM17-20(CPU1) DMA
+    kPower_HWWakeSrcFlexio     = 0x2U, /*!< Enables DMA to wakeup by FLEXIO DMA request.*/
+    kPower_HWWakeSrcLpFlexcomm = 0x4U, /*!< Enables DMA to wakeup by LP_FLEXCOMM0-13(CPU0), LP_FLEXCOMM17-20(CPU1) DMA
                                    request.*/
 #if defined(SLEEPCON_COMPT)
-    kPower_HWWakeSrcHsSpi,      /*!< Enables DMA to wakeup by LPSPI14 and LPSPI16 DMA request.*/
+    kPower_HWWakeSrcHsSpi = 0x8U,      /*!< Enables DMA to wakeup by LPSPI14 and LPSPI16 DMA request.*/
 #endif
-    kPower_HWWakeSrcSai,        /*!< Enables DMA to wakeup by SAI0-2(CPU0), SAI3(CPU1) request.*/
+    kPower_HWWakeSrcSai = 0x10U,       /*!< Enables DMA to wakeup by SAI0-2(CPU0), SAI3(CPU1) request.*/
 };
 
 /*!
@@ -463,7 +471,6 @@ enum _power_shared_resource_mask
     kPower_MaskAcmp0   = 0x2U,      /*!< ACMP0 mask.*/
     kPower_MaskMicfil  = 0x4U,      /*!< MICFIL mask.*/
     kPower_MaskLpi2c15 = 0x8U,      /*!< LPI2C15 mask.*/
-    kPower_MaskGdet2   = 0x10U,     /*!< GDET2 mask.*/
     kPower_MaskGdet3   = 0x20U,     /*!< GDET3 mask.*/
     kPower_MaskRtc     = 0x40U,     /*!< RTC mask.*/
     kPower_MaskVgpu    = 0x10000U,  /*!< VGPU mask.*/
@@ -630,6 +637,18 @@ typedef struct _power_por_voltage
     uint32_t VddnLvl : 5; /*!< POR falling trip value in VDDN Domain, falling trip voltage = 0.4 + 10 mV * value. */
 } power_por_voltage_t;
 
+/*! @brief IO Banking bitmask.  */
+typedef enum _power_io_bank
+{
+    kPower_IOBank0 = 0x1U,  /*!< Port 0/1/3 in VDD2_COM domain. */
+    kPower_IOBank1 = 0x2U,  /*!< Port 2 in VDD2_COM domain. */
+    kPower_IOBank2 = 0x4U,  /*!< Port 4 in VDDN_COM domain. */
+    kPower_IOBank3 = 0x8U,  /*!< Port 5 in VDD2_COM domain. */
+    kPower_IOBank4 = 0x10U, /*!< Port 6 in VDD2_COM domain. */
+    kPower_IOBank5 = 0x20U, /*!< Port 7 in VDD2_COM domain. */
+    kPower_IOBank6 = 0x40U, /*!< Port 8/9/10 in VDD1_SENSE domain. */
+    kPower_IOBank7 = 0x80U, /*!< PMIC_I2C in VDD1_SENSE domain. */
+} power_io_bank_t;
 #endif
 
 /*******************************************************************************
@@ -829,7 +848,6 @@ void POWER_DisableLPRequestMask(uint32_t mask);
 
 /*!
  * @brief Enable AFBB mode for various domains in active mode.
- * AFBB mode should always be used for domains that are active/clocked.
  * Note, users should call POWER_ApplyPD() to make the change take effect.
  * @param mask : A bitmask of domains to enable AFBB mode, refer to @ref _body_bias_domain and PMC PDRUNCFG0 register
  * descritpion in RM.
@@ -952,6 +970,36 @@ void POWER_SetPORVoltage(const power_por_voltage_t *porVolt);
 #endif /* PMC0 */
 
 /*!
+ * @brief Get the minimum operative(active) voltage for VDD1 or VDD2 with the given maximum main clock frequency in the
+ * domain.
+ *
+ * @param maxFreqHz the maxiumum main clock frequency in Hz will be used for the domain.
+ * @param miniVoltUV the minimum voltage in microvolt(uV) for VDD1 or VDD2. Should <= 1100000uV, 0 means use the main
+ * clock frequency to calculate voltage.
+ * @return the calculated operative voltage in uV. 0xFFFFFFFFU means exceeded max supported value.
+ */
+uint32_t POWER_CalcVoltLevel(power_regulator_t regulator, uint32_t maxFreqHz, uint32_t miniVoltUV);
+
+/*!
+ * @brief Configure the setpoint operation for on-chip regulators(LDO1/LDO2) and LVD.
+ * This function can configure both the target output voltages and LVD to suitable values per the desired frequency for
+ * the specific setpoints. The setpoint that is actually selected is controlled by the aggregated value of
+ * PDRUNCFG[xxx_VSEL] and PDSLEEPCFG0[xxx_VSEL]. Use the POWER_SelectRunSetpoint() or POWER_SelectSleepSetpoint() to
+ * configure the setpoint selections. The voltage selected for each regulator must also be in ascending order (VSEL0 <=
+ * VSEL1 <= VSEL2 <= VSEL3).
+ *
+ * @param maxFreqHz the maxiumum main clock frequency in Hz will be used for the domain. 0 means use the miniVolt
+ * defined value and can be used to configure setpoint for DeepSleep.
+ * @param miniVolt the minimum voltage in microvolt(uV) for VDD1 or VDD2. Should <= 1100000uV, 0 means use the main
+ * clock frequency to calculate voltage.
+ * @param startPoint the start setpoint to be configured.
+ * @param num the count of setpoints to be configured, the startPoint+num should not larger than 4.
+ * @return kStatus_Success for successful configuration, kStatus_InvalidArgument for wrong parameter.
+ */
+status_t POWER_ConfigRegulatorSetpointsForFreq(
+    power_regulator_t regulator, uint32_t *maxFreqHz, uint32_t *miniVoltUV, uint32_t startPoint, uint32_t num);
+
+/*!
  * @brief Configure the setpoint operation for on-chip regulators and LVD.
  * This function can configure both the target output voltages and LVD levels for each setpoint. The setpoint that is
  * actually selected is controlled by the aggregated value of PDRUNCFG[xxx_VSEL] and PDSLEEPCFG0[xxx_VSEL]. Use the
@@ -981,13 +1029,13 @@ void POWER_SetPORVoltage(const power_por_voltage_t *porVolt);
  *   ret = POWER_ConfigRegulatorSetpoints(kRegulator_Vdd1LDO, &regulator, &lvd);
  * @endcode
  * @param regulator which regulator or power domain to configure, refer to @ref power_regulator_t.
- * @param voltage regulator configuration pointer, refer to @ref power_regulator_voltage_t. Note, only two setpoints are
+ * @param volt regulator configuration pointer, refer to @ref power_regulator_voltage_t. Note, only two setpoints are
  * available for DCDC.
  * @param lvd LVD voltage configuration, refer to @ref power_lvd_voltage_t.
  * @return kStatus_Success for succeed, kStatus_InvalidArgument for wrong arguments.
  */
 status_t POWER_ConfigRegulatorSetpoints(power_regulator_t regulator,
-                                        const power_regulator_voltage_t *voltage,
+                                        const power_regulator_voltage_t *volt,
                                         const power_lvd_voltage_t *lvd);
 
 /*!
@@ -1072,6 +1120,35 @@ void POWER_SetRunRegulatorMode(power_regulator_t regulator, uint32_t mode);
  */
 void POWER_SetSleepRegulatorMode(power_regulator_t regulator, uint32_t mode);
 
+/*!
+ * @brief Reset the IO bank.
+ * Sets the IO bank reset which tristates the ports. Intended to be used prior to powering off the VDDIO supplies.
+ *
+ * @param mask A bitmask of IO Banks to be reseted, @ref power_io_bank_t and PMC PADCFG register. The register reset by
+ * cold reset.
+ */
+void POWER_ResetIOBank(uint32_t mask);
+
+/*!
+ * @brief IO Bank Isolation Hold.
+ *  Maintains IO bank isolation state after wake-up from FDSR/DPD modes. If clear, the IO bank's state will be retained
+ * during FDSR & DPD modes, but will be controllable after wake-up. If set, the IO bank will remain in retain mode until
+ * ISOCTRL cleared by software.
+ *
+ * @param mask A bitmask of IO Banks to be set, @ref power_io_bank_t and PMC PADCFG register. The register reset by cold
+ * reset.
+ */
+void POWER_IOBankIsolationHold(uint32_t mask);
+
+/*!
+ * @brief Clear the IO bank Isolation Hold and regain state control.
+ * This bit cannot be cleared if associated domain is not powered.
+ *
+ * @param mask A bitmask of IO Banks to be clear, @ref power_io_bank_t and PMC PADCFG register. The register reset by
+ * cold reset.
+ */
+void POWER_IOBankClearIsolationHold(uint32_t mask);
+
 /**
  * @brief   Configures and enters in SLEEP low power mode
  */
@@ -1148,6 +1225,17 @@ void POWER_RequestDeepPowerDown(const uint32_t exclude_from_pd[7]);
  * powered on during Deep Power Down.
  */
 void POWER_RequestFullDeepPowerDown(const uint32_t exclude_from_pd[7]);
+
+/*!
+ * @brief Power Library API to request entering different power mode. This API is used for requesting entering the
+ * target mode, the final SOC power mode depends on hardware aggregation. Note, the Sense domain can enter DSR mode only
+ * when Compute domain is in DSR. The SOC enters DPD or FDPD when both domain requested entering DPD or FDPD.
+ *
+ * @param mode  Power mode to enter.
+ * @param exclude_from_pd  Bit mask of the SLEEPCON_SLEEPCFG and PMC_PDSLEEPCFG0 ~ PMC_PDSLEEPCFG5 that needs to be
+ * powered on during power mode selected.
+ */
+void POWER_EnterPowerMode(power_mode_cfg_t mode, const uint32_t exclude_from_pd[7]);
 
 /*!
  * @brief Power Library API to return the library version.

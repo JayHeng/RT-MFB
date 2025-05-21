@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2023 NXP                                                       */
+/* Copyright 2023-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 #include "common.h"
@@ -18,19 +18,17 @@
 #include <mcuxClPsaDriver_Oracle.h>
 #include <internal/mcuxClPsaDriver_Functions.h>
 #include <internal/mcuxClPsaDriver_Internal.h>
+#include <mcuxCsslAnalysis.h>
 
 MCUX_CSSL_ANALYSIS_START_PATTERN_DESCRIPTIVE_IDENTIFIER()
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_UpdateKeyStatusSuspend(
     mcuxClKey_Descriptor_t *key_descriptor)
 MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
 {
-    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
-    psa_key_attributes_t *attributes =
-        (psa_key_attributes_t *)key_descriptor->container.pAuxData;
-    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY()
+    psa_key_attributes_t *attributes = mcuxClPsaDriver_castAuxDataToKeyAttributes(key_descriptor);
 
     psa_key_location_t location =
-        PSA_KEY_LIFETIME_GET_LOCATION( attributes->core.lifetime );
+        PSA_KEY_LIFETIME_GET_LOCATION( psa_get_key_lifetime(attributes) );
 
     if(false == (MCUXCLPSADRIVER_IS_LOCAL_STORAGE(location)) )
     {
@@ -45,13 +43,10 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_UpdateKeyStatusResume(
     mcuxClKey_Descriptor_t *key_descriptor)
 {
-    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
-    psa_key_attributes_t *attributes =
-        (psa_key_attributes_t *)key_descriptor->container.pAuxData;
-    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY()
+    psa_key_attributes_t *attributes = mcuxClPsaDriver_castAuxDataToKeyAttributes(key_descriptor);
 
     psa_key_location_t location =
-        PSA_KEY_LIFETIME_GET_LOCATION( attributes->core.lifetime );
+        PSA_KEY_LIFETIME_GET_LOCATION( psa_get_key_lifetime(attributes) );
 
     if(false == (MCUXCLPSADRIVER_IS_LOCAL_STORAGE(location)) )
     {
@@ -68,11 +63,10 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_UpdateKeyStatusUnload(
     mcuxClKey_Descriptor_t *key_descriptor)
 MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
 {
-    psa_key_attributes_t *attributes =
-        (psa_key_attributes_t *)key_descriptor->container.pAuxData;
+    psa_key_attributes_t *attributes = mcuxClPsaDriver_castAuxDataToKeyAttributes(key_descriptor);
 
     psa_key_location_t location =
-        PSA_KEY_LIFETIME_GET_LOCATION( attributes->core.lifetime );
+        PSA_KEY_LIFETIME_GET_LOCATION( psa_get_key_lifetime(attributes) );
 
     if(false == (MCUXCLPSADRIVER_IS_LOCAL_STORAGE(location)) )
     {

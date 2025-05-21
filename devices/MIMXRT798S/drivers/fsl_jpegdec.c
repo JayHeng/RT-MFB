@@ -19,9 +19,9 @@
 #define JPEGDEC_RESETS_ARRAY JPEGDEC_RSTS
 #endif
 
-#define JPEG_SOF0_MARKER             0xC0UL
-#define JPEG_GET_U16(p)              (((*(p)) << 8) + (*(p + 1)))
-#define JPEG_ALIGN_SIZE(size, align) (((size) + (align)-1U) & ~((align)-1U))
+#define JPEG_SOF0_MARKER 0xC0UL
+#define JPEG_SOF1_MARKER 0xC1UL
+#define JPEG_GET_U16(p)  ((((uint16_t)(*(p))) << 8) + ((uint16_t)(*((p) + 1))))
 
 /*******************************************************************************
  * Prototypes
@@ -59,7 +59,7 @@ static uint32_t JPEGDEC_GetInstance(JPEG_DECODER_Type *base)
     /* Find the instance index from base address mappings. */
     for (instance = 0; instance < ARRAY_SIZE(s_jpegdecBases); instance++)
     {
-        if (s_jpegdecBases[instance] == base->core)
+        if (MSDK_REG_SECURE_ADDR(s_jpegdecBases[instance]) == MSDK_REG_SECURE_ADDR(base->core))
         {
             break;
         }
@@ -119,7 +119,7 @@ void JPEGDEC_Init(JPEG_DECODER_Type *base, const jpegdec_config_t *config)
 #if defined(JPEGDEC_RESETS_ARRAY)
     RESET_ReleasePeripheralReset(s_jpegdecResets[JPEGDEC_GetInstance(base)]);
 #endif
-    
+
     JPEGDEC_Reset(base);
 
     JPEGDEC_EnableSlots(base, config->slots);
@@ -156,7 +156,8 @@ status_t JPEGDEC_GetActiveSlot(JPEG_DECODER_Type *base, uint8_t *slot)
 {
     if ((base->wrapper->COM_STATUS & JPGDECWRP_COM_STATUS_DEC_ONGOING_MASK) != 0U)
     {
-        *slot = (uint8_t)((base->wrapper->COM_STATUS & JPGDECWRP_COM_STATUS_CUR_SLOT_MASK) >> JPGDECWRP_COM_STATUS_CUR_SLOT_SHIFT);
+        *slot = (uint8_t)((base->wrapper->COM_STATUS & JPGDECWRP_COM_STATUS_CUR_SLOT_MASK) >>
+                          JPGDECWRP_COM_STATUS_CUR_SLOT_SHIFT);
         return kStatus_Success;
     }
     else
@@ -177,7 +178,7 @@ void JPEGDEC_SetJpegBuffer(jpegdec_decoder_config_t *config, uint8_t *buffer, si
     assert(((uint32_t)buffer & 0xFU) == 0U); /* Has to be 16-byte aligned. */
 
     config->jpegBufAddr = (uint32_t)buffer;
-    config->jpegBufSize = JPEG_ALIGN_SIZE(length, 0x400); /* Has to be integer times of 1K. */
+    config->jpegBufSize = JPEG_ALIGN_SIZE(length, 0x400U); /* Has to be integer times of 1K. */
 }
 
 /*!
@@ -219,9 +220,9 @@ status_t JPEGDEC_ParseHeader(jpegdec_decoder_config_t *config)
     imageBuf    = (uint8_t *)config->jpegBufAddr;
     while (imageLength-- > 16U)
     {
-        if (*imageBuf++ == 0xFF)
+        if (*imageBuf++ == 0xFFU)
         {
-            if (*imageBuf == JPEG_SOF0_MARKER)
+            if ((*imageBuf == JPEG_SOF0_MARKER) || (*imageBuf == JPEG_SOF1_MARKER))
             {
                 imageBuf++;
                 break;
@@ -238,11 +239,11 @@ status_t JPEGDEC_ParseHeader(jpegdec_decoder_config_t *config)
     /* Get the pixel depth. */
     if (imageBuf[2] == 8U)
     {
-        config->pixelDepth = kJPEGDEC_PixelDepth8Bit;
+        config->pixelDepth = (uint32_t)kJPEGDEC_PixelDepth8Bit;
     }
     else if (imageBuf[2] == 12U)
     {
-        config->pixelDepth = kJPEGDEC_PixelDepth12Bit;
+        config->pixelDepth = (uint32_t)kJPEGDEC_PixelDepth12Bit;
     }
     else
     {
@@ -254,7 +255,7 @@ status_t JPEGDEC_ParseHeader(jpegdec_decoder_config_t *config)
     switch (imageBuf[7U])
     {
         case 1U:
-            config->pixelFormat = kJPEGDEC_PixelFormatGray;
+            config->pixelFormat = (uint32_t)kJPEGDEC_PixelFormatGray;
             break;
         case 3U:
             /* Componnet ids are 0x1, 0x2 and 0x3 means YUV format. */
@@ -263,20 +264,23 @@ status_t JPEGDEC_ParseHeader(jpegdec_decoder_config_t *config)
                 /* UV component x/y sample points is 1/1. */
                 if ((imageBuf[12U] == 0x11U) && (imageBuf[15U] == 0x11U))
                 {
-                    /* Y component x/y sample points is also 1/1, means each Y component has 1 UV component, format YUV444. */
+                    /* Y component x/y sample points is also 1/1, means each Y component has 1 UV component, format
+                     * YUV444. */
                     if (imageBuf[9U] == 0x11U)
                     {
-                        config->pixelFormat = kJPEGDEC_PixelFormatYUV444;
+                        config->pixelFormat = (uint32_t)kJPEGDEC_PixelFormatYUV444;
                     }
-                    /* Y component x/y sample points is 2/1, means in each line every 2 Y componnets share 1 UV component, format YUV422. */
+                    /* Y component x/y sample points is 2/1 or 1/2, means in each line/row every 2 Y componnets share 1
+                     * UV component, format YUV422. Only support horizontal sample. */
                     else if (imageBuf[9U] == 0x21U)
                     {
-                        config->pixelFormat = kJPEGDEC_PixelFormatYUV422;
+                        config->pixelFormat = (uint32_t)kJPEGDEC_PixelFormatYUV422;
                     }
-                    /* Y component sample points is 2/2, means in each line and each column, every 2 Y componnets share 1 U or V component, format YUV420. */
+                    /* Y component sample points is 2/2, means in each line and each column, every 2 Y componnets share
+                     * 1 U or V component, format YUV420. */
                     else if (imageBuf[9U] == 0x22U)
                     {
-                        config->pixelFormat = kJPEGDEC_PixelFormatYUV420;
+                        config->pixelFormat = (uint32_t)kJPEGDEC_PixelFormatYUV420;
                     }
                     else
                     {
@@ -294,7 +298,7 @@ status_t JPEGDEC_ParseHeader(jpegdec_decoder_config_t *config)
             else if ((imageBuf[8U] == 0x52U) && (imageBuf[11U] == 0x47U) && (imageBuf[14U] == 0x42U))
             {
                 /* Component ID = "RGB" */
-                config->pixelFormat = kJPEGDEC_PixelFormatRGB;
+                config->pixelFormat = (uint32_t)kJPEGDEC_PixelFormatRGB;
             }
             else
             {
@@ -303,7 +307,7 @@ status_t JPEGDEC_ParseHeader(jpegdec_decoder_config_t *config)
             }
             break;
         case 4U:
-            config->pixelFormat = kJPEGDEC_PixelFormatYCCK;
+            config->pixelFormat = (uint32_t)kJPEGDEC_PixelFormatYCCK;
             break;
         default:
             /* Unknown component number, return error. */
@@ -326,17 +330,17 @@ status_t JPEGDEC_ParseHeader(jpegdec_decoder_config_t *config)
         return kStatus_JPEGDEC_NotSupported;
     }
 
-    config->height = height;
-    config->width = width;
+    config->height = (uint32_t)height;
+    config->width  = (uint32_t)width;
 
-    if (config->pixelFormat == kJPEGDEC_PixelFormatYUV420)
+    if (config->pixelFormat == (uint32_t)kJPEGDEC_PixelFormatYUV420)
     {
         if (((height & 0xFU) != 0U) || ((width & 0xFU) != 0U))
         {
             result = kStatus_JPEGDEC_NotSupported;
         }
     }
-    else if (config->pixelFormat == kJPEGDEC_PixelFormatYUV422)
+    else if (config->pixelFormat == (uint32_t)kJPEGDEC_PixelFormatYUV422)
     {
         /* For YUV422, width and height shall be divisible by 16 and 8. */
         if (((height & 0x7U) != 0U) || ((width & 0xFU) != 0U))
@@ -367,9 +371,9 @@ status_t JPEGDEC_ParseHeader(jpegdec_decoder_config_t *config)
  */
 void JPEGDEC_SetDecodeOption(jpegdec_decoder_config_t *config, uint16_t pitch, bool clearStreamBuf, bool autoStart)
 {
-    config->outBufPitch    = pitch;
-    config->clearStreamBuf = clearStreamBuf;
-    config->autoStart      = autoStart;
+    config->outBufPitch    = (uint32_t)pitch;
+    config->clearStreamBuf = (uint32_t)clearStreamBuf;
+    config->autoStart      = (uint32_t)autoStart;
 }
 
 /*!
@@ -383,10 +387,10 @@ void JPEGDEC_SetDecodeOption(jpegdec_decoder_config_t *config, uint16_t pitch, b
  */
 void JPEGDEC_ConfigDecoder(JPEG_DECODER_Type *base, const jpegdec_decoder_config_t *config)
 {
-    assert((config->outBufAddr0 & 0xF) == 0U);
-    assert((config->outBufAddr1 & 0xF) == 0U);
-    assert((config->jpegBufAddr & 0xF) == 0U);
-    assert((config->jpegBufSize & 0x3FF) == 0U);
+    assert((config->outBufAddr0 & 0xFU) == 0U);
+    assert((config->outBufAddr1 & 0xFU) == 0U);
+    assert((config->jpegBufAddr & 0xFU) == 0U);
+    assert((config->jpegBufSize & 0x3FFU) == 0U);
 
     base->wrapper->OUT_BUF_BASE0 = config->outBufAddr0;
     base->wrapper->OUT_BUF_BASE1 = config->outBufAddr1;
@@ -395,9 +399,9 @@ void JPEGDEC_ConfigDecoder(JPEG_DECODER_Type *base, const jpegdec_decoder_config
     base->wrapper->STM_BUFSIZE   = config->jpegBufSize;
     base->wrapper->IMGSIZE       = (uint32_t)config->height | ((uint32_t)config->width << 16U);
     base->wrapper->STM_CTRL      = (config->pixelDepth << JPGDECWRP_STM_CTRL_PIXEL_PRECISION_SHIFT) |
-                     (config->pixelFormat << JPGDECWRP_STM_CTRL_IMAGE_FORMAT_SHIFT) |
-                     (config->clearStreamBuf << JPGDECWRP_STM_CTRL_BITBUF_PTR_CLR_SHIFT) |
-                     (config->autoStart << JPGDECWRP_STM_CTRL_AUTO_START_SHIFT);
+                              (config->pixelFormat << JPGDECWRP_STM_CTRL_IMAGE_FORMAT_SHIFT) |
+                              (config->clearStreamBuf << JPGDECWRP_STM_CTRL_BITBUF_PTR_CLR_SHIFT) |
+                              (config->autoStart << JPGDECWRP_STM_CTRL_AUTO_START_SHIFT);
 }
 
 /*!
@@ -416,11 +420,11 @@ void JPEGDEC_ConfigDecoder(JPEG_DECODER_Type *base, const jpegdec_decoder_config
 void JPEGDEC_SetSlotNextDescpt(JPEG_DECODER_Type *base, uint8_t slot, jpegdec_descpt_t *descriptor)
 {
     assert(slot < 4U);
-    assert(((uint32_t)descriptor & 0x3) == 0U);
-    assert((descriptor->config.outBufAddr0 & 0xF) == 0U);
-    assert((descriptor->config.outBufAddr1 & 0xF) == 0U);
-    assert((descriptor->config.jpegBufAddr & 0xF) == 0U);
-    assert((descriptor->config.jpegBufSize & 0x3FF) == 0U);
+    assert(((uint32_t)descriptor & 0x3U) == 0U);
+    assert((descriptor->config.outBufAddr0 & 0xFU) == 0U);
+    assert((descriptor->config.outBufAddr1 & 0xFU) == 0U);
+    assert((descriptor->config.jpegBufAddr & 0xFU) == 0U);
+    assert((descriptor->config.jpegBufSize & 0x3FFU) == 0U);
 
     base->wrapper->SLOT_REGS[slot].SLOT_NXT_DESCPT_PTR = (uint32_t)descriptor;
 }
@@ -444,9 +448,9 @@ void JPEGDEC_DescptReset(jpegdec_descpt_t *descriptor)
     descriptor->config.jpegBufSize    = 0U;
     descriptor->config.height         = 0U;
     descriptor->config.width          = 0U;
-    descriptor->config.pixelDepth     = kJPEGDEC_PixelDepth8Bit;
-    descriptor->config.pixelFormat    = kJPEGDEC_PixelFormatYUV420;
-    descriptor->config.clearStreamBuf = false;
+    descriptor->config.pixelDepth     = (uint32_t)kJPEGDEC_PixelDepth8Bit;
+    descriptor->config.pixelFormat    = (uint32_t)kJPEGDEC_PixelFormatYUV420;
+    descriptor->config.clearStreamBuf = (uint32_t) false;
     /* Enable auto start. */
-    descriptor->config.autoStart = true;
+    descriptor->config.autoStart = (uint32_t) true;
 }

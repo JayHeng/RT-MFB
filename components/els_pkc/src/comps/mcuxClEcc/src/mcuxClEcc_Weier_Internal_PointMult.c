@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -23,10 +23,11 @@
 
 #include <mcuxClPkc.h>
 #include <mcuxClMath.h>
+#include <mcuxClEcc.h>
 
 #include <internal/mcuxClPkc_Operations.h>
 #include <internal/mcuxClEcc_Weier_Internal.h>
-#include <internal/mcuxClEcc_Weier_Internal_PointArithmetic_FUP.h>
+#include <internal/mcuxClEcc_Weier_Internal_FUP.h>
 
 
 /**
@@ -63,12 +64,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_Int_PointMult(uint8_t iScalar, uint3
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEcc_Int_PointMult);
 
     uint16_t *pOperands = MCUXCLPKC_GETUPTRT();
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("32-bit aligned UPTRT table is assigned in CPU workarea")
-    uint32_t *pOperands32 = (uint32_t *) pOperands;
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_CASTING("MISRA Ex. 9 to Rule 11.3 - PKC word is CPU word aligned.");
-    const uint32_t *pScalar = (const uint32_t *) MCUXCLPKC_OFFSET2PTR(pOperands[iScalar]);
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_CASTING();
+    uint32_t *pOperands32 = MCUXCLPKC_GETUPTRT32();
+    const uint32_t *pScalar = (const uint32_t *) MCUXCLPKC_OFFSET2PTRWORD(pOperands[iScalar]);
 
     uint32_t scalarWord;
     uint32_t scalarBits;
@@ -81,15 +78,19 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_Int_PointMult(uint8_t iScalar, uint3
     {
         MCUX_CSSL_FP_LOOP_ITERATION(PointMult_Double);  /* trivial double */
 
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("'index' start from 'scalarBitLength', no risk of overflow")
         index -= 2u;
         scalarWord = pScalar[index / 32u];
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
         scalarBits = (scalarWord >> (index & 31u)) & 0x3u;
     } while (0u == scalarBits);  /* assume scalar is non-zero. */
 
     /* Prepare offsets to coordinates of Prec_i. */
     uint32_t offsets_VY_VX = pOperands32[(WEIER_X1 / 2u) - 1u + scalarBits];
     /* Prepare offsets to coordinates of R. */
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_CASTING("Access 32-bit aligned UPTR table 16-bit-wisely according to PKC spec")
     uint32_t offsets_VYA_VXA = MCUXCLECC_LOAD_2OFFSETS(pOperands32, WEIER_XA, WEIER_YA);
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_CASTING()
 
     /* Initialize z' = 1 in MR. */
     MCUXCLPKC_FP_CALC_OP1_NEG(WEIER_ZA, ECC_P);
@@ -106,8 +107,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_Int_PointMult(uint8_t iScalar, uint3
         MCUX_CSSL_FP_LOOP_ITERATION(PointMult_Add,  /* trivial add */
             MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,
             MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST );
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_WRAP("'NoOfAdd' is used for the FP, if will be wrap should trigger fault")
         MCUX_CSSL_FP_COUNTER_STMT(NoOfAdd += 1u);
-
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_WRAP()
         /* Copy, R = Prec_i. */
         MCUXCLPKC_FP_CALC_OP1_OR_CONST(WEIER_XA, WEIER_VX2, 0u);
         MCUXCLPKC_FP_CALC_OP1_OR_CONST(WEIER_YA, WEIER_VY2, 0u);
@@ -126,9 +128,11 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_Int_PointMult(uint8_t iScalar, uint3
         /* Double, R = 2 * Prec_i, where Prec_i is selected by (VX2, VY2). */
         MCUXCLECC_FP_CALCFUP_ONE_DOUBLE();
 
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("'index' start from 'scalarBitLength', no risk of overflow")
         index -= 2u;
         MCUXCLPKC_PKC_CPU_ARBITRATION_WORKAROUND();  // avoid CPU accessing to PKC workarea when PKC is busy
         scalarWord = pScalar[index / 32u];
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
         scalarBits = (scalarWord >> (index & 31u)) & 0x3u;
 
         /* Set VX2/VY2 to calculate R = 2 * R in the remaining iterations. */
@@ -143,7 +147,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_Int_PointMult(uint8_t iScalar, uint3
             MCUX_CSSL_FP_COUNTER_STMT(NoOfAdd += 1u);
 
             /* Select Prec_i by updating (VX1, VY1) according to scalarBits. */
+            MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("Internal function caller initialized UPTRT(pOperans32) properly.")
             offsets_VY_VX = pOperands32[(WEIER_X1 / 2u) - 1u + scalarBits];
+            MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
             MCUXCLECC_STORE_2OFFSETS(pOperands32, WEIER_VX1, WEIER_VY1, offsets_VY_VX);
 
             /* Add, R = R + Prec_i. */
@@ -154,11 +160,15 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_Int_PointMult(uint8_t iScalar, uint3
     /* Point double and addition (not always) of the remaining iteration(s). */
     while (0u != index)
     {
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("'index' start from 'scalarBitLength', no risk of overflow")
         index -= 2u;
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
         if (0x1Eu == (index & 0x1Fu))
         {
             MCUXCLPKC_PKC_CPU_ARBITRATION_WORKAROUND();  // avoid CPU accessing to PKC workarea when PKC is busy
+            MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("'index' start from 'scalarBitLength', no risk of overflow")
             scalarWord = pScalar[index / 32u];
+            MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
         }
         scalarBits = (scalarWord >> (index & 0x1Fu)) & 0x3u;
 
@@ -175,7 +185,10 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_Int_PointMult(uint8_t iScalar, uint3
             MCUX_CSSL_FP_LOOP_ITERATION(PointMult_Double);
             MCUX_CSSL_FP_LOOP_ITERATION(PointMult_Add,
                 MCUXCLECC_FP_CALLED_CALCFUP_DOUBLE_ADD );
+
+            MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_WRAP("'NoOfAdd' is used for the FP, if will be wrap should trigger fault")
             MCUX_CSSL_FP_COUNTER_STMT(NoOfAdd += 1u);
+            MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_WRAP()
 
             /* Select Prec_i by updating (VX1, VY1) according to scalarBits. */
             offsets_VY_VX = pOperands32[(WEIER_X1 / 2u) - 1u + scalarBits];

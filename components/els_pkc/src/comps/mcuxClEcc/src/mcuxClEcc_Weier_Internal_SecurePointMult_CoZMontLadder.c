@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
+#include <mcuxClBuffer.h>
 
 #include <mcuxClPkc.h>
 #include <mcuxClMath.h>
@@ -31,8 +32,7 @@
 #include <internal/mcuxClEcc_Internal_Random.h>
 #include <internal/mcuxClEcc_Internal_SecurePointSelect.h>
 #include <internal/mcuxClEcc_Weier_Internal.h>
-#include <internal/mcuxClEcc_Weier_Internal_SecurePointMult_CoZMontLadder_FUP.h>
-#include <internal/mcuxClEcc_Weier_Internal_PointArithmetic_FUP.h>
+#include <internal/mcuxClEcc_Weier_Internal_FUP.h>
 
 
 /** This function implements secure point scalar multiplication, R = scalar * P, based on Co-Z Montgomery ladder.
@@ -78,23 +78,18 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_SecurePointMult(mcuxCl
         MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup) );
 
     uint16_t *pOperands = MCUXCLPKC_GETUPTRT();
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("32-bit aligned UPTRT table is assigned in CPU workarea")
-    uint32_t *pOperands32 = (uint32_t *) pOperands;
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_CASTING("MISRA Ex. 9 to Rule 11.3 - PKC word is CPU word aligned.");
-    const uint32_t *pScalar = (const uint32_t *) MCUXCLPKC_OFFSET2PTR(pOperands[iScalar]);
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_CASTING();
+    uint32_t *pOperands32 = MCUXCLPKC_GETUPTRT32();
+    const uint32_t *pScalar = (const uint32_t *) MCUXCLPKC_OFFSET2PTRWORD(pOperands[iScalar]);
 
     /**
      * Step 1: Randomize input point P coordinates (X0, Y0, Z)
      */
 
     /* Generate a randomized relative Z-coordinate in ZA */
-    uint8_t *pZA = MCUXCLPKC_OFFSET2PTR(pOperands[WEIER_ZA]);
     uint32_t operandSize = MCUXCLPKC_PS1_GETOPLEN();
+    MCUXCLBUFFER_INIT(buffZA, NULL, MCUXCLPKC_OFFSET2PTR(pOperands[WEIER_ZA]), operandSize);
     MCUXCLPKC_WAITFORFINISH();
-
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_Prng_GetRandom0, mcuxClRandom_ncGenerate(pSession, pZA, operandSize));
+    MCUX_CSSL_FP_FUNCTION_CALL(ret_Prng_GetRandom0, mcuxClRandom_ncGenerate(pSession, buffZA, operandSize));
     if (MCUXCLRANDOM_STATUS_OK != ret_Prng_GetRandom0)
     {
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_SecurePointMult, MCUXCLECC_STATUS_RNG_ERROR);
@@ -111,12 +106,15 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_SecurePointMult(mcuxCl
      */
 
     /* Initialize scalar word shares variables and generate XOR-mask for the first non-zero scalar word */
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("'scalarBitLength' always is larger than 32")
     uint32_t scalarBitIndex = scalarBitLength - 1u;
     MCUXCLPKC_PKC_CPU_ARBITRATION_WORKAROUND();  // avoid CPU accessing to PKC workarea when PKC is busy
     uint32_t scalarWord0 = pScalar[scalarBitIndex / 32u];
-    uint32_t scalarWord1;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
+    uint32_t scalarWord1 = 0u;
 
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_Prng_GetRandWord, mcuxClRandom_ncGenerate(pSession, (uint8_t*)&scalarWord1, sizeof(uint32_t)));
+    MCUXCLBUFFER_INIT(buffScalarWord1, NULL, (uint8_t*) &scalarWord1, sizeof(uint32_t));
+    MCUX_CSSL_FP_FUNCTION_CALL(ret_Prng_GetRandWord, mcuxClRandom_ncGenerate(pSession, buffScalarWord1, sizeof(uint32_t)));
     if (MCUXCLRANDOM_STATUS_OK != ret_Prng_GetRandWord)
     {
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_SecurePointMult, MCUXCLECC_STATUS_RNG_ERROR);
@@ -125,8 +123,10 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_SecurePointMult(mcuxCl
     /* Scan scalar and skip leading zero bits. */
     while (0u == scalarWord0)
     {
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("'scalarBitLength' is larger than 32 if 'scalarWord0' == 0, so cannot wrap")
         scalarBitIndex -= 32u;
         scalarWord0 = pScalar[scalarBitIndex / 32u];
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
     }
     scalarBitIndex = (scalarBitIndex | 31u) - mcuxClMath_CountLeadingZerosWord(scalarWord0);  /* bit position of most significant non-zero bit */
     scalarWord0 ^= scalarWord1;
@@ -181,6 +181,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_SecurePointMult(mcuxCl
         MCUX_CSSL_FP_LOOP_ITERATIONS(MainLoop, scalarBitIndex),
         MCUX_CSSL_FP_LOOP_ITERATIONS(RandomizeInMainLoop, scalarBitIndex/32u) );
 
+    uint32_t randomMask;
+    MCUXCLBUFFER_INIT(buffRandomMask, NULL, (uint8_t *) &randomMask, sizeof(uint32_t));
+
     /* The remaining iteration(s) of Montgomery ladder. */
     while (0u != scalarBitIndex)
     {
@@ -205,7 +208,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_SecurePointMult(mcuxCl
             MCUX_CSSL_FP_FUNCTION_CALL(retReRandomUptrt,
                                       mcuxClPkc_ReRandomizeUPTRT(pSession,
                                                                 &pOperands[WEIER_XA],
-                                                                (uint16_t) operandSize,
+                                                                (uint16_t) (operandSize & 0xffffU),
                                                                 (WEIER_Y1 - WEIER_XA + 1u)) );
             if (MCUXCLPKC_STATUS_OK != retReRandomUptrt)
             {
@@ -215,9 +218,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_SecurePointMult(mcuxCl
             /* After rerandomization, pointer pZA (used in mcuxClRandom_ncGenerate call)         */
             /* and pOperands[WEIER_VZ] (used by double-and-add FUP program) need to be updated. */
             pOperands[WEIER_VZ]  = pOperands[WEIER_Z];
-            pZA = MCUXCLPKC_OFFSET2PTR(pOperands[WEIER_ZA]);
+            MCUXCLBUFFER_SET(buffZA, MCUXCLPKC_OFFSET2PTR(pOperands[WEIER_ZA]), operandSize);
             /* Rerandomize R0 (X0,Y0, Z) and R1 (X1,Y1, Z) and ensure that the X- and Y-coordinates are in range [0,p-1]. */
-            MCUX_CSSL_FP_FUNCTION_CALL(ret_Prng_GetRandom1, mcuxClRandom_ncGenerate(pSession, pZA, operandSize));
+            MCUX_CSSL_FP_FUNCTION_CALL(ret_Prng_GetRandom1, mcuxClRandom_ncGenerate(pSession, buffZA, operandSize));
             if (MCUXCLRANDOM_STATUS_OK != ret_Prng_GetRandom1)
             {
                 MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_SecurePointMult, MCUXCLECC_STATUS_RNG_ERROR);
@@ -227,21 +230,22 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_SecurePointMult(mcuxCl
                                 mcuxClEcc_FUP_Weier_SecurePointMult_PrepareZA_UpdateZ_P0_P1_LEN);
 
             /* Read next CPU word of scalar. */
-            MCUX_CSSL_FP_FUNCTION_CALL(ret_PRNG_innerloop, mcuxClRandom_ncGenerate(pSession, (uint8_t*)&scalarWord1, sizeof(uint32_t)));
+            MCUX_CSSL_FP_FUNCTION_CALL(ret_PRNG_innerloop, mcuxClRandom_ncGenerate(pSession, buffScalarWord1, sizeof(uint32_t)));
             if (MCUXCLRANDOM_STATUS_OK != ret_PRNG_innerloop)
             {
                 MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_SecurePointMult, MCUXCLECC_STATUS_RNG_ERROR);
             }
 
             MCUXCLPKC_PKC_CPU_ARBITRATION_WORKAROUND();  // avoid CPU accessing to PKC workarea when PKC is busy
+            MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("'scalarBitIndex' start from length of scalar size, next decrase, cannot overflow.")
             scalarWord0 = pScalar[scalarBitIndex / 32u] ^ scalarWord1;
+            MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
         }
 
         uint32_t offsetsP0;
         uint32_t offsetsP1;
-        uint32_t randomMask;
 
-        MCUX_CSSL_FP_FUNCTION_CALL(ret_PRNG_loop, mcuxClRandom_ncGenerate(pSession, (uint8_t*)&randomMask, sizeof(uint32_t)));
+        MCUX_CSSL_FP_FUNCTION_CALL(ret_PRNG_loop, mcuxClRandom_ncGenerate(pSession, buffRandomMask, sizeof(uint32_t)));
         if (MCUXCLRANDOM_STATUS_OK != ret_PRNG_loop)
         {
             MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_SecurePointMult, MCUXCLECC_STATUS_RNG_ERROR);

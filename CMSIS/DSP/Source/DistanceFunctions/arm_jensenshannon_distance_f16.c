@@ -54,7 +54,7 @@
 /// @private
 __STATIC_INLINE float16_t rel_entr(float16_t x, float16_t y)
 {
-    return (x * logf(x / y));
+    return ((_Float16)x * (_Float16)logf((float32_t)((_Float16)x / (_Float16)y)));
 }
 #endif
 
@@ -64,7 +64,7 @@ __STATIC_INLINE float16_t rel_entr(float16_t x, float16_t y)
 #include "arm_helium_utils.h"
 #include "arm_vec_math_f16.h"
 
-float16_t arm_jensenshannon_distance_f16(const float16_t *pA,const float16_t *pB, uint32_t blockSize)
+ARM_DSP_ATTRIBUTE float16_t arm_jensenshannon_distance_f16(const float16_t *pA,const float16_t *pB, uint32_t blockSize)
 {
     uint32_t        blkCnt;
     float16_t       tmp;
@@ -117,7 +117,7 @@ float16_t arm_jensenshannon_distance_f16(const float16_t *pA,const float16_t *pB
 
     }
 
-    arm_sqrt_f16(vecAddAcrossF16Mve(accumV) / 2.0f, &tmp);
+    arm_sqrt_f16((_Float16)vecAddAcrossF16Mve(accumV) / 2.0f16, &tmp);
     return (tmp);
 }
 
@@ -145,7 +145,7 @@ float16_t arm_jensenshannon_distance_f16(const float16_t *pA,const float16_t *pB
  */
 
 
-float16_t arm_jensenshannon_distance_f16(const float16_t *pA,const float16_t *pB, uint32_t blockSize)
+ARM_DSP_ATTRIBUTE float16_t arm_jensenshannon_distance_f16(const float16_t *pA,const float16_t *pB, uint32_t blockSize)
 {
     _Float16 left, right,sum, tmp;
     float16_t result;
@@ -162,7 +162,7 @@ float16_t arm_jensenshannon_distance_f16(const float16_t *pA,const float16_t *pB
 
 
     sum = left + right;
-    arm_sqrt_f16(sum/2.0f, &result);
+    arm_sqrt_f16((_Float16)sum/2.0f16, &result);
     return(result);
 
 }

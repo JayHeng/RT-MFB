@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2023 NXP
+ * Copyright 2016-2023, 2024 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -23,7 +23,7 @@
 /*! @name Driver version */
 /*! @{ */
 /*! @brief GPIO driver version. */
-#define FSL_GPIO_DRIVER_VERSION (MAKE_VERSION(2, 7, 3))
+#define FSL_GPIO_DRIVER_VERSION (MAKE_VERSION(2, 8, 0))
 /*! @} */
 
 #if defined(FSL_FEATURE_GPIO_REGISTERS_WIDTH) && (FSL_FEATURE_GPIO_REGISTERS_WIDTH == 8U)
@@ -148,6 +148,22 @@ extern "C" {
 
 /*! @name GPIO Configuration */
 /*! @{ */
+
+/*!
+ * @brief Initializes the GPIO peripheral.
+ *
+ * This function ungates the GPIO clock.
+ *
+ * @param base   GPIO peripheral base pointer.
+ */
+void GPIO_PortInit(GPIO_Type *base);
+
+/*!
+ * @brief Denitializes the GPIO peripheral.
+ *
+ * @param base   GPIO peripheral base pointer.
+ */
+void GPIO_PortDenit(GPIO_Type *base);
 
 /*!
  * @brief Initializes a GPIO pin used by the board.
@@ -542,6 +558,7 @@ void GPIO_GpioClearInterruptChannelFlags(GPIO_Type *base, uint32_t mask, uint32_
  */
 void GPIO_PinClearInterruptFlag(GPIO_Type *base, uint32_t pin);
 
+#if (defined(GPIO_ISFR_COUNT) && GPIO_ISFR_COUNT > 1)
 /*!
  * @brief Reads the GPIO DMA request flags.
  *        The corresponding flag will be cleared automatically at the completion of the requested
@@ -552,6 +569,7 @@ static inline uint32_t GPIO_GetPinsDMARequestFlags(GPIO_Type *base)
     assert(base);
     return (base->ISFR[1]);
 }
+#endif
 
 /*!
  * @brief Sets the GPIO interrupt configuration in PCR register for multiple pins.

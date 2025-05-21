@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClRsa_Mgf1.c
@@ -23,6 +23,7 @@
 #include <mcuxClHash.h>
 #include <internal/mcuxClHash_Internal.h>
 #include <mcuxClSession.h>
+#include <mcuxClBuffer.h>
 
 #include <mcuxClRsa.h>
 
@@ -47,6 +48,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_mgf1(
   const uint32_t hLen = pHashAlgo->hashSize;
 
   /* Update PKC workarea */
+  MCUX_CSSL_ANALYSIS_COVERITY_ASSERT(hLen, MCUXCLHASH_OUTPUT_SIZE_MD5, MCUXCLHASH_MAX_OUTPUT_SIZE, MCUXCLRSA_STATUS_INVALID_INPUT)
+  MCUX_CSSL_ANALYSIS_COVERITY_ASSERT(inputLength, 0u, MCUXCLPKC_RAM_SIZE, MCUXCLRSA_STATUS_INVALID_INPUT)
   const uint32_t wordSizePkcWa = (MCUXCLRSA_INTERNAL_MGF1_WAPKC_SIZE(inputLength, hLen) / (sizeof(uint32_t)));
   uint8_t *pPkcWorkarea = (uint8_t *) mcuxClSession_allocateWords_pkcWa(pSession, wordSizePkcWa);
   if (NULL == pPkcWorkarea)
@@ -63,6 +66,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_mgf1(
   MCUXCLMEMORY_FP_MEMORY_COPY(pHashInput, pInput, inputLength);
 
   /* counter = UPPER_BOUND(outputLength / pHashAlgo->hashSize) */
+  MCUX_CSSL_ANALYSIS_COVERITY_ASSERT(outputLength, 0u, MCUXCLPKC_RAM_SIZE, MCUXCLRSA_STATUS_INVALID_INPUT)
   const uint32_t mxCounter = ((outputLength + hLen - 1U) / hLen);
 
   /* concatenated size of T */
@@ -71,9 +75,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_mgf1(
   for(uint32_t counter = 0U; counter < mxCounter; counter++)
   {
     /* Convert counter to a byte string C of length 4. */
-    pHashInput[inputLength]     = (uint8_t) (counter >> 24);
-    pHashInput[inputLength + 1U] = (uint8_t) (counter >> 16);
-    pHashInput[inputLength + 2U] = (uint8_t) (counter >> 8);
+    pHashInput[inputLength]      = (uint8_t) ((counter >> 24) & 0xFFU);
+    pHashInput[inputLength + 1U] = (uint8_t) ((counter >> 16) & 0xFFU);
+    pHashInput[inputLength + 2U] = (uint8_t) ((counter >>  8) & 0xFFU);
     pHashInput[inputLength + 3U] = (uint8_t) (counter);
 
     /* Append Hash(pInput || C) to T */
@@ -81,11 +85,13 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_mgf1(
     /* Compute Hash */
     uint32_t hashOutputSize = 0u;
 
+    MCUXCLBUFFER_INIT(pHashInputBuf, pSession, pHashInput, inputLength);
+    MCUXCLBUFFER_INIT(pHashOutputBuf, pSession, pHashOutput, hLen);
     MCUX_CSSL_FP_FUNCTION_CALL(hash_result, mcuxClHash_compute(pSession,
                                                              pHashAlgo,
-                                                             pHashInput,
+                                                             pHashInputBuf,
                                                              inputLength + 4U,
-                                                             pHashOutput,
+                                                             pHashOutputBuf,
                                                              &hashOutputSize) );
     if(MCUXCLHASH_STATUS_OK != hash_result)
     {

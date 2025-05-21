@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2022 NXP                                                  */
+/* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClHash_Functions.h
@@ -22,7 +22,7 @@
 #include <mcuxClHash_Types.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
-#include <mcuxClCore_Buffer.h>
+#include <mcuxClBuffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,7 +66,7 @@ extern "C" {
  * @param[in]       inSize     Number of bytes of data in the \p pIn buffer.
  * @param[out]      pOut       Pointer to the output buffer where the computed hash
  *                             value is written.
- * @param[in/out]   pOutSize   Will be incremented by the number of bytes of data
+ * @param[out]      pOutSize   Will be incremented by the number of bytes of data
  *                             that have been written to the \p pOut buffer.
  *
  * @return status
@@ -86,6 +86,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClHash_Status_t) mcuxClHash_compute(
     mcuxCl_Buffer_t pOut,
     uint32_t *const pOutSize
 ); /* oneshot compute */
+
 
 
 /**********************************************************************/
@@ -162,8 +163,10 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClHash_Status_t) mcuxClHash_process(
  *                             that have been written to the \p pOut buffer.
  *
  * @return status
- * @retval MCUXCLHASH_STATUS_OK        Hash operation successful
- * @retval MCUXCLHASH_STATUS_FAILURE   Error occurred during Hash operation
+ * @retval MCUXCLHASH_STATUS_OK               Hash operation successful
+ * @retval MCUXCLHASH_STATUS_FAILURE          Error occurred during Hash operation
+ * @retval MCUXCLHASH_STATUS_INVALID_PARAMS   The provided function parameters do not fulfill requirements
+ * @retval MCUXCLHASH_STATUS_FAULT_ATTACK     A fault attack was detected
  *
  * @implements{REQ_2207116}
  */

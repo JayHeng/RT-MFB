@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2022 NXP                                                  */
+/* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -23,6 +23,7 @@
 #include <mcuxClConfig.h> // Exported features flags header
 
 #include <mcuxClCore_Platform.h>
+#include <mcuxClBuffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,6 +94,15 @@ typedef struct mcuxClRandom_ModeDescriptor mcuxClRandom_ModeDescriptor_t;
 typedef const mcuxClRandom_ModeDescriptor_t * mcuxClRandom_Mode_t;
 
 /**
+ * @brief Interface definition for custom PRNG functions to be used by PRNG patch mode
+ */
+typedef mcuxClRandom_Status_t (* mcuxClRandom_CustomNcGenerateAlgorithm_t)(
+    void *pCustomPrngState,
+    mcuxCl_Buffer_t pOut,
+    uint32_t outLength
+);
+
+/**
  * @brief Random config structure
  *
  * This structure is used to store context and mode pointers.
@@ -100,6 +110,8 @@ typedef const mcuxClRandom_ModeDescriptor_t * mcuxClRandom_Mode_t;
 struct mcuxClRandom_Config {
     mcuxClRandom_Mode_t    mode;      ///< Random data generation mode/algorithm
     mcuxClRandom_Context_t ctx;       ///< Context for the Rng
+    mcuxClRandom_CustomNcGenerateAlgorithm_t prngPatchFunction; ///< Function pointer to a custom PRNG function
+    void *pCustomPrngState;   ///< User-maintained state for a custom PRNG function
 };
 
 /**

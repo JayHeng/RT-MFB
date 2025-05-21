@@ -1,6 +1,5 @@
 /*
  * Copyright 2023-2024 NXP
- * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,8 +25,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief CLOCK driver version 2.2.1 */
-#define FSL_CLOCK_DRIVER_VERSION (MAKE_VERSION(2, 2, 1))
+/*! @brief CLOCK driver version 2.4.0 */
+#define FSL_CLOCK_DRIVER_VERSION (MAKE_VERSION(2, 4, 0))
 /*@}*/
 
 #if defined(MIMXRT798S_hifi1_SERIES) || defined(MIMXRT798S_cm33_core1_SERIES) || \
@@ -36,6 +35,8 @@
 #elif defined(MIMXRT798S_hifi4_SERIES) || defined(MIMXRT798S_cm33_core0_SERIES) || \
     defined(MIMXRT758S_cm33_core0_SERIES) || defined(MIMXRT735S_cm33_core0_SERIES)
 #define FSL_CLOCK_DRIVER_COMPUTE
+#elif defined(MIMXRT798S_ezhv_SERIES) || defined(MIMXRT758S_ezhv_SERIES) || defined(MIMXRT735S_ezhv_SERIES)
+#define FSL_CLOCK_DRIVER_MEDIA
 #else
 #error "Unsupported core!"
 #endif
@@ -44,15 +45,26 @@
  * application. */
 #ifndef SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY
 #if defined(FSL_CLOCK_DRIVER_SENSE)
-#define SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY (100000000UL)
+#define SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY (250000000UL)
 #elif defined(FSL_CLOCK_DRIVER_COMPUTE)
-#define SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY (300000000UL)
+#define SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY (325000000UL)
+#elif defined(FSL_CLOCK_DRIVER_MEDIA)
+/* EZHV process clock is m_clk. */
+#define SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY (325UL * 1000UL * 1000UL)
 #endif /* FSL_CLOCK_DRIVER_SENSE */
 #endif /* SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY */
 
 /* Definition for compatiblity. */
 #define CLOCK_DeinitSysPfd CLOCK_DeinitMainPfd
 #define CLOCK_InitSysPfd   CLOCK_InitMainPfd
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
+#define kCLOCK_InputMux kCLOCK_InputMux0
+#define kCLOCK_Pint     kCLOCK_Pint0
+#endif
+#if defined(FSL_CLOCK_DRIVER_SENSE)
+#define kCLOCK_InputMux kCLOCK_InputMux1
+#define kCLOCK_Pint     kCLOCK_Pint1
+#endif
 
 /*! @brief External XTAL (SYSOSC) clock frequency.
  *
@@ -98,7 +110,7 @@ extern volatile uint32_t g_32kClkinFreq;
  */
 extern volatile uint32_t g_mclkFreq;
 
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
 /*! @brief VDD1(Sense) audio_clk clock frequency.
  *
  *NOTE, The compute domain can't read the Sense VDD1 audio_clk selection. The compute domain need call
@@ -110,6 +122,12 @@ extern volatile uint32_t g_mclkFreq;
  */
 extern volatile uint32_t g_senseAudioClkFreq;
 #endif
+
+/*! @brief Clock ip name array for CDOG. */
+#define CDOG_CLOCKS                                                          \
+    {                                                                        \
+        kCLOCK_Cdog0, kCLOCK_Cdog1, kCLOCK_Cdog2, kCLOCK_Cdog3, kCLOCK_Cdog4 \
+    }
 
 /*! @brief Clock ip name array for FREQME. */
 #define FREQME_CLOCKS  \
@@ -181,6 +199,12 @@ extern volatile uint32_t g_senseAudioClkFreq;
 #define LPADC_CLOCKS \
     {                \
         kCLOCK_Adc0  \
+    }
+
+/*! @brief Clock ip name array for SDADC. */
+#define SDADC_CLOCKS  \
+    {                 \
+        kCLOCK_Sdadc0 \
     }
 
 /*! @brief Clock ip name array for ACMP. */
@@ -259,7 +283,7 @@ extern volatile uint32_t g_senseAudioClkFreq;
     }
 
 /*! @brief Clock ip name array for MU */
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
 #ifndef __XTENSA__
 #define MU_CLOCKS                          \
     {                                      \
@@ -318,13 +342,40 @@ extern volatile uint32_t g_senseAudioClkFreq;
         kCLOCK_Crc0 \
     }
 
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
+/*! @brief Clock ip name array for GDET. */
+#define GDET_CLOCKS                                            \
+    {                                                          \
+        kCLOCK_Gdet0, kCLOCK_IpInvalid, kCLOCK_IpInvalid, kCLOCK_Gdet3 \
+    }
+
+/*! @brief Clock ip name array for GDET_REF. */
+#define GDET_REF_CLOCKS                                                    \
+    {                                                                      \
+        kCLOCK_Gdet0Ref, kCLOCK_IpInvalid, kCLOCK_IpInvalid, kCLOCK_Gdet3Ref \
+    }
+#endif
+#if defined(FSL_CLOCK_DRIVER_SENSE)
+/*! @brief Clock ip name array for GDET. */
+#define GDET_CLOCKS                                                    \
+    {                                                                  \
+        kCLOCK_IpInvalid, kCLOCK_IpInvalid, kCLOCK_IpInvalid, kCLOCK_Gdet3 \
+    }
+
+/*! @brief Clock ip name array for GDET_REF. */
+#define GDET_REF_CLOCKS                                                      \
+    {                                                                        \
+        kCLOCK_IpInvalid, kCLOCK_IpInvalid, kCLOCK_IpInvalid, kCLOCK_Gdet3Ref \
+    }
+#endif
+
 /*! @brief Clock ip name array for GPIO. */
-#define GPIO_CLOCKS                                                                                       \
-    {                                                                                                     \
-        kCLOCK_Gpio0, kCLOCK_Gpio1, kCLOCK_Gpio2, kCLOCK_Gpio3, kCLOCK_Gpio4, kCLOCK_Gpio5, kCLOCK_Gpio6, \
-            kCLOCK_Gpio7, kCLOCK_Gpio8, kCLOCK_Gpio9, kCLOCK_Gpio10,                                      \
-        kCLOCK_Gpio0, kCLOCK_Gpio1, kCLOCK_Gpio2, kCLOCK_Gpio3, kCLOCK_Gpio4, kCLOCK_Gpio5, kCLOCK_Gpio6, \
-            kCLOCK_Gpio7, kCLOCK_Gpio8, kCLOCK_Gpio9, kCLOCK_Gpio10                                       \
+#define GPIO_CLOCKS                                                                                            \
+    {                                                                                                          \
+        kCLOCK_Gpio0, kCLOCK_Gpio1, kCLOCK_Gpio2, kCLOCK_Gpio3, kCLOCK_Gpio4, kCLOCK_Gpio5, kCLOCK_Gpio6,      \
+            kCLOCK_Gpio7, kCLOCK_Gpio8, kCLOCK_Gpio9, kCLOCK_Gpio10, kCLOCK_Gpio0, kCLOCK_Gpio1, kCLOCK_Gpio2, \
+            kCLOCK_Gpio3, kCLOCK_Gpio4, kCLOCK_Gpio5, kCLOCK_Gpio6, kCLOCK_Gpio7, kCLOCK_Gpio8, kCLOCK_Gpio9,  \
+            kCLOCK_Gpio10                                                                                      \
     }
 
 /*! @brief Clock ip name array for PDM. */
@@ -395,8 +446,8 @@ extern volatile uint32_t g_senseAudioClkFreq;
     ((((reg_offset) << CLK_GATE_REG_OFFSET_SHIFT) & CLK_GATE_REG_OFFSET_MASK) | \
      (((bit_shift) << CLK_GATE_BIT_SHIFT_SHIFT) & CLK_GATE_BIT_SHIFT_MASK))
 
-#define CLK_GATE_ABSTRACT_REG_OFFSET(x) (((uint32_t)(x)&CLK_GATE_REG_OFFSET_MASK) >> CLK_GATE_REG_OFFSET_SHIFT)
-#define CLK_GATE_ABSTRACT_BITS_SHIFT(x) (((uint32_t)(x)&CLK_GATE_BIT_SHIFT_MASK) >> CLK_GATE_BIT_SHIFT_SHIFT)
+#define CLK_GATE_ABSTRACT_REG_OFFSET(x) (((uint32_t)(x) & CLK_GATE_REG_OFFSET_MASK) >> CLK_GATE_REG_OFFSET_SHIFT)
+#define CLK_GATE_ABSTRACT_BITS_SHIFT(x) (((uint32_t)(x) & CLK_GATE_BIT_SHIFT_MASK) >> CLK_GATE_BIT_SHIFT_SHIFT)
 
 #define CLK_CTL0_PSCCTL0 0 /* CLKCTL_COM_VDD2 PSCCTL0 */
 #define CLK_CTL0_PSCCTL1 1
@@ -410,10 +461,10 @@ extern volatile uint32_t g_senseAudioClkFreq;
 #define CLK_CTL3_PSCCTL0 9  /* CLKCTL2 PSCCTL0 */
 #define CLK_CTL4_PSCCTL0 10 /* CLKCTL_MED_VDD2 PSCCTL0 */
 #define CLK_CTL4_PSCCTL1 11 /* CLKCTL_MED_VDD2 PSCCTL1 */
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
-#define SYSCON_CMPT_SEC_CLK_CTRL 12
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA) || defined(FSL_CLOCK_DRIVER_MEDIA)
+#define SYSCON0_SEC_CLK_CTRL 12
 #endif
-#define SYSCON_SENSE0_ELS_CLK_CTRL      13
+#define SYSCON3_SEC_CLK_CTRL            13
 #define CLKCTL0_ONE_SRC_CLKSLICE_ENABLE 14
 #define CLKCTL3_ONE_SRC_CLKSLICE_ENABLE 15
 #define CLKCTL4_ONE_SRC_CLKSLICE_ENABLE 16
@@ -545,20 +596,18 @@ typedef enum _clock_ip_name
     kCLOCK_Utick0         = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL2, 27), /*!< Clock gate name: Utick0*/
     kCLOCK_Sema424        = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL2, 30), /*!< Clock gate name: SEMA42_4*/
     kCLOCK_Mu4            = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL2, 31), /*!< Clock gate name: MU4*/
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
-    kCLOCK_Pint     = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 5),        /*!< Clock gate name: PINT0*/
-    kCLOCK_InputMux = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 10),       /*!< Clock gate name: PMUX_CMPT_SPLITTER*/
-#endif
-    kCLOCK_Freqme0   = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 8),       /*!< Clock gate name: FREQME0*/
-    kCLOCK_SafoSgi   = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 12),      /*!< Clock gate name: SAFO_SGI*/
-    kCLOCK_Trace     = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 13),      /*!< Clock gate name: TRACE*/
-    kCLOCK_Prince0   = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 15),      /*!< Clock gate name: PRINCE0*/
-    kCLOCK_Prince1   = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 16),      /*!< Clock gate name: PRINCE1*/
-    kCLOCK_PrinceExe = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 17),      /*!< Clock gate name: PRINCE_EXE*/
-    kCLOCK_Syspm0    = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 18),      /*!< Clock gate name: CMX_PERFMON0*/
-    kCLOCK_Syspm1    = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 19),      /*!< Clock gate name: CMX_PERFMON1*/
-    kCLOCK_Hifi4     = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL4, 0),       /*!< Clock gate name: HIFI4*/
-    kCLOCK_Npu0      = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL5, 0),       /*!< Clock gate name: NPU0*/
+    kCLOCK_Pint0          = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 5),  /*!< Clock gate name: PINT0*/
+    kCLOCK_InputMux0      = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 10), /*!< Clock gate name: PMUX_CMPT_SPLITTER*/
+    kCLOCK_Freqme0        = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 8),  /*!< Clock gate name: FREQME0*/
+    kCLOCK_SafoSgi        = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 12), /*!< Clock gate name: SAFO_SGI*/
+    kCLOCK_Trace          = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 13), /*!< Clock gate name: TRACE*/
+    kCLOCK_Prince0        = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 15), /*!< Clock gate name: PRINCE0*/
+    kCLOCK_Prince1        = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 16), /*!< Clock gate name: PRINCE1*/
+    kCLOCK_PrinceExe      = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 17), /*!< Clock gate name: PRINCE_EXE*/
+    kCLOCK_Syspm0         = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 18), /*!< Clock gate name: CMX_PERFMON0*/
+    kCLOCK_Syspm1         = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL3, 19), /*!< Clock gate name: CMX_PERFMON1*/
+    kCLOCK_Hifi4          = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL4, 0),  /*!< Clock gate name: HIFI4*/
+    kCLOCK_Npu0           = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL5, 0),  /*!< Clock gate name: NPU0*/
     kCLOCK_CompAccessRamArbiter1 =
         CLK_GATE_DEFINE(CLK_CTL0_PSCCTL5, 2),                      /*!< Clock gate name: COMP_ACCESS_RAM_ARBITER1*/
     kCLOCK_Iopctl0 = CLK_GATE_DEFINE(CLK_CTL0_PSCCTL5, 3),         /*!< Clock gate name: IOMUXC_VDD2*/
@@ -596,10 +645,9 @@ typedef enum _clock_ip_name
     kCLOCK_Gpio8        = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 13),   /*!< Clock gate name: GPIO8*/
     kCLOCK_Gpio9        = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 14),   /*!< Clock gate name: GPIO9*/
     kCLOCK_Gpio10       = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 15),   /*!< Clock gate name: GPIO10*/
-#if defined(FSL_CLOCK_DRIVER_SENSE)
-    kCLOCK_Pint     = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 16),       /*!< Clock gate name: PINT1*/
-    kCLOCK_InputMux = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 30),       /*!< Clock gate name: PMUX_SNS_SPLITTER*/
-#endif
+    kCLOCK_Pint1        = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 16),   /*!< Clock gate name: PINT1*/
+    kCLOCK_InputMux1    = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 30),   /*!< Clock gate name: PMUX_SNS_SPLITTER*/
+
     kCLOCK_Ct32b5  = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 17),        /*!< Clock gate name: CTIMER5*/
     kCLOCK_Ct32b6  = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 18),        /*!< Clock gate name: CTIMER6*/
     kCLOCK_Ct32b7  = CLK_GATE_DEFINE(CLK_CTL1_PSCCTL1, 19),        /*!< Clock gate name: CTIMER7*/
@@ -655,21 +703,17 @@ typedef enum _clock_ip_name
     kCLOCK_Usdhc1      = CLK_GATE_DEFINE(CLK_CTL4_PSCCTL1, 5),     /*!< Clock gate name: USDHC1*/
 
 /* Control bits in SYSCON. */
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
-    kCLOCK_Gdet0Ref = CLK_GATE_DEFINE(SYSCON_CMPT_SEC_CLK_CTRL, 0),      /*!< Clock gate name: GDET0 Reference clock*/
-    kCLOCK_Gdet1Ref = CLK_GATE_DEFINE(SYSCON_CMPT_SEC_CLK_CTRL, 1),      /*!< Clock gate name: GDET1 Reference clock*/
-    kCLOCK_TrngRef  = CLK_GATE_DEFINE(SYSCON_CMPT_SEC_CLK_CTRL, 2),      /*!< Clock gate name: TRNG Reference clock*/
-    kCLOCK_Els      = CLK_GATE_DEFINE(SYSCON_CMPT_SEC_CLK_CTRL, 3),      /*!< Clock gate name: ELS clock*/
-    kCLOCK_ItrcRef  = CLK_GATE_DEFINE(SYSCON_CMPT_SEC_CLK_CTRL, 4),      /*!< Clock gate name: ITRC Reference clock*/
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
+    kCLOCK_Gdet0Ref = CLK_GATE_DEFINE(SYSCON0_SEC_CLK_CTRL, 0),          /*!< Clock gate name: GDET0 Reference clock*/
+    kCLOCK_TrngRef  = CLK_GATE_DEFINE(SYSCON0_SEC_CLK_CTRL, 2),          /*!< Clock gate name: TRNG Reference clock*/
+    kCLOCK_Els      = CLK_GATE_DEFINE(SYSCON0_SEC_CLK_CTRL, 3),          /*!< Clock gate name: ELS clock*/
+    kCLOCK_ItrcRef  = CLK_GATE_DEFINE(SYSCON0_SEC_CLK_CTRL, 4),          /*!< Clock gate name: ITRC Reference clock*/
 
     kCLOCK_Gdet0 = CLK_GATE_DEFINE(CLKCTL0_ONE_SRC_CLKSLICE_ENABLE, 0U), /*!< Clock gate name: GDET0. */
-    kCLOCK_Gdet1 = CLK_GATE_DEFINE(CLKCTL0_ONE_SRC_CLKSLICE_ENABLE, 1U), /*!< Clock gate name: GDET1. */
 #endif
-    kCLOCK_Gdet2Ref = CLK_GATE_DEFINE(SYSCON_SENSE0_ELS_CLK_CTRL, 0),    /*!< Clock gate name: GDET2 Reference clock*/
-    kCLOCK_Gdet3Ref = CLK_GATE_DEFINE(SYSCON_SENSE0_ELS_CLK_CTRL, 1),    /*!< Clock gate name: GDET3 Reference clock*/
+    kCLOCK_Gdet3Ref = CLK_GATE_DEFINE(SYSCON3_SEC_CLK_CTRL, 1),          /*!< Clock gate name: GDET3 Reference clock*/
 
     kCLOCK_Rtc       = CLK_GATE_DEFINE(CLKCTL3_ONE_SRC_CLKSLICE_ENABLE, 0U), /*!< RTC functional clock gating. */
-    kCLOCK_Gdet2     = CLK_GATE_DEFINE(CLKCTL3_ONE_SRC_CLKSLICE_ENABLE, 1U), /*!< GDET2 functional clock gating. */
     kCLOCK_Gdet3     = CLK_GATE_DEFINE(CLKCTL3_ONE_SRC_CLKSLICE_ENABLE, 2U), /*!< GDET3 functional clock gating. */
     kCLOCK_UsbphyRef = CLK_GATE_DEFINE(CLKCTL4_ONE_SRC_CLKSLICE_ENABLE, 0U), /*!< USBPHY referrence clock gating. */
 } clock_ip_name_t;
@@ -680,7 +724,7 @@ typedef enum _clock_name
     kCLOCK_CoreSysClk,      /*!< Core clock  (aka system clock)                                 */
     kCLOCK_BusClk,          /*!< Bus clock (AHB/APB clock, aka HCLK)                    */
     kCLOCK_MclkClk,         /*!< MCLK, to MCLK pin                                      */
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     kCLOCK_Vdd2ClockOutClk, /*!< VDD2 CLOCKOUT                                               */
     kCLOCK_Xspi0Clk,        /*!< XSPI0                                               */
     kCLOCK_Xspi1Clk,        /*!< XSPI1                                               */
@@ -743,10 +787,10 @@ typedef enum _clock_name
  */
 #define CLK_MUX_INST_INDEX_SHIFT    29U
 #define CLK_MUX_CHOICE_OFFSET_SHIFT 11U
-#define CLK_MUX_DISABLE_OUTPUT_MASK (1U << 14U)
+#define CLK_MUX_DISABLE_OUTPUT_MASK (1UL << 14U)
 
 /* CLKCTL0 CLKCTL_COM_VDD2*/
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
 #define CMPTMAINCLKDIV_OFFSET    0x400
 #define CMPTBASECLKSEL_OFFSET    0x420
 #define DSPBASECLKSEL_OFFSET     0x424
@@ -910,21 +954,21 @@ typedef enum _clock_name
 #define LCDIFPIXELCLKDIV_OFFSET 0x344
 #define LOWFREQCLKDIV_OFFSET    0x700
 
-#define CLKCTL0_INDEX (0U << CLK_MUX_INST_INDEX_SHIFT)
-#define CLKCTL1_INDEX (1U << CLK_MUX_INST_INDEX_SHIFT)
-#define CLKCTL2_INDEX (2U << CLK_MUX_INST_INDEX_SHIFT)
-#define CLKCTL3_INDEX (3U << CLK_MUX_INST_INDEX_SHIFT)
-#define CLKCTL4_INDEX (4U << CLK_MUX_INST_INDEX_SHIFT)
+#define CLKCTL0_INDEX (0UL << CLK_MUX_INST_INDEX_SHIFT)
+#define CLKCTL1_INDEX (1UL << CLK_MUX_INST_INDEX_SHIFT)
+#define CLKCTL2_INDEX (2UL << CLK_MUX_INST_INDEX_SHIFT)
+#define CLKCTL3_INDEX (3UL << CLK_MUX_INST_INDEX_SHIFT)
+#define CLKCTL4_INDEX (4UL << CLK_MUX_INST_INDEX_SHIFT)
 
-#define CLKCTL0_TUPLE_MUXA(reg, choice) ((((reg) >> 2U) & 0x7FFU) | (((choice)&0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
+#define CLKCTL0_TUPLE_MUXA(reg, choice) ((((reg) >> 2U) & 0x7FFU) | (((choice) & 0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
 #define CLKCTL1_TUPLE_MUXA(reg, choice) \
-    (CLKCTL1_INDEX | (((reg) >> 2U) & 0x7FFU) | (((choice)&0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
+    (CLKCTL1_INDEX | (((reg) >> 2U) & 0x7FFU) | (((choice) & 0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
 #define CLKCTL2_TUPLE_MUXA(reg, choice) \
-    (CLKCTL2_INDEX | (((reg) >> 2U) & 0x7FFU) | (((choice)&0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
+    (CLKCTL2_INDEX | (((reg) >> 2U) & 0x7FFU) | (((choice) & 0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
 #define CLKCTL3_TUPLE_MUXA(reg, choice) \
-    (CLKCTL3_INDEX | (((reg) >> 2U) & 0x7FFU) | (((choice)&0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
+    (CLKCTL3_INDEX | (((reg) >> 2U) & 0x7FFU) | (((choice) & 0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
 #define CLKCTL4_TUPLE_MUXA(reg, choice) \
-    (CLKCTL4_INDEX | (((reg) >> 2U) & 0x7FFU) | (((choice)&0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
+    (CLKCTL4_INDEX | (((reg) >> 2U) & 0x7FFU) | (((choice) & 0x3U) << CLK_MUX_CHOICE_OFFSET_SHIFT))
 /*! Macro for gated clock mux */
 #define CLKCTL0_TUPLE_MUXA_NONE(reg, choice) (CLKCTL0_TUPLE_MUXA(reg, choice) | CLK_MUX_DISABLE_OUTPUT_MASK)
 #define CLKCTL1_TUPLE_MUXA_NONE(reg, choice) (CLKCTL1_TUPLE_MUXA(reg, choice) | CLK_MUX_DISABLE_OUTPUT_MASK)
@@ -932,7 +976,7 @@ typedef enum _clock_name
 #define CLKCTL3_TUPLE_MUXA_NONE(reg, choice) (CLKCTL3_TUPLE_MUXA(reg, choice) | CLK_MUX_DISABLE_OUTPUT_MASK)
 #define CLKCTL4_TUPLE_MUXA_NONE(reg, choice) (CLKCTL4_TUPLE_MUXA(reg, choice) | CLK_MUX_DISABLE_OUTPUT_MASK)
 
-#define CLKCTL_TUPLE_REG(base, tuple) ((volatile uint32_t *)(((uint32_t)(base)) + (((uint32_t)(tuple)&0x7FFU) << 2U)))
+#define CLKCTL_TUPLE_REG(base, tuple) ((volatile uint32_t *)(((uint32_t)(base)) + (((uint32_t)(tuple) & 0x7FFU) << 2U)))
 #define CLKCTL_TUPLE_SEL(tuple)       (((uint32_t)(tuple) >> CLK_MUX_CHOICE_OFFSET_SHIFT) & 0x3U)
 
 /*!
@@ -941,7 +985,7 @@ typedef enum _clock_name
  */
 typedef enum _clock_attach_id
 {
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     kFRO1_DIV3_to_COMPUTE_BASE =
         CLKCTL0_TUPLE_MUXA(CMPTBASECLKSEL_OFFSET, 0), /*!< Attach Fro1 Divided-by-3 to Compute Base Clock. */
     kFRO1_DIV1_to_COMPUTE_BASE =
@@ -1045,8 +1089,8 @@ typedef enum _clock_attach_id
     k32KHZ_WAKE_to_SYSTICK =
         CLKCTL0_TUPLE_MUXA(SYSTICKFCLKSEL_OFFSET, 2), /*!< Attach 32 KHz wake clock(switch to other clock source before
                                                  compute vdd2 enter SRPG mode.) to SYSTICK Functional Clock. */
-    kOSC32K_to_SYSTICK =
-        CLKCTL0_TUPLE_MUXA(SYSTICKFCLKSEL_OFFSET, 3), /*!< Attach OSC_32K clock to SYSTICK Functional Clock. */
+    kOSC_CLK_to_SYSTICK =
+        CLKCTL0_TUPLE_MUXA(SYSTICKFCLKSEL_OFFSET, 3), /*!< Attach OSC_CLK clock to SYSTICK Functional Clock. */
     kNONE_to_SYSTICK =
         CLKCTL0_TUPLE_MUXA_NONE(SYSTICKFCLKSEL_OFFSET, 0), /*!< Attach NONE to SYSTICK Functional Clock. */
 
@@ -1065,19 +1109,19 @@ typedef enum _clock_attach_id
     kNONE_to_FCCLK0          = CLKCTL0_TUPLE_MUXA_NONE(FCCLK0SEL_OFFSET, 0), /*!< Attach NONE to FCCLK0. */
 
     kCOMPUTE_BASE_to_FCCLK1  = CLKCTL0_TUPLE_MUXA(FCCLK1SEL_OFFSET, 0), /*!< Attach compute base clock to FCCLK1. */
-    kFRO0_to_FCCLK1          = CLKCTL0_TUPLE_MUXA(FCCLK1SEL_OFFSET, 1), /*!< Attach FRO0 max clock to FCCLK1. */
+    kFRO0_DIV1_to_FCCLK1     = CLKCTL0_TUPLE_MUXA(FCCLK1SEL_OFFSET, 1), /*!< Attach FRO0 max clock to FCCLK1. */
     kMAIN_PLL_PFD3_to_FCCLK1 = CLKCTL0_TUPLE_MUXA(FCCLK1SEL_OFFSET, 2), /*!< Attach MAIN PLL PFD3 clock to FCCLK1. */
     kOSC_CLK_to_FCCLK1       = CLKCTL0_TUPLE_MUXA(FCCLK1SEL_OFFSET, 3), /*!< Attach OSC clock to FCCLK1. */
     kNONE_to_FCCLK1          = CLKCTL0_TUPLE_MUXA_NONE(FCCLK1SEL_OFFSET, 0), /*!< Attach NONE to FCCLK1. */
 
     kCOMPUTE_BASE_to_FCCLK2  = CLKCTL0_TUPLE_MUXA(FCCLK2SEL_OFFSET, 0), /*!< Attach compute base clock to FCCLK2. */
-    kFRO0_to_FCCLK2          = CLKCTL0_TUPLE_MUXA(FCCLK2SEL_OFFSET, 1), /*!< Attach FRO0 max clock to FCCLK2. */
+    kFRO0_DIV1_to_FCCLK2     = CLKCTL0_TUPLE_MUXA(FCCLK2SEL_OFFSET, 1), /*!< Attach FRO0 max clock to FCCLK2. */
     kMAIN_PLL_PFD3_to_FCCLK2 = CLKCTL0_TUPLE_MUXA(FCCLK2SEL_OFFSET, 2), /*!< Attach MAIN PLL PFD3 clock to FCCLK2. */
     kOSC_CLK_to_FCCLK2       = CLKCTL0_TUPLE_MUXA(FCCLK2SEL_OFFSET, 3), /*!< Attach OSC clock to FCCLK2. */
     kNONE_to_FCCLK2          = CLKCTL0_TUPLE_MUXA_NONE(FCCLK2SEL_OFFSET, 0), /*!< Attach NONE to FCCLK2. */
 
     kCOMPUTE_BASE_to_FCCLK3  = CLKCTL0_TUPLE_MUXA(FCCLK3SEL_OFFSET, 0), /*!< Attach compute base clock to FCCLK3. */
-    kFRO0_to_FCCLK3          = CLKCTL0_TUPLE_MUXA(FCCLK3SEL_OFFSET, 1), /*!< Attach FRO0 max clock to FCCLK3. */
+    kFRO0_DIV1_to_FCCLK3     = CLKCTL0_TUPLE_MUXA(FCCLK3SEL_OFFSET, 1), /*!< Attach FRO0 max clock to FCCLK3. */
     kMAIN_PLL_PFD3_to_FCCLK3 = CLKCTL0_TUPLE_MUXA(FCCLK3SEL_OFFSET, 2), /*!< Attach MAIN PLL PFD3 clock to FCCLK3. */
     kOSC_CLK_to_FCCLK3       = CLKCTL0_TUPLE_MUXA(FCCLK3SEL_OFFSET, 3), /*!< Attach OSC clock to FCCLK3. */
     kNONE_to_FCCLK3          = CLKCTL0_TUPLE_MUXA_NONE(FCCLK3SEL_OFFSET, 0), /*!< Attach NONE to FCCLK3. */
@@ -1239,8 +1283,8 @@ typedef enum _clock_attach_id
 
     kCOMPUTE_BASE_to_I3C01_PCLK =
         CLKCTL0_TUPLE_MUXA(I3C01PCLKSEL_OFFSET, 0), /*!< Attach Compute base clock to I3C0 and I3C1 P-CLK. */
-    kMAIM_PLL_PFD0_to_I3C01_PCLK =
-        CLKCTL0_TUPLE_MUXA(I3C01PCLKSEL_OFFSET, 1), /*!< Attach MAIM PLL PFD0 to I3C0 and I3C1 P-CLK. */
+    kMAIN_PLL_PFD0_to_I3C01_PCLK =
+        CLKCTL0_TUPLE_MUXA(I3C01PCLKSEL_OFFSET, 1), /*!< Attach MAIN PLL PFD0 to I3C0 and I3C1 P-CLK. */
     kFRO0_DIV1_to_I3C01_PCLK =
         CLKCTL0_TUPLE_MUXA(I3C01PCLKSEL_OFFSET, 2), /*!< Attach FRO0 MAX to I3C0 and I3C1 P-CLK. */
     kFRO1_DIV1_to_I3C01_PCLK =
@@ -1390,7 +1434,7 @@ typedef enum _clock_attach_id
     kFRO2_DIV1_to_FLEXCOMM20  = CLKCTL1_TUPLE_MUXA(FC20FCLKSEL_OFFSET, 1), /*!< Attach FRO2 max clock to FLEXCOMM20. */
     kFRO1_DIV1_to_FLEXCOMM20  = CLKCTL1_TUPLE_MUXA(FC20FCLKSEL_OFFSET, 2), /*!< Attach FRO1 max clock to FLEXCOMM20. */
     k32KHZ_WAKE_to_FLEXCOMM20 = CLKCTL1_TUPLE_MUXA(FC20FCLKSEL_OFFSET, 3), /*!< Attach 32k_wake_clk to FLEXCOMM20. */
-    kNONE_to_FLEXCOMM20       = CLKCTL1_TUPLE_MUXA_NONE(FC20FCLKSEL_OFFSET, 0),  /*!< Attach NONE to FLEXCOMM20. */
+    kNONE_to_FLEXCOMM20       = CLKCTL1_TUPLE_MUXA_NONE(FC20FCLKSEL_OFFSET, 0), /*!< Attach NONE to FLEXCOMM20. */
 
 #endif                                                 /* FSL_CLOCK_DRIVER_COMPUTE */
 
@@ -1555,14 +1599,14 @@ typedef enum _clock_attach_id
         CLKCTL4_TUPLE_MUXA(XSPI2FCLKSEL_OFFSET, 3), /*!< Attach Main PLL PFD3 clock to XSPI2 Functional Clock. */
     kNONE_to_XSPI2 = CLKCTL4_TUPLE_MUXA_NONE(XSPI2FCLKSEL_OFFSET, 0), /*!< Attach NONE to XSPI2 Functional Clock. */
 
-    k32K_WAKE_to_USB = CLKCTL4_TUPLE_MUXA(USBFCLKSEL_OFFSET, 0),      /*!< Attach Wakeup 32K to USB Functional Clock. */
-    kLPOSC_to_USB    = CLKCTL4_TUPLE_MUXA(USBFCLKSEL_OFFSET, 1),      /*!< Attach LPOSC_1M to USB Functional Clock. */
+    k32KHZ_WAKE_to_USB = CLKCTL4_TUPLE_MUXA(USBFCLKSEL_OFFSET, 0),    /*!< Attach Wakeup 32K to USB Functional Clock. */
+    kLPOSC_to_USB      = CLKCTL4_TUPLE_MUXA(USBFCLKSEL_OFFSET, 1),    /*!< Attach LPOSC_1M to USB Functional Clock. */
     kUSB_24MHZ_to_USB =
         CLKCTL4_TUPLE_MUXA(USBFCLKSEL_OFFSET, 2), /*!< Attach 24MHz USB OSC clock to USB Functional Clock. */
-    kNONE_to_USB = CLKCTL4_TUPLE_MUXA_NONE(USBFCLKSEL_OFFSET, 0),  /*!< Attach NONE to USB Functional Clock. */
+    kNONE_to_USB = CLKCTL4_TUPLE_MUXA_NONE(USBFCLKSEL_OFFSET, 0),    /*!< Attach NONE to USB Functional Clock. */
 
-    k32K_WAKE_to_EUSB = CLKCTL4_TUPLE_MUXA(EUSBFCLKSEL_OFFSET, 0), /*!< Attach Wakeup 32K to eUSB Functional Clock. */
-    kLPOSC_to_EUSB    = CLKCTL4_TUPLE_MUXA(EUSBFCLKSEL_OFFSET, 1), /*!< Attach LPOSC_1M to eUSB Functional Clock. */
+    k32KHZ_WAKE_to_EUSB = CLKCTL4_TUPLE_MUXA(EUSBFCLKSEL_OFFSET, 0), /*!< Attach Wakeup 32K to eUSB Functional Clock. */
+    kLPOSC_to_EUSB      = CLKCTL4_TUPLE_MUXA(EUSBFCLKSEL_OFFSET, 1), /*!< Attach LPOSC_1M to eUSB Functional Clock. */
     kEUSB_24MHZ_to_EUSB =
         CLKCTL4_TUPLE_MUXA(EUSBFCLKSEL_OFFSET, 2), /*!< Attach 24MHz eUSB OSC clock to eUSB Functional Clock. */
     kNONE_to_EUSB = CLKCTL4_TUPLE_MUXA_NONE(EUSBFCLKSEL_OFFSET, 0), /*!< Attach NONE to eUSB Functional Clock. */
@@ -1588,10 +1632,7 @@ typedef enum _clock_attach_id
     kNONE_to_SDIO1 = CLKCTL4_TUPLE_MUXA_NONE(SDIO1FCLKSEL_OFFSET, 0), /*!< Attach NONE to SDIO1 Functional Clock. */
 
     kMEDIA_VDD2_BASE_to_MIPI_DSI_HOST_PHY =
-        CLKCTL4_TUPLE_MUXA(DPHYCLKSEL_OFFSET, 0), /*!< Attach Media VDD2 base clock to MIPI_DSI_Host PHY Clock. */
-    kMIPI_DSI_HOST_PHY_TEST_BIT_to_MIPI_DSI_HOST_PHY = CLKCTL4_TUPLE_MUXA(
-        DPHYCLKSEL_OFFSET,
-        1), /*!< Attach MIPI_DSI_Host PHY test bit clock (internal only) to MIPI_DSI_Host PHY Clock. */
+        CLKCTL4_TUPLE_MUXA(DPHYCLKSEL_OFFSET, 0),      /*!< Attach Media VDD2 base clock to MIPI_DSI_Host PHY Clock. */
     kFRO0_DIV1_to_MIPI_DSI_HOST_PHY =
         CLKCTL4_TUPLE_MUXA(DPHYCLKSEL_OFFSET, 2),      /*!< Attach FRO0 max clock to MIPI_DSI_Host PHY Clock. */
     kAUDIO_PLL_PFD2_to_MIPI_DSI_HOST_PHY =
@@ -1652,7 +1693,7 @@ typedef enum _clock_attach_id
 /*! @brief Clock dividers */
 typedef enum _clock_div_name
 {
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     kCLOCK_DivCmptMainClk   = CLKCTL0_TUPLE_MUXA(CMPTMAINCLKDIV_OFFSET, 0), /*!< VDD2_COMP Main clock Divider. */
     kCLOCK_DivDspClk        = CLKCTL0_TUPLE_MUXA(DSPCPUCLKDIV_OFFSET, 0),   /*!< DSP CPU Clk Divider. */
     kCLOCK_DivComputeRamClk = CLKCTL0_TUPLE_MUXA(RAMCLKDIV_OFFSET, 0),      /*!< RAM Clk Divider. */
@@ -1731,9 +1772,9 @@ typedef enum _clock_fro_output_en
 /*! @brief FRO Interrupt control. */
 enum _clock_fro_interrupt
 {
-    kCLOCK_FroTrimUpdateReqInt = FRO_CNFG1_TRUPREQ_IE_MASK, /*!< Trim Update Request Interrupt Enable. */
-    kCLOCK_FroTuneErrInt       = FRO_CNFG1_TRUPREQ_IE_MASK, /*!< Tune Error Interrupt Enable. */
-    kCLOCK_FroLossOfLockInt    = FRO_CNFG1_LOL_ERR_IE_MASK, /*!< Loss-of-Lock Error Interrupt Enable. */
+    kCLOCK_FroTrimUpdateReqInt = FRO_CNFG1_TRUPREQ_IE_MASK,  /*!< Trim Update Request Interrupt Enable. */
+    kCLOCK_FroTuneErrInt       = FRO_CNFG1_TUNE_ERR_IE_MASK, /*!< Tune Error Interrupt Enable. */
+    kCLOCK_FroLossOfLockInt    = FRO_CNFG1_LOL_ERR_IE_MASK,  /*!< Loss-of-Lock Error Interrupt Enable. */
     kCLOCK_FroAllIntterrupt =
         kCLOCK_FroTrimUpdateReqInt | kCLOCK_FroTuneErrInt | kCLOCK_FroLossOfLockInt, /*!< All Interrupt Enable. */
 };
@@ -1745,6 +1786,7 @@ enum _clock_fro_flag
     kCLOCK_FroTrimLock      = FRO_CSR_TRIM_LOCK_MASK,     /*!< FRO Trim Lock Flag. */
     kCLOCK_FroTrimUpdateReq = FRO_CSR_TRUPREQ_MASK,       /*!< FRO Trim Update Request Flag. */
     kCLOCK_FroTuneErr       = FRO_CSR_TUNE_ERR_MASK,      /*!< FRO Tune Error Flag. */
+    kCLOCK_FroLossOfLockErr = FRO_CSR_LOL_ERR_MASK,       /*!< FRO Loss-of-lock Error Flag. */
 };
 
 /*! @brief FRO configuration. */
@@ -1760,6 +1802,7 @@ typedef struct _clock_fro_config
                       TEXPCNT to be considerred locked. The value/100 is the % deviation. */
     uint32_t enableInt; /*!< Enable interrupts. Bit mask of #_clock_fro_interrupt. */
     bool coarseTrimEn;  /*!< Coarse Trim Enable. Set to true to allow autotrimming of the FRO high-byte trim bits. */
+    bool fastStartupEn; /*!< Fast startup Enable. Enables FRO fast startup. */
 } clock_fro_config_t;
 
 /*! @brief Clock Control for each power domain. */
@@ -1920,7 +1963,7 @@ void CLOCK_SetClkDiv(clock_div_name_t div_name, uint32_t divider);
  */
 uint32_t CLOCK_GetFreq(clock_name_t clockName);
 
-#if defined(FSL_CLOCK_DRIVER_COMPUTE) /* Compute domain specific APIs */
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA) /* Compute domain specific APIs */
 
 /*! @brief  Return clock frequency of LP_FLEXCOMM 0 to 13 Clock Source FCCLK
  *  @param  id : index of FCCLK
@@ -1986,6 +2029,16 @@ static inline void CLOCK_SetSenseAudioClkFreq(uint32_t freq)
  */
 uint32_t CLOCK_GetSenseAudioClkFreq(void);
 
+/*! @brief  Return Frequency of TPIU clk
+ *  @return Frequency of SAI clk
+ */
+uint32_t CLOCK_GetTpiuClkFreq(void);
+
+/*! @brief  Return Frequency of TRNG clk
+ *  @return Frequency of SAI clk
+ */
+uint32_t CLOCK_GetTrngClkFreq(void);
+
 #else  /* Sense domain specific APIs */
 
 /*! @brief  Return Frequency of VDD1 audio clk
@@ -2006,7 +2059,13 @@ uint32_t CLOCK_GetHifi1ClkFreq(void);
  */
 void CLOCK_EnableFroClkOutput(FRO_Type *base, uint32_t divOutEnable);
 
-/*! @brief  Disable the FRO clock.This API will disable the FRO clock output and power off FRO.
+/*! @brief  Configure FRO trim values when FRO is configured in Open loop mode.
+ *  @param  base : base address of FRO.
+ *  @param  trimVal : 12bits trim value.
+ */
+void CLOCK_ConfigFroTrim(FRO_Type *base, uint16_t trimVal);
+
+/*! @brief  Disable the FRO clock. This API will disable the FRO clock output and power off FRO.
  *  @param  base : base address of FRO.
  */
 void CLOCK_DisableFro(FRO_Type *base);
@@ -2033,9 +2092,9 @@ void CLOCK_EnableFroClkFreq(FRO_Type *base, uint32_t targetFreq, uint32_t divOut
  * @code
  *     const clock_fro_config_t config = {
  *      .targetFreq = 200000000U,
- *      .range = 20U,
- *      .trim1DelayUs = 50U,
- *      .trim2DelayUs = 50U,
+ *      .range = 50U,
+ *      .trim1DelayUs = 15U,
+ *      .trim2DelayUs = 150U,
  *      .refDiv = 0U,
  *      .enableInt = 0U,
  *      .coarseTrimEn = true,
@@ -2051,13 +2110,35 @@ void CLOCK_EnableFroClkFreq(FRO_Type *base, uint32_t targetFreq, uint32_t divOut
  */
 status_t CLOCK_EnableFroClkFreqCloseLoop(FRO_Type *base, const clock_fro_config_t *config, uint32_t divOutEnable);
 
+/*! @brief  Get FRO flags.
+ *  @param  base : base address of FRO.
+ *  @param  flags Or'ed value of #_clock_fro_flag.
+ */
+uint32_t CLOCK_GetFroFlags(FRO_Type *base);
+
 /*! @brief  Clear FRO flags.
  *  @param  base : base address of FRO.
  *  @param  flags Or'ed value of #_clock_fro_flag to clear.
  */
 inline static void CLOCK_ClearFroFlags(FRO_Type *base, uint32_t flags)
 {
-    base->CSR.CLR |= flags;
+    base->CSR.CLR = flags;
+}
+
+/*! @brief  Enable/Disable FRO fast startup.
+ *  @param  base : base address of FRO.
+ *  @param  enable, true to enable fast startup, false to disable fast startup.
+ */
+inline static void CLOCK_EnableFroFastStartup(FRO_Type *base, bool enable)
+{
+    if (enable)
+    {
+        base->CNFG1.SET = FRO_CNFG1_FSTUPEN_MASK;
+    }
+    else
+    {
+        base->CNFG1.CLR = FRO_CNFG1_FSTUPEN_MASK;
+    }
 }
 
 /*! @brief  Return Frequency of FRO clk
@@ -2192,7 +2273,7 @@ static inline void CLOCK_DeinitMainPll(void)
     /* Set Main PLL Reset & HOLDRING_OFF_ENA */
     CLKCTL2->MAINPLL0CTL0 |= CLKCTL2_MAINPLL0CTL0_HOLD_RING_OFF_ENA_MASK | CLKCTL2_MAINPLL0CTL0_RESET_MASK;
     /* Power down Main PLL*/
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     SLEEPCON0->RUNCFG_SET = SLEEPCON0_RUNCFG_PLLLDO_PD_MASK | SLEEPCON0_RUNCFG_PLLANA_PD_MASK;
 #else
     SLEEPCON1->RUNCFG_SET = SLEEPCON1_RUNCFG_PLLLDO_PD_MASK | SLEEPCON1_RUNCFG_PLLANA_PD_MASK;
@@ -2201,9 +2282,10 @@ static inline void CLOCK_DeinitMainPll(void)
 /*! @brief Initialize the Main PLL PFD.
  *  @param pfd    : Which PFD clock to enable.
  *  @param divider    : The PFD divider value.
+ *  @return kStatus_Success if successfully, kStatus_Timeout if timeout happen.
  *  @note It is recommended that PFD settings are kept between 12-35.
  */
-void CLOCK_InitMainPfd(clock_pfd_t pfd, uint8_t divider);
+status_t CLOCK_InitMainPfd(clock_pfd_t pfd, uint8_t divider);
 
 /*! brief Disable the Main PLL PFD.
  *  param pfd    : Which PFD clock to disable.
@@ -2226,7 +2308,7 @@ static inline void CLOCK_DeinitAudioPll(void)
     /* Set Audio PLL Reset & HOLDRINGOFF_ENA */
     CLKCTL2->AUDIOPLL0CTL0 |= CLKCTL2_AUDIOPLL0CTL0_HOLD_RING_OFF_ENA_MASK | CLKCTL2_AUDIOPLL0CTL0_RESET_MASK;
     /* Power down Audio PLL */
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     /* Power down Audio PLL before change fractional settings */
     SLEEPCON0->RUNCFG_SET = SLEEPCON0_RUNCFG_AUDPLLLDO_PD_MASK | SLEEPCON0_RUNCFG_AUDPLLANA_PD_MASK;
 #else
@@ -2237,9 +2319,10 @@ static inline void CLOCK_DeinitAudioPll(void)
 /*! @brief Initialize the audio PLL PFD.
  *  @param pfd    : Which PFD clock to enable.
  *  @param divider    : The PFD divider value.
+ *  @return kStatus_Success if successfully, kStatus_Timeout if timeout happen.
  *  @note It is recommended that PFD settings are kept between 12-35.
  */
-void CLOCK_InitAudioPfd(clock_pfd_t pfd, uint8_t divider);
+status_t CLOCK_InitAudioPfd(clock_pfd_t pfd, uint8_t divider);
 /*! brief Disable the audio PLL PFD.
  *  param pfd    : Which PFD clock to disable.
  */
@@ -2247,10 +2330,6 @@ static inline void CLOCK_DeinitAudioPfd(uint32_t pfd)
 {
     CLKCTL2->AUDIOPLL0PFD |= ((uint32_t)CLKCTL2_AUDIOPLL0PFD_PFD0_CLKGATE_MASK << (8UL * (uint32_t)pfd));
 }
-
-/*! @brief  Enable LPOSC 1MHz clock.
- */
-void CLOCK_EnableLpOscClk(void);
 
 /*! @brief  Return Frequency of Lower power osc
  *  @return Frequency of LPOSC
@@ -2345,7 +2424,7 @@ static inline void CLOCK_SetMclkFreq(uint32_t freq)
 /*! @brief  Return Frequency of Core/system clock
  *  @return Frequency of core or system Clock
  */
-static inline uint32_t CLOCK_GetCoreSysClkFreq()
+static inline uint32_t CLOCK_GetCoreSysClkFreq(void)
 {
     return CLOCK_GetFreq(kCLOCK_CoreSysClk);
 }
@@ -2359,7 +2438,7 @@ uint32_t CLOCK_GetXspiClkFreq(uint32_t id);
 /*! @brief  Return Frequency of UTICK function clock
  *  @return Frequency of UTICK functional Clock
  */
-uint32_t CLOCK_GetUtickClkFreq();
+uint32_t CLOCK_GetUtickClkFreq(void);
 
 /*! @brief  Return Frequency of systick clk
  *  @return Frequency of systick clk
@@ -2386,12 +2465,6 @@ uint32_t CLOCK_GetSaiClkFreq(void);
  *  @return Frequency of USB clk
  */
 uint32_t CLOCK_GetUsbClkFreq(void);
-
-/*! @brief  Return Frequency of USDHC clk
- *  @param  id : USDHC index to get frequency.
- *  @return Frequency of USDHC clk
- */
-uint32_t CLOCK_GetUsdhcClkFreq(uint32_t id);
 
 /*! @brief  Return Frequency of I3C clk
  *  @return Frequency of I3C clk

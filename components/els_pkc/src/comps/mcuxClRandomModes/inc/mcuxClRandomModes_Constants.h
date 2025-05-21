@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -42,6 +42,7 @@ extern "C" {
  * @{
  */
 
+MCUX_CSSL_ANALYSIS_START_PATTERN_EXTERNAL_API_DECLARATIONS()
 
 /**
  * @brief Mode for a DRBG implemented by the ELS
@@ -69,9 +70,11 @@ static const mcuxClRandom_Mode_t mcuxClRandomModes_Mode_ELS_Drbg =
  * to comply to FIPS 140-3 on the one hand and realize a DRG.3 at 256 bit security level on the other.
  * For an up to date list of evaluations and certifications one should refer to the product (HW) documentation.
  */
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_DECLARED_BUT_NEVER_DEFINED("Definition is provided assuming library is built properly")
 extern const mcuxClRandom_ModeDescriptor_t mcuxClRandomModes_mdCtrDrbg_AES256_DRG3;
 static const mcuxClRandom_Mode_t mcuxClRandomModes_Mode_CtrDrbg_AES256_DRG3 =
     &mcuxClRandomModes_mdCtrDrbg_AES256_DRG3;
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DECLARED_BUT_NEVER_DEFINED()
 
 /**
  * @brief Mode for a NIST SP800-90A CTR_DRBG based on AES-256 configured to not provide prediction resistance and realize a DRG.4 at 256 bit security level.
@@ -102,9 +105,8 @@ static const mcuxClRandom_Mode_t mcuxClRandomModes_Mode_CtrDrbg_AES256_DRG3 =
 
 
 
-/*TODO These are currently not used by any mode */
-
 #endif /* defined(MCUXCL_FEATURE_RANDOMMODES_NORMALMODE) && defined(MCUXCL_FEATURE_RANDOMMODES_CTRDRBG) */
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_EXTERNAL_API_DECLARATIONS()
 
 /**
  * @}

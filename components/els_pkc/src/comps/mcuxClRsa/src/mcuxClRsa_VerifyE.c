@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2021 NXP                                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClRsa_VerifyE.c
@@ -34,7 +34,9 @@ mcuxClRsa_Status_Protected_t mcuxClRsa_VerifyE(mcuxClRsa_KeyEntry_t *pE, uint32_
   uint32_t eLength = pE->keyEntryLength;
   while(eLength > 0u)
   {
+     MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_WRAP("'eLength = pE->keyEntryLength', so result won't wrap")
      if(0u != pE->pKeyEntryData[pE->keyEntryLength - eLength])
+     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_WRAP()
      {
        break;
      }

@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2022-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -23,6 +23,7 @@
 
 #include <mcuxClSession.h>
 #include <mcuxClRandom_Types.h>
+#include <mcuxClBuffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +35,9 @@ extern "C" {
  */
 MCUX_CSSL_FP_FUNCTION_POINTER(mcuxClRandom_initFunction_t,
 typedef MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRandom_Status_t) (* mcuxClRandom_initFunction_t)(
-        mcuxClSession_Handle_t session
+        mcuxClSession_Handle_t session,
+        mcuxClRandom_Mode_t mode,
+        mcuxClRandom_Context_t context
 ));
 
 /**
@@ -42,7 +45,9 @@ typedef MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRandom_Status_t) (* mcuxClRandom_initF
  */
 MCUX_CSSL_FP_FUNCTION_POINTER(mcuxClRandom_reseedFunction_t,
 typedef MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRandom_Status_t) (*mcuxClRandom_reseedFunction_t)(
-        mcuxClSession_Handle_t session
+        mcuxClSession_Handle_t session,
+        mcuxClRandom_Mode_t mode,
+        mcuxClRandom_Context_t context
 ));
 
 /**
@@ -51,7 +56,9 @@ typedef MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRandom_Status_t) (*mcuxClRandom_reseed
 MCUX_CSSL_FP_FUNCTION_POINTER(mcuxClRandom_generateFunction_t,
 typedef MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRandom_Status_t) (*mcuxClRandom_generateFunction_t)(
         mcuxClSession_Handle_t session,
-        uint8_t * pOut,
+        mcuxClRandom_Mode_t mode,
+        mcuxClRandom_Context_t context,
+        mcuxCl_Buffer_t pOut,
         uint32_t outLength
 ));
 
@@ -98,7 +105,7 @@ struct mcuxClRandom_ModeDescriptor
 {
     const mcuxClRandom_OperationModeDescriptor_t *pOperationMode;       ///< pointer to top level information about the DRBG mode operated in (NORMALMODE, TESTMODE, ELSMODE, PATCHMODE)
     const void *pDrbgMode;                                             ///< pointer to DRBG specific information depending on the chosen mode
-    uint32_t auxParam;                                                 ///< auxiliary parameter depending on the chosen mode
+    uint32_t *auxParam;                                                ///< auxiliary parameter depending on the chosen mode
     uint32_t contextSize;                                              ///< size of context
     uint16_t securityStrength;                                         ///< supported security strength of DRBG
 };

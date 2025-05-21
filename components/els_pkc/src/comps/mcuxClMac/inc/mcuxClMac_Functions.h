@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2022 NXP                                                  */
+/* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -24,7 +24,7 @@
 #include <mcuxClKey_Types.h>
 #include <mcuxClMac_Types.h>
 #include <mcuxClCore_Platform.h>
-#include <mcuxClCore_Buffer.h>
+#include <mcuxClBuffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,7 +62,7 @@ extern "C" {
  *  - Output data buffer, at least the size of a single AES block
  *
  * @attention In some cases restrictions may apply, e.g. the input buffer must
- * be prepared for padding. Please refer to mcuxClMac_Modes.h to find further
+ * be prepared for padding. Please refer to mcuxClMacModes_Modes.h to find further
  * details and restrictions for each specific mode.
  *
  * @param[in]  session     Handle for the current CL session.
@@ -95,6 +95,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClMac_compute(
 /**
  * @}
  */ /* mcuxClMac_OneShot */
+
 
 /****************************************************************************/
 /* MULTIPART                                                                */

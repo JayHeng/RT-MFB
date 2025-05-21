@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -130,7 +130,7 @@ uint32_t LPI2C_GetInstance(LPI2C_Type *base)
     uint32_t instance;
     for (instance = 0U; instance < ARRAY_SIZE(kLpi2cBases); ++instance)
     {
-        if (kLpi2cBases[instance] == base)
+        if (MSDK_REG_SECURE_ADDR(kLpi2cBases[instance]) == MSDK_REG_SECURE_ADDR(base))
         {
             break;
         }
@@ -928,7 +928,6 @@ status_t LPI2C_MasterTransferBlocking(LPI2C_Type *base, lpi2c_master_transfer_t 
     assert(transfer->subaddressSize <= sizeof(transfer->subaddress));
 
     status_t result = kStatus_Success;
-    status_t ret = kStatus_Success;
     uint16_t commandBuffer[7];
     uint32_t cmdCount = 0U;
 
@@ -1019,16 +1018,13 @@ status_t LPI2C_MasterTransferBlocking(LPI2C_Type *base, lpi2c_master_transfer_t 
                 }
             }
         }
+
         /* Transmit fail */
         if (kStatus_Success != result)
         {
             if ((transfer->flags & (uint32_t)kLPI2C_TransferNoStopFlag) == 0U)
             {
-                ret = LPI2C_MasterStop(base);
-                if(kStatus_Success != ret)
-                {
-                    result = ret;
-                }
+                (void)LPI2C_MasterStop(base);
             }
         }
     }
@@ -1713,6 +1709,9 @@ void LPI2C_SlaveInit(LPI2C_Type *base, const lpi2c_slave_config_t *slaveConfig, 
       
     }
 
+    /* Check target feature */
+    assert((base->VERID & LPI2C_VERID_FEATURE_MASK) == 0x3U);
+
     /* Restore to reset conditions. */
     LPI2C_SlaveReset(base);
 
@@ -2391,6 +2390,7 @@ void LPI2C_SlaveTransferHandleIRQ(uint32_t instance, void *lpi2cSlaveHandle)
  * @param base The LPI2C peripheral base address.
  * @param instance The LPI2C peripheral instance number.
  */
+void LPI2C_CommonIRQHandler(LPI2C_Type *base, uint32_t instance);
 void LPI2C_CommonIRQHandler(LPI2C_Type *base, uint32_t instance)
 {
     /* Check for master IRQ. */
@@ -2401,7 +2401,7 @@ void LPI2C_CommonIRQHandler(LPI2C_Type *base, uint32_t instance)
     }
 
     /* Check for slave IRQ. */
-    if ((0U != (base->SCR & LPI2C_SCR_SEN_MASK)) && (NULL != s_lpi2cSlaveIsr))
+    if (((base->VERID & LPI2C_VERID_FEATURE_MASK) == 0x3U) && (0U != (base->SCR & LPI2C_SCR_SEN_MASK)) && (NULL != s_lpi2cSlaveIsr))
     {
         /* Slave mode. */
         s_lpi2cSlaveIsr(instance, s_lpi2cSlaveHandle[instance]);

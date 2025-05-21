@@ -52,7 +52,7 @@
                    These are multiplied to yield a 2.30 intermediate result and this is shifted with saturation to 1.15 format.
  */
 #if defined(ARM_MATH_MVEI) && !defined(ARM_MATH_AUTOVECTORIZE)
-arm_status arm_mat_scale_q15(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_scale_q15(
   const arm_matrix_instance_q15 * pSrc,
         q15_t                     scaleFract,
         int32_t                   shift,
@@ -130,7 +130,7 @@ arm_status arm_mat_scale_q15(
 }
 
 #else
-arm_status arm_mat_scale_q15(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_scale_q15(
   const arm_matrix_instance_q15 * pSrc,
         q15_t                     scaleFract,
         int32_t                   shift,
@@ -177,8 +177,8 @@ arm_status arm_mat_scale_q15(
 
 #if defined (ARM_MATH_DSP)
       /* read 2 times 2 samples at a time from source */
-      inA1 = read_q15x2_ia ((q15_t **) &pIn);
-      inA2 = read_q15x2_ia ((q15_t **) &pIn);
+      inA1 = read_q15x2_ia (&pIn);
+      inA2 = read_q15x2_ia (&pIn);
 
       /* Scale inputs and store result in temporary variables
        * in single cycle by packing the outputs */

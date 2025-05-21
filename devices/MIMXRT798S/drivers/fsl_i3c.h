@@ -20,7 +20,7 @@
 /*! @name Driver version */
 /*! @{ */
 /*! @brief I3C driver version */
-#define FSL_I3C_DRIVER_VERSION (MAKE_VERSION(2, 10, 9))
+#define FSL_I3C_DRIVER_VERSION (MAKE_VERSION(2, 13, 0))
 /*! @} */
 
 /*! @brief Timeout times for waiting flag. */
@@ -28,7 +28,9 @@
 #define I3C_RETRY_TIMES 0U /* Define to zero means keep waiting until the flag is assert/deassert. */
 #endif
 
+#ifndef I3C_MAX_DEVCNT
 #define I3C_MAX_DEVCNT 10U
+#endif
 
 #ifndef I3C_IBI_BUFF_SIZE
 #define I3C_IBI_BUFF_SIZE 10U
@@ -164,7 +166,7 @@ typedef enum _i3c_master_state
     kI3C_MasterStateDdr     = 4U, /*!< In DDR Message mode. */
     kI3C_MasterStateDaa     = 5U, /*!< In ENTDAA mode. */
     kI3C_MasterStateIbiAck  = 6U, /*!< Waiting on IBI ACK/NACK decision. */
-    kI3C_MasterStateIbiRcv  = 7U, /*!< receiving IBI. */
+    kI3C_MasterStateIbiRcv  = 7U, /*!< Receiving IBI. */
 } i3c_master_state_t;
 
 /*! @brief I3C master enable configuration. */
@@ -311,7 +313,10 @@ typedef struct _i3c_master_config
     bool enableOpenDrainStop;         /*!< Whether to emit open-drain speed STOP. */
     bool enableOpenDrainHigh;         /*!< Enable Open-Drain High to be 1 PPBAUD count for i3c messages, or 1 ODBAUD. */
     i3c_baudrate_hz_t baudRate_Hz;    /*!< Desired baud rate settings. */
-#ifdef I3C_MCONFIG_EXT_I3C_CAS_DEL_MASK
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH)
+    uint32_t slowClock_Hz;            /*!< Slow clock frequency. */
+#endif
+#if defined(FSL_FEATURE_I3C_HAS_START_SCL_DELAY) && FSL_FEATURE_I3C_HAS_START_SCL_DELAY
     i3c_start_scl_delay_t startSclDelay; /*!< I3C SCL delay after START. */
     i3c_start_scl_delay_t restartSclDelay; /*!< I3C SCL delay after Repeated START. */
 #endif
@@ -633,15 +638,20 @@ typedef struct _i3c_config
     bool enableOpenDrainStop;         /*!< Whether to emit open-drain speed STOP. */
     bool enableOpenDrainHigh;         /*!< Enable Open-Drain High to be 1 PPBAUD count for i3c messages, or 1 ODBAUD. */
     i3c_baudrate_hz_t baudRate_Hz;    /*!< Desired baud rate settings. */
-#ifdef I3C_MCONFIG_EXT_I3C_CAS_DEL_MASK
+#if defined(FSL_FEATURE_I3C_HAS_START_SCL_DELAY) && FSL_FEATURE_I3C_HAS_START_SCL_DELAY
     i3c_start_scl_delay_t startSclDelay; /*!< I3C SCL delay after START. */
     i3c_start_scl_delay_t restartSclDelay; /*!< I3C SCL delay after Repeated START. */
 #endif
     uint8_t masterDynamicAddress;     /*!< Main master dynamic address configuration. */
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH)
     uint32_t slowClock_Hz;            /*!< Slow clock frequency for time control. */
+#endif
     uint32_t maxWriteLength;          /*!< Maximum write length. */
     uint32_t maxReadLength;           /*!< Maximum read length. */
     bool enableSlave;                 /*!< Whether to enable slave. */
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SLAVE_IBI_MR_HJ) && FSL_FEATURE_I3C_HAS_NO_SLAVE_IBI_MR_HJ)
+    bool isHotJoin;                  /*!< Whether to enable slave hotjoin before enable slave. */
+#endif
     uint8_t staticAddr;               /*!< Static address. */
     uint16_t vendorID;                /*!< Device vendor ID(manufacture ID). */
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND)
@@ -1328,6 +1338,15 @@ static inline status_t I3C_MasterProcessDAA(I3C_Type *base, uint8_t *addressList
  * @return Pointer to the i3c_device_info_t array.
  */
 i3c_device_info_t *I3C_MasterGetDeviceListAfterDAA(I3C_Type *base, uint8_t *count);
+
+/*!
+ * @brief Clear the global device count which represents current devices number on the bus.
+ * When user resets all dynamic addresses on the bus, should call this API.
+ *
+ * @param base The I3C peripheral base address.
+ */
+void I3C_MasterClearDeviceCount(I3C_Type *base);
+
 /*!
  * @brief Performs a master polling transfer on the I2C/I3C bus.
  *
@@ -1465,6 +1484,7 @@ void I3C_SlaveGetDefaultConfig(i3c_slave_config_t *slaveConfig);
  * @param slaveConfig User provided peripheral configuration. Use I3C_SlaveGetDefaultConfig() to get a set of
  * defaults that you can override.
  * @param slowClock_Hz Frequency in Hertz of the I3C slow clock. Used to calculate the bus match condition values.
+ * If FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH defines as 1, this parameter is useless.
  */
 void I3C_SlaveInit(I3C_Type *base, const i3c_slave_config_t *slaveConfig, uint32_t slowClock_Hz);
 

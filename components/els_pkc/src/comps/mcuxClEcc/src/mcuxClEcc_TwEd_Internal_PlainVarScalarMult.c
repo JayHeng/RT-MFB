@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2022-2023 NXP                                                  */
+/* Copyright 2022-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -21,13 +21,7 @@
 #include <mcuxClCore_FunctionIdentifiers.h>
 
 #include <mcuxClEcc.h>
-#include <internal/mcuxClEcc_Internal.h>
 #include <internal/mcuxClEcc_TwEd_Internal.h>
-
-static const mcuxClEcc_TwEd_PtrSelectFunction_FP_t mcuxClEcc_TwEd_PlainPtrSelectML_FP = {
-    .pPtrSelectFct = mcuxClEcc_TwEd_PlainPtrSelectML,
-    .ptrSelectFct_FP_FuncId = MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_TwEd_PlainPtrSelectML),
-};
 
 /**
  * Function that performs a scalar multiplication with a variable point P on a twisted Edwards curve, unprotected against SCA.
@@ -45,7 +39,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_PlainVarScalarMul
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEcc_TwEd_PlainVarScalarMult);
 
     MCUX_CSSL_FP_FUNCTION_CALL(returnScalarMult,
-        mcuxClEcc_TwEd_VarScalarMult(pSession, pDomainParams, iScalar, scalarBitLength, options, &mcuxClEcc_TwEd_PlainPtrSelectML_FP));
+        mcuxClEcc_TwEd_VarScalarMult(pSession, pDomainParams, iScalar, scalarBitLength, options,
+                                    mcuxClEcc_TwEd_PlainPtrSelectML,
+                                    MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_TwEd_PlainPtrSelectML)));
 
     if(MCUXCLECC_STATUS_OK != returnScalarMult)
     {

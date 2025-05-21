@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021-2022 NXP                                                  */
+/* Copyright 2021-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 #include <mcuxClHash.h>
@@ -17,6 +17,8 @@
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
 #include <mcuxCsslSecureCounter_Cfg.h>
+
+#include <internal/mcuxClSession_Internal_EntryExit.h>
 
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClHash_compute)
@@ -29,7 +31,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClHash_Status_t) mcuxClHash_compute(
     uint32_t *const pOutSize
 )
 {
-    MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClHash_compute);
+    MCUXCLSESSION_ENTRY(session, mcuxClHash_compute, diRefValue, MCUXCLHASH_STATUS_FAULT_ATTACK)
 
     /*Validate input parameters */
     if((NULL == algorithm) || (NULL == algorithm->oneShotSkeleton)
@@ -38,7 +40,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClHash_Status_t) mcuxClHash_compute(
 #endif /* (1 == MCUX_CSSL_SC_USE_SW_LOCAL) */
             )
     {
-        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHash_compute, MCUXCLHASH_STATUS_INVALID_PARAMS);
+        MCUXCLSESSION_EXIT(session, mcuxClHash_compute, diRefValue, MCUXCLHASH_STATUS_INVALID_PARAMS, MCUXCLHASH_STATUS_FAULT_ATTACK)
     }
 
     MCUX_CSSL_FP_FUNCTION_CALL(result, algorithm->oneShotSkeleton (session,
@@ -49,5 +51,5 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClHash_Status_t) mcuxClHash_compute(
                                                                   pOutSize
                                                                   ));
 
-    MCUX_CSSL_FP_FUNCTION_EXIT_WITH_CHECK(mcuxClHash_compute, result, MCUXCLHASH_STATUS_FAULT_ATTACK, algorithm->protection_token_oneShotSkeleton);
+    MCUXCLSESSION_EXIT(session, mcuxClHash_compute, diRefValue, result, MCUXCLHASH_STATUS_FAULT_ATTACK, algorithm->protection_token_oneShotSkeleton)
 }

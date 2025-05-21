@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 #ifndef FSL_FEATURE_PINT_NUMBER_OF_INSTANCE
-#define FSL_FEATURE_PINT_NUMBER_OF_INSTANCE (1)
+#define FSL_FEATURE_PINT_NUMBER_OF_INSTANCE (1U)
 #endif
 
 #if defined(GPIOINT_RSTS_N)
@@ -72,7 +72,7 @@ static uint32_t PINT_GetInstance(PINT_Type *base)
     uint32_t instance;
     for (instance = 0; instance < ARRAY_SIZE(s_pintBases); ++instance)
     {
-        if (s_pintBases[instance] == base)
+        if (MSDK_REG_SECURE_ADDR(s_pintBases[instance]) == MSDK_REG_SECURE_ADDR(base))
         {
             break;
         }

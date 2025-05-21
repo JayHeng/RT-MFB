@@ -34,7 +34,7 @@
 
 #include "arm_vec_math_f16.h"
 
-void arm_vinverse_f16(
+ARM_DSP_ATTRIBUTE void arm_vinverse_f16(
   const float16_t * pSrc,
         float16_t * pDst,
         uint32_t blockSize)
@@ -68,7 +68,7 @@ void arm_vinverse_f16(
    while (blkCnt > 0U)
    {
       
-      *pDst++ = 1.0 / *pSrc++;
+      *pDst++ = 1.0f16 / (_Float16)*pSrc++;
   
       /* Decrement loop counter */
       blkCnt--;

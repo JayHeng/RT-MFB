@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2022-2023 NXP                                                  */
+/* Copyright 2022-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -23,12 +23,30 @@
 #include <mcuxClCore_Platform.h>
 #include <mcuxClKey_Types.h>
 #include <mcuxClKey_Constants.h>
+#include <mcuxClAes_KeyTypes.h>
+#include <mcuxClAes_Constants.h>
 #include <internal/mcuxClKey_Types_Internal.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+
+/* Inline functions for proper type casts */
+
+/**
+ * @brief Cast a pointer to word-aligned data to the mcuxClKey_Handle_t type.
+ *
+ * @param pKey    The pointer to cast to a proper key handle. Must be aligned.
+ *                Must point to an area of enough size. See @ref MCUXCLKEY_DESCRIPTOR_SIZE_IN_WORDS.
+ */
+MCUX_CSSL_FP_FUNCTION_DEF(mcuxClKey_castToKeyHandle)
+static inline mcuxClKey_Handle_t mcuxClKey_castToKeyHandle(uint32_t* pKey)
+{
+  MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
+  return (mcuxClKey_Handle_t) pKey;
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
+}
 
 /************************************************************
  * INTERNAL INLINED FUNCTIONS TO ACCESS THE KEY DESCRIPTOR
@@ -328,6 +346,38 @@ MCUX_CSSL_FP_FUNCTION_DEF(mcuxClKey_setKeyContainerUsedSize)
 static inline void mcuxClKey_setKeyContainerUsedSize(mcuxClKey_Handle_t key, uint32_t keyContainerUsedSize)
 {
   key->container.used = keyContainerUsedSize;
+}
+
+MCUX_CSSL_FP_FUNCTION_DEF(mcuxClKey_GetAesKeyType)
+static inline MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClKey_GetAesKeyType(uint32_t keyLength, mcuxClKey_Type_t *aesKeyType)
+{
+    MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClKey_GetAesKeyType);
+    *aesKeyType = NULL;
+    switch(keyLength)
+    {
+        case MCUXCLAES_AES128_KEY_SIZE:
+        {
+            *aesKeyType = mcuxClKey_Type_Aes128;
+            break;
+        }
+        case MCUXCLAES_AES192_KEY_SIZE:
+        {
+            *aesKeyType = mcuxClKey_Type_Aes192;
+            break;
+        }
+        case MCUXCLAES_AES256_KEY_SIZE:
+        {
+            *aesKeyType = mcuxClKey_Type_Aes256;
+            break;
+        }
+        default:
+        {
+            *aesKeyType = NULL;
+            break;
+        }
+    }
+
+    MCUX_CSSL_FP_FUNCTION_EXIT_VOID(mcuxClKey_GetAesKeyType);
 }
 
 

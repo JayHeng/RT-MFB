@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -25,19 +25,19 @@
 #include <mcuxClSession.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
-
+#include <mcuxClBuffer.h>
+#include <mcuxClRandom.h>
 #include <mcuxClEcc.h>
 
 #include <internal/mcuxClSession_Internal.h>
 #include <internal/mcuxClPkc_Operations.h>
 #include <internal/mcuxClPkc_ImportExport.h>
 #include <internal/mcuxClPkc_Macros.h>
+#include <internal/mcuxClPkc_Resource.h>
 #include <internal/mcuxClEcc_Internal_Random.h>
 #include <internal/mcuxClEcc_Weier_Internal.h>
 #include <internal/mcuxClEcc_Weier_Internal_FP.h>
-#include <internal/mcuxClEcc_Weier_PointMult_FUP.h>
-#include <internal/mcuxClEcc_Weier_Internal_ConvertPoint_FUP.h>
-
+#include <internal/mcuxClEcc_Weier_Internal_FUP.h>
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEcc_PointMult)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
@@ -51,9 +51,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
     /**********************************************************/
 
     /* mcuxClEcc_CpuWa_t will be allocated and placed in the beginning of CPU workarea free space by SetupEnvironment. */
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("MISRA Ex. 9 to Rule 11.3 - mcuxClEcc_CpuWa_t is 32 bit aligned")
-    mcuxClEcc_CpuWa_t *pCpuWorkarea = (mcuxClEcc_CpuWa_t *) mcuxClSession_allocateWords_cpuWa(pSession, 0u);
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
+    mcuxClEcc_CpuWa_t * const pCpuWorkarea = mcuxClEcc_castToEccCpuWorkarea(mcuxClSession_getCpuWaBuffer(pSession));
+
     uint8_t *pPkcWorkarea = (uint8_t *) mcuxClSession_allocateWords_pkcWa(pSession, 0u);
     MCUX_CSSL_FP_FUNCTION_CALL(ret_SetupEnvironment,
         mcuxClEcc_Weier_SetupEnvironment(pSession,
@@ -68,6 +67,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
                 MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_Weier_SetupEnvironment) );
         }
 
+        MCUXCLECC_HANDLE_HW_UNAVAILABLE(ret_SetupEnvironment, mcuxClEcc_PointMult);
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_FAULT_ATTACK);
     }
 
@@ -82,13 +82,11 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_RNG_ERROR);
     }
 
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("32-bit aligned UPTRT table is assigned in CPU workarea")
-    uint32_t *pOperands32 = (uint32_t *) pOperands;
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
+    uint32_t *pOperands32 = MCUXCLPKC_GETUPTRT32();
     const uint32_t operandSize = MCUXCLPKC_PS1_GETOPLEN();
     const uint32_t bufferSize = operandSize + MCUXCLPKC_WORDSIZE;
 
-    MCUXCLMATH_FP_QDASH(ECC_NQSQR, ECC_NS, ECC_N, ECC_T0, (uint16_t) (operandSize + bufferSize));  /* **CAUTION** */
+    MCUXCLMATH_FP_QDASH(ECC_NQSQR, ECC_NS, ECC_N, ECC_T0, (uint16_t)((operandSize + bufferSize) & 0xFFFFU));  /* **CAUTION** */
 
     const uint32_t byteLenP = (pParam->curveParam.misc & mcuxClEcc_DomainParam_misc_byteLenP_mask) >> mcuxClEcc_DomainParam_misc_byteLenP_offset;
     const uint32_t byteLenN = (pParam->curveParam.misc & mcuxClEcc_DomainParam_misc_byteLenN_mask) >> mcuxClEcc_DomainParam_misc_byteLenN_offset;
@@ -98,8 +96,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
     /**********************************************************/
 
     /* Import P to (X1,Y1). */
-    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC(WEIER_X1, pParam->pPoint, byteLenP);
-    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC(WEIER_Y1, pParam->pPoint + byteLenP, byteLenP);
+    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC_BUFFER(mcuxClEcc_PointMult, WEIER_X1, pParam->pPoint, byteLenP);
+    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC_BUFFEROFFSET(mcuxClEcc_PointMult, WEIER_Y1, pParam->pPoint, byteLenP, byteLenP);
 
     /* Check P in (X1,Y1) affine NR. */
 //  MCUXCLPKC_WAITFORREADY();  <== there is WaitForFinish in import function.
@@ -107,13 +105,15 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
     MCUX_CSSL_FP_FUNCTION_CALL(pointCheckStatus, mcuxClEcc_PointCheckAffineNR());
     if (MCUXCLECC_INTSTATUS_POINTCHECK_NOT_OK == pointCheckStatus)
     {
-        MCUXCLPKC_FP_DEINITIALIZE(& pCpuWorkarea->pkcStateBackup);
         mcuxClSession_freeWords_pkcWa(pSession, pCpuWorkarea->wordNumPkcWa);
+        MCUXCLPKC_FP_DEINITIALIZE_RELEASE(pSession, &pCpuWorkarea->pkcStateBackup,
+            mcuxClEcc_PointMult, MCUXCLECC_STATUS_FAULT_ATTACK);
+
         mcuxClSession_freeWords_cpuWa(pSession, pCpuWorkarea->wordNumCpuWa);
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_INVALID_PARAMS,
             MCUXCLECC_FP_POINTMULT_BASE_POINT,
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize) );
+            MCUXCLPKC_FP_CALLED_DEINITIALIZE_RELEASE);
     }
     else if (MCUXCLECC_STATUS_OK != pointCheckStatus)
     {
@@ -135,13 +135,16 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
     /* Generate 64-bit random number d0 in buffer S0 of size = operandSize. */
     MCUXCLPKC_FP_CALC_OP1_CONST(ECC_S0, 0u);
     MCUXCLPKC_FP_CALC_OP1_CONST(ECC_S3, 0u);
-    uint8_t *ptrS0 = MCUXCLPKC_OFFSET2PTR(pOperands[ECC_S0]);
-    MCUXCLPKC_WAITFORFINISH();
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_PRNG_randWord1, mcuxClRandom_ncGenerate(pSession, ptrS0, 8u));
-    if (MCUXCLRANDOM_STATUS_OK != ret_PRNG_randWord1)
     {
-        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_RNG_ERROR);
-    }
+        uint8_t * const ptrS0 = MCUXCLPKC_OFFSET2PTR(pOperands[ECC_S0]);
+        MCUXCLBUFFER_INIT(buffS0, NULL, ptrS0, 8u);
+        MCUXCLPKC_WAITFORFINISH();
+        MCUX_CSSL_FP_FUNCTION_CALL(ret_PRNG_randWord1, mcuxClRandom_ncGenerate(pSession, buffS0, 8u));
+        if (MCUXCLRANDOM_STATUS_OK != ret_PRNG_randWord1)
+        {
+            MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_RNG_ERROR);
+        }
+    }  /* buffS0 scope. */
 
     /* Set MSBit of d0 (to ensure d0 != 0) using the PKC
      *
@@ -159,21 +162,22 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
 
     /* Securely import scalar d to buffer S1 of size = bufferSize, with temp T1. */
     MCUXCLPKC_PS1_SETLENGTH(0u, bufferSize);
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_SecImport,
-        mcuxClPkc_SecureImportBigEndianToPkc(pSession, MCUXCLPKC_PACKARGS2(ECC_S1, ECC_T1),
-                                            pParam->pScalar, byteLenN) );
+    MCUXCLPKC_FP_SECUREIMPORTBIGENDIANTOPKC_BUFFER(mcuxClEcc_PointMult, ret_SecImport, pSession, ECC_S1, ECC_T1, pParam->pScalar, byteLenN);
     if (MCUXCLPKC_STATUS_OK != ret_SecImport)
     {
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_FAULT_ATTACK);
     }
 
     /* Generate (buffer size minus 1 bit) random number d' in buffer S2. */
-    uint8_t *ptrS2 = MCUXCLPKC_OFFSET2PTR(pOperands[ECC_S2]);  /* PKC word is CPU word aligned. */
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_PRNG_GetRandom, mcuxClRandom_ncGenerate(pSession, ptrS2, bufferSize));
-    if (MCUXCLRANDOM_STATUS_OK != ret_PRNG_GetRandom)
     {
-        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_RNG_ERROR);
-    }
+        uint8_t * const ptrS2 = MCUXCLPKC_OFFSET2PTR(pOperands[ECC_S2]);
+        MCUXCLBUFFER_INIT(buffS2, NULL, ptrS2, bufferSize);
+        MCUX_CSSL_FP_FUNCTION_CALL(ret_PRNG_GetRandom, mcuxClRandom_ncGenerate(pSession, buffS2, bufferSize));
+        if (MCUXCLRANDOM_STATUS_OK != ret_PRNG_GetRandom)
+        {
+            MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_RNG_ERROR);
+        }
+    }  /* buffS2 scope. */
 
     MCUXCLPKC_FP_CALC_OP1_SHR(ECC_S2, ECC_S2, 1u);
 
@@ -196,14 +200,16 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
         pOperands[ECC_P] = MCUXCLPKC_PTR2OFFSET(pPkcWorkarea);
         MCUXCLPKC_FP_CALC_OP1_CONST(ECC_P, 0u);
 
-        MCUXCLPKC_FP_DEINITIALIZE(& pCpuWorkarea->pkcStateBackup);
         mcuxClSession_freeWords_pkcWa(pSession, pCpuWorkarea->wordNumPkcWa);
+        MCUXCLPKC_FP_DEINITIALIZE_RELEASE(pSession, &pCpuWorkarea->pkcStateBackup,
+            mcuxClEcc_PointMult, MCUXCLECC_STATUS_FAULT_ATTACK);
+
         mcuxClSession_freeWords_cpuWa(pSession, pCpuWorkarea->wordNumCpuWa);
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_NEUTRAL_POINT,
             MCUXCLECC_FP_POINTMULT_SCALAR,
             MCUXCLPKC_FP_CALLED_CALC_OP1_CONST,
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize) );
+            MCUXCLPKC_FP_CALLED_DEINITIALIZE_RELEASE);
     }
 
 
@@ -282,12 +288,12 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
 
 
     /**********************************************************/
-    /* Check n and p and export private and public key.       */
+    /* Check n and p and export the resulting point.          */
     /**********************************************************/
 
     /* Import prime p and order n again, and check (compare with) existing one. */
-    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC(ECC_T0, pParam->curveParam.pP, byteLenP);
-    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC(ECC_T1, pParam->curveParam.pN, byteLenN);
+    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC_BUFFER(mcuxClEcc_PointMult, ECC_T0, pParam->curveParam.pP, byteLenP);
+    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC_BUFFER(mcuxClEcc_PointMult, ECC_T1, pParam->curveParam.pN, byteLenN);
 
     MCUXCLPKC_FP_CALC_OP1_CMP(ECC_T0, ECC_P);
     uint32_t zeroFlag_checkP = MCUXCLPKC_WAITFORFINISH_GETZERO();
@@ -298,20 +304,13 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
     if (   (zeroFlag_checkP == MCUXCLPKC_FLAG_ZERO)
         && (zeroFlag_checkN == MCUXCLPKC_FLAG_ZERO) )
     {
-        MCUX_CSSL_FP_FUNCTION_CALL(ret_SecExportXa,
-            mcuxClPkc_SecureExportBigEndianFromPkc(pSession,
-                                                  pParam->pResult,
-                                                  MCUXCLPKC_PACKARGS2(WEIER_XA, ECC_T0),
-                                                  byteLenP) );
+        MCUXCLPKC_FP_SECUREEXPORTBIGENDIANFROMPKC_BUFFER(mcuxClEcc_PointMult, ret_SecExportXa, pSession, pParam->pResult, WEIER_XA, ECC_T0, byteLenP);
         if (MCUXCLPKC_STATUS_OK != ret_SecExportXa)
         {
             MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_FAULT_ATTACK);
         }
-        MCUX_CSSL_FP_FUNCTION_CALL(ret_SecExportYa,
-            mcuxClPkc_SecureExportBigEndianFromPkc(pSession,
-                                                  pParam->pResult + byteLenP,
-                                                  MCUXCLPKC_PACKARGS2(WEIER_YA, ECC_T1),
-                                                  byteLenP) );
+
+        MCUXCLPKC_FP_SECUREEXPORTBIGENDIANFROMPKC_BUFFEROFFSET(mcuxClEcc_PointMult, ret_SecExportYa, pSession, pParam->pResult, WEIER_YA, ECC_T1, byteLenP, byteLenP);
         if (MCUXCLPKC_STATUS_OK != ret_SecExportYa)
         {
             MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_FAULT_ATTACK);
@@ -322,12 +321,14 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
         pOperands[ECC_P] = MCUXCLPKC_PTR2OFFSET(pPkcWorkarea);
         MCUXCLPKC_FP_CALC_OP1_CONST(ECC_P, 0u);
 
-        MCUXCLPKC_FP_DEINITIALIZE(& pCpuWorkarea->pkcStateBackup);
         mcuxClSession_freeWords_pkcWa(pSession, pCpuWorkarea->wordNumPkcWa);
+        MCUXCLPKC_FP_DEINITIALIZE_RELEASE(pSession, &pCpuWorkarea->pkcStateBackup,
+            mcuxClEcc_PointMult, MCUXCLECC_STATUS_FAULT_ATTACK);
+
         mcuxClSession_freeWords_cpuWa(pSession, pCpuWorkarea->wordNumCpuWa);
 
         MCUX_CSSL_FP_FUNCTION_EXIT_WITH_CHECK(mcuxClEcc_PointMult, MCUXCLECC_STATUS_OK, MCUXCLECC_STATUS_FAULT_ATTACK,
-            MCUXCLECC_FP_POINTMULT_FINAL );
+            MCUXCLECC_FP_POINTMULT_FINAL);
     }
 
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_PointMult, MCUXCLECC_STATUS_FAULT_ATTACK);

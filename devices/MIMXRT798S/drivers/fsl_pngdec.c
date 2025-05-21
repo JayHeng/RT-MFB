@@ -17,7 +17,8 @@
 
 #define PNG_MARKER        0x89504e47UL
 #define PNG_HEADER_MARKER 0x49484452UL
-#define PNG_GET_U32(p)    (((*p) << 24) + ((*(p + 1)) << 16) + ((*(p + 2)) << 8) + (*(p + 3)))
+#define PNG_GET_U32(p) \
+    ((((uint32_t)(*(p))) << 24) + (((uint32_t)(*((p) + 1))) << 16) + (((uint32_t)(*((p) + 2))) << 8) + ((uint32_t)(*((p) + 3))))
 
 /*******************************************************************************
  * Prototypes
@@ -53,7 +54,7 @@ static uint32_t PNGDEC_GetInstance(PNGDEC_Type *base)
     /* Find the instance index from base address mappings. */
     for (instance = 0; instance < ARRAY_SIZE(s_pngdecBases); instance++)
     {
-        if (s_pngdecBases[instance] == base)
+        if (MSDK_REG_SECURE_ADDR(s_pngdecBases[instance]) == MSDK_REG_SECURE_ADDR(base))
         {
             break;
         }
@@ -80,7 +81,7 @@ void PNGDEC_Init(PNGDEC_Type *base, const pngdec_config_t *config)
     /* Open clock gate. */
     CLOCK_EnableClock(s_pngdecClock[PNGDEC_GetInstance(base)]);
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
-    
+
 #if defined(PNGDEC_RSTS)
     RESET_ReleasePeripheralReset(s_pngdecResets[PNGDEC_GetInstance(base)]);
 #endif
@@ -188,11 +189,11 @@ status_t PNGDEC_ParseHeader(pngdec_image_t *image, uint8_t *pngBuf)
 
     image->height = PNG_GET_U32(&pngBuf[20U]);
     bitDepth      = pngBuf[24U];
-    isInterlaced  = pngBuf[28U];
+    isInterlaced  = (bool)pngBuf[28U];
     colorType     = 0U;
 
     /* Check whether the bit depth is less than 8 or the image is interlaced. */
-    if ((bitDepth < 8U) || (isInterlaced != 0U))
+    if ((bitDepth < 8U) || (isInterlaced == true))
     {
         return kStatus_PNGDEC_NotSupported;
     }
@@ -247,8 +248,8 @@ status_t PNGDEC_ParseHeader(pngdec_image_t *image, uint8_t *pngBuf)
  *
  * param base PNGDEC peripheral base address.
  * param image Pointer to PNGDEC decoded image info structure.
- * param status Pointer to decoded status. When retval is kStatus_Fail, Checksum/Crc/Header/Btype/ZlibHeader error may occur
-         due to PNG file corruption, user can check which error(s) occured if necessary.
+ * param status Pointer to decoded status. When retval is kStatus_Fail, Checksum/Crc/Header/Btype/ZlibHeader error may
+ occur due to PNG file corruption, user can check which error(s) occured if necessary.
  * retval kStatus_Success PNG decoding success.
  * retval kStatus_Fail PNG decoding failed due to CRC/header/B type/Alder error or invalid PNG file.
  * retval kStatus_PNGDEC_WidthTooLarge PNG decoding failed due to the image width is larger than 1024.
@@ -277,7 +278,7 @@ status_t PNGDEC_Decode(PNGDEC_Type *base, pngdec_image_t *image, uint32_t *statu
     /* Wait for the decoding done. */
     if ((base->GLB_CTRL & PNGDEC_GLB_CTRL_ANC_DROP_EN_MASK) != 0U)
     {
-        DoneFlags |= kPNGDEC_DecodeAncillaryDoneFlag;
+        DoneFlags |= (uint32_t)kPNGDEC_DecodeAncillaryDoneFlag;
     }
     statusFlags = PNGDEC_GetStatusFlags(base);
     while ((PNGDEC_GetStatusFlags(base) & DoneFlags) != DoneFlags)
@@ -296,7 +297,7 @@ status_t PNGDEC_Decode(PNGDEC_Type *base, pngdec_image_t *image, uint32_t *statu
         {
             result = kStatus_PNGDEC_WidthTooLarge;
         }
-        if ((statusFlags & (uint32_t)(kPNGDEC_BitDepthErrorFlag | kPNGDEC_InterlaceErrorFlag)) != 0U)
+        if ((statusFlags & ((uint32_t)kPNGDEC_BitDepthErrorFlag | (uint32_t)kPNGDEC_InterlaceErrorFlag)) != 0U)
         {
             result = kStatus_PNGDEC_NotSupported;
         }

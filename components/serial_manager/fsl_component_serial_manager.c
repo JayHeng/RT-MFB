@@ -1,6 +1,5 @@
 /*
  * Copyright 2018-2024 NXP
- * All rights reserved.
  *
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1069,7 +1068,7 @@ static serial_manager_status_t SerialManager_Write(serial_write_handle_t writeHa
         if (status == kStatus_SerialManager_NotConnected)
         {
             SerialManager_RemoveHead(&serHandle->runningWriteHandleHead);
-            serialWriteHandle->transfer.buffer = 0U;
+            serialWriteHandle->transfer.buffer = NULL;
             serialWriteHandle->transfer.length = 0U;
             return status;
         }
@@ -1079,11 +1078,17 @@ static serial_manager_status_t SerialManager_Write(serial_write_handle_t writeHa
 #if (defined(SERIAL_MANAGER_USE_COMMON_TASK) && (SERIAL_MANAGER_USE_COMMON_TASK > 0U))
         /* Need to support common_task. */
 #else  /* SERIAL_MANAGER_USE_COMMON_TASK */
-        primask = DisableGlobalIRQ();
-        serHandle->serialManagerState[SERIAL_EVENT_DATA_START_SEND]++;
-        EnableGlobalIRQ(primask);
-        (void)OSA_SemaphorePost((osa_semaphore_handle_t)serHandle->serSemaphore);
-
+        if ((kSerialManager_TransmissionBlocking == mode) && (0U == gUseRtos_c))
+        {
+            (void)SerialManager_StartWriting(serHandle);
+        }
+        else
+        {
+            primask = DisableGlobalIRQ();
+            serHandle->serialManagerState[SERIAL_EVENT_DATA_START_SEND]++;
+            EnableGlobalIRQ(primask);
+            (void)OSA_SemaphorePost((osa_semaphore_handle_t)serHandle->serSemaphore);
+        }
 #endif /* SERIAL_MANAGER_USE_COMMON_TASK */
 #else  /* OSA_USED && SERIAL_MANAGER_TASK_HANDLE_TX */
         (void)SerialManager_StartWriting(serHandle);
@@ -1312,12 +1317,12 @@ serial_manager_status_t SerialManager_Init(serial_handle_t serialHandle, const s
     {
         return kStatus_SerialManager_Error;
     }
-    (void)memcpy(&serTaskConfig, (osa_task_def_t *)OSA_TASK(SerialManager_Task), sizeof(osa_task_def_t));
+    (void)memcpy(&serTaskConfig, OSA_TASK(SerialManager_Task), sizeof(osa_task_def_t));
     if (serialConfig->serialTaskConfig != NULL)
     {
         (void)memcpy(&serTaskConfig, serialConfig->serialTaskConfig, sizeof(osa_task_def_t));
-        serTaskConfig.pthread = ((osa_task_def_t *)OSA_TASK(SerialManager_Task))->pthread;
-        serTaskConfig.tname = ((osa_task_def_t *)OSA_TASK(SerialManager_Task))->tname;
+        serTaskConfig.pthread = (OSA_TASK(SerialManager_Task))->pthread;
+        serTaskConfig.tname = (OSA_TASK(SerialManager_Task))->tname;
     }
     if (KOSA_StatusSuccess != OSA_TaskCreate((osa_task_handle_t)serHandle->taskId,(const osa_task_def_t *)&serTaskConfig, serHandle))
     {

@@ -22,13 +22,15 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief Defines GLIKEY driver version 2.0.0.
+/*! @brief Defines GLIKEY driver version 2.0.1.
  *
  * Change log:
+ * - Version 2.0.1
+ *   - Implement INIT state recovery from the LOCKED state after a reset when the previous index was locked.
  * - Version 2.0.0
  *   - Initial version
  */
-#define FSL_GLIKEY_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+#define FSL_GLIKEY_DRIVER_VERSION (MAKE_VERSION(2, 0, 1))
 
 enum
 {
@@ -73,7 +75,6 @@ enum
 /*******************************************************************************
  * API
  *******************************************************************************/
-extern void GLIKEY0_IRQHandler(void);
 
 #if defined(__cplusplus)
 extern "C" {
@@ -115,6 +116,7 @@ status_t GLIKEY_IsLocked(GLIKEY_Type *base);
  */
 status_t GLIKEY_CheckLock(GLIKEY_Type *base);
 
+#if defined(GLIKEY_VERSION_FSM_CONFIG)
 /*!
  * @brief Retreives the version and configuration of Glikey.
  *
@@ -125,6 +127,7 @@ status_t GLIKEY_CheckLock(GLIKEY_Type *base);
  * @return Status kStatus_Success if success
  */
 status_t GLIKEY_GetVersion(GLIKEY_Type *base, uint32_t *result);
+#endif /* GLIKEY_VERSION_FSM_CONFIG */
 
 /*!
  * @brief Perform a synchronous reset of Glikey.

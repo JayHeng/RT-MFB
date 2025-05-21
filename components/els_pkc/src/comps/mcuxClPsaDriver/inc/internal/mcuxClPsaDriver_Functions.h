@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2023 NXP                                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClPsaDriver_Functions.h
@@ -22,8 +22,6 @@
 extern "C" {
 #endif
 
-#include <crypto_types.h>
-
 #include <mcuxClAeadModes.h>
 #include <mcuxClCipherModes.h>
 #include <mcuxClMacModes.h>
@@ -33,6 +31,11 @@ extern "C" {
 #include <internal/mcuxClEcc_Weier_Internal.h>
 #include <internal/mcuxClHash_Internal.h>
 #include <internal/mcuxClKey_Types_Internal.h>
+#include <internal/mcuxClKey_Functions_Internal.h>
+#include <internal/mcuxClPsaDriver_ExternalMacroWrappers.h>
+
+#include "els_pkc_crypto_composites.h"
+#include "els_pkc_crypto_primitives.h"
 
 /**
  * @defgroup mcuxClPsaDriver_Functions mcuxClPsaDriver_Functions
@@ -41,8 +44,6 @@ extern "C" {
  * @{
  */
 
-extern unsigned int psa_driver_wrapper_get_clns_operation_id(void);
-
 static inline bool key_type_is_raw_bytes( psa_key_type_t type )
 {
     return( PSA_KEY_TYPE_IS_UNSTRUCTURED( type ) );
@@ -50,19 +51,19 @@ static inline bool key_type_is_raw_bytes( psa_key_type_t type )
 
 static inline bool mcuxClPsaDriver_psa_driver_wrapper_aead_doesKeyPolicySupportAlg(const psa_key_attributes_t *attributes, psa_algorithm_t alg)
 {
-    return (PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(attributes->core.policy.alg) == PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg));
+    return (MCUXCLPSADRIVER_PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(psa_get_key_algorithm(attributes)) == MCUXCLPSADRIVER_PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg));
 }
 
 static inline bool mcuxClPsaDriver_psa_driver_wrapper_aead_isAlgSupported(const psa_key_attributes_t *attributes)
 {
-    return ((attributes->core.type == PSA_KEY_TYPE_AES)
-                && (PSA_ALG_IS_AEAD_ON_BLOCK_CIPHER(attributes->core.policy.alg)));
+    return ((psa_get_key_type(attributes) == PSA_KEY_TYPE_AES)
+                && (PSA_ALG_IS_AEAD_ON_BLOCK_CIPHER(psa_get_key_algorithm(attributes))));
 }
 
 static inline mcuxClAead_Mode_t mcuxClPsaDriver_psa_driver_wrapper_aead_selectModeEnc(const psa_algorithm_t alg)
 {
     /* Recover default algorithm (could be CCM with changed tag size) */
-    const psa_algorithm_t algDefault = PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg);
+    const psa_algorithm_t algDefault = MCUXCLPSADRIVER_PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg);
 
     const mcuxClAead_ModeDescriptor_t * mode = NULL;
     switch(algDefault)
@@ -75,6 +76,7 @@ static inline mcuxClAead_Mode_t mcuxClPsaDriver_psa_driver_wrapper_aead_selectMo
             mode = mcuxClAead_Mode_AES_GCM_ENC;
             break;
         default:
+            mode = NULL;
             break;
     }
     return (mcuxClAead_Mode_t) mode;
@@ -82,10 +84,11 @@ static inline mcuxClAead_Mode_t mcuxClPsaDriver_psa_driver_wrapper_aead_selectMo
 
 static inline bool mcuxClPsaDriver_psa_driver_wrapper_cipher_isAlgSupported(const psa_key_attributes_t *attributes)
 {
-    if( PSA_KEY_TYPE_AES == attributes->core.type
-               && (   PSA_ALG_ECB_NO_PADDING == attributes->core.policy.alg
-                   || PSA_ALG_CBC_NO_PADDING == attributes->core.policy.alg
-                   || PSA_ALG_CTR            == attributes->core.policy.alg ))
+    psa_algorithm_t alg = psa_get_key_algorithm(attributes);
+    if( PSA_KEY_TYPE_AES == psa_get_key_type(attributes)
+               && (   PSA_ALG_ECB_NO_PADDING == alg
+                   || PSA_ALG_CBC_NO_PADDING == alg
+                   || PSA_ALG_CTR            == alg ))
     {
         return true;
     }
@@ -95,7 +98,7 @@ static inline bool mcuxClPsaDriver_psa_driver_wrapper_cipher_isAlgSupported(cons
 
 static inline bool mcuxClPsaDriver_psa_driver_wrapper_cipher_doesKeyPolicySupportAlg(const psa_key_attributes_t *attributes, psa_algorithm_t alg)
 {
-    return (attributes->core.policy.alg == alg);
+    return (psa_get_key_algorithm(attributes) == alg);
 }
 
 static inline uint8_t mcuxClPsaDriver_psa_driver_wrapper_cipher_modeSelectEnc(const psa_algorithm_t alg,
@@ -126,7 +129,7 @@ static inline uint8_t mcuxClPsaDriver_psa_driver_wrapper_cipher_modeSelectEnc(co
 static inline mcuxClAead_Mode_t mcuxClPsaDriver_psa_driver_wrapper_aead_selectModeDec(const psa_algorithm_t alg)
 {
     /* Recover default algorithm (could be CCM with changed tag size) */
-    const psa_algorithm_t algDefault = PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg);
+    const psa_algorithm_t algDefault = MCUXCLPSADRIVER_PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg);
 
     const mcuxClAead_ModeDescriptor_t *mode = NULL;
     switch (algDefault)
@@ -139,15 +142,16 @@ static inline mcuxClAead_Mode_t mcuxClPsaDriver_psa_driver_wrapper_aead_selectMo
         mode = &mcuxClAead_ModeDescriptor_AES_GCM_DEC;
         break;
     default:
+        mode = NULL;
         break;
     }
     return (mcuxClAead_Mode_t)mode;
 }
 
-static inline uint32_t mcuxClPsaDriver_psa_driver_wrapper_cipher_modeSelectDec(const psa_algorithm_t alg,
+static inline uint8_t mcuxClPsaDriver_psa_driver_wrapper_cipher_modeSelectDec(const psa_algorithm_t alg,
                                                    const mcuxClCipher_ModeDescriptor_t **mode)
 {
-    uint32_t iv_required = 1u;
+    uint8_t iv_required = 1u;
     switch (alg)
     {
     case PSA_ALG_ECB_NO_PADDING:
@@ -170,25 +174,25 @@ static inline uint32_t mcuxClPsaDriver_psa_driver_wrapper_cipher_modeSelectDec(c
 }
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_abort(
-   psa_aead_operation_t *operation);
+    els_pkc_aead_operation_t  *operation);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_decrypt(
     const psa_key_attributes_t *attributes,
     const uint8_t *key_buffer,
     size_t key_buffer_size,
     psa_algorithm_t alg,
-    const uint8_t *nonce,
+    const uint8_t *nonce_,
     size_t nonce_length,
-    const uint8_t *additional_data,
+    const uint8_t *additional_data_,
     size_t additional_data_length,
     const uint8_t *ciphertext,
     size_t ciphertext_length,
-    uint8_t *plaintext,
+    uint8_t *plaintext_,
     size_t plaintext_size,
     size_t *plaintext_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_decrypt_setup(
-   psa_aead_operation_t *operation,
+   els_pkc_aead_operation_t  *operation,
    const psa_key_attributes_t *attributes,
    const uint8_t *key_buffer,
    size_t key_buffer_size,
@@ -196,28 +200,28 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_decrypt_setup(
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_encrypt(
     const psa_key_attributes_t *attributes,
-    const uint8_t *key_buffer, 
+    const uint8_t *key_buffer,
 	size_t key_buffer_size,
     psa_algorithm_t alg,
-    const uint8_t *nonce,
+    const uint8_t *nonce_,
     size_t nonce_length,
-    const uint8_t *additional_data,
+    const uint8_t *additional_data_,
     size_t additional_data_length,
-    const uint8_t *plaintext,
+    const uint8_t *plaintext_,
     size_t plaintext_length,
     uint8_t *ciphertext,
-    size_t ciphertext_size, 
+    size_t ciphertext_size,
     size_t *ciphertext_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_encrypt_setup(
-   psa_aead_operation_t *operation,
+   els_pkc_aead_operation_t  *operation,
    const psa_key_attributes_t *attributes,
    const uint8_t *key_buffer,
    size_t key_buffer_size,
    psa_algorithm_t alg);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_finish(
-   psa_aead_operation_t *operation,
+   els_pkc_aead_operation_t  *operation,
    uint8_t *ciphertext,
    size_t ciphertext_size,
    size_t *ciphertext_length,
@@ -226,34 +230,34 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_finish(
    size_t *tag_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_get_tag_len(
-    psa_aead_operation_t *operation,
+    els_pkc_aead_operation_t  *operation,
     uint8_t *tag_len);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_set_lengths(
-   psa_aead_operation_t *operation,
+   els_pkc_aead_operation_t  *operation,
    size_t ad_length,
    size_t plaintext_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_set_nonce(
-   psa_aead_operation_t *operation,
-   const uint8_t *nonce,
+   els_pkc_aead_operation_t  *operation,
+   const uint8_t *nonce_,
    size_t nonce_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_update_ad(
-   psa_aead_operation_t *operation,
+   els_pkc_aead_operation_t  *operation,
    const uint8_t *input,
    size_t input_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_verify(
-   psa_aead_operation_t *operation,
-   uint8_t *plaintext,
+   els_pkc_aead_operation_t  *operation,
+   uint8_t *plaintext_,
    size_t plaintext_size,
    size_t *plaintext_length,
    const uint8_t *tag,
    size_t tag_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_aead_update(
-   psa_aead_operation_t *operation,
+   els_pkc_aead_operation_t  *operation,
    const uint8_t *input,
    size_t input_length,
    uint8_t *output,
@@ -265,7 +269,7 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_cipher_encrypt(
     const uint8_t *key_buffer,
     size_t key_buffer_size,
     psa_algorithm_t alg,
-    const uint8_t *iv,
+    const uint8_t *iv_data,
     size_t iv_length,
     const uint8_t *input,
     size_t input_length,
@@ -274,24 +278,24 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_cipher_encrypt(
     size_t *output_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_cipher_abort(
-    psa_cipher_operation_t *operation);
+    els_pkc_cipher_operation_t *operation);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_cipher_decrypt_setup(
-    psa_cipher_operation_t *operation,
+    els_pkc_cipher_operation_t *operation,
     const psa_key_attributes_t * attributes,
     const uint8_t * key_buffer,
     size_t key_buffer_size,
     psa_algorithm_t alg);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_cipher_encrypt_setup(
-    psa_cipher_operation_t *operation,
+    els_pkc_cipher_operation_t *operation,
     const psa_key_attributes_t * attributes,
     const uint8_t * key_buffer,
     size_t key_buffer_size,
     psa_algorithm_t alg);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_cipher_finish(
-    psa_cipher_operation_t *operation,
+    els_pkc_cipher_operation_t *operation,
     uint8_t *output,
     size_t output_size,
     size_t *output_length);
@@ -308,12 +312,12 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_cipher_decrypt(
     size_t *output_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_cipher_set_iv(
-    psa_cipher_operation_t *operation,
-    const uint8_t *iv,
+    els_pkc_cipher_operation_t *operation,
+    const uint8_t *iv_data,
     size_t iv_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_cipher_update(
-    psa_cipher_operation_t *operation,
+    els_pkc_cipher_operation_t *operation,
     const uint8_t *input,
     size_t input_length,
     uint8_t *output,
@@ -328,11 +332,11 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_createClKey(
 );
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(
-    uint8_t **p,
+    const uint8_t **p,
     uint8_t tag);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_der_get_integer(
-    uint8_t **p,
+    const uint8_t **p,
     mcuxClRsa_KeyEntry_t  * key);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_der_integer(
@@ -365,27 +369,38 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_key_generate(
     size_t key_buffer_size,
     size_t *key_buffer_length);
 
+psa_status_t mcuxClPsaDriver_psa_driver_wrapper_key_agreement(
+    const psa_key_attributes_t *attributes,
+    const uint8_t *key_buffer,
+    size_t key_buffer_size,
+    psa_algorithm_t alg,
+    const uint8_t *peer_key,
+    size_t peer_key_length,
+    uint8_t *shared_secret,
+    size_t shared_secret_size,
+    size_t *shared_secret_length);
+
 const mcuxClEcc_Weier_DomainParams_t* mcuxClPsaDriver_psa_driver_wrapper_getEccDomainParams(
     const psa_key_attributes_t *attributes);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_hash_abort(
-    psa_hash_operation_t *operation);
-    
+    els_pkc_hash_operation_t *operation);
+
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_hash_clone(
-    const psa_hash_operation_t *source_operation,
-    psa_hash_operation_t *target_operation);
+    const els_pkc_hash_operation_t *source_operation,
+    els_pkc_hash_operation_t *target_operation);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_hash_compute(
     psa_algorithm_t alg,
     const uint8_t *input,
     size_t input_length,
-    uint8_t *hash,
+    uint8_t *hash_,
     size_t hash_size,
     size_t *hash_length);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_hash_finish(
-    psa_hash_operation_t *operation,
-    uint8_t *hash,
+    els_pkc_hash_operation_t *operation,
+    uint8_t *hash_,
     size_t hash_size,
     size_t *hash_length);
 
@@ -393,11 +408,11 @@ const mcuxClHash_AlgorithmDescriptor_t * mcuxClPsaDriver_psa_driver_wrapper_hash
     psa_algorithm_t alg);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_hash_setup(
-    psa_hash_operation_t *operation,
+    els_pkc_hash_operation_t *operation,
     psa_algorithm_t alg);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_hash_update(
-    psa_hash_operation_t *operation,
+    els_pkc_hash_operation_t *operation,
     const uint8_t *input,
     size_t input_length);
 
@@ -417,7 +432,7 @@ const mcuxClMac_ModeDescriptor_t * mcuxClPsaDriver_psa_driver_wrapper_mac_getMod
     psa_algorithm_t alg);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_mac_finalizeLayer(
-    psa_mac_operation_t *operation,
+    els_pkc_mac_operation_t *operation,
     uint8_t *mac,
     size_t mac_size,
     size_t *mac_length);
@@ -426,15 +441,15 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_mac_setupLayer(
     const psa_key_attributes_t *attributes,
     const uint8_t *key_buffer,
     size_t key_buffer_size,
-    psa_mac_operation_t *operation,
+    els_pkc_mac_operation_t *operation,
     psa_algorithm_t alg);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_mac_updateLayer(
-    psa_mac_operation_t *operation,
+    els_pkc_mac_operation_t *operation,
     const uint8_t *input,
     size_t input_length);
-		
-psa_status_t mcuxClPsaDriver_psa_driver_wrapper_mac_abort(psa_mac_operation_t *operation);
+
+psa_status_t mcuxClPsaDriver_psa_driver_wrapper_mac_abort(els_pkc_mac_operation_t *operation);
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign_message(
     const psa_key_attributes_t *attributes,
@@ -452,7 +467,7 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign_hash(
     const uint8_t *key_buffer,
     size_t key_buffer_size,
     psa_algorithm_t alg,
-    const uint8_t *hash,
+    const uint8_t *input_hash,
     size_t hash_length,
     uint8_t *signature,
     size_t signature_size,
@@ -463,7 +478,7 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign(
     psa_algorithm_t alg,
     const uint8_t *input,
     size_t input_length,
-    const uint8_t *signature,
+    uint8_t *signature,
     size_t signature_size,
     size_t *signature_length,
     bool isHash);
@@ -479,7 +494,7 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_UpdateKeyStatusUnload(
 
 psa_status_t mcuxClPsaDriver_psa_driver_wrapper_verify(
     const psa_key_attributes_t *attributes,
-    const uint8_t *key_buffer, 
+    const uint8_t *key_buffer,
     size_t key_buffer_size,
     psa_algorithm_t alg,
     const uint8_t *input,
@@ -496,9 +511,24 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_exportKey(
     size_t data_size,
     size_t *data_length);
 
+
+/* Inline functions for proper type casts */
+
+/**
+ * @brief Cast a key decriptor's auxilary data pointer to a pointer to psa_key_attributes_t.
+ *
+ * @param pKey    Pointer to the key descriptor.
+ */
+static inline psa_key_attributes_t* mcuxClPsaDriver_castAuxDataToKeyAttributes(mcuxClKey_Descriptor_t *pKey)
+{
+    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
+    return (psa_key_attributes_t *) mcuxClKey_getAuxData(pKey);
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY()
+}
+
 /**
  * @}
- */ /* mcuxClRsa_Functions */
+ */ /* mcuxClPsaDriver_Functions */
 
 #ifdef __cplusplus
 } /* extern "C" */

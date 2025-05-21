@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2019, 2023 NXP
+ * Copyright 2016-2019, 2024 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -20,6 +20,10 @@
 #define GPIO_RESETS_ARRAY GPIO_RSTS
 #endif
 
+#if defined(GPIO_CLOCKS)
+#define GPIO_CLOCKS_ARRAY GPIO_CLOCKS
+#endif
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -29,10 +33,18 @@
 static PORT_Type *const s_portBases[] = PORT_BASE_PTRS;
 static GPIO_Type *const s_gpioBases[] = GPIO_BASE_PTRS;
 #else
-#if defined(GPIO_RESETS_ARRAY)
+#if defined(GPIO_RESETS_ARRAY) || \
+    !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 static GPIO_Type *const s_gpioBases[] = GPIO_BASE_PTRS;
 #endif
 #endif
+
+
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && \
+    defined(GPIO_CLOCKS_ARRAY)
+/*! @brief Array to map FGPIO instance number to clock name. */
+static const clock_ip_name_t s_gpioClockName[] = GPIO_CLOCKS_ARRAY;
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 #if defined(FSL_FEATURE_SOC_FGPIO_COUNT) && FSL_FEATURE_SOC_FGPIO_COUNT
 
@@ -56,7 +68,9 @@ static const reset_ip_name_t s_gpioResets[] = GPIO_RESETS_ARRAY;
  * Prototypes
  ******************************************************************************/
 #if !(defined(FSL_FEATURE_PORT_HAS_NO_INTERRUPT) && FSL_FEATURE_PORT_HAS_NO_INTERRUPT) && \
-    defined(FSL_FEATURE_SOC_PORT_COUNT)
+    defined(FSL_FEATURE_SOC_PORT_COUNT) || defined(GPIO_RESETS_ARRAY) || \
+    (!(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && \
+    defined(GPIO_CLOCKS_ARRAY))
 /*!
  * @brief Gets the GPIO instance according to the GPIO base
  *
@@ -65,11 +79,22 @@ static const reset_ip_name_t s_gpioResets[] = GPIO_RESETS_ARRAY;
  */
 static uint32_t GPIO_GetInstance(GPIO_Type *base);
 #endif
+
+/*!
+ * @brief Enable/disable GPIO port clock.
+ *
+ * @param base   GPIO peripheral base pointer.
+ * @param enable True means enable GPIO port clock, false means disable.
+ */
+static void GPIO_PortClockEnable(GPIO_Type *base, bool enable);
 /*******************************************************************************
  * Code
  ******************************************************************************/
 #if !(defined(FSL_FEATURE_PORT_HAS_NO_INTERRUPT) && FSL_FEATURE_PORT_HAS_NO_INTERRUPT) && \
-    defined(FSL_FEATURE_SOC_PORT_COUNT) || defined(GPIO_RESETS_ARRAY)
+    defined(FSL_FEATURE_SOC_PORT_COUNT) || defined(GPIO_RESETS_ARRAY) || \
+    (!(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && \
+    defined(GPIO_CLOCKS_ARRAY))
+     
 static uint32_t GPIO_GetInstance(GPIO_Type *base)
 {
     uint32_t instance;
@@ -77,7 +102,7 @@ static uint32_t GPIO_GetInstance(GPIO_Type *base)
     /* Find the instance index from base address mappings. */
     for (instance = 0; instance < ARRAY_SIZE(s_gpioBases); instance++)
     {
-        if (s_gpioBases[instance] == base)
+        if (MSDK_REG_SECURE_ADDR(s_gpioBases[instance]) == MSDK_REG_SECURE_ADDR(base))
         {
             break;
         }
@@ -88,6 +113,50 @@ static uint32_t GPIO_GetInstance(GPIO_Type *base)
     return instance;
 }
 #endif
+
+static void GPIO_PortClockEnable(GPIO_Type *base, bool enable)
+{
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)&& \
+    defined(GPIO_CLOCKS_ARRAY)
+    if(enable)
+    {
+        CLOCK_EnableClock(s_gpioClockName[GPIO_GetInstance(base)]);
+    }
+    else
+    {
+        CLOCK_DisableClock(s_gpioClockName[GPIO_GetInstance(base)]);
+    }
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
+}
+
+/*!
+ * brief Initializes the GPIO peripheral.
+ *
+ * This function ungates the GPIO clock.
+ *
+ * param base   GPIO peripheral base pointer.
+ */
+void GPIO_PortInit(GPIO_Type *base)
+{
+    GPIO_PortClockEnable(base, true);
+
+#if defined(GPIO_RESETS_ARRAY)
+    /* Reset the GPIO module */
+    RESET_ReleasePeripheralReset(s_gpioResets[GPIO_GetInstance(base)]);
+#endif
+}
+
+
+/*!
+ * brief Deinitializes the GPIO peripheral.
+ *
+ * param base   GPIO peripheral base pointer.
+ */
+void GPIO_PortDenit(GPIO_Type *base)
+{
+    GPIO_PortClockEnable(base, false);
+}
+
 /*!
  * brief Initializes a GPIO pin used by the board.
  *
@@ -117,6 +186,8 @@ static uint32_t GPIO_GetInstance(GPIO_Type *base)
 void GPIO_PinInit(GPIO_Type *base, uint32_t pin, const gpio_pin_config_t *config)
 {
     assert(NULL != config);
+
+    GPIO_PortClockEnable(base, true);
 
 #if defined(GPIO_RESETS_ARRAY)
     RESET_ReleasePeripheralReset(s_gpioResets[GPIO_GetInstance(base)]);
@@ -316,7 +387,7 @@ static uint32_t FGPIO_GetInstance(FGPIO_Type *base)
     /* Find the instance index from base address mappings. */
     for (instance = 0; instance < ARRAY_SIZE(s_fgpioBases); instance++)
     {
-        if (s_fgpioBases[instance] == base)
+        if (MSDK_REG_SECURE_ADDR(s_fgpioBases[instance]) == MSDK_REG_SECURE_ADDR(base))
         {
             break;
         }

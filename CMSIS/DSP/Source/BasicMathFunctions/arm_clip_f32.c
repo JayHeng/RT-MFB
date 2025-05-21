@@ -54,13 +54,12 @@
   @param[in]     low           lower bound
   @param[in]     high          higher bound
   @param[in]     numSamples    number of samples to clip
-  @return        none
  */
 #if defined(ARM_MATH_MVEF) && !defined(ARM_MATH_AUTOVECTORIZE)
 
 #include "arm_helium_utils.h"
 
-void arm_clip_f32(const float32_t * pSrc, 
+ARM_DSP_ATTRIBUTE void arm_clip_f32(const float32_t * pSrc, 
   float32_t * pDst, 
   float32_t low, 
   float32_t high, 
@@ -120,13 +119,14 @@ void arm_clip_f32(const float32_t * pSrc,
 }
 
 #else
-void arm_clip_f32(const float32_t * pSrc, 
+ARM_DSP_ATTRIBUTE void arm_clip_f32(const float32_t * pSrc, 
   float32_t * pDst, 
   float32_t low, 
   float32_t high, 
   uint32_t numSamples)
 {
-    for (uint32_t i = 0; i < numSamples; i++)
+    uint32_t i;
+    for (i = 0; i < numSamples; i++)
     {                                        
         if (pSrc[i] > high)                  
             pDst[i] = high;                  

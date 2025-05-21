@@ -49,12 +49,11 @@
   @param[in]     pSrc       points to the input vector
   @param[in]     blockSize  number of samples in input vector
   @param[out]    pResult    maximum value returned here
-  @return        none
  */
 
 #if defined(ARM_MATH_MVE_FLOAT16) && !defined(ARM_MATH_AUTOVECTORIZE)
 
-void arm_max_no_idx_f16(
+ARM_DSP_ATTRIBUTE void arm_max_no_idx_f16(
     const float16_t *pSrc,
     uint32_t   blockSize,
     float16_t *pResult)
@@ -95,7 +94,7 @@ void arm_max_no_idx_f16(
         newVal = *pSrc++;
 
         /* compare for the maximum value */
-        if (maxValue < newVal)
+        if ((_Float16)maxValue < (_Float16)newVal)
         {
             /* Update the maximum value and it's index */
             maxValue = newVal;
@@ -109,7 +108,7 @@ void arm_max_no_idx_f16(
 
 #else
 
-void arm_max_no_idx_f16(
+ARM_DSP_ATTRIBUTE void arm_max_no_idx_f16(
     const float16_t *pSrc,
     uint32_t   blockSize,
     float16_t *pResult)
@@ -122,7 +121,7 @@ void arm_max_no_idx_f16(
        newVal = *pSrc++;
    
        /* compare for the maximum value */
-       if (maxValue < newVal)
+       if ((_Float16)maxValue < (_Float16)newVal)
        {
            /* Update the maximum value and it's index */
            maxValue = newVal;

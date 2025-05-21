@@ -2,9 +2,9 @@
 /*  @file:    startup_MIMXRT798S_cm33_core0.s                                */
 /*  @purpose: CMSIS Cortex-M33 Core Device Startup File                      */
 /*            MIMXRT798S_cm33_core0                                          */
-/*  @version: 1.0                                                            */
-/*  @date:    2022-9-15                                                      */
-/*  @build:   b240311                                                        */
+/*  @version: 2.0                                                            */
+/*  @date:    2024-5-28                                                      */
+/*  @build:   b241121                                                        */
 /* ------------------------------------------------------------------------- */
 /*                                                                           */
 /* Copyright 1997-2016 Freescale Semiconductor, Inc.                         */
@@ -88,7 +88,7 @@ __isr_vector:
     .long   WDT1_IRQHandler                                 /* WDT: Interrupt request*/
     .long   USBPHY0_IRQHandler                              /* HSUSBPHY: UTM interrupt request*/
     .long   PUF_IRQHandler                                  /* PUF: Interrupt Request*/
-    .long   PMIC_IRQN_IRQHandler                            /* PMIC: External PMIC interrupt*/
+    .long   Reserved62_IRQHandler                           /* xxx Interrupt 62*/
     .long   LP_FLEXCOMM8_IRQHandler                         /* FLEXCOMM: Interrupt request*/
     .long   LP_FLEXCOMM9_IRQHandler                         /* FLEXCOMM: Interrupt request*/
     .long   LP_FLEXCOMM10_IRQHandler                        /* FLEXCOMM: Interrupt request*/
@@ -167,10 +167,10 @@ __isr_vector:
     .long   MMU1_IRQHandler                                 /* MMU: Interrupt request*/
     .long   MMU2_IRQHandler                                 /* MMU: Interrupt request*/
     .long   Freqme_IRQHandler                               /* FREQME: Interrupt request*/
-    .long   GDET0_IRQHandler                                /* GDET: Interrupt request*/
-    .long   GDET1_IRQHandler                                /* GDET: Interrupt request*/
-    .long   GDET2_IRQHandler                                /* GDET: Interrupt request*/
-    .long   GDET3_IRQHandler                                /* GDET: Interrupt request*/
+    .long   GDET0_IRQHandler                                /* GDET0: Interrupt request*/
+    .long   Reserved142_IRQHandler                          /* Reserved interrupt*/
+    .long   Reserved143_IRQHandler                          /* Reserved interrupt*/
+    .long   GDET3_IRQHandler                                /* GDET3: Interrupt request*/
     .long   CDOG0_IRQHandler                                /* CDOG: Interrupt request*/
     .long   CDOG1_IRQHandler                                /* CDOG: Interrupt request*/
     .long   CDOG2_IRQHandler                                /* CDOG: Interrupt request*/
@@ -192,10 +192,10 @@ __isr_vector:
     .long   GLIKEY2_IRQHandler                              /* GLIKEY: Interrupt*/
     .long   GLIKEY3_IRQHandler                              /* GLIKEY: Interrupt*/
     .long   GLIKEY5_IRQHandler                              /* GLIKEY: Interrupt*/
-    .long   PVT0_AMBER0_IRQHandler                          /* PVT0 AMBER0 interrupt*/
-    .long   PVT0_RED0_IRQHandler                            /* PVT0 RED0 interrupt*/
-    .long   PVT0_AMBER1_IRQHandler                          /* PVT0 AMBER1 interrupt*/
-    .long   PVT0_RED1_IRQHandler                            /* PVT0 RED1 interrupt*/
+    .long   PVTS0_CPU0_IRQHandler                           /* PVTS0 CPU0 interrupt*/
+    .long   Reserved167_IRQHandler                          /* Reserved interrupt 167*/
+    .long   PVTS0_HIFI4_IRQHandler                          /* PVTS0 HIFI4 interrupt*/
+    .long   Reserved169_IRQHandler                          /* Reserved interrupt 169*/
     .long   FRO0_IRQHandler                                 /* FRO: 300MHz FRO in VDD2 domain Async interrupt*/
     .long   FRO1_IRQHandler                                 /* FRO: 192MHz FRO in VDD2 domain Async interrupt*/
     .long   FRO2_IRQHandler                                 /* FRO: 300MHz FRO in VDD1 domain Async interrupt*/
@@ -318,25 +318,6 @@ Reset_Handler:
     blt    .LC2
 #endif /* __STARTUP_CLEAR_BSS */
 
-/* Add stack / heap initializaiton */
-    movs    r0, 0
-    ldr     r1, =__HeapBase
-    ldr     r2, =__HeapLimit
-.LC3:
-    cmp     r1, r2
-    itt     lt
-    strlt   r0, [r1], #4
-    blt     .LC3
-
-    ldr     r1, =__StackLimit
-    ldr     r2, =__StackTop
-.LC4:
-    cmp     r1, r2
-    itt     lt
-    strlt   r0, [r1], #4
-    blt     .LC4
-
-/*End of stack / heap initializaiton */
     cpsie   i               /* Unmask interrupts */
 #ifndef __START
 #ifdef __REDLIB__
@@ -826,12 +807,12 @@ PUF_IRQHandler:
 
     .align 1
     .thumb_func
-    .weak PMIC_IRQN_IRQHandler
-    .type PMIC_IRQN_IRQHandler, %function
-PMIC_IRQN_IRQHandler:
-    ldr   r0,=PMIC_IRQN_DriverIRQHandler
+    .weak Reserved62_IRQHandler
+    .type Reserved62_IRQHandler, %function
+Reserved62_IRQHandler:
+    ldr   r0,=Reserved62_DriverIRQHandler
     bx    r0
-    .size PMIC_IRQN_IRQHandler, . - PMIC_IRQN_IRQHandler
+    .size Reserved62_IRQHandler, . - Reserved62_IRQHandler
 
     .align 1
     .thumb_func
@@ -1546,21 +1527,21 @@ GDET0_IRQHandler:
 
     .align 1
     .thumb_func
-    .weak GDET1_IRQHandler
-    .type GDET1_IRQHandler, %function
-GDET1_IRQHandler:
-    ldr   r0,=GDET1_DriverIRQHandler
+    .weak Reserved142_IRQHandler
+    .type Reserved142_IRQHandler, %function
+Reserved142_IRQHandler:
+    ldr   r0,=Reserved142_DriverIRQHandler
     bx    r0
-    .size GDET1_IRQHandler, . - GDET1_IRQHandler
+    .size Reserved142_IRQHandler, . - Reserved142_IRQHandler
 
     .align 1
     .thumb_func
-    .weak GDET2_IRQHandler
-    .type GDET2_IRQHandler, %function
-GDET2_IRQHandler:
-    ldr   r0,=GDET2_DriverIRQHandler
+    .weak Reserved143_IRQHandler
+    .type Reserved143_IRQHandler, %function
+Reserved143_IRQHandler:
+    ldr   r0,=Reserved143_DriverIRQHandler
     bx    r0
-    .size GDET2_IRQHandler, . - GDET2_IRQHandler
+    .size Reserved143_IRQHandler, . - Reserved143_IRQHandler
 
     .align 1
     .thumb_func
@@ -1762,39 +1743,39 @@ GLIKEY5_IRQHandler:
 
     .align 1
     .thumb_func
-    .weak PVT0_AMBER0_IRQHandler
-    .type PVT0_AMBER0_IRQHandler, %function
-PVT0_AMBER0_IRQHandler:
-    ldr   r0,=PVT0_AMBER0_DriverIRQHandler
+    .weak PVTS0_CPU0_IRQHandler
+    .type PVTS0_CPU0_IRQHandler, %function
+PVTS0_CPU0_IRQHandler:
+    ldr   r0,=PVTS0_CPU0_DriverIRQHandler
     bx    r0
-    .size PVT0_AMBER0_IRQHandler, . - PVT0_AMBER0_IRQHandler
+    .size PVTS0_CPU0_IRQHandler, . - PVTS0_CPU0_IRQHandler
 
     .align 1
     .thumb_func
-    .weak PVT0_RED0_IRQHandler
-    .type PVT0_RED0_IRQHandler, %function
-PVT0_RED0_IRQHandler:
-    ldr   r0,=PVT0_RED0_DriverIRQHandler
+    .weak Reserved167_IRQHandler
+    .type Reserved167_IRQHandler, %function
+Reserved167_IRQHandler:
+    ldr   r0,=Reserved167_DriverIRQHandler
     bx    r0
-    .size PVT0_RED0_IRQHandler, . - PVT0_RED0_IRQHandler
+    .size Reserved167_IRQHandler, . - Reserved167_IRQHandler
 
     .align 1
     .thumb_func
-    .weak PVT0_AMBER1_IRQHandler
-    .type PVT0_AMBER1_IRQHandler, %function
-PVT0_AMBER1_IRQHandler:
-    ldr   r0,=PVT0_AMBER1_DriverIRQHandler
+    .weak PVTS0_HIFI4_IRQHandler
+    .type PVTS0_HIFI4_IRQHandler, %function
+PVTS0_HIFI4_IRQHandler:
+    ldr   r0,=PVTS0_HIFI4_DriverIRQHandler
     bx    r0
-    .size PVT0_AMBER1_IRQHandler, . - PVT0_AMBER1_IRQHandler
+    .size PVTS0_HIFI4_IRQHandler, . - PVTS0_HIFI4_IRQHandler
 
     .align 1
     .thumb_func
-    .weak PVT0_RED1_IRQHandler
-    .type PVT0_RED1_IRQHandler, %function
-PVT0_RED1_IRQHandler:
-    ldr   r0,=PVT0_RED1_DriverIRQHandler
+    .weak Reserved169_IRQHandler
+    .type Reserved169_IRQHandler, %function
+Reserved169_IRQHandler:
+    ldr   r0,=Reserved169_DriverIRQHandler
     bx    r0
-    .size PVT0_RED1_IRQHandler, . - PVT0_RED1_IRQHandler
+    .size Reserved169_IRQHandler, . - Reserved169_IRQHandler
 
     .align 1
     .thumb_func
@@ -1892,7 +1873,7 @@ OCOTP_IRQHandler:
     def_irq_handler    WDT1_DriverIRQHandler
     def_irq_handler    USBPHY0_DriverIRQHandler
     def_irq_handler    PUF_DriverIRQHandler
-    def_irq_handler    PMIC_IRQN_DriverIRQHandler
+    def_irq_handler    Reserved62_DriverIRQHandler
     def_irq_handler    LP_FLEXCOMM8_DriverIRQHandler
     def_irq_handler    LP_FLEXCOMM9_DriverIRQHandler
     def_irq_handler    LP_FLEXCOMM10_DriverIRQHandler
@@ -1972,8 +1953,8 @@ OCOTP_IRQHandler:
     def_irq_handler    MMU2_DriverIRQHandler
     def_irq_handler    Freqme_DriverIRQHandler
     def_irq_handler    GDET0_DriverIRQHandler
-    def_irq_handler    GDET1_DriverIRQHandler
-    def_irq_handler    GDET2_DriverIRQHandler
+    def_irq_handler    Reserved142_DriverIRQHandler
+    def_irq_handler    Reserved143_DriverIRQHandler
     def_irq_handler    GDET3_DriverIRQHandler
     def_irq_handler    CDOG0_DriverIRQHandler
     def_irq_handler    CDOG1_DriverIRQHandler
@@ -1996,10 +1977,10 @@ OCOTP_IRQHandler:
     def_irq_handler    GLIKEY2_DriverIRQHandler
     def_irq_handler    GLIKEY3_DriverIRQHandler
     def_irq_handler    GLIKEY5_DriverIRQHandler
-    def_irq_handler    PVT0_AMBER0_DriverIRQHandler
-    def_irq_handler    PVT0_RED0_DriverIRQHandler
-    def_irq_handler    PVT0_AMBER1_DriverIRQHandler
-    def_irq_handler    PVT0_RED1_DriverIRQHandler
+    def_irq_handler    PVTS0_CPU0_DriverIRQHandler
+    def_irq_handler    Reserved167_DriverIRQHandler
+    def_irq_handler    PVTS0_HIFI4_DriverIRQHandler
+    def_irq_handler    Reserved169_DriverIRQHandler
     def_irq_handler    FRO0_DriverIRQHandler
     def_irq_handler    FRO1_DriverIRQHandler
     def_irq_handler    FRO2_DriverIRQHandler

@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2022-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClTrng_Internal_SA_TRNG.h
@@ -32,11 +32,13 @@
 #error "Build configuration issue: SA_TRNG component included but neither DTRNG_256 nor DTRNG_512 are defined"
 #endif
 
-#define  MCUXCLTRNG_SA_TRNG_WAITFORREADY(noOfTrngErrors)                                                 \
+#define MCUXCLTRNG_SA_TRNG_WAITFORREADY(noOfTrngErrors)                                                  \
     do                                                                                                  \
     {                                                                                                   \
         /* Check whether a TRNG error occurred */                                                       \
+        MCUX_CSSL_ANALYSIS_START_PATTERN_SFR_ACCESS()                                                    \
         if (0u != (MCUXCLTRNG_SFR_BITREAD(MCTL, ERR)))                                                   \
+        MCUX_CSSL_ANALYSIS_STOP_PATTERN_SFR_ACCESS()                                                     \
         {                                                                                               \
             /* TRNG hardware error detected (ERR bit == 1): */                                          \
             /* Check how many errors occurred so far */                                                 \

@@ -66,7 +66,7 @@
 #include "arm_helium_utils.h"
 #include "arm_vec_math_f16.h"
 
-float16_t arm_minkowski_distance_f16(const float16_t *pA,const float16_t *pB, int32_t order, uint32_t blockSize)
+ARM_DSP_ATTRIBUTE float16_t arm_minkowski_distance_f16(const float16_t *pA,const float16_t *pB, int32_t order, uint32_t blockSize)
 {
     uint32_t        blkCnt;
     f16x8_t         a, b, tmpV, sumV;
@@ -103,26 +103,26 @@ float16_t arm_minkowski_distance_f16(const float16_t *pA,const float16_t *pB, in
         sumV = vaddq_m(sumV, sumV, tmpV, p0);
     }
 
-    return (powf(vecAddAcrossF16Mve(sumV), (1.0f / (float16_t) order)));
+    return (powf((float32_t)vecAddAcrossF16Mve(sumV), (1.0f / (float32_t) order)));
 }
 
 
 #else
 
 
-float16_t arm_minkowski_distance_f16(const float16_t *pA,const float16_t *pB, int32_t order, uint32_t blockSize)
+ARM_DSP_ATTRIBUTE float16_t arm_minkowski_distance_f16(const float16_t *pA,const float16_t *pB, int32_t order, uint32_t blockSize)
 {
     _Float16 sum;
     uint32_t i;
 
-    sum = 0.0f; 
+    sum = 0.0f16; 
     for(i=0; i < blockSize; i++)
     {
-       sum += (_Float16)powf(fabsf(pA[i] - pB[i]),order);
+       sum += (_Float16)powf(fabsf((float32_t)((_Float16)pA[i] - (_Float16)pB[i])),order);
     }
 
 
-    return(powf(sum,(1.0f/order)));
+    return(_Float16)(powf((float32_t)sum,(1.0f/(float32_t)order)));
 
 }
 

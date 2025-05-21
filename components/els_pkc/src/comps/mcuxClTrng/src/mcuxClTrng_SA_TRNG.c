@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2022-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClTrng_SA_TRNG.c
@@ -19,6 +19,7 @@
 #include <mcuxClToolchain.h>
 #include <mcuxClSession.h>
 #include <mcuxClMemory.h>
+#include <mcuxCsslDataIntegrity.h>
 #include <internal/mcuxClTrng_SfrAccess.h>
 #include <internal/mcuxClTrng_Internal.h>
 #include <internal/mcuxClTrng_Internal_SA_TRNG.h>
@@ -118,10 +119,14 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClTrng_Status_t) mcuxClTrng_getEntropyInput(
             MCUXCLTRNG_SA_TRNG_WAITFORREADY(noOfTrngErrors);
         }
         /* Copy word of entropy into destination buffer. */
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("pDest can't be larger than max(uint32_t)")
         *pDest = MCUXCLTRNG_SFR_READ(ENT)[i % MCUXCLTRNG_SA_TRNG_NUMBEROFENTREGISTERS];
         /* Increment pDest to point to the next word. */
-        ++pDest;
+        pDest++;
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
     }
+
+    MCUX_CSSL_DI_RECORD(trngOutputSize, entropyInputLength);
 
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput, MCUXCLTRNG_STATUS_OK,
         MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClTrng_checkConfig));

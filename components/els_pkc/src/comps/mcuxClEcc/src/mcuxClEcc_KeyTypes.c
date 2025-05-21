@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020, 2022-2023 NXP                                            */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -17,16 +17,17 @@
  */
 
 #include <mcuxClKey.h>
+#include <mcuxClEcc.h>
 
-#include <mcuxClEcc_ParameterSizes.h>
-#include <mcuxClEcc_Constants.h>
-#include <mcuxClEcc_KeyMechanisms.h>
 #include <mcuxCsslAnalysis.h>
 
 #include <internal/mcuxClKey_Types_Internal.h>
+#include <internal/mcuxClEcc_Mont_Internal.h>
 
 MCUX_CSSL_ANALYSIS_START_PATTERN_DESCRIPTIVE_IDENTIFIER()
 MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST_QUALIFIER("Const must be discarded to initialize the key parameters.")
+
+
 /* Key type structure for private and public ECC keys for Weierstrass curve secp160k1 */
 const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_WeierECC_secp160k1_Pub  = {.algoId = MCUXCLKEY_ALGO_ID_ECC_SHWS_GFP + MCUXCLKEY_ALGO_ID_PUBLIC_KEY, .size = MCUXCLECC_WEIERECC_SECP160K1_SIZE_PUBLICKEY, .info = (void *) &mcuxClEcc_Weier_DomainParams_secp160k1};
 const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_WeierECC_secp160k1_Priv = {.algoId = MCUXCLKEY_ALGO_ID_ECC_SHWS_GFP + MCUXCLKEY_ALGO_ID_PRIVATE_KEY, .size = MCUXCLECC_WEIERECC_SECP160K1_SIZE_PRIVATEKEY, .info = (void *) &mcuxClEcc_Weier_DomainParams_secp160k1};
@@ -120,14 +121,14 @@ const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_WeierECC_brainpoolP512
 const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_WeierECC_brainpoolP512t1_Priv = {.algoId = MCUXCLKEY_ALGO_ID_ECC_SHWS_GFP + MCUXCLKEY_ALGO_ID_PRIVATE_KEY, .size = MCUXCLECC_WEIERECC_BRAINPOOLP512T1_SIZE_PRIVATEKEY, .info = (void *) &mcuxClEcc_Weier_DomainParams_brainpoolP512t1};
 
 /* Key type structure for private and public EdDSA keys for twisted Edwards curve Ed25519 */
-const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_EdDSA_Ed25519_Priv = {.algoId = MCUXCLKEY_ALGO_ID_ECC_EDDSA | MCUXCLKEY_ALGO_ID_PRIVATE_KEY, .size = MCUXCLECC_EDDSA_ED25519_SIZE_PRIVATEKEYDATA, .info = (void *) &mcuxClEcc_EdDSA_DomainParams_Ed25519};
+const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_EdDSA_Ed25519_Priv = {.algoId = MCUXCLKEY_ALGO_ID_ECC_EDDSA | MCUXCLKEY_ALGO_ID_PRIVATE_KEY, .size = MCUXCLECC_EDDSA_ED25519_SIZE_PRIVATEKEY, .info = (void *) &mcuxClEcc_EdDSA_DomainParams_Ed25519};
 const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_EdDSA_Ed25519_Pub = {.algoId = MCUXCLKEY_ALGO_ID_ECC_EDDSA | MCUXCLKEY_ALGO_ID_PUBLIC_KEY, .size = MCUXCLECC_EDDSA_ED25519_SIZE_PUBLICKEY, .info = (void *) &mcuxClEcc_EdDSA_DomainParams_Ed25519};
 
-/* Key type structure for private and public EdDSA keys for twisted Edwards curve Ed448 */
-const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_EdDSA_Ed448_Priv = {.algoId = MCUXCLKEY_ALGO_ID_ECC_EDDSA | MCUXCLKEY_ALGO_ID_PRIVATE_KEY, .size = MCUXCLECC_EDDSA_ED448_SIZE_PRIVATEKEY, .info = (void *) &mcuxClEcc_EdDSA_DomainParams_Ed448};
-const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_EdDSA_Ed448_Pub = {.algoId = MCUXCLKEY_ALGO_ID_ECC_EDDSA | MCUXCLKEY_ALGO_ID_PUBLIC_KEY, .size = MCUXCLECC_EDDSA_ED448_SIZE_PUBLICKEY, .info = (void *) &mcuxClEcc_EdDSA_DomainParams_Ed448};
+const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_Ecc_MontDH_Curve25519_PrivateKey = {.algoId = MCUXCLKEY_ALGO_ID_ECC_MONTDH | MCUXCLKEY_ALGO_ID_PRIVATE_KEY, .size = MCUXCLECC_MONTDH_CURVE25519_SIZE_PRIVATEKEY, .info = (void *) &mcuxClEcc_MontDH_DomainParams_Curve25519};
+const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_Ecc_MontDH_Curve25519_PublicKey = {.algoId = MCUXCLKEY_ALGO_ID_ECC_MONTDH | MCUXCLKEY_ALGO_ID_PUBLIC_KEY, .size = MCUXCLECC_MONTDH_CURVE25519_SIZE_PUBLICKEY, .info = (void *) &mcuxClEcc_MontDH_DomainParams_Curve25519};
 
-const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_Ecc_MontDH_Curve25519_KeyPair = {.algoId = MCUXCLKEY_ALGO_ID_ECC_MONTDH | MCUXCLKEY_ALGO_ID_KEY_PAIR, .size = MCUXCLKEY_SIZE_NOTUSED, .info = (void *) &mcuxClEcc_MontDH_DomainParams_Curve25519};
-const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_Ecc_MontDH_Curve448_KeyPair = {.algoId = MCUXCLKEY_ALGO_ID_ECC_MONTDH | MCUXCLKEY_ALGO_ID_KEY_PAIR, .size = MCUXCLKEY_SIZE_NOTUSED, .info = (void *) &mcuxClEcc_MontDH_DomainParams_Curve448};
+const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_Ecc_MontDH_Curve448_PrivateKey = {.algoId = MCUXCLKEY_ALGO_ID_ECC_MONTDH | MCUXCLKEY_ALGO_ID_PRIVATE_KEY, .size = MCUXCLECC_MONTDH_CURVE448_SIZE_PRIVATEKEY, .info = (void *) &mcuxClEcc_MontDH_DomainParams_Curve448};
+const mcuxClKey_TypeDescriptor_t mcuxClKey_TypeDescriptor_Ecc_MontDH_Curve448_PublicKey = {.algoId = MCUXCLKEY_ALGO_ID_ECC_MONTDH | MCUXCLKEY_ALGO_ID_PUBLIC_KEY, .size = MCUXCLECC_MONTDH_CURVE448_SIZE_PUBLICKEY, .info = (void *) &mcuxClEcc_MontDH_DomainParams_Curve448};
+
 MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST_QUALIFIER()
 MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()

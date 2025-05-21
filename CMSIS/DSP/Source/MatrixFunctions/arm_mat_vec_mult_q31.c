@@ -47,7 +47,7 @@
  * @param[out]      *pDst points to the output vector
  */
 #if defined(ARM_MATH_MVEI) && !defined(ARM_MATH_AUTOVECTORIZE)
-void arm_mat_vec_mult_q31(
+ARM_DSP_ATTRIBUTE void arm_mat_vec_mult_q31(
     const arm_matrix_instance_q31 * pSrcMat,
     const q31_t     *pSrcVec,
     q31_t           *pDstVec)
@@ -263,7 +263,7 @@ void arm_mat_vec_mult_q31(
     }
 }
 #else
-void arm_mat_vec_mult_q31(const arm_matrix_instance_q31 *pSrcMat, const q31_t *pVec, q31_t *pDst)
+ARM_DSP_ATTRIBUTE void arm_mat_vec_mult_q31(const arm_matrix_instance_q31 *pSrcMat, const q31_t *pVec, q31_t *pDst)
 {
     uint32_t numRows = pSrcMat->numRows;
     uint32_t numCols = pSrcMat->numCols;
@@ -286,15 +286,15 @@ void arm_mat_vec_mult_q31(const arm_matrix_instance_q31 *pSrcMat, const q31_t *p
     /* The following loop performs the dot-product of each row in pSrcA with the vector */
     /* row loop */
     while (row > 0) {
-        /* For every row wise process, the pInVec pointer is set
-         ** to the starting address of the vector */
-        pInVec = pVec;
-
         /* Initialize accumulators */
         q63_t sum1 = 0;
         q63_t sum2 = 0;
         q63_t sum3 = 0;
         q63_t sum4 = 0;
+
+        /* For every row wise process, the pInVec pointer is set
+         ** to the starting address of the vector */
+        pInVec = pVec;
 
         /* Loop unrolling: process 2 columns per iteration */
         colCnt = numCols;

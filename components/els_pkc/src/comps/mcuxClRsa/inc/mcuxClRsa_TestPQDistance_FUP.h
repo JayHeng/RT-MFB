@@ -1,22 +1,24 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021 NXP                                                       */
+/* Copyright 2021, 2023 NXP                                                 */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
+
+#include <mcuxCsslAnalysis.h>
 
 #include <internal/mcuxClRsa_Internal_PkcDefs.h>
 #include <internal/mcuxClPkc_FupMacros.h>
 #include <internal/mcuxClRsa_TestPQDistance_FUP.h>
 
 MCUXCLPKC_FUP_EXT_ROM(mcuxClRsa_TestPQDistance_FUP,
-    PH_CLNS_UTILS_FAME_CRC_ENTRY,
+    FUP_CRC_PLACEHOLDER,
     /* 1. Copy 100 MSbits of p in to buffer in PKC RAM */
     FUP_OP1_SHR(MCUXCLRSA_INTERNAL_TESTPQDISTANCE_P100MSB,
         MCUXCLRSA_INTERNAL_TESTPQDISTANCE_P128MSB,

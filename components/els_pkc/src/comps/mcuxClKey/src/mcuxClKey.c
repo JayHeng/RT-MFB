@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClKey.c
@@ -27,7 +27,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClKey_Status_t) mcuxClKey_init(
     mcuxClSession_Handle_t pSession UNUSED_PARAM,
     mcuxClKey_Handle_t key,
     mcuxClKey_Type_t type,
-    mcuxCl_InputBuffer_t pKeyData,
+    const uint8_t * pKeyData,
     uint32_t keyDataLength
 )
 {
@@ -36,12 +36,17 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClKey_Status_t) mcuxClKey_init(
     /* Fill key structure */
     mcuxClKey_setTypeDescriptor(key, *type);
     mcuxClKey_setProtectionType(key, mcuxClKey_Protection_None);
-    mcuxClKey_setKeyData(key, (mcuxCl_Buffer_t)pKeyData);
+    MCUX_CSSL_ANALYSIS_START_PATTERN_STRING_NOT_MODIFIED()
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST_QUALIFIER("pKeyData can not made const inside of key component as it is possible that the data changes after init due to generation/agreement/derivation of keys.")
+    mcuxClKey_setKeyData(key, (uint8_t *)pKeyData);
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST_QUALIFIER()
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_STRING_NOT_MODIFIED()
     mcuxClKey_setKeyContainerSize(key, keyDataLength);
     mcuxClKey_setKeyContainerUsedSize(key, keyDataLength);
     mcuxClKey_setLoadedKeySlot(key, MCUXCLKEY_INVALID_KEYSLOT);
     mcuxClKey_setLoadStatus(key, MCUXCLKEY_LOADSTATUS_NOTLOADED);
     mcuxClKey_setLinkedData(key, NULL);
+    mcuxClKey_setParentKey(key, NULL);
 
     /* Check if this is a variable-length external HMAC key */
     if(0u == type->size)
@@ -50,17 +55,19 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClKey_Status_t) mcuxClKey_init(
         key->type.size = keyDataLength;
     }
 
-    /* key data size validation */
-    if(key->type.size != keyDataLength)
-    {   
-        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClKey_init, MCUXCLKEY_STATUS_FAILURE); 
+    if(NULL != pKeyData)
+    {
+        /* key data size validation in case of symmetric keys*/
+        if(((key->type.algoId & MCUXCLKEY_ALGO_ID_USAGE_MASK) == MCUXCLKEY_ALGO_ID_SYMMETRIC_KEY) && (key->type.size != keyDataLength))
+        {
+            MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClKey_init, MCUXCLKEY_STATUS_FAILURE);
+        }
     }
-
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClKey_init, MCUXCLKEY_STATUS_OK);
 }
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClKey_linkKeyPair)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClKey_Status_t) mcuxClKey_linkKeyPair(
+MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClKey_linkKeyPair(
     mcuxClSession_Handle_t pSession UNUSED_PARAM,
     mcuxClKey_Handle_t privKey,
     mcuxClKey_Handle_t pubKey)
@@ -71,7 +78,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClKey_Status_t) mcuxClKey_linkKeyPair(
     mcuxClKey_setLinkedData(privKey, (void *) pubKey);
     mcuxClKey_setLinkedData(pubKey, (void *) privKey);
 
-    MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClKey_linkKeyPair, MCUXCLKEY_STATUS_OK);
+    MCUX_CSSL_FP_FUNCTION_EXIT_VOID(mcuxClKey_linkKeyPair);
 }
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClKey_setProtection)
@@ -79,7 +86,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClKey_Status_t) mcuxClKey_setProtection(
     mcuxClSession_Handle_t pSession UNUSED_PARAM,
     mcuxClKey_Handle_t key,
     mcuxClKey_Protection_t protection,
-    mcuxCl_Buffer_t pAuxData,
+    uint8_t * pAuxData,
     mcuxClKey_Handle_t parentKey
 )
 {
@@ -87,7 +94,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClKey_Status_t) mcuxClKey_setProtection(
 
     /* Fill key structure */
     mcuxClKey_setProtectionType(key, protection);
-    mcuxClKey_setAuxData(key, (uint8_t *) pAuxData);
+    mcuxClKey_setAuxData(key, pAuxData);
     mcuxClKey_setParentKey(key, parentKey);
 
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClKey_setProtection, MCUXCLKEY_STATUS_OK);

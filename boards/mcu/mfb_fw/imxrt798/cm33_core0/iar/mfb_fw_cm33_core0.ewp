@@ -20,6 +20,10 @@
                     <state>61</state>
                 </option>
                 <option>
+                    <name>GOutputSo</name>
+                    <state>0</state>
+                </option>
+                <option>
                     <name>BrowseInfoPath</name>
                     <state>Debug\BrowseInfo</state>
                 </option>
@@ -216,10 +220,6 @@
                     <name>FPU64</name>
                     <state>1</state>
                 </option>
-                <option>
-                    <name>GOutputSo</name>
-                    <state>0</state>
-                </option>
             </data>
         </settings>
         <settings>
@@ -240,9 +240,11 @@
                 <option>
                     <name>CCDefines</name>
                     <state>DEBUG</state>
+                    <state>SDK_DEBUGCONSOLE=1</state>
+                    <state>MCUX_META_BUILD</state>
+                    <state>MCUXPRESSO_SDK</state>
                     <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
                     <state>BOOT_HEADER_ENABLE=1</state>
-                    <state>MCUXPRESSO_SDK</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -282,7 +284,7 @@
                 </option>
                 <option>
                     <name>CCDiagSuppress</name>
-                    <state>Pa082,Pa050</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCDiagRemark</name>
@@ -319,11 +321,11 @@
                 </option>
                 <option>
                     <name>IExtraOptionsCheck</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state></state>
+                    <state>--diag_suppress=Pa082,Pa050</state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -359,19 +361,20 @@
                 </option>
                 <option>
                     <name>PreInclude</name>
-                    <state></state>
+                    <state>$PROJ_DIR$/../mcux_config.h</state>
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../../flash_config</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/periph</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/drivers</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/debug_console_lite</state>
-                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
-                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
-                    <state>$PROJ_DIR$/../../../../../../components/lists</state>
-                    <state>$PROJ_DIR$/../../../../flash_config</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/str</state>
-                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -473,11 +476,11 @@
                 </option>
                 <option>
                     <name>IccExceptions2</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IccRTTI2</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OICompilerExtraOption</name>
@@ -555,8 +558,8 @@
                 </option>
                 <option>
                     <name>ADefines</name>
-                    <state>DEBUG</state>
-                    <state>__STARTUP_INITIALIZE_NONCACHEDATA</state>
+                    <state>MCUXPRESSO_SDK</state>
+                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
                 </option>
                 <option>
                     <name>AList</name>
@@ -648,7 +651,17 @@
                 </option>
                 <option>
                     <name>AUserIncludes</name>
-                    <state></state>
+                    <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../../flash_config</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/periph</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/periph</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/drivers</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/debug_console_lite</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/str</state>
+                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
                 </option>
                 <option>
                     <name>AExtraOptionsCheckV2</name>
@@ -686,7 +699,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>sdk20-app.bin</state>
+                    <state>hello_world.bin</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -724,7 +737,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>hello_world_demo_cm33_core0.out</state>
+                    <state>hello_world_cm33_core0.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -1128,7 +1141,11 @@
                 <option>
                     <name>OG_32_64DeviceCoreSlave</name>
                     <version>34</version>
-                    <state>38</state>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>GOutputSo</name>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>BrowseInfoPath</name>
@@ -1186,7 +1203,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>9.30.1.48832</state>
+                    <state>9.60.1.2936</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -1327,10 +1344,6 @@
                     <name>FPU64</name>
                     <state>1</state>
                 </option>
-                <option>
-                    <name>GOutputSo</name>
-                    <state>0</state>
-                </option>
             </data>
         </settings>
         <settings>
@@ -1351,10 +1364,11 @@
                 <option>
                     <name>CCDefines</name>
                     <state>DEBUG</state>
-                    <state>FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE=1</state>
-                    <state>BOOT_HEADER_ENABLE=1</state>
-                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
+                    <state>SDK_DEBUGCONSOLE=1</state>
+                    <state>MCUX_META_BUILD</state>
                     <state>MCUXPRESSO_SDK</state>
+                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
+                    <state>BOOT_HEADER_ENABLE=1</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -1394,7 +1408,7 @@
                 </option>
                 <option>
                     <name>CCDiagSuppress</name>
-                    <state>Pa082,Pa050</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCDiagRemark</name>
@@ -1431,11 +1445,11 @@
                 </option>
                 <option>
                     <name>IExtraOptionsCheck</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state></state>
+                    <state>--diag_suppress=Pa082,Pa050</state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -1471,19 +1485,20 @@
                 </option>
                 <option>
                     <name>PreInclude</name>
-                    <state></state>
+                    <state>$PROJ_DIR$/../mcux_config.h</state>
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../../flash_config</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/periph</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/drivers</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/debug_console_lite</state>
-                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
-                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
-                    <state>$PROJ_DIR$/../../../../../../components/lists</state>
-                    <state>$PROJ_DIR$/../../../../flash_config</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/str</state>
-                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1585,11 +1600,11 @@
                 </option>
                 <option>
                     <name>IccExceptions2</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IccRTTI2</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OICompilerExtraOption</name>
@@ -1667,8 +1682,8 @@
                 </option>
                 <option>
                     <name>ADefines</name>
-                    <state>DEBUG</state>
-                    <state>__STARTUP_INITIALIZE_NONCACHEDATA</state>
+                    <state>MCUXPRESSO_SDK</state>
+                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
                 </option>
                 <option>
                     <name>AList</name>
@@ -1760,7 +1775,17 @@
                 </option>
                 <option>
                     <name>AUserIncludes</name>
-                    <state></state>
+                    <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../../flash_config</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/periph</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/periph</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/drivers</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/debug_console_lite</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/str</state>
+                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
                 </option>
                 <option>
                     <name>AExtraOptionsCheckV2</name>
@@ -1798,7 +1823,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>sdk20-app.bin</state>
+                    <state>hello_world.bin</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -1836,7 +1861,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>hello_world_demo_cm33_core0.out</state>
+                    <state>hello_world_cm33_core0.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -2243,6 +2268,10 @@
                     <state>38</state>
                 </option>
                 <option>
+                    <name>GOutputSo</name>
+                    <state>0</state>
+                </option>
+                <option>
                     <name>BrowseInfoPath</name>
                     <state>Release\BrowseInfo</state>
                 </option>
@@ -2439,10 +2468,6 @@
                     <name>FPU64</name>
                     <state>1</state>
                 </option>
-                <option>
-                    <name>GOutputSo</name>
-                    <state>0</state>
-                </option>
             </data>
         </settings>
         <settings>
@@ -2463,9 +2488,11 @@
                 <option>
                     <name>CCDefines</name>
                     <state>NDEBUG</state>
+                    <state>SDK_DEBUGCONSOLE=1</state>
+                    <state>MCUX_META_BUILD</state>
+                    <state>MCUXPRESSO_SDK</state>
                     <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
                     <state>BOOT_HEADER_ENABLE=1</state>
-                    <state>MCUXPRESSO_SDK</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -2505,7 +2532,7 @@
                 </option>
                 <option>
                     <name>CCDiagSuppress</name>
-                    <state>Pa082,Pa050</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCDiagRemark</name>
@@ -2542,11 +2569,11 @@
                 </option>
                 <option>
                     <name>IExtraOptionsCheck</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state></state>
+                    <state>--diag_suppress=Pa082,Pa050</state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -2582,19 +2609,20 @@
                 </option>
                 <option>
                     <name>PreInclude</name>
-                    <state></state>
+                    <state>$PROJ_DIR$/../mcux_config.h</state>
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../../flash_config</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/periph</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/drivers</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/debug_console_lite</state>
-                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
-                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
-                    <state>$PROJ_DIR$/../../../../../../components/lists</state>
-                    <state>$PROJ_DIR$/../../../../flash_config</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/str</state>
-                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2619,7 +2647,7 @@
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>1</state>
+                    <state>3</state>
                 </option>
                 <option>
                     <name>CCPosIndRopi</name>
@@ -2696,11 +2724,11 @@
                 </option>
                 <option>
                     <name>IccExceptions2</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IccRTTI2</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OICompilerExtraOption</name>
@@ -2778,8 +2806,8 @@
                 </option>
                 <option>
                     <name>ADefines</name>
-                    <state>NDEBUG</state>
-                    <state>__STARTUP_INITIALIZE_NONCACHEDATA</state>
+                    <state>MCUXPRESSO_SDK</state>
+                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
                 </option>
                 <option>
                     <name>AList</name>
@@ -2871,7 +2899,17 @@
                 </option>
                 <option>
                     <name>AUserIncludes</name>
-                    <state></state>
+                    <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../../flash_config</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/periph</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/periph</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/drivers</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/debug_console_lite</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/str</state>
+                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
                 </option>
                 <option>
                     <name>AExtraOptionsCheckV2</name>
@@ -2909,7 +2947,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>sdk20-app.bin</state>
+                    <state>hello_world.bin</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -2947,7 +2985,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>hello_world_demo_cm33_core0.out</state>
+                    <state>hello_world_cm33_core0.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -3354,6 +3392,10 @@
                     <state>38</state>
                 </option>
                 <option>
+                    <name>GOutputSo</name>
+                    <state>0</state>
+                </option>
+                <option>
                     <name>BrowseInfoPath</name>
                     <state>Release\BrowseInfo</state>
                 </option>
@@ -3550,10 +3592,6 @@
                     <name>FPU64</name>
                     <state>1</state>
                 </option>
-                <option>
-                    <name>GOutputSo</name>
-                    <state>0</state>
-                </option>
             </data>
         </settings>
         <settings>
@@ -3573,11 +3611,12 @@
                 </option>
                 <option>
                     <name>CCDefines</name>
-                    <state>FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE=1</state>
+                    <state>NDEBUG</state>
+                    <state>SDK_DEBUGCONSOLE=1</state>
+                    <state>MCUX_META_BUILD</state>
+                    <state>MCUXPRESSO_SDK</state>
                     <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
                     <state>BOOT_HEADER_ENABLE=1</state>
-                    <state>NDEBUG</state>
-                    <state>MCUXPRESSO_SDK</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -3617,7 +3656,7 @@
                 </option>
                 <option>
                     <name>CCDiagSuppress</name>
-                    <state>Pa082,Pa050</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCDiagRemark</name>
@@ -3638,7 +3677,7 @@
                 <option>
                     <name>CCAllowList</name>
                     <version>1</version>
-                    <state>00100000</state>
+                    <state>11111110</state>
                 </option>
                 <option>
                     <name>CCDebugInfo</name>
@@ -3654,11 +3693,11 @@
                 </option>
                 <option>
                     <name>IExtraOptionsCheck</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state></state>
+                    <state>--diag_suppress=Pa082,Pa050</state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -3694,19 +3733,20 @@
                 </option>
                 <option>
                     <name>PreInclude</name>
-                    <state></state>
+                    <state>$PROJ_DIR$/../mcux_config.h</state>
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../../flash_config</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/periph</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/drivers</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/debug_console_lite</state>
-                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
-                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
-                    <state>$PROJ_DIR$/../../../../../../components/lists</state>
-                    <state>$PROJ_DIR$/../../../../flash_config</state>
                     <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/str</state>
-                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -3731,7 +3771,7 @@
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>1</state>
+                    <state>3</state>
                 </option>
                 <option>
                     <name>CCPosIndRopi</name>
@@ -3808,11 +3848,11 @@
                 </option>
                 <option>
                     <name>IccExceptions2</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IccRTTI2</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OICompilerExtraOption</name>
@@ -3882,7 +3922,7 @@
                 </option>
                 <option>
                     <name>ADebug</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>AltRegisterNames</name>
@@ -3890,7 +3930,8 @@
                 </option>
                 <option>
                     <name>ADefines</name>
-                    <state>__STARTUP_INITIALIZE_NONCACHEDATA</state>
+                    <state>MCUXPRESSO_SDK</state>
+                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
                 </option>
                 <option>
                     <name>AList</name>
@@ -3982,7 +4023,17 @@
                 </option>
                 <option>
                     <name>AUserIncludes</name>
-                    <state></state>
+                    <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../../flash_config</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
+                    <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/periph</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/periph</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/drivers</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/debug_console_lite</state>
+                    <state>$PROJ_DIR$/../../../../../../devices/MIMXRT798S/utilities/str</state>
+                    <state>$PROJ_DIR$/../../../../../../components/uart</state>
                 </option>
                 <option>
                     <name>AExtraOptionsCheckV2</name>
@@ -4020,7 +4071,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>sdk20-app.bin</state>
+                    <state>hello_world.bin</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -4058,7 +4109,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>hello_world_demo_cm33_core0.out</state>
+                    <state>hello_world_cm33_core0.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -4449,6 +4500,9 @@
     <group>
         <name>board</name>
         <file>
+            <name>$PROJ_DIR$\..\app.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\board.c</name>
         </file>
         <file>
@@ -4461,6 +4515,9 @@
             <name>$PROJ_DIR$\..\clock_config.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\hardware_init.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\pin_mux.c</name>
         </file>
         <file>
@@ -4469,11 +4526,17 @@
     </group>
     <group>
         <name>CMSIS</name>
+        <group>
+            <name>m-profile</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\CMSIS\Core\Include\m-profile\armv8m_mpu.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\CMSIS\Core\Include\m-profile\cmsis_iccarm_m.h</name>
+            </file>
+        </group>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\..\CMSIS\Core\Include\cmsis_compiler.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\..\CMSIS\Core\Include\cmsis_iccarm.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\..\CMSIS\Core\Include\cmsis_version.h</name>
@@ -4482,23 +4545,11 @@
             <name>$PROJ_DIR$\..\..\..\..\..\..\CMSIS\Core\Include\core_cm33.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\..\CMSIS\Core\Include\mpu_armv8.h</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\..\..\..\..\CMSIS\Core\Include\tz_context.h</name>
         </file>
     </group>
     <group>
         <name>component</name>
-        <group>
-            <name>lists</name>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\..\components\lists\fsl_component_generic_list.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\..\components\lists\fsl_component_generic_list.h</name>
-            </file>
-        </group>
         <group>
             <name>uart</name>
             <file>
@@ -4511,11 +4562,266 @@
     </group>
     <group>
         <name>device</name>
+        <group>
+            <name>periph</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_ADC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_AHBSC0.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_AHBSC3.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_AHBSC4.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CACHE64_CTRL.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CACHE64_POLSEL.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CDOG.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CLKCTL0.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CLKCTL1.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CLKCTL2.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CLKCTL3.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CLKCTL4.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CMP.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CRC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_CTIMER.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_DEBUG_MAILBOX.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_DMA.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_ELS.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_FLEXIO.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_FREQME.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_FRO.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_GDET.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_GLIKEY.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_GPIO.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_I2S.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_I3C.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_INPUTMUX0.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_INPUTMUX1.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_IOPCTL0.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_IOPCTL1.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_IOPCTL2.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_ITRC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_JPEGDEC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_JPGDECWRP.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_LCDIF.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_LP_FLEXCOMM.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_LPI2C.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_LPSPI.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_LPUART.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_MIPI_DSI_HOST.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_MMU.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_MRT.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_MU.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_NIC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_OCOTP.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_OSC32KNP.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_OSCCA.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_OSTIMER.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_PDM.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_PINT.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_PKC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_PMC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_PNGDEC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_PUF.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_PVTS.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_ROMCP.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_RSTCTL0.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_RSTCTL1.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_RSTCTL2.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_RSTCTL3.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_RSTCTL4.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_RTC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SCT.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SDADC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SEMA42.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SLEEPCON0.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SLEEPCON1.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SYSCON0.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SYSCON1.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SYSCON2.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SYSCON3.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SYSCON4.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_SYSPM.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_TRNG.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_USB.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_USBHSDCD.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_USBNC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_USBPHY.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_USDHC.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_UTICK.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_WWDT.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_XCACHE.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\periph\PERI_XSPI.h</name>
+            </file>
+        </group>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\fsl_device_registers.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\MIMXRT798S_cm33_core0.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\MIMXRT798S_cm33_core0_COMMON.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\MIMXRT798S_cm33_core0_features.h</name>
@@ -4602,10 +4908,10 @@
     <group>
         <name>flash_config</name>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\flash_config\evkmimxrt700_flash_config.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\flash_config\evkmimxrt798_flash_config.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\flash_config\evkmimxrt700_flash_config.h</name>
+            <name>$PROJ_DIR$\..\..\..\..\flash_config\evkmimxrt798_flash_config.h</name>
         </file>
     </group>
     <group>
@@ -4613,32 +4919,44 @@
         <file>
             <name>$PROJ_DIR$\..\main.c</name>
         </file>
-    </group>
-    <group>
-        <name>startup</name>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\iar\startup_MIMXRT798S_cm33_core0.s</name>
+            <name>$PROJ_DIR$\..\mcux_config.h</name>
         </file>
     </group>
     <group>
+        <name>startup</name>
+        <group>
+            <name>iar</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\iar\startup_MIMXRT798S_cm33_core0.s</name>
+            </file>
+        </group>
+    </group>
+    <group>
         <name>utilities</name>
+        <group>
+            <name>debug_console_lite</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\debug_console_lite\fsl_debug_console.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\debug_console_lite\fsl_debug_console.h</name>
+            </file>
+        </group>
+        <group>
+            <name>str</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\str\fsl_str.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\str\fsl_str.h</name>
+            </file>
+        </group>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\debug_console_lite\fsl_assert.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\debug_console_lite\fsl_assert.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\debug_console_lite\fsl_debug_console.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\debug_console_lite\fsl_debug_console.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\str\fsl_str.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\utilities\str\fsl_str.h</name>
         </file>
     </group>
 </project>

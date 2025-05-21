@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -23,9 +23,7 @@
 #include <mcuxClCore_FunctionIdentifiers.h>
 #include <mcuxCsslFlowProtection.h>
 
-#ifdef MCUXCL_FEATURE_SESSION_HAS_RANDOM
 #include <mcuxClRandom_Types.h>
-#endif /* MCUXCL_FEATURE_SESSION_HAS_RANDOM */
 
 /**********************************************
  * CONSTANTS
@@ -38,15 +36,16 @@
  */
 
 /**
- * \defgroup mcuxClSessionStatusValues  Session Status values
+ * @defgroup mcuxClSessionStatusValues  Session Status values
  * @{
  */
-#define MCUXCLSESSION_STATUS_OK          ((mcuxClSession_Status_t) 0x0EEE2E03u )  ///< Session operation successful
-#define MCUXCLSESSION_STATUS_ERROR       ((mcuxClSession_Status_t) 0x0EEE5330u )  ///< Error occurred during Session operation
+#define MCUXCLSESSION_STATUS_OK              ((mcuxClSession_Status_t) 0x0EEE2E03u)  ///< Session operation successful
+#define MCUXCLSESSION_STATUS_ERROR           ((mcuxClSession_Status_t) 0x0EEE5330u)  ///< Error occurred during Session operation
+#define MCUXCLSESSION_STATUS_HW_UNAVAILABLE  ((mcuxClSession_Status_t) 0x0EEE5334u)  ///< Required HW is unavailable
 /**@}*/
 
 /**
- * \defgroup mcuxClSessionRtfValues  Session RTF configuration values
+ * @defgroup mcuxClSessionRtfValues  Session RTF configuration values
  * @{
  */
 #define MCUXCLSESSION_RTF_UPDATE_TRUE    ((mcuxClSession_Rtf_t) 0xF0F00F0Fu )     ///< RTF will be updated
@@ -98,38 +97,34 @@ typedef struct mcuxClSession_WorkArea
 } mcuxClSession_WorkArea_t;
 
 /**
- * @brief Type for mcuxClSession security context
- */
-typedef struct mcuxClSession_SecurityContext
-{
-  uint32_t securityCounter;     ///< Security counter
-} mcuxClSession_SecurityContext_t;
-
-/**
  * @brief Type for Session security options
  */
 typedef uint32_t mcuxClSession_SecurityOptions_t;
 
-
-
 /**
  * @brief Type for mcuxClSession Descriptor
  */
-typedef struct mcuxClSession_Descriptor
-{
-  mcuxClSession_WorkArea_t cpuWa;    ///< Workarea for the CPU
-  mcuxClSession_WorkArea_t pkcWa;    ///< Workarea for the PKC
-#ifdef MCUXCL_FEATURE_SESSION_HAS_RANDOM
-  mcuxClRandom_Config_t randomCfg;   ///< Configuration of the Rng (contexts and mode)
-#endif /* MCUXCL_FEATURE_SESSION_HAS_RANDOM */
-  mcuxClSession_Rtf_t rtf;           ///< Configuration of the RTF
-  uint8_t *pRtf;
-} mcuxClSession_Descriptor_t;
+struct mcuxClSession_Descriptor;  /* forward declaration */
+typedef struct mcuxClSession_Descriptor mcuxClSession_Descriptor_t;
 
 /**
  * @brief Type for mcuxClSession Handle
  */
 typedef mcuxClSession_Descriptor_t * const mcuxClSession_Handle_t;
+
+
+
+/**
+ * @brief Structure for mcuxClSession Descriptor
+ */
+struct mcuxClSession_Descriptor
+{
+  mcuxClSession_WorkArea_t cpuWa;    ///< Workarea for the CPU
+  mcuxClSession_WorkArea_t pkcWa;    ///< Workarea for the PKC
+  mcuxClRandom_Config_t randomCfg;   ///< Configuration of the Rng (contexts and mode)
+  mcuxClSession_Rtf_t rtf;           ///< Configuration of the RTF
+  uint8_t *pRtf;
+};
 
 
 /**

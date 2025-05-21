@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2023 NXP                                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClHmac_Helper.c
@@ -25,6 +25,7 @@
 #include <mcuxClMemory.h>
 #include <mcuxClKey.h>
 #include <mcuxClHash.h>
+#include <mcuxClHashModes.h>
 #include <mcuxClHmac_Functions.h>
 #include <internal/mcuxClKey_Types_Internal.h>
 #include <internal/mcuxClKey_Functions_Internal.h>
@@ -50,7 +51,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_createHmacMode(
     /* pCustom points to the end of the mode descriptor in memory,
        assumes user allocated sufficient memory with MCUXCLMAC_HMAC_MODE_DESCRIPTOR_SIZE */
     uintptr_t pCustomLocation = (uintptr_t)mode + sizeof(mcuxClMac_ModeDescriptor_t);
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_TYPECAST_BETWEEN_INTEGER_AND_POINTER("Reinterpreting a properly calculated address to a pointer is allowed.")
     mode->pCustom = (void *) (mcuxClHmac_ModeDescriptor_t *) pCustomLocation;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TYPECAST_BETWEEN_INTEGER_AND_POINTER()
 
     mcuxClHmac_ModeDescriptor_t * hmacModeDescriptor = (mcuxClHmac_ModeDescriptor_t *) mode->pCustom;
     hmacModeDescriptor->hashAlgorithm = (const mcuxClHash_AlgorithmDescriptor_t *) hashAlgorithm;

@@ -45,7 +45,6 @@
  * @param[in]    S        Pointer to an instance of the rbf SVM structure.
  * @param[in]    in       Pointer to input vector
  * @param[out]   pResult  Decision value
- * @return none.
  *
  */
 
@@ -54,7 +53,7 @@
 #include "arm_helium_utils.h"
 #include "arm_vec_math_f16.h"
 
-void arm_svm_sigmoid_predict_f16(
+ARM_DSP_ATTRIBUTE void arm_svm_sigmoid_predict_f16(
     const arm_svm_sigmoid_instance_f16 *S,
     const float16_t * in,
     int32_t * pResult)
@@ -295,13 +294,13 @@ void arm_svm_sigmoid_predict_f16(
                         vtanhq_f16(vaddq_n_f16(vmulq_n_f16(vtmp, S->gamma), S->coef0)),
                         vctp16q(1));
     }
-    sum += vecAddAcrossF16Mve(vSum);
+    sum += (_Float16)vecAddAcrossF16Mve(vSum);
 
     *pResult = S->classes[STEP(sum)];
 }
 
 #else
-void arm_svm_sigmoid_predict_f16(
+ARM_DSP_ATTRIBUTE void arm_svm_sigmoid_predict_f16(
     const arm_svm_sigmoid_instance_f16 *S,
     const float16_t * in,
     int32_t * pResult)
@@ -316,9 +315,9 @@ void arm_svm_sigmoid_predict_f16(
         dot=0.0f16;
         for(j=0; j < S->vectorDimension; j++)
         {
-            dot = dot + (_Float16)in[j] * (_Float16)*pSupport++;
+            dot = (_Float16)dot + (_Float16)in[j] * (_Float16)*pSupport++;
         }
-        sum += (_Float16)S->dualCoefficients[i] * (_Float16)tanhf((_Float16)S->gamma * dot + (_Float16)S->coef0);
+        sum += (_Float16)S->dualCoefficients[i] * (_Float16)tanhf((float32_t)((_Float16)S->gamma * (_Float16)dot + (_Float16)S->coef0));
     }
     *pResult=S->classes[STEP(sum)];
 }

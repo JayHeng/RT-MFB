@@ -42,10 +42,9 @@
   @param[in]     pSrc       points to input vector
   @param[out]    pDst       points to output vector
   @param[in]     blockSize  number of samples in each vector
-  @return        none
  */
 #if defined(ARM_MATH_MVEI) && !defined(ARM_MATH_AUTOVECTORIZE)
-void arm_copy_q7(
+ARM_DSP_ATTRIBUTE void arm_copy_q7(
   const q7_t * pSrc,
         q7_t * pDst,
         uint32_t blockSize)
@@ -81,7 +80,7 @@ void arm_copy_q7(
 }
 
 #else
-void arm_copy_q7(
+ARM_DSP_ATTRIBUTE void arm_copy_q7(
   const q7_t * pSrc,
         q7_t * pDst,
         uint32_t blockSize)
@@ -98,7 +97,7 @@ void arm_copy_q7(
     /* C = A */
 
     /* read 4 samples at a time */
-    write_q7x4_ia (&pDst, read_q7x4_ia ((q7_t **) &pSrc));
+    write_q7x4_ia (&pDst, read_q7x4_ia (&pSrc));
 
     /* Decrement loop counter */
     blkCnt--;

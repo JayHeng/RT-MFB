@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2021 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** 
@@ -63,4 +63,8 @@
 #include <mcuxClRsa_MemoryConsumption.h>
 #include <mcuxClRsa_Constants.h>
 #include <mcuxClRsa_Types.h>
+#if defined(MCUXCL_FEATURE_CIPHER_RSA_ENCRYPT) || defined(MCUXCL_FEATURE_CIPHER_RSA_DECRYPT)
+#include <mcuxClRsa_ModeConstructors.h>
+#include <mcuxClRsa_KeyTypes.h>
+#endif /* defined(MCUXCL_FEATURE_CIPHER_RSA_ENCRYPT) || defined(MCUXCL_FEATURE_CIPHER_RSA_DECRYPT) || defined(MCUXCL_FEATURE_SIGNATURE_RSA_SIGN) || defined(MCUXCL_FEATURE_SIGNATURE_RSA_VERIFY) || defined(MCUXCL_FEATURE_KEY_GENERATION_RSA) */
 #endif /* MCUXCLRSA_H_ */

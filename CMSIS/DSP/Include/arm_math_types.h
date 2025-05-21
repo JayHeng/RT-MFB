@@ -1,8 +1,8 @@
 /******************************************************************************
  * @file     arm_math_types.h
  * @brief    Public header file for CMSIS DSP Library
- * @version  V1.9.0
- * @date     23 April 2021
+ * @version  V1.10.0
+ * @date     08 July 2021
  * Target Processor: Cortex-M and Cortex-A cores
  ******************************************************************************/
 /*
@@ -23,9 +23,21 @@
  * limitations under the License.
  */
 
-#ifndef _ARM_MATH_TYPES_H_
+#ifndef ARM_MATH_TYPES_H_
 
-#define _ARM_MATH_TYPES_H_
+#define ARM_MATH_TYPES_H_
+
+#if defined(ARM_DSP_CUSTOM_CONFIG)
+#include "arm_dsp_config.h"
+#endif
+
+#ifndef ARM_DSP_ATTRIBUTE 
+#define ARM_DSP_ATTRIBUTE 
+#endif
+
+#ifndef ARM_DSP_TABLE_ATTRIBUTE 
+#define ARM_DSP_TABLE_ATTRIBUTE 
+#endif
 
 #ifdef   __cplusplus
 extern "C"
@@ -37,11 +49,22 @@ extern "C"
 
 #elif defined ( __ARMCC_VERSION ) && ( __ARMCC_VERSION >= 6010050 )
 
+#elif defined ( __APPLE_CC__ )
+  #pragma GCC diagnostic ignored "-Wold-style-cast"
+
+#elif defined(__clang__)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wsign-conversion"
+  #pragma GCC diagnostic ignored "-Wconversion"
+  #pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #elif defined ( __GNUC__ )
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wsign-conversion"
   #pragma GCC diagnostic ignored "-Wconversion"
   #pragma GCC diagnostic ignored "-Wunused-parameter"
+  // Disable some code having issue with GCC
+  #define ARM_DSP_BUILT_WITH_GCC 
 
 #elif defined ( __ICCARM__ )
 
@@ -64,13 +87,19 @@ extern "C"
 #define __STATIC_FORCEINLINE static __forceinline
 #define __STATIC_INLINE static __inline
 #define __ALIGNED(x) __declspec(align(x))
-
+#define __WEAK
+#elif defined ( __APPLE_CC__ )
+#include <stdint.h>
+#define  __ALIGNED(x) __attribute__((aligned(x)))
+#define __STATIC_FORCEINLINE static inline __attribute__((always_inline)) 
+#define __STATIC_INLINE static inline
+#define __WEAK
 #elif defined (__GNUC_PYTHON__)
 #include <stdint.h>
 #define  __ALIGNED(x) __attribute__((aligned(x)))
 #define __STATIC_FORCEINLINE static inline __attribute__((always_inline)) 
 #define __STATIC_INLINE static inline
-
+#define __WEAK
 #else
 #include "cmsis_compiler.h"
 #endif
@@ -88,23 +117,29 @@ extern "C"
 #endif
 
 #if defined(ARM_MATH_NEON)
-#include <arm_neon.h>
-#if __ARM_FEATURE_FP16_VECTOR_ARITHMETIC
-  #if !defined(ARM_MATH_NEON_FLOAT16)
-  #define ARM_MATH_NEON_FLOAT16
+  #if defined(_MSC_VER) && defined(_M_ARM64EC)
+    #include <arm64_neon.h>
+  #else
+    #include <arm_neon.h>
   #endif
-#endif
+  #if defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC) && __ARM_FEATURE_FP16_VECTOR_ARITHMETIC
+    #if !defined(ARM_MATH_NEON_FLOAT16)
+      #define ARM_MATH_NEON_FLOAT16
+    #endif
+  #endif
 #endif
 
 #if !defined(ARM_MATH_AUTOVECTORIZE)
 
+
+#if defined(__ARM_FEATURE_MVE)
 #if __ARM_FEATURE_MVE
   #if !defined(ARM_MATH_MVEI)
     #define ARM_MATH_MVEI
   #endif
 #endif
 
-#if (__ARM_FEATURE_MVE & 2)
+#if defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE & 2)
   #if !defined(ARM_MATH_MVEF)
     #define ARM_MATH_MVEF
   #endif
@@ -113,7 +148,8 @@ extern "C"
   #endif
 #endif
 
-#endif /*!defined(ARM_MATH_AUTOVECTORIZE)*/
+#endif /* defined (__ARM_FEATURE_MVE) */
+#endif /* !defined (ARM_MATH_AUTOVECTORIZE) */
 
 
 #if defined (ARM_MATH_HELIUM)
@@ -157,6 +193,12 @@ extern "C"
   #define IAR_ONLY_LOW_OPTIMIZATION_EXIT
 
 #elif defined (__ARMCC_VERSION ) && ( __ARMCC_VERSION >= 6010050 )
+  #define LOW_OPTIMIZATION_ENTER
+  #define LOW_OPTIMIZATION_EXIT
+  #define IAR_ONLY_LOW_OPTIMIZATION_ENTER
+  #define IAR_ONLY_LOW_OPTIMIZATION_EXIT
+  
+#elif defined ( __APPLE_CC__ )
   #define LOW_OPTIMIZATION_ENTER
   #define LOW_OPTIMIZATION_EXIT
   #define IAR_ONLY_LOW_OPTIMIZATION_ENTER
@@ -224,6 +266,8 @@ extern "C"
 
 #elif defined ( __ARMCC_VERSION ) && ( __ARMCC_VERSION >= 6010050 )
 
+#elif defined ( __APPLE_CC__ )
+
 #elif defined ( __GNUC__ )
 #pragma GCC diagnostic pop
 
@@ -245,14 +289,23 @@ extern "C"
 }
 #endif
 
-#if __ARM_FEATURE_MVE
+#if defined(__ARM_FEATURE_MVE) && __ARM_FEATURE_MVE
 #include <arm_mve.h>
+#endif
+
+#if defined(ARM_DSP_CONFIG_TABLES)
+#error("-DARM_DSP_CONFIG_TABLES no more supported. Use the new initialization functions to let the linker optimize the code size.")
 #endif
 
 #ifdef   __cplusplus
 extern "C"
 {
 #endif
+
+/**
+ * @defgroup genericTypes Generic Types
+ * @{
+*/
 
  /**
    * @brief 8-bit fractional data type in 1.7 format.
@@ -277,7 +330,9 @@ extern "C"
   /**
    * @brief 32-bit floating-point type definition.
    */
+#if !defined(__ICCARM__) || !(__ARM_FEATURE_MVE & 2)
   typedef float float32_t;
+#endif
 
   /**
    * @brief 64-bit floating-point type definition.
@@ -288,6 +343,7 @@ extern "C"
    * @brief vector types
    */
 #if defined(ARM_MATH_NEON) || (defined (ARM_MATH_MVEI)  && !defined(ARM_MATH_AUTOVECTORIZE))
+
   /**
    * @brief 64-bit fractional 128-bit vector data type in 1.63 format
    */
@@ -372,6 +428,7 @@ extern "C"
 #endif
 
 #if defined(ARM_MATH_NEON) || (defined(ARM_MATH_MVEF)  && !defined(ARM_MATH_AUTOVECTORIZE)) /* floating point vector*/
+
   /**
    * @brief 32-bit floating-point 128-bit vector type
    */
@@ -424,7 +481,6 @@ extern "C"
    */
   typedef float32x4x3_t f32x4x3_t;
 
-
   /**
    * @brief 32-bit fractional 128-bit vector triplet data type in 1.31 format
    */
@@ -454,7 +510,6 @@ extern "C"
    * @brief 32-bit floating-point 64-bit vector quadruplet data type
    */
   typedef float32x2x4_t f32x2x4_t;
-
 
   /**
    * @brief 32-bit fractional 64-bit vector pair data type in 1.31 format
@@ -510,7 +565,6 @@ extern "C"
       int32x2_t       i;
   } any32x2_t;
 
-
   /**
    * @brief 32-bit status 64-bit vector data type.
    */
@@ -528,8 +582,24 @@ extern "C"
 
 #endif
 
+  /**
+   * @brief Error status returned by some functions in the library.
+   */
+  typedef enum
+  {
+    ARM_MATH_SUCCESS                 =  0,        /**< No error */
+    ARM_MATH_ARGUMENT_ERROR          = -1,        /**< One or more arguments are incorrect */
+    ARM_MATH_LENGTH_ERROR            = -2,        /**< Length of data buffer is incorrect */
+    ARM_MATH_SIZE_MISMATCH           = -3,        /**< Size of matrices is not compatible with the operation */
+    ARM_MATH_NANINF                  = -4,        /**< Not-a-number (NaN) or infinity is generated */
+    ARM_MATH_SINGULAR                = -5,        /**< Input matrix is singular and cannot be inverted */
+    ARM_MATH_TEST_FAILURE            = -6,        /**< Test Failed */
+    ARM_MATH_DECOMPOSITION_FAILURE   = -7         /**< Decomposition Failed */
+  } arm_status;
 
-
+/**
+ * @} // endgroup generic
+*/
 
 
 #define F64_MAX   ((float64_t)DBL_MAX)
@@ -567,23 +637,6 @@ extern "C"
 
   /* Dimension C vector space */
   #define CMPLX_DIM 2
-
-  /**
-   * @brief Error status returned by some functions in the library.
-   */
-
-  typedef enum
-  {
-    ARM_MATH_SUCCESS                 =  0,        /**< No error */
-    ARM_MATH_ARGUMENT_ERROR          = -1,        /**< One or more arguments are incorrect */
-    ARM_MATH_LENGTH_ERROR            = -2,        /**< Length of data buffer is incorrect */
-    ARM_MATH_SIZE_MISMATCH           = -3,        /**< Size of matrices is not compatible with the operation */
-    ARM_MATH_NANINF                  = -4,        /**< Not-a-number (NaN) or infinity is generated */
-    ARM_MATH_SINGULAR                = -5,        /**< Input matrix is singular and cannot be inverted */
-    ARM_MATH_TEST_FAILURE            = -6,        /**< Test Failed */
-    ARM_MATH_DECOMPOSITION_FAILURE   = -7         /**< Decomposition Failed */
-  } arm_status;
-
 
 #ifdef   __cplusplus
 }

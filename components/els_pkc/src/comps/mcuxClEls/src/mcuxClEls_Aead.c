@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2022 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClEls_Aead.c
@@ -42,7 +42,9 @@ MCUXCLELS_API MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEls_Status_t) mcuxClEls_Aead_Ini
 
     /* Set init mode */
     options.bits.acpmod = MCUXCLELS_AEAD_ACPMOD_INIT;
+    MCUX_CSSL_ANALYSIS_START_PATTERN_0U_1U_ARE_UNSIGNED()
     options.bits.lastinit = MCUXCLELS_AEAD_LASTINIT_TRUE;
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_0U_1U_ARE_UNSIGNED()
 
     options.bits.acpsie = MCUXCLELS_AEAD_STATE_IN_DISABLE;
 #ifndef MCUXCL_FEATURE_ELS_NO_INTERNAL_STATE_FLAGS
@@ -117,7 +119,9 @@ MCUXCLELS_API MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEls_Status_t) mcuxClEls_Aead_Upd
 {
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEls_Aead_UpdateAad_Async);
 
-    MCUXCLELS_INPUT_PARAM_CHECK_PROTECTED(mcuxClEls_Aead_UpdateAad_Async, (0U == aadLength) || (0u != aadLength % MCUXCLELS_AEAD_AAD_BLOCK_SIZE));
+    MCUXCLELS_INPUT_PARAM_CHECK_PROTECTED(mcuxClEls_Aead_UpdateAad_Async, (MCUXCLELS_AEAD_INTERN_KEY == options.bits.extkey && ELS_KS_CNT <= keyIdx)
+            || (MCUXCLELS_AEAD_EXTERN_KEY == options.bits.extkey && (MCUXCLELS_CIPHER_KEY_SIZE_AES_128 != keyLength && MCUXCLELS_CIPHER_KEY_SIZE_AES_192 != keyLength && MCUXCLELS_CIPHER_KEY_SIZE_AES_256 != keyLength))
+            || (0U == aadLength) || (0u != aadLength % MCUXCLELS_AEAD_AAD_BLOCK_SIZE));
 
     uint8_t * pStartIpCtxArea = pAeadCtx + MCUXCLELS_CIPHER_BLOCK_SIZE_AES;
 

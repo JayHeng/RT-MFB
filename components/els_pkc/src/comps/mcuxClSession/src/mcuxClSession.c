@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClSession.c
@@ -49,6 +49,14 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_init(
     pSession->rtf = MCUXCLSESSION_RTF_UPDATE_FALSE;
     pSession->pRtf = NULL;
 
+
+
+    pSession->randomCfg.ctx = NULL;
+    pSession->randomCfg.mode = NULL;
+    /* Set the PRNG patch function to un-patch the PRNG */
+    pSession->randomCfg.prngPatchFunction = NULL;
+    pSession->randomCfg.pCustomPrngState = NULL;
+
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClSession_init, MCUXCLSESSION_STATUS_OK);
 }
 
@@ -69,7 +77,11 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_setRtf(
 
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_cleanup)
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_DECLARED_BUT_NEVER_DEFINED("It is indeed defined.")
+MCUX_CSSL_ANALYSIS_START_PATTERN_SYMBOL_DEFINED_MORE_THAN_ONCE()
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_cleanup(
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_SYMBOL_DEFINED_MORE_THAN_ONCE()
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DECLARED_BUT_NEVER_DEFINED()
   mcuxClSession_Handle_t pSession
 )
 {
@@ -78,11 +90,14 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_cleanup(
                                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClMemory_clear));
 
     //TODO: Replace the functional memory clear function with a secure one
+    /* For 32-bit architectures, the maximum number of bytes in the memory is UINT32_MAX, i.e. the maximum number of words is UINT32_MAX / 4 */
+    MCUX_CSSL_ANALYSIS_ASSERT_PARAMETER(pSession->cpuWa.dirty, 0u, (UINT32_MAX >> 2u), MCUXCLSESSION_STATUS_ERROR)
     MCUXCLMEMORY_FP_MEMORY_CLEAR((uint8_t *) pSession->cpuWa.buffer,(sizeof(uint32_t)) * pSession->cpuWa.dirty);
 
     /* Reset dirty to used, in case not all memory has been freed (and gets used again). */
     pSession->cpuWa.dirty = pSession->cpuWa.used;
 
+    MCUX_CSSL_ANALYSIS_ASSERT_PARAMETER(pSession->pkcWa.dirty, 0u, MCUXCLPKC_RAM_SIZE >> 2u, MCUXCLSESSION_STATUS_ERROR)
     MCUXCLMEMORY_FP_MEMORY_CLEAR((uint8_t *) pSession->pkcWa.buffer,(sizeof(uint32_t)) * pSession->pkcWa.dirty);
 
     /* Reset dirty to used, in case not all memory has been freed (and gets used again). */
@@ -112,38 +127,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_destroy(
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClSession_destroy, MCUXCLSESSION_STATUS_OK);
 }
 
-MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_allocateCpuBuffer)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_allocateCpuBuffer(
-    mcuxClSession_Handle_t pSession,
-    uint32_t **buffer,
-    uint32_t bufferLength
-)
-{
-    MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClSession_allocateCpuBuffer);
 
-    uint32_t * pBuffer = mcuxClSession_allocateWords_cpuWa(pSession, bufferLength);
-    mcuxClSession_Status_t retCode = ((NULL == pBuffer) ? MCUXCLSESSION_STATUS_ERROR : MCUXCLSESSION_STATUS_OK);
-    *buffer = pBuffer;
-
-    MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClSession_allocateCpuBuffer, retCode);
-}
-
-MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_freeAllCpuBuffers)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_freeAllCpuBuffers(
-    mcuxClSession_Handle_t pSession
-)
-{
-    MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClSession_freeAllCpuBuffers);
-
-    pSession->cpuWa.used = 0u;
-
-    MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClSession_freeAllCpuBuffers, MCUXCLSESSION_STATUS_OK);
-}
-
-
-
-
-#ifdef MCUXCL_FEATURE_SESSION_HAS_RANDOM
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_setRandom)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_setRandom(
     mcuxClSession_Handle_t session,
@@ -156,5 +140,3 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_setRandom(
     session->randomCfg.mode = randomMode;
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClSession_setRandom, MCUXCLSESSION_STATUS_OK);
 }
-
-#endif /* MCUXCL_FEATURE_SESSION_HAS_RANDOM */

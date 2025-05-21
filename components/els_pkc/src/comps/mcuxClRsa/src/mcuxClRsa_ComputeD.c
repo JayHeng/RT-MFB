@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021-2023 NXP                                                  */
+/* Copyright 2021-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClRsa_ComputeD.c
@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
+#include <mcuxClCore_Macros.h>
 #include <mcuxCsslParamIntegrity.h>
 #include <mcuxClMemory.h>
 #include <mcuxClPkc.h>
@@ -34,6 +35,7 @@
 #include <internal/mcuxClRsa_Internal_Types.h>
 #include <internal/mcuxClRsa_Internal_Macros.h>
 #include <internal/mcuxClRsa_Internal_MemoryConsumption.h>
+#include <internal/mcuxClRsa_Internal_PkcTypes.h>
 #include <internal/mcuxClRsa_ComputeD_FUP.h>
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClRsa_ComputeD)
@@ -55,14 +57,15 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_ComputeD(
      */
     /* Size definitions */
     const uint32_t byteLenPQ = pP->keyEntryLength;  // P and Q have the same byte length
-    const uint32_t primePQAlignLen = MCUXCLPKC_ROUNDUP_SIZE(byteLenPQ);
+    MCUX_CSSL_ANALYSIS_COVERITY_ASSERT(byteLenPQ, (MCUXCLKEY_SIZE_1024 / 8u), (MCUXCLKEY_SIZE_8192 / 8u), MCUXCLRSA_STATUS_INVALID_INPUT)
+    const uint32_t primePQAlignLen = MCUXCLRSA_ALIGN_TO_PKC_WORDSIZE(byteLenPQ);
 
     const uint32_t keyLen = byteLenPQ * 2u;  // LCM have 2 times length of PQ
-    const uint32_t keyAlignLen = MCUXCLPKC_ROUNDUP_SIZE(keyLen);
+    const uint32_t keyAlignLen = MCUXCLRSA_ALIGN_TO_PKC_WORDSIZE(keyLen);
 
     /* Memory layout: | PSub1 (primePQAlignLen) | QSub1 (primePQAlignLen) | nDash (FW) | Lcm (keyAlignLen) | Phi (keyAlignLen) | T (keyAlignLen+FW) */
     uint32_t bufferSizeTotal = (primePQAlignLen * 2u) /* PSub1, QSub1 */ +
-                               (keyAlignLen * 3u) + 2u * MCUXCLPKC_WORDSIZE /* Ndsah+Lcm, Phi, T */;
+                               (keyAlignLen * 3u) + 2u * MCUXCLRSA_PKC_WORDSIZE /* Ndsah+Lcm, Phi, T */;
     uint8_t *pPkcWorkarea = (uint8_t *) mcuxClSession_allocateWords_pkcWa(pSession, bufferSizeTotal / (sizeof(uint32_t)));
     if (NULL == pPkcWorkarea)
     {
@@ -71,12 +74,12 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_ComputeD(
 
     uint8_t *pPSub1 = pPkcWorkarea;
     uint8_t *pQSub1 = pPSub1 + primePQAlignLen;
-    uint8_t *pLcm = pQSub1 + primePQAlignLen + MCUXCLPKC_WORDSIZE /* offset for Ndsah */;
+    uint8_t *pLcm = pQSub1 + primePQAlignLen + MCUXCLRSA_PKC_WORDSIZE /* offset for Ndsah */;
     uint8_t *pPhi = pLcm + keyAlignLen;
     uint8_t *pT = pPhi + keyAlignLen;
 
     /* Setup UPTR table */
-    const uint32_t cpuWaSizeWord = MCUXCLRSA_ROUND_UP_TO_CPU_WORDSIZE(MCUXCLRSA_INTERNAL_COMPD_UPTRT_SIZE * (sizeof(uint16_t))) / (sizeof(uint32_t));
+    const uint32_t cpuWaSizeWord = MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(MCUXCLRSA_INTERNAL_COMPD_UPTRT_SIZE * (sizeof(uint16_t)));
     MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("16-bit UPTRT table is assigned in CPU workarea")
     uint16_t * pOperands = (uint16_t *) mcuxClSession_allocateWords_cpuWa(pSession, cpuWaSizeWord);
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
@@ -115,8 +118,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_ComputeD(
     MCUXCLPKC_FP_CALCFUP(mcuxClRsa_ComputeD_Steps123_FUP,
         mcuxClRsa_ComputeD_Steps123_FUP_LEN);
     MCUXCLPKC_WAITFORFINISH();
-    uint32_t leadingZeroN;
-    MCUX_CSSL_FP_FUNCTION_CALL_VOID(mcuxClMath_LeadingZeros(MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_QSUB1, &leadingZeroN));
+    MCUX_CSSL_FP_FUNCTION_CALL(leadingZeroN, mcuxClMath_LeadingZeros(MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_QSUB1));
+    MCUX_CSSL_ANALYSIS_COVERITY_ASSERT(leadingZeroN, 0u, (primePQAlignLen << 3u), MCUXCLRSA_STATUS_INVALID_INPUT)
     uint32_t realGcdByteLen = primePQAlignLen - (leadingZeroN >> 3u);
 
     /*
@@ -131,8 +134,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_ComputeD(
                         MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_PHI,
                         MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_QSUB1,
                         MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_T,
-                        MCUXCLPKC_ROUNDUP_SIZE(keyLen),
-                        MCUXCLPKC_ROUNDUP_SIZE(realGcdByteLen));
+                        MCUXCLRSA_ALIGN_TO_PKC_WORDSIZE(keyLen),
+                        MCUXCLRSA_ALIGN_TO_PKC_WORDSIZE(realGcdByteLen));
 
     /*
      * 4. Compute d := e^(-1) mod lcm(p-1, q-1)
@@ -141,7 +144,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_ComputeD(
      */
 
     MCUXCLPKC_PS1_SETLENGTH(keyAlignLen, keyAlignLen);
-    const uint32_t eAlignLen = MCUXCLPKC_ROUNDUP_SIZE(pE->keyEntryLength);
+    MCUX_CSSL_ANALYSIS_COVERITY_ASSERT(pE->keyEntryLength, ((MCUXCLKEY_SIZE_64 / 8u) / 2u), ((MCUXCLKEY_SIZE_8192 / 8u) /2u), MCUXCLRSA_STATUS_INVALID_INPUT)
+    const uint32_t eAlignLen = MCUXCLRSA_ALIGN_TO_PKC_WORDSIZE(pE->keyEntryLength);
     MCUXCLPKC_PS2_SETLENGTH(0, eAlignLen);
     /* Clear the PHI buffer */
     MCUXCLPKC_FP_CALC_OP1_CONST(MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_PHI, 0u);
@@ -155,14 +159,15 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_ComputeD(
      * 5. Determine the length of d without leading zeros
      */
     MCUXCLPKC_WAITFORFINISH();
-    MCUX_CSSL_FP_FUNCTION_CALL_VOID(mcuxClMath_LeadingZeros(MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_D, &leadingZeroN));
-    pD->keyEntryLength = keyAlignLen - (leadingZeroN >> 3u);
+    MCUX_CSSL_FP_FUNCTION_CALL(leadingZeroD, mcuxClMath_LeadingZeros(MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_D));
+    MCUX_CSSL_ANALYSIS_COVERITY_ASSERT(leadingZeroD, 0u, (keyAlignLen << 3u), MCUXCLRSA_STATUS_INVALID_INPUT)
+    pD->keyEntryLength = keyAlignLen - (leadingZeroD >> 3u);
 
     /*
      * 6. Verify FIPS 186-4 condition on lower bound of d
      *    If d <= 2^(nlen/2), then function returns MCUXCLRSA_STATUS_INVALID_INPUT error.
      *
-     * Used functions: FAME operation.
+     * Used functions: PKC operation.
      */
     /* Clear buffers phi, its length is nlen */
     MCUXCLPKC_PS1_SETLENGTH(0u, keyAlignLen);
@@ -171,7 +176,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_ComputeD(
 
     uint32_t idx = (keyBitLength >> 1u) >> 3u;
     uint32_t lowBoundByte = ((uint32_t)1u << ((keyBitLength >> 1u) & 7u));
-    pPhi[idx] = (uint8_t)lowBoundByte;
+    pPhi[idx] = (uint8_t)(lowBoundByte & 0xFFu);
     MCUXCLPKC_FP_CALC_OP1_CMP(MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_PHI, MCUXCLRSA_INTERNAL_UPTRTINDEX_COMPD_D);
     MCUXCLPKC_WAITFORFINISH();
 

@@ -1,6 +1,5 @@
 /*
  * Copyright 2023-2024 NXP
- * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,12 +20,14 @@
 #define FRO2_DEFAULT_CLOCK_FREQ 196000000U
 
 #define FRO_MIN_CLOCK_FREQ 150000000U
-#define FRO_MAX_CLOCK_FREQ 300000000U
+#define FRO_MAX_CLOCK_FREQ 325000000U
+
+#define PLL_PFD_LOCK_TIMEOUT 200U
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
 /* Array of LPUART peripheral base address. */
 static FRO_Type *const s_froBases[]   = FRO_BASE_PTRS;
 volatile uint32_t g_senseAudioClkFreq = 0U;
@@ -46,80 +47,148 @@ volatile uint32_t g_32kClkinFreq = 0U;
  ******************************************************************************/
 void CLOCK_EnableClock(clock_ip_name_t clk)
 {
-    uint32_t index = CLK_GATE_ABSTRACT_REG_OFFSET(clk);
+    uint32_t index   = CLK_GATE_ABSTRACT_REG_OFFSET(clk);
+    uint32_t bitMask = 1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk);
 
     switch (index)
     {
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
         case CLK_CTL0_PSCCTL0:
-            CLKCTL0->PSCCTL0_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL0->PSCCTL0_SET = bitMask;
+            while ((CLKCTL0->PSCCTL0 & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL0_PSCCTL1:
-            CLKCTL0->PSCCTL1_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL0->PSCCTL1_SET = bitMask;
+            while ((CLKCTL0->PSCCTL1 & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL0_PSCCTL2:
-            CLKCTL0->PSCCTL2_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL0->PSCCTL2_SET = bitMask;
+            while ((CLKCTL0->PSCCTL2 & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL0_PSCCTL3:
-            CLKCTL0->PSCCTL3_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL0->PSCCTL3_SET = bitMask;
+            while ((CLKCTL0->PSCCTL3 & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL0_PSCCTL4:
-            CLKCTL0->PSCCTL4_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL0->PSCCTL4_SET = bitMask;
+            while ((CLKCTL0->PSCCTL4 & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL0_PSCCTL5:
-            CLKCTL0->PSCCTL5_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL0->PSCCTL5_SET = bitMask;
+            while ((CLKCTL0->PSCCTL5 & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL3_PSCCTL0:
-            CLKCTL3->PSCCTL0_COMP_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL3->PSCCTL0_COMP_SET = bitMask;
+            while ((CLKCTL3->PSCCTL0_COMP & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL4_PSCCTL0:
-            CLKCTL4->PSCCTL0_MEDIA_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL4->PSCCTL0_MEDIA_SET = bitMask;
+            while ((CLKCTL4->PSCCTL0_MEDIA & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL4_PSCCTL1:
-            CLKCTL4->PSCCTL1_MEDIA_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL4->PSCCTL1_MEDIA_SET = bitMask;
+            while ((CLKCTL4->PSCCTL1_MEDIA & bitMask) == 0U)
+            {
+            }
             break;
-        case SYSCON_CMPT_SEC_CLK_CTRL:
-            SYSCON0->SEC_CLK_CTRL_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+        case SYSCON0_SEC_CLK_CTRL:
+            SYSCON0->SEC_CLK_CTRL_SET = bitMask;
+            while ((SYSCON0->SEC_CLK_CTRL & bitMask) == 0U)
+            {
+            }
             break;
         case CLKCTL0_ONE_SRC_CLKSLICE_ENABLE:
-            CLKCTL0->ONE_SRC_CLKSLICE_ENABLE |= (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL0->ONE_SRC_CLKSLICE_ENABLE |= bitMask;
+            while ((CLKCTL0->ONE_SRC_CLKSLICE_ENABLE & bitMask) == 0U)
+            {
+            }
             break;
         case CLKCTL3_ONE_SRC_CLKSLICE_ENABLE:
-            CLKCTL3->ONE_SRC_CLKSLICE_ENABLE_COMP |= (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL3->ONE_SRC_CLKSLICE_ENABLE_COMP |= bitMask;
+            while ((CLKCTL3->ONE_SRC_CLKSLICE_ENABLE_COMP & bitMask) == 0U)
+            {
+            }
             break;
         case CLKCTL4_ONE_SRC_CLKSLICE_ENABLE:
-            CLKCTL4->ONE_SRC_CLKSLICE_ENABLE |= (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL4->ONE_SRC_CLKSLICE_ENABLE |= bitMask;
+            while ((CLKCTL4->ONE_SRC_CLKSLICE_ENABLE & bitMask) == 0U)
+            {
+            }
             break;
 #else  /* Sense domain */
         case CLK_CTL1_PSCCTL0:
-            CLKCTL1->PSCCTL0_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL1->PSCCTL0_SET = bitMask;
+            while ((CLKCTL1->PSCCTL0 & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL1_PSCCTL1:
-            CLKCTL1->PSCCTL1_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL1->PSCCTL1_SET = bitMask;
+            while ((CLKCTL1->PSCCTL1 & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL3_PSCCTL0:
-            CLKCTL3->PSCCTL0_SENS_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL3->PSCCTL0_SENS_SET = bitMask;
+            while ((CLKCTL3->PSCCTL0_SENS & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL4_PSCCTL0:
-            CLKCTL4->PSCCTL0_SENS_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL4->PSCCTL0_SENS_SET = bitMask;
+            while ((CLKCTL4->PSCCTL0_SENS & bitMask) == 0U)
+            {
+            }
             break;
         case CLK_CTL4_PSCCTL1:
-            CLKCTL4->PSCCTL1_SENS_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL4->PSCCTL1_SENS_SET = bitMask;
+            while ((CLKCTL4->PSCCTL1_SENS & bitMask) == 0U)
+            {
+            }
             break;
         case CLKCTL3_ONE_SRC_CLKSLICE_ENABLE:
-            CLKCTL3->ONE_SRC_CLKSLICE_ENABLE_SENSE |= (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL3->ONE_SRC_CLKSLICE_ENABLE_SENSE |= bitMask;
+            while ((CLKCTL3->ONE_SRC_CLKSLICE_ENABLE_SENSE & bitMask) == 0U)
+            {
+            }
             break;
         case CLKCTL4_ONE_SRC_CLKSLICE_ENABLE:
-            CLKCTL4->ONE_SRC_CLKSLICE_ENABLE_SENSE |= (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL4->ONE_SRC_CLKSLICE_ENABLE_SENSE |= bitMask;
+            while ((CLKCTL4->ONE_SRC_CLKSLICE_ENABLE_SENSE & bitMask) == 0U)
+            {
+            }
             break;
 #endif /* FSL_CLOCK_DRIVER_COMPUTE */
         case CLK_CTL2_PSCCTL0:
-            CLKCTL2->PSCCTL0_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+            CLKCTL2->PSCCTL0_SET = bitMask;
+            while ((CLKCTL2->PSCCTL0 & bitMask) == 0U)
+            {
+            }
             break;
-        case SYSCON_SENSE0_ELS_CLK_CTRL:
-            SYSCON3->SEC_CLK_CTRL_SET = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
+        case SYSCON3_SEC_CLK_CTRL:
+            SYSCON3->SEC_CLK_CTRL_SET = bitMask;
+            while ((SYSCON3->SEC_CLK_CTRL & bitMask) == 0U)
+            {
+            }
             break;
         default:
+            /* Should not go here. */
             assert(false);
             break;
     }
@@ -130,7 +199,7 @@ void CLOCK_DisableClock(clock_ip_name_t clk)
     uint32_t index = CLK_GATE_ABSTRACT_REG_OFFSET(clk);
     switch (index)
     {
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
         case CLK_CTL0_PSCCTL0:
             CLKCTL0->PSCCTL0_CLR = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
             break;
@@ -158,7 +227,7 @@ void CLOCK_DisableClock(clock_ip_name_t clk)
         case CLK_CTL4_PSCCTL1:
             CLKCTL4->PSCCTL1_MEDIA_CLR = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
             break;
-        case SYSCON_CMPT_SEC_CLK_CTRL:
+        case SYSCON0_SEC_CLK_CTRL:
             SYSCON0->SEC_CLK_CTRL_CLR = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
             break;
         case CLKCTL0_ONE_SRC_CLKSLICE_ENABLE:
@@ -196,10 +265,11 @@ void CLOCK_DisableClock(clock_ip_name_t clk)
         case CLK_CTL2_PSCCTL0:
             CLKCTL2->PSCCTL0_CLR = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
             break;
-        case SYSCON_SENSE0_ELS_CLK_CTRL:
+        case SYSCON3_SEC_CLK_CTRL:
             SYSCON3->SEC_CLK_CTRL_CLR = (1UL << CLK_GATE_ABSTRACT_BITS_SHIFT(clk));
             break;
         default:
+            /* Should not go here. */
             assert(false);
             break;
     }
@@ -236,19 +306,19 @@ void CLOCK_AttachClk(clock_attach_id_t connection)
             break;
 #endif
         default:
-            pClkSel = 0U;
+            pClkSel = NULL;
             break;
     }
 
-    if (pClkSel != 0U)
+    if (pClkSel != NULL)
     {
         if (((uint32_t)connection & CLK_MUX_DISABLE_OUTPUT_MASK) != 0U) /* For muxes with SEL_EN bit*/
         {
-            *pClkSel = (*pClkSel & 0xFFFFFF8) | CLKCTL_TUPLE_SEL(connection);
+            *pClkSel = (*pClkSel & 0xFFFFFF8UL) | CLKCTL_TUPLE_SEL(connection);
         }
         else
         {
-            *pClkSel = (*pClkSel & 0xFFFFFFC) | CLKCTL_TUPLE_SEL(connection) | 0x4U;
+            *pClkSel = (*pClkSel & 0xFFFFFFCUL) | CLKCTL_TUPLE_SEL(connection) | 0x4U;
         }
     }
     else
@@ -267,7 +337,7 @@ void CLOCK_AttachClk(clock_attach_id_t connection)
  */
 void CLOCK_SetClkDiv(clock_div_name_t div_name, uint32_t divider)
 {
-    volatile uint32_t *pClkDiv = 0U;
+    volatile uint32_t *pClkDiv = NULL;
 
     switch (((uint32_t)div_name) & 0xE0000000U)
     {
@@ -290,12 +360,21 @@ void CLOCK_SetClkDiv(clock_div_name_t div_name, uint32_t divider)
             break;
 #endif
         default:
+            /* Should not go here. */
             assert(false);
             break;
     }
 
-    /* Reset the divider counter */
-    *pClkDiv |= 1UL << 29U;
+        /* Reset the divider counter */
+#if defined(FSL_CLOCK_DRIVER_SENSE)
+    if (div_name != kCLOCK_DivSenseMainClk)
+#endif
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
+    if ((div_name != kCLOCK_DivCmptMainClk) && (div_name != kCLOCK_DivSenseMainClk))
+#endif
+    {
+        *pClkDiv |= 1UL << 29U;
+    }
 
     if (divider == 0U) /*!<  halt */
     {
@@ -318,7 +397,7 @@ uint32_t CLOCK_GetFreq(clock_name_t clockName)
     switch (clockName)
     {
         case kCLOCK_CoreSysClk:
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
         case kCLOCK_BusClk:
             freq = CLOCK_GetComputeMainClkFreq();
             break;
@@ -483,7 +562,7 @@ uint32_t CLOCK_GetFreq(clock_name_t clockName)
     return freq;
 }
 
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
 /*!
  * brief Get the FRO instance from peripheral base address.
  *
@@ -515,45 +594,37 @@ static uint32_t CLOCK_CalFroFreq(FRO_Type *base)
     bool enabled     = false;
     uint32_t refFreq = 0U;
 
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     assert(base != FRO1);
-    enabled =
-        ((SLEEPCON0->RUNCFG & (SLEEPCON0_RUNCFG_FRO0_PD_MASK << CLOCK_FroGetInstance(base))) != 0U) ? false : true;
+    enabled = ((SLEEPCON0->RUNCFG & ((uint32_t)SLEEPCON0_RUNCFG_FRO0_PD_MASK << CLOCK_FroGetInstance(base))) != 0U) ?
+                  false :
+                  true;
 #else
-    enabled               = ((SLEEPCON1->RUNCFG & SLEEPCON1_RUNCFG_FRO2_PD_MASK) != 0U) ? false : true;
+    enabled = ((SLEEPCON1->RUNCFG & SLEEPCON1_RUNCFG_FRO2_PD_MASK) != 0U) ? false : true;
 #endif
     refFreq = (g_xtalFreq != 0U) ? g_xtalFreq : g_clkinFreq;
 
     if ((base->CSR.RW & FRO_CSR_FROEN_MASK) != 0U || enabled)
     {
-        if (base == FRO2)
+        if ((base->TEXPCNT.RW & FRO_TEXPCNT_TEXPCNT_MASK) != 0u)
         {
-            if ((base->TEXPCNT.RW & FRO_TEXPCNT_TEXPCNT_MASK) != 0u)
+            freq = ((uint32_t)((uint64_t)(base->TEXPCNT.RW & FRO_TEXPCNT_TEXPCNT_MASK) *
+                               ((uint64_t)refFreq / (uint64_t)((base->CNFG1.RW & FRO_CNFG1_REFDIV_MASK) + 1UL)) /
+                               (uint64_t)((base->CNFG1.RW & FRO_CNFG1_RFCLKCNT_MASK) >> FRO_CNFG1_RFCLKCNT_SHIFT)));
+        }
+        else
+        {
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
+            if (base == FRO0)
             {
-                freq = ((uint32_t)((uint64_t)(base->TRIMCNT.RW) *
-                                   (uint64_t)(refFreq / ((base->CNFG1.RW & FRO_CNFG1_REFDIV_MASK) + 1U)) /
-                                   ((base->CNFG1.RW & FRO_CNFG1_RFCLKCNT_MASK) >> FRO_CNFG1_RFCLKCNT_SHIFT)));
+                freq = FRO0_DEFAULT_CLOCK_FREQ;
             }
             else
+#endif
             {
                 freq = FRO2_DEFAULT_CLOCK_FREQ;
             }
         }
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
-        else
-        {
-            if ((base->TEXPCNT.RW & FRO_TEXPCNT_TEXPCNT_MASK) != 0u)
-            {
-                freq = ((uint32_t)((uint64_t)(base->TRIMCNT.RW) *
-                                   (uint64_t)(refFreq / ((base->CNFG1.RW & FRO_CNFG1_REFDIV_MASK) + 1U)) /
-                                   ((base->CNFG1.RW & FRO_CNFG1_RFCLKCNT_MASK) >> FRO_CNFG1_RFCLKCNT_SHIFT)));
-            }
-            else
-            {
-                freq = FRO0_DEFAULT_CLOCK_FREQ;
-            }
-        }
-#endif
     }
     else
     {
@@ -569,7 +640,7 @@ uint32_t CLOCK_GetFroClkFreq(uint32_t id)
 
     switch (id)
     {
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
         case 0U:
             freq = CLOCK_CalFroFreq(FRO0);
             break;
@@ -581,13 +652,14 @@ uint32_t CLOCK_GetFroClkFreq(uint32_t id)
             freq = CLOCK_CalFroFreq(FRO2);
             break;
         default:
+            /* Added comments to prevent the violation of MISRA C-2012 rule. */
             break;
     }
 
     return freq;
 }
 
-static inline uint32_t CLOCK_GetFroFlags(FRO_Type *base)
+uint32_t CLOCK_GetFroFlags(FRO_Type *base)
 {
     uint32_t flags = 0U;
 
@@ -607,7 +679,7 @@ void CLOCK_EnableFroClkOutput(FRO_Type *base, uint32_t divOutEnable)
             {
             }
         }
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
         else if (base == FRO0)
         {
             while ((CLKCTL0->FRO01CLKSTATUS & CLKCTL0_FRO01CLKSTATUS_FRO0_CLK_OK_MASK) == 0U)
@@ -620,7 +692,16 @@ void CLOCK_EnableFroClkOutput(FRO_Type *base, uint32_t divOutEnable)
             {
             }
         }
+#else
+        else
+        {
+            /* Intentional empty. */
+        }
 #endif /* FSL_CLOCK_DRIVER_COMPUTE */
+    }
+    else
+    {
+        /* Intentional empty. */
     }
 
     base->CSR.CLR = ((base->CSR.RW & FRO_CSR_CLKGATE_MASK) ^ divOutEnable) & FRO_CSR_CLKGATE_MASK;
@@ -638,13 +719,13 @@ status_t CLOCK_EnableFroAutoTuning(FRO_Type *base, const clock_fro_config_t *con
 
     if (enable)
     {
-        /* Check parameter. FRO1 192MHz, FRO0,2 150MHz ~ 300MHz*/
+        /* Check parameter. FRO1 192MHz, FRO0,2 150MHz ~ 325MHz*/
         if ((config->targetFreq < FRO_MIN_CLOCK_FREQ) || (config->targetFreq > FRO_MAX_CLOCK_FREQ) ||
             (config->refDiv == 0U))
         {
             ret = kStatus_InvalidArgument;
         }
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
         else if ((base == FRO1) && (config->targetFreq != FRO1_MAX_CLOCK_FREQ))
         {
             ret = kStatus_InvalidArgument;
@@ -657,16 +738,18 @@ status_t CLOCK_EnableFroAutoTuning(FRO_Type *base, const clock_fro_config_t *con
 
         if (ret == kStatus_Success)
         {
+            /* Both FRO_PD in SLEEPCON and FROEN can power up FRO, clear FROEN for only using FRO_PD to control it's
+             * power. */
             base->CSR.CLR = FRO_CSR_FROEN_MASK | FRO_CSR_TREN_MASK | FRO_CSR_TRUPEN_MASK;
 
             refFreq = CLOCK_GetXtalInClkFreq() / (config->refDiv);
             freqkHZ = config->targetFreq / 1000U;
 
-            base->FROTRIM.RW = base->FROTRIM.RW & (~(FRO_FROTRIM_COARSE_TRIM_MASK | FRO_FROTRIM_FINE_TRIM_MASK));
-
             tempCnt = (10U * refFreq + freqkHZ - 1U) /
                       freqkHZ; /* REFCLKCNT = 10000 * divided reference clock / FRO target frequency. */
-            base->CNFG1.RW = config->enableInt | FRO_CNFG1_RFCLKCNT(tempCnt) | FRO_CNFG1_REFDIV(config->refDiv - 1U);
+            base->CNFG1.RW = config->enableInt | FRO_CNFG1_RFCLKCNT(tempCnt) |
+                             FRO_CNFG1_REFDIV((uint32_t)config->refDiv - 1UL) |
+                             FRO_CNFG1_FSTUPEN((uint32_t)config->fastStartupEn);
 
             /* TEXPCNT */
             tempCnt          = (uint32_t)((uint64_t)config->targetFreq * tempCnt / refFreq);
@@ -708,20 +791,22 @@ void CLOCK_EnableFroClkFreq(FRO_Type *base, uint32_t targetFreq, uint32_t divOut
 {
     const clock_fro_config_t froAutotrimCfg = {
         .targetFreq   = targetFreq,
-        .range        = 50U, /* For about 0.5% deviation. */
+        .range        = 100U, /* For about 1.0% deviation. */
         .trim1DelayUs = 15U,
-        .trim2DelayUs = 15U,
+        .trim2DelayUs = 150U,
         .refDiv       = 1U,
         .enableInt    = 0U,
         .coarseTrimEn = true,
     };
-    CLOCK_EnableFroClkFreqCloseLoop(base, &froAutotrimCfg, divOutEnable);
+    (void)CLOCK_EnableFroClkFreqCloseLoop(base, &froAutotrimCfg, divOutEnable);
+    (void)CLOCK_EnableFroAutoTuning(base, &froAutotrimCfg, false);
 }
 
-static inline void CLOCK_ConfigFroTrim(FRO_Type *base, uint16_t trimVal)
+void CLOCK_ConfigFroTrim(FRO_Type *base, uint16_t trimVal)
 {
     base->FROTRIM.RW = (base->FROTRIM.RW & ~(FRO_FROTRIM_COARSE_TRIM_MASK | FRO_FROTRIM_FINE_TRIM_MASK)) |
-                       FRO_FROTRIM_COARSE_TRIM((trimVal & 0xF80U) >> 0x7U) | FRO_FROTRIM_FINE_TRIM(trimVal & 0x7FU);
+                       FRO_FROTRIM_COARSE_TRIM(((uint32_t)trimVal & 0xF80U) >> 0x7U) |
+                       FRO_FROTRIM_FINE_TRIM((uint32_t)trimVal & 0x7FU);
 }
 
 status_t CLOCK_EnableFroClkFreqCloseLoop(FRO_Type *base, const clock_fro_config_t *config, uint32_t divOutEnable)
@@ -730,10 +815,10 @@ status_t CLOCK_EnableFroClkFreqCloseLoop(FRO_Type *base, const clock_fro_config_
     uint32_t flags = 0U;
 
     /*Power up FRO */
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
-    SLEEPCON0->RUNCFG_CLR = SLEEPCON0_RUNCFG_FRO0_PD_MASK << CLOCK_FroGetInstance(base);
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
+    SLEEPCON0->RUNCFG_CLR = (uint32_t)SLEEPCON0_RUNCFG_FRO0_PD_MASK << CLOCK_FroGetInstance(base);
 #else
-    SLEEPCON1->RUNCFG_CLR = SLEEPCON1_RUNCFG_FRO2_PD_MASK;
+    SLEEPCON1->RUNCFG_CLR = (uint32_t)SLEEPCON1_RUNCFG_FRO2_PD_MASK;
 #endif
 
     /* Disable output before changeing frequency. */
@@ -770,11 +855,11 @@ status_t CLOCK_EnableFroClkFreqCloseLoop(FRO_Type *base, const clock_fro_config_
 void CLOCK_DisableFro(FRO_Type *base)
 {
     CLOCK_EnableFroClkOutput(base, 0);
-    base->CSR.CLR |= FRO_CSR_FROEN_MASK | FRO_CSR_TREN_MASK | FRO_CSR_TRUPEN_MASK;
+    base->CSR.CLR = FRO_CSR_FROEN_MASK | FRO_CSR_TREN_MASK | FRO_CSR_TRUPEN_MASK;
 
     /*Power down FRO */
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
-    SLEEPCON0->RUNCFG_SET = SLEEPCON0_RUNCFG_FRO0_PD_MASK << CLOCK_FroGetInstance(base);
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
+    SLEEPCON0->RUNCFG_SET = (uint32_t)SLEEPCON0_RUNCFG_FRO0_PD_MASK << CLOCK_FroGetInstance(base);
 #else
     SLEEPCON1->RUNCFG_SET = SLEEPCON1_RUNCFG_FRO2_PD_MASK;
 #endif
@@ -787,7 +872,7 @@ void CLOCK_DisableFro(FRO_Type *base)
 void CLOCK_InitMainPll(const clock_main_pll_config_t *config)
 {
     /* Power down MAINPLL before change fractional settings */
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     SLEEPCON0->RUNCFG_SET = SLEEPCON0_RUNCFG_PLLLDO_PD_MASK | SLEEPCON0_RUNCFG_PLLANA_PD_MASK;
 #else
     SLEEPCON1->RUNCFG_SET = SLEEPCON1_RUNCFG_PLLLDO_PD_MASK | SLEEPCON1_RUNCFG_PLLANA_PD_MASK;
@@ -802,7 +887,7 @@ void CLOCK_InitMainPll(const clock_main_pll_config_t *config)
     /* Clear System PLL reset*/
     CLKCTL2->MAINPLL0CTL0 &= ~CLKCTL2_MAINPLL0CTL0_RESET_MASK;
     /* Power up MAINPLL*/
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     SLEEPCON0->RUNCFG_CLR = SLEEPCON0_RUNCFG_PLLLDO_PD_MASK | SLEEPCON0_RUNCFG_PLLANA_PD_MASK;
 #else
     SLEEPCON1->RUNCFG_CLR = SLEEPCON1_RUNCFG_PLLLDO_PD_MASK | SLEEPCON1_RUNCFG_PLLANA_PD_MASK;
@@ -825,10 +910,11 @@ void CLOCK_InitMainPll(const clock_main_pll_config_t *config)
  *  param divider    : The PFD divider value.
  *  note It is recommended that PFD settings are kept between 12-35.
  */
-void CLOCK_InitMainPfd(clock_pfd_t pfd, uint8_t divider)
+status_t CLOCK_InitMainPfd(clock_pfd_t pfd, uint8_t divider)
 {
     uint32_t pfdIndex = (uint32_t)pfd;
     uint32_t syspfd;
+    uint32_t timeout = PLL_PFD_LOCK_TIMEOUT;
 
     syspfd = CLKCTL2->MAINPLL0PFD &
              ~(((uint32_t)CLKCTL2_MAINPLL0PFD_PFD0_CLKGATE_MASK | (uint32_t)CLKCTL2_MAINPLL0PFD_PFD0_MASK)
@@ -842,9 +928,16 @@ void CLOCK_InitMainPfd(clock_pfd_t pfd, uint8_t divider)
     /* Wait for output becomes stable. */
     while ((CLKCTL2->MAINPLL0PFD & ((uint32_t)CLKCTL2_MAINPLL0PFD_PFD0_CLKRDY_MASK << (8UL * pfdIndex))) == 0UL)
     {
+        timeout--;
+        if (timeout == 0U)
+        {
+            return kStatus_Timeout;
+        }
     }
     /* Clear ready status flag. */
     CLKCTL2->MAINPLL0PFD |= ((uint32_t)CLKCTL2_MAINPLL0PFD_PFD0_CLKRDY_MASK << (8UL * pfdIndex));
+
+    return kStatus_Success;
 }
 /* Initialize the Audio PLL Clk */
 /*! brief  Initialize the audio PLL.
@@ -852,7 +945,7 @@ void CLOCK_InitMainPfd(clock_pfd_t pfd, uint8_t divider)
  */
 void CLOCK_InitAudioPll(const clock_audio_pll_config_t *config)
 {
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     /* Power down Audio PLL before change fractional settings */
     SLEEPCON0->RUNCFG_SET = SLEEPCON0_RUNCFG_AUDPLLLDO_PD_MASK | SLEEPCON0_RUNCFG_AUDPLLANA_PD_MASK;
 #else
@@ -868,7 +961,7 @@ void CLOCK_InitAudioPll(const clock_audio_pll_config_t *config)
     /* Clear Audio PLL reset*/
     CLKCTL2->AUDIOPLL0CTL0 &= ~CLKCTL2_AUDIOPLL0CTL0_RESET_MASK;
     /* Power up Audio PLL*/
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     /* Power down Audio PLL before change fractional settings */
     SLEEPCON0->RUNCFG_CLR = SLEEPCON0_RUNCFG_AUDPLLLDO_PD_MASK | SLEEPCON0_RUNCFG_AUDPLLANA_PD_MASK;
 #else
@@ -902,10 +995,11 @@ void CLOCK_InitAudioPll(const clock_audio_pll_config_t *config)
  *  param divider    : The PFD divider value.
  *  note It is recommended that PFD settings are kept between 12-35.
  */
-void CLOCK_InitAudioPfd(clock_pfd_t pfd, uint8_t divider)
+status_t CLOCK_InitAudioPfd(clock_pfd_t pfd, uint8_t divider)
 {
     uint32_t pfdIndex = (uint32_t)pfd;
     uint32_t syspfd;
+    uint32_t timeout = PLL_PFD_LOCK_TIMEOUT;
 
     syspfd = CLKCTL2->AUDIOPLL0PFD &
              ~(((uint32_t)CLKCTL2_AUDIOPLL0PFD_PFD0_CLKGATE_MASK | (uint32_t)CLKCTL2_AUDIOPLL0PFD_PFD0_MASK)
@@ -919,9 +1013,16 @@ void CLOCK_InitAudioPfd(clock_pfd_t pfd, uint8_t divider)
     /* Wait for output becomes stable. */
     while ((CLKCTL2->AUDIOPLL0PFD & ((uint32_t)CLKCTL2_AUDIOPLL0PFD_PFD0_CLKRDY_MASK << (8UL * pfdIndex))) == 0UL)
     {
+        timeout--;
+        if (timeout == 0U)
+        {
+            return kStatus_Timeout;
+        }
     }
     /* Clear ready status flag. */
     CLKCTL2->AUDIOPLL0PFD |= ((uint32_t)CLKCTL2_AUDIOPLL0PFD_PFD0_CLKRDY_MASK << (8UL * pfdIndex));
+
+    return kStatus_Success;
 }
 
 /*! @brief  Enable/Disable sys osc clock from external crystal clock.
@@ -1022,7 +1123,7 @@ uint32_t CLOCK_GetVddnComBaseClkFreq(void)
     return freq;
 }
 
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
 /*! @brief  Enable/Disable FRO clock output. */
 void CLOCK_EnableFro0ClkForDomain(uint32_t domainEnable)
 {
@@ -1559,7 +1660,7 @@ void CLOCK_EnableMainPllPfdClkForDomain(clock_pfd_t pfd, uint32_t domainEnable)
     uint32_t pfdIndex = (uint32_t)pfd;
     uint32_t pfdValue;
 
-    pfdValue = CLKCTL2->MAINPLL0PFDDOMAINEN & (~(0x7F << (8UL * pfdIndex)));
+    pfdValue = CLKCTL2->MAINPLL0PFDDOMAINEN & (~(0x7FUL << (8UL * pfdIndex)));
 
     CLKCTL2->MAINPLL0PFDDOMAINEN = pfdValue | ((domainEnable & (uint32_t)kCLOCK_AllDomainEnable) << (8UL * pfdIndex));
 }
@@ -1569,7 +1670,7 @@ void CLOCK_EnableAudioPllPfdClkForDomain(clock_pfd_t pfd, uint32_t domainEnable)
     uint32_t pfdIndex = (uint32_t)pfd;
     uint32_t pfdValue;
 
-    pfdValue = CLKCTL2->AUDIOPLL0PFDDOMAINEN & (~(0x7F << (8UL * pfdIndex)));
+    pfdValue = CLKCTL2->AUDIOPLL0PFDDOMAINEN & (~(0x7FUL << (8UL * pfdIndex)));
 
     CLKCTL2->AUDIOPLL0PFDDOMAINEN = pfdValue | ((domainEnable & (uint32_t)kCLOCK_AllDomainEnable) << (8UL * pfdIndex));
 }
@@ -1590,7 +1691,7 @@ uint32_t CLOCK_GetLPFlexCommClkFreq(uint32_t id)
     uint32_t fcFclkSel = 0U;
     uint32_t clkSel    = 0U;
 
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     assert(id <= 13U);
 
     fcFclkSel = CLKCTL0->FLEXCOMM[id].FCFCLKSEL;
@@ -1792,6 +1893,7 @@ uint32_t CLOCK_GetWakeClk32KFreq(void)
             freq = CLOCK_GetLpOscFreq();
             break;
         default:
+            freq = 0U;
             break;
     }
     return freq / ((CLKCTL3->WAKE32KCLKDIV & CLKCTL3_WAKE32KCLKDIV_DIV_MASK) + 1U);
@@ -1801,7 +1903,7 @@ uint32_t CLOCK_GetXspiClkFreq(uint32_t id)
 {
     uint32_t freq = 0U;
 
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
     if (id == 0U)
     {
         if ((CLKCTL0->XSPI0FCLKSEL & CLKCTL0_XSPI0FCLKSEL_SEL_EN_MASK) != 0U)
@@ -1821,6 +1923,7 @@ uint32_t CLOCK_GetXspiClkFreq(uint32_t id)
                     freq = CLOCK_GetMainPfdFreq(kCLOCK_Pfd1);
                     break;
                 default:
+                    /* Added comments to prevent the violation of MISRA C-2012 rule. */
                     break;
             }
             freq = freq / ((CLKCTL0->XSPI0FCLKDIV & CLKCTL0_XSPI0FCLKDIV_DIV_MASK) + 1U);
@@ -1849,6 +1952,7 @@ uint32_t CLOCK_GetXspiClkFreq(uint32_t id)
                     freq = CLOCK_GetMainPfdFreq(kCLOCK_Pfd2);
                     break;
                 default:
+                    /* Added comments to prevent the violation of MISRA C-2012 rule. */
                     break;
             }
             freq = freq / ((CLKCTL0->XSPI1FCLKDIV & CLKCTL0_XSPI1FCLKDIV_DIV_MASK) + 1U);
@@ -1880,6 +1984,7 @@ uint32_t CLOCK_GetXspiClkFreq(uint32_t id)
                     freq = CLOCK_GetMainPfdFreq(kCLOCK_Pfd3);
                     break;
                 default:
+                    freq = 0U;
                     break;
             }
             freq = freq / ((CLKCTL4->XSPI2FCLKDIV & CLKCTL4_XSPI2FCLKDIV_DIV_MASK) + 1U);
@@ -1897,7 +2002,7 @@ uint32_t CLOCK_GetXspiClkFreq(uint32_t id)
     return freq;
 }
 
-#if defined(FSL_CLOCK_DRIVER_COMPUTE)
+#if defined(FSL_CLOCK_DRIVER_COMPUTE) || defined(FSL_CLOCK_DRIVER_MEDIA)
 uint32_t CLOCK_GetSctClkFreq(void)
 {
     uint32_t freq = 0U;
@@ -1918,13 +2023,14 @@ uint32_t CLOCK_GetSctClkFreq(void)
                 freq = CLOCK_GetFroClkFreq(0U) / 6U;
                 break;
             default:
+                freq = 0U;
                 break;
         }
     }
     return freq / ((CLKCTL0->SCTFCLKDIV & CLKCTL0_SCTFCLKDIV_DIV_MASK) + 1U);
 }
 
-uint32_t CLOCK_GetUtickClkFreq()
+uint32_t CLOCK_GetUtickClkFreq(void)
 {
     uint32_t freq = 0U;
 
@@ -1945,6 +2051,7 @@ uint32_t CLOCK_GetUtickClkFreq()
                 freq = CLOCK_GetFroClkFreq(1U) / 2U;
                 break;
             default:
+                freq = 0U;
                 break;
         }
     }
@@ -1965,6 +2072,7 @@ uint32_t CLOCK_GetWdtClkFreq(uint32_t id)
                     freq = CLOCK_GetLpOscFreq();
                     break;
                 default:
+                    freq = 0U;
                     break;
             }
         }
@@ -1979,6 +2087,7 @@ uint32_t CLOCK_GetWdtClkFreq(uint32_t id)
                     freq = CLOCK_GetLpOscFreq();
                     break;
                 default:
+                    freq = 0U;
                     break;
             }
         }
@@ -2012,6 +2121,7 @@ uint32_t CLOCK_GetSystickClkFreq(void)
                 freq = CLOCK_GetXtalInClkFreq();
                 break;
             default:
+                freq = 0U;
                 break;
         }
     }
@@ -2216,7 +2326,7 @@ uint32_t CLOCK_GetClockOutClkFreq(void)
     return freq / ((CLKCTL0->CLKOUTCLKDIV & CLKCTL0_CLKOUTCLKDIV_DIV_MASK) + 1U);
 }
 #else  /* Sense domain. */
-uint32_t CLOCK_GetUtickClkFreq()
+uint32_t CLOCK_GetUtickClkFreq(void)
 {
     uint32_t freq = 0U;
 
@@ -2237,6 +2347,7 @@ uint32_t CLOCK_GetUtickClkFreq()
                 freq = CLOCK_GetFroClkFreq(1U) / 2U;
                 break;
             default:
+                freq = 0U;
                 break;
         }
     }
@@ -2257,6 +2368,7 @@ uint32_t CLOCK_GetWdtClkFreq(uint32_t id)
                     freq = CLOCK_GetLpOscFreq();
                     break;
                 default:
+                    freq = 0U;
                     break;
             }
         }
@@ -2271,6 +2383,7 @@ uint32_t CLOCK_GetWdtClkFreq(uint32_t id)
                     freq = CLOCK_GetLpOscFreq();
                     break;
                 default:
+                    freq = 0U;
                     break;
             }
         }
@@ -2305,6 +2418,7 @@ uint32_t CLOCK_GetSystickClkFreq(void)
                 freq = CLOCK_GetXtalInClkFreq();
                 break;
             default:
+                freq = 0U;
                 break;
         }
     }

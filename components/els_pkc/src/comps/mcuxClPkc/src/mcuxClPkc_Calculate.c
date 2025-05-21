@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -128,7 +128,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClPkc_CalcFup(mcuxClPkc_PtrFUPEntry_t pUPT
     uint32_t pkc_ctrl = MCUXCLPKC_SFR_READ(CTRL) | MCUXCLPKC_SFR_BITMSK(CTRL, GOU) | MCUXCLPKC_SFR_BITMSK(CTRL, CLRCACHE);
     MCUXCLPKC_WAITFORREADY();
 
-    MCUXCLPKC_SFR_WRITE(UPTR, (uint32_t) pUPTR);
+    MCUXCLPKC_SFR_WRITE(UPTR, MCUXCL_HW_DMA_WORKAROUND(pUPTR));
     MCUXCLPKC_SFR_WRITE(ULEN, (uint32_t) uLength);
 
     /* Clear PKC UPTRT cache and start calculation of the FUP program. */

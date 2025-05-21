@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2022 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -26,6 +26,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_DECLARED_BUT_NEVER_REFERENCED("Consumed by user / customer. Hence, it is declared but never referenced. ")
 
 /**
  * @addtogroup mcuxClAPI MCUX CL -- API
@@ -65,19 +67,11 @@ extern const mcuxClKey_ProtectionDescriptor_t mcuxClKey_ProtectionDescriptor_Ckd
 static const mcuxClKey_Protection_t mcuxClKey_Protection_Ckdf =
   &mcuxClKey_ProtectionDescriptor_Ckdf;
 
-/**
- * @brief Key protection descriptor for using XOR masking
- */
-extern const mcuxClKey_ProtectionDescriptor_t mcuxClKey_ProtectionDescriptor_XorMasked;
-
-/**
- * @brief Key protection using XOR masking
- */
-static const mcuxClKey_Protection_t mcuxClKey_Protection_XorMasked =
-  &mcuxClKey_ProtectionDescriptor_XorMasked;
 
 
 /** @} */
+
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DECLARED_BUT_NEVER_REFERENCED()
 
 #ifdef __cplusplus
 } /* extern "C" */

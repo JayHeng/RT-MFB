@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2023 NXP                                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClHMac_Sw.c
@@ -17,17 +17,18 @@
 #include <mcuxClToolchain.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
+#include <mcuxClCore_Macros.h>
 #include <mcuxClMac.h>
 #include <mcuxClSession.h>
 #include <mcuxClMemory.h>
 #include <mcuxClKey.h>
 #include <mcuxClHash.h>
+#include <mcuxClHashModes.h>
 #include <internal/mcuxClSession_Internal.h>
 #include <internal/mcuxClKey_Internal.h>
 #include <internal/mcuxClHash_Internal.h>
 #include <internal/mcuxClHmac_Internal_Functions.h>
 #include <internal/mcuxClHmac_Internal_Types.h>
-#include <internal/mcuxClHmac_Internal_Macros.h>
 #include <internal/mcuxClHmac_Core_Functions_Sw.h>
 
 #define MCUXCLMAC_HMAC_IPAD_BYTE (0x36u)
@@ -44,14 +45,17 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Init_Sw(
     mcuxClHmac_Context_Sw_t * const pCtxSw = (mcuxClHmac_Context_Sw_t *) pContext;
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY()
 
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer pCtxSw is of the right type (mcuxClHmac_Context_Sw_t * const)")
     const mcuxClHash_AlgorithmDescriptor_t *hashAlgo = ((mcuxClHmac_ModeDescriptor_t *) (pCtxSw->common.pMode->pCustom))->hashAlgorithm;
     mcuxClKey_Descriptor_t * key = pCtxSw->key;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
     const uint32_t hashBlockSize = hashAlgo->blockSize;
+    MCUX_CSSL_ANALYSIS_ASSERT_PARAMETER(hashBlockSize, 0u, MCUXCLHASH_BLOCK_SIZE_MAX, MCUXCLMAC_STATUS_FAULT_ATTACK)
 
     uint32_t keySize = mcuxClKey_getSize(key);
-    uint8_t *pKeyData = mcuxClKey_getLoadedKeyData(key);
+    uint8_t *pKeyData = mcuxClKey_getKeyData(key);
     size_t alreadyFilledKeyDataSize = 0u;
-    uint32_t *pPreparedHmacKey = mcuxClSession_allocateWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashBlockSize));
+    uint32_t *pPreparedHmacKey = mcuxClSession_allocateWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashBlockSize));
     if(NULL == pPreparedHmacKey)
     {
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Init_Sw, MCUXCLMAC_STATUS_FAULT_ATTACK);
@@ -62,22 +66,24 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Init_Sw(
     /*********************************************************************************************************/
     if(keySize > hashBlockSize) /* key is too long */
     {
+        MCUXCLBUFFER_INIT_RO(pKeyDataBuf, session, pKeyData, keySize);
+        MCUXCLBUFFER_INIT_RW(pPreparedHmacKeyBuf, session, (uint8_t *)pPreparedHmacKey, hashBlockSize);
         uint32_t hashOutputSize = 0u;
         /* Given key must be hashed and then zero-padded up to hashBlockSize */
         MCUX_CSSL_FP_FUNCTION_CALL(result_Hash_compute, mcuxClHash_compute(session,
                                                                 hashAlgo,
-                                                                pKeyData,
+                                                                pKeyDataBuf,
                                                                 keySize,
-                                                                (uint8_t *)pPreparedHmacKey,
+                                                                pPreparedHmacKeyBuf,
                                                                 &hashOutputSize));
 
         if(MCUXCLHASH_STATUS_OK != result_Hash_compute)
         {
             /* Free workarea (pPreparedHmacKey) */
-            mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashBlockSize));
+            mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashBlockSize));
             MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Init_Sw, MCUXCLMAC_STATUS_FAULT_ATTACK);
         }
-        alreadyFilledKeyDataSize = MCUXCLHASH_OUTPUT_SIZE_SHA_256;
+        alreadyFilledKeyDataSize = hashAlgo->hashSize;
     }
     else /* key is not too long */
     {
@@ -101,17 +107,21 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Init_Sw(
     /********************************************************************/
     /* Initialize a Hash context for multipart within the Hmac context  */
     /********************************************************************/
+    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
     pCtxSw->hashCtx = (mcuxClHash_Context_t) &(pCtxSw->hashContextBuffer); /* The content of the hash context is stored in the Hmac context */
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY()
 
     MCUX_CSSL_FP_FUNCTION_CALL(result_Hash_init, mcuxClHash_init(
     /* mcuxCLSession_Handle_t session: */ session,
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer is of the right type (mcuxClHash_Context_t *)")
     /* mcuxClHash_Context_t context:   */ pCtxSw->hashCtx,
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
     /* mcuxClHash_Algo_t  algorithm:   */ hashAlgo
     ));
     if(MCUXCLHASH_STATUS_OK != result_Hash_init)
     {
         /* Free workarea (pPreparedHmacKey) */
-        mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashBlockSize));
+        mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashBlockSize));
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Init_Sw, MCUXCLMAC_STATUS_FAULT_ATTACK);
     }
@@ -124,22 +134,25 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Init_Sw(
         ((uint8_t *)pPreparedHmacKey)[i] ^= MCUXCLMAC_HMAC_IPAD_BYTE;
     }
 
+    MCUXCLBUFFER_INIT_RO(pPreparedHmacKeyInBuf, session, pPreparedHmacKey, hashBlockSize);
     MCUX_CSSL_FP_FUNCTION_CALL(result_Hash_process, mcuxClHash_process(
     /* mcuxCLSession_Handle_t session: */ session,
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_TAINTED_EXPRESSION("hashCTX is initialized by internal trusted function")
     /* mcuxClHash_Context_t context:   */ pCtxSw->hashCtx,
-    /* mcuxCl_InputBuffer_t in:        */ (uint8_t *) pPreparedHmacKey,
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TAINTED_EXPRESSION()
+    /* mcuxCl_InputBuffer_t in:        */ pPreparedHmacKeyInBuf,
     /* uint32_t inSize:               */ hashBlockSize
     ));
     if(MCUXCLHASH_STATUS_OK != result_Hash_process)
     {
         /* Free workarea (pPreparedHmacKey) */
-        mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashBlockSize));
+        mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashBlockSize));
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Init_Sw, MCUXCLMAC_STATUS_FAULT_ATTACK);
     }
 
     /* Free workarea (pPreparedHmacKey) */
-    mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashBlockSize));
+    mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashBlockSize));
 
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Init_Sw, MCUXCLMAC_STATUS_OK,
           MCUX_CSSL_FP_CONDITIONAL((keySize <= hashBlockSize),
@@ -159,7 +172,7 @@ MCUX_CSSL_FP_FUNCTION_DEF(mcuxClHmac_Engine_Update_Sw, mcuxClHmac_UpdateEngine_t
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Update_Sw(
     mcuxClSession_Handle_t session,
     mcuxClHmac_Context_Generic_t * const pContext,
-    const uint8_t *const pIn,
+    mcuxCl_InputBuffer_t pIn,
     uint32_t inLength)
 {
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClHmac_Engine_Update_Sw);
@@ -170,7 +183,11 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Update_Sw(
 
     MCUX_CSSL_FP_FUNCTION_CALL(result_Hash_process, mcuxClHash_process(
     /* mcuxCLSession_Handle_t session: */ session,
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_TAINTED_EXPRESSION("hashCTX is initialized by internal trusted function")
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer pCtxSw is of the right type (mcuxClHmac_Context_Sw_t * const)")
     /* mcuxClHash_Context_t context:   */ pCtxSw->hashCtx,
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TAINTED_EXPRESSION()
     /* mcuxCl_InputBuffer_t in:        */ pIn,
     /* uint32_t inSize:               */ inLength
     ));
@@ -187,7 +204,7 @@ MCUX_CSSL_FP_FUNCTION_DEF(mcuxClHmac_Engine_Finalize_Sw, mcuxClHmac_FinalizeEngi
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Finalize_Sw(
     mcuxClSession_Handle_t session,
     mcuxClHmac_Context_Generic_t * const pContext,
-    uint8_t *const pOut,
+    mcuxCl_Buffer_t pOut,
     uint32_t *const pOutLength)
 {
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClHmac_Engine_Finalize_Sw);
@@ -195,15 +212,18 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Finalize_Sw(
     MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY("Reinterpret structure for different HMAC context types")
     mcuxClHmac_Context_Sw_t * const pCtxSw = (mcuxClHmac_Context_Sw_t *) pContext;
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY()
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer pCtxSw is of the right type (mcuxClHmac_Context_Sw_t * const)")
     const mcuxClHash_AlgorithmDescriptor_t *hashAlgo = ((mcuxClHmac_ModeDescriptor_t *) (pCtxSw->common.pMode->pCustom))->hashAlgorithm;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
     const uint32_t hashSize = hashAlgo->hashSize;
     const uint32_t hashBlockSize = hashAlgo->blockSize;
+    MCUX_CSSL_ANALYSIS_ASSERT_PARAMETER(hashSize, 0u, MCUXCLHASH_MAX_OUTPUT_SIZE, MCUXCLMAC_STATUS_FAULT_ATTACK)
 
     /****************************************************************************************************************************************/
     /* Finalize the inner hash by calling Hash-finalize with the Hash context stored in the Hmac context and write the digest to work area  */
     /****************************************************************************************************************************************/
 
-    uint32_t *pInnerHash = mcuxClSession_allocateWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashSize));
+    uint32_t *pInnerHash = mcuxClSession_allocateWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashSize));
     if(NULL == pInnerHash)
     {
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Finalize_Sw, MCUXCLMAC_STATUS_ERROR);
@@ -211,16 +231,17 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Finalize_Sw(
 
     uint32_t hashOutputSize = 0u;
 
+    MCUXCLBUFFER_INIT_RW(pInnerHashOutBuf, session, (uint8_t *)pInnerHash, hashSize);
     MCUX_CSSL_FP_FUNCTION_CALL(result_Hash_finish_1, mcuxClHash_finish(
     /* mcuxCLSession_Handle_t session: */ session,
     /* mcuxClHash_Context_t context:   */ pCtxSw->hashCtx,
-    /* mcuxCl_Buffer_t pOut            */ (uint8_t *) pInnerHash,
+    /* mcuxCl_Buffer_t pOut            */ pInnerHashOutBuf,
     /* uint32_t *const pOutSize,      */ &hashOutputSize
     ));
     if((hashOutputSize != hashSize) || (MCUXCLHASH_STATUS_OK != result_Hash_finish_1))
     {
         /* Free workarea (pInnerHash) */
-        mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashSize));
+        mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashSize));
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Finalize_Sw, MCUXCLMAC_STATUS_FAULT_ATTACK);
     }
@@ -237,7 +258,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Finalize_Sw(
     if(MCUXCLHASH_STATUS_OK != result_Hash_init)
     {
         /* Free workarea (pInnerHash) */
-        mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashSize));
+        mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashSize));
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Finalize_Sw, MCUXCLMAC_STATUS_FAULT_ATTACK);
     }
@@ -253,16 +274,19 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Finalize_Sw(
         pKeyData[i] ^= MCUXCLMAC_HMAC_OPAD_BYTE;
     }
 
+    MCUXCLBUFFER_INIT_RO(pKeyDataBuf, session, pKeyData, hashBlockSize);
     MCUX_CSSL_FP_FUNCTION_CALL(result_Hash_process_1, mcuxClHash_process(
     /* mcuxCLSession_Handle_t session: */ session,
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_TAINTED_EXPRESSION("hashCTX is initialized by internal trusted function")
     /* mcuxClHash_Context_t context:   */ pCtxSw->hashCtx,
-    /* mcuxCl_InputBuffer_t in:        */ pKeyData,
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TAINTED_EXPRESSION()
+    /* mcuxCl_InputBuffer_t in:        */ pKeyDataBuf,
     /* uint32_t inSize:               */ hashBlockSize
     ));
     if(MCUXCLHASH_STATUS_OK != result_Hash_process_1)
     {
         /* Free workarea (pInnerHash) */
-        mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashSize));
+        mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashSize));
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Finalize_Sw, MCUXCLMAC_STATUS_FAULT_ATTACK);
     }
@@ -271,16 +295,19 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Finalize_Sw(
     /* Hash-process the digest from before, residing in work area (the inner hash)  */
     /********************************************************************************/
 
+    MCUXCLBUFFER_INIT_RO(pInnerHashInBuf, session, pInnerHash, hashSize);
     MCUX_CSSL_FP_FUNCTION_CALL(result_Hash_process_2, mcuxClHash_process(
     /* mcuxCLSession_Handle_t session: */ session,
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_TAINTED_EXPRESSION("hashCTX is initialized by internal trusted function")
     /* mcuxClHash_Context_t context:   */ pCtxSw->hashCtx,
-    /* mcuxCl_InputBuffer_t in:        */ (uint8_t *) pInnerHash,
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TAINTED_EXPRESSION()
+    /* mcuxCl_InputBuffer_t in:        */ pInnerHashInBuf,
     /* uint32_t inSize:               */ hashSize
     ));
     if(MCUXCLHASH_STATUS_OK != result_Hash_process_2)
     {
         /* Free workarea (pInnerHash) */
-        mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashSize));
+        mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashSize));
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Finalize_Sw, MCUXCLMAC_STATUS_FAULT_ATTACK);
     }
@@ -291,20 +318,22 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Finalize_Sw(
 
     MCUX_CSSL_FP_FUNCTION_CALL(result_Hash_finish_2, mcuxClHash_finish(
     /* mcuxCLSession_Handle_t session: */ session,
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_TAINTED_EXPRESSION("hashCTX is initialized by internal trusted function")
     /* mcuxClHash_Context_t context:   */ pCtxSw->hashCtx,
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TAINTED_EXPRESSION()
     /* mcuxCl_Buffer_t pOut            */ pOut,
     /* uint32_t *const pOutSize,      */ pOutLength
     ));
     if((*pOutLength != hashSize) || (MCUXCLHASH_STATUS_OK != result_Hash_finish_2))
     {
         /* Free workarea (pInnerHash) */
-        mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashSize));
+        mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashSize));
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Finalize_Sw, MCUXCLMAC_STATUS_FAULT_ATTACK);
     }
 
     /* Free workarea (pInnerHash) */
-    mcuxClSession_freeWords_cpuWa(session, MCUXCLHMAC_INTERNAL_COMPUTE_CPUWORDS(hashSize));
+    mcuxClSession_freeWords_cpuWa(session, MCUXCLCORE_NUM_OF_CPUWORDS_CEIL(hashSize));
 
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_Engine_Finalize_Sw, MCUXCLMAC_STATUS_OK,
             2u * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClHash_finish),
@@ -316,9 +345,9 @@ MCUX_CSSL_FP_FUNCTION_DEF(mcuxClHmac_Engine_Oneshot_Sw, mcuxClHmac_ComputeEngine
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Oneshot_Sw(
     mcuxClSession_Handle_t session,
     mcuxClHmac_Context_Generic_t * const pContext,
-    const uint8_t *const pIn,
+    mcuxCl_InputBuffer_t pIn,
     uint32_t inLength,
-    uint8_t *const pOut,
+    mcuxCl_Buffer_t pOut,
     uint32_t *const pOutLength)
 {
     /* [Design]

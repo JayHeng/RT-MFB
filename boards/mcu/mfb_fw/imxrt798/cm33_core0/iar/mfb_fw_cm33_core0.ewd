@@ -461,7 +461,7 @@
                 </option>
                 <option>
                     <name>OCProbeConfig</name>
-                    <state></state>
+                    <state>$TOOLKIT_DIR$/config/debugger/NXP/iMXRT700_CM33_0.ProbeConfig</state>
                 </option>
                 <option>
                     <name>CMSISDAPProbeConfigRadio</name>
@@ -794,7 +794,7 @@
                 <option>
                     <name>IjetTraceSizeList</name>
                     <version>0</version>
-                    <state>2</state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>FlashBoardPathSlave</name>
@@ -1166,14 +1166,6 @@
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
-                    <name>CCSTLinkCatchSFERR</name>
-                    <state>0</state>
-                </option>
-                <option>
-                    <name>CCSTLinkDAPNumber</name>
-                    <state></state>
-                </option>
-                <option>
                     <name>OCDriverInfo</name>
                     <state>1</state>
                 </option>
@@ -1247,6 +1239,10 @@
                     <state>0</state>
                 </option>
                 <option>
+                    <name>CCSTLinkCatchSFERR</name>
+                    <state>0</state>
+                </option>
+                <option>
                     <name>CCSTLinkCatchHARDERR</name>
                     <state>0</state>
                 </option>
@@ -1266,6 +1262,10 @@
                     <name>CCSTLinkJtagSpeedList</name>
                     <version>2</version>
                     <state>0</state>
+                </option>
+                <option>
+                    <name>CCSTLinkDAPNumber</name>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCSTLinkDebugAccessPortRadio</name>
@@ -1394,10 +1394,6 @@
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
-                    <name>CCXds100CatchSFERR</name>
-                    <state>0</state>
-                </option>
-                <option>
                     <name>OCDriverInfo</name>
                     <state>1</state>
                 </option>
@@ -1487,6 +1483,10 @@
                 </option>
                 <option>
                     <name>CCXds100CatchINTERR</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>CCXds100CatchSFERR</name>
                     <state>0</state>
                 </option>
                 <option>
@@ -1716,7 +1716,7 @@
                 </option>
                 <option>
                     <name>MemFile</name>
-                    <state></state>
+                    <state>$TOOLKIT_DIR$\config\debugger\NXP\MK70FN1M0xxx12.ddf</state>
                 </option>
                 <option>
                     <name>RunToEnable</name>
@@ -1756,11 +1756,11 @@
                 </option>
                 <option>
                     <name>OCDynDriverList</name>
-                    <state>JLINK_ID</state>
+                    <state>CMSISDAP_ID</state>
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state>9.30.1.48832</state>
+                    <state>9.60.1.2936</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>
@@ -1784,7 +1784,7 @@
                 </option>
                 <option>
                     <name>FlashLoadersV3</name>
-                    <state>$TOOLKIT_DIR$\config\flashloader\</state>
+                    <state>$TOOLKIT_DIR$/config/flashloader/NXP/FlashK70Fxxx128K.board</state>
                 </option>
                 <option>
                     <name>OCImagesSuppressCheck1</name>
@@ -2434,7 +2434,7 @@
                 <option>
                     <name>IjetTraceSizeList</name>
                     <version>0</version>
-                    <state>2</state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>FlashBoardPathSlave</name>
@@ -2621,7 +2621,7 @@
                 <option>
                     <name>CCJLinkResetList</name>
                     <version>6</version>
-                    <state>7</state>
+                    <state>5</state>
                 </option>
                 <option>
                     <name>CCJLinkInterfaceCmdLine</name>
@@ -2806,14 +2806,6 @@
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
-                    <name>CCSTLinkCatchSFERR</name>
-                    <state>0</state>
-                </option>
-                <option>
-                    <name>CCSTLinkDAPNumber</name>
-                    <state></state>
-                </option>
-                <option>
                     <name>OCDriverInfo</name>
                     <state>1</state>
                 </option>
@@ -2887,6 +2879,10 @@
                     <state>0</state>
                 </option>
                 <option>
+                    <name>CCSTLinkCatchSFERR</name>
+                    <state>0</state>
+                </option>
+                <option>
                     <name>CCSTLinkCatchHARDERR</name>
                     <state>0</state>
                 </option>
@@ -2906,6 +2902,10 @@
                     <name>CCSTLinkJtagSpeedList</name>
                     <version>2</version>
                     <state>0</state>
+                </option>
+                <option>
+                    <name>CCSTLinkDAPNumber</name>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCSTLinkDebugAccessPortRadio</name>
@@ -3034,10 +3034,6 @@
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
-                    <name>CCXds100CatchSFERR</name>
-                    <state>0</state>
-                </option>
-                <option>
                     <name>OCDriverInfo</name>
                     <state>1</state>
                 </option>
@@ -3127,6 +3123,10 @@
                 </option>
                 <option>
                     <name>CCXds100CatchINTERR</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>CCXds100CatchSFERR</name>
                     <state>0</state>
                 </option>
                 <option>
@@ -3356,7 +3356,7 @@
                 </option>
                 <option>
                     <name>MemFile</name>
-                    <state></state>
+                    <state>$TOOLKIT_DIR$\CONFIG\debugger\Freescale\MK70FN1M0xxx12.ddf</state>
                 </option>
                 <option>
                     <name>RunToEnable</name>
@@ -3396,11 +3396,11 @@
                 </option>
                 <option>
                     <name>OCDynDriverList</name>
-                    <state>JLINK_ID</state>
+                    <state>CMSISDAP_ID</state>
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state>8.11.2.13604</state>
+                    <state>7.10.1.6733</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>
@@ -3424,7 +3424,7 @@
                 </option>
                 <option>
                     <name>FlashLoadersV3</name>
-                    <state>$TOOLKIT_DIR$\config\flashloader\</state>
+                    <state>$TOOLKIT_DIR$\config\flashloader\Freescale\FlashK70Fxxx128K.board</state>
                 </option>
                 <option>
                     <name>OCImagesSuppressCheck1</name>
@@ -4074,7 +4074,7 @@
                 <option>
                     <name>IjetTraceSizeList</name>
                     <version>0</version>
-                    <state>2</state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>FlashBoardPathSlave</name>
@@ -4261,7 +4261,7 @@
                 <option>
                     <name>CCJLinkResetList</name>
                     <version>6</version>
-                    <state>7</state>
+                    <state>5</state>
                 </option>
                 <option>
                     <name>CCJLinkInterfaceCmdLine</name>
@@ -4446,14 +4446,6 @@
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
-                    <name>CCSTLinkCatchSFERR</name>
-                    <state>0</state>
-                </option>
-                <option>
-                    <name>CCSTLinkDAPNumber</name>
-                    <state></state>
-                </option>
-                <option>
                     <name>OCDriverInfo</name>
                     <state>1</state>
                 </option>
@@ -4527,6 +4519,10 @@
                     <state>0</state>
                 </option>
                 <option>
+                    <name>CCSTLinkCatchSFERR</name>
+                    <state>0</state>
+                </option>
+                <option>
                     <name>CCSTLinkCatchHARDERR</name>
                     <state>0</state>
                 </option>
@@ -4546,6 +4542,10 @@
                     <name>CCSTLinkJtagSpeedList</name>
                     <version>2</version>
                     <state>0</state>
+                </option>
+                <option>
+                    <name>CCSTLinkDAPNumber</name>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCSTLinkDebugAccessPortRadio</name>
@@ -4674,10 +4674,6 @@
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
-                    <name>CCXds100CatchSFERR</name>
-                    <state>0</state>
-                </option>
-                <option>
                     <name>OCDriverInfo</name>
                     <state>1</state>
                 </option>
@@ -4767,6 +4763,10 @@
                 </option>
                 <option>
                     <name>CCXds100CatchINTERR</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>CCXds100CatchSFERR</name>
                     <state>0</state>
                 </option>
                 <option>
@@ -4996,7 +4996,7 @@
                 </option>
                 <option>
                     <name>MemFile</name>
-                    <state></state>
+                    <state>$TOOLKIT_DIR$\CONFIG\debugger\Freescale\MK70FN1M0xxx12.ddf</state>
                 </option>
                 <option>
                     <name>RunToEnable</name>
@@ -5036,11 +5036,11 @@
                 </option>
                 <option>
                     <name>OCDynDriverList</name>
-                    <state>JLINK_ID</state>
+                    <state>CMSISDAP_ID</state>
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state>8.11.2.13604</state>
+                    <state>7.10.1.6733</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>
@@ -5064,7 +5064,7 @@
                 </option>
                 <option>
                     <name>FlashLoadersV3</name>
-                    <state>$TOOLKIT_DIR$\config\flashloader\</state>
+                    <state>$TOOLKIT_DIR$\config\flashloader\Freescale\FlashK70Fxxx128K.board</state>
                 </option>
                 <option>
                     <name>OCImagesSuppressCheck1</name>
@@ -5714,7 +5714,7 @@
                 <option>
                     <name>IjetTraceSizeList</name>
                     <version>0</version>
-                    <state>2</state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>FlashBoardPathSlave</name>
@@ -5901,7 +5901,7 @@
                 <option>
                     <name>CCJLinkResetList</name>
                     <version>6</version>
-                    <state>7</state>
+                    <state>5</state>
                 </option>
                 <option>
                     <name>CCJLinkInterfaceCmdLine</name>
@@ -6086,14 +6086,6 @@
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
-                    <name>CCSTLinkCatchSFERR</name>
-                    <state>0</state>
-                </option>
-                <option>
-                    <name>CCSTLinkDAPNumber</name>
-                    <state></state>
-                </option>
-                <option>
                     <name>OCDriverInfo</name>
                     <state>1</state>
                 </option>
@@ -6167,6 +6159,10 @@
                     <state>0</state>
                 </option>
                 <option>
+                    <name>CCSTLinkCatchSFERR</name>
+                    <state>0</state>
+                </option>
+                <option>
                     <name>CCSTLinkCatchHARDERR</name>
                     <state>0</state>
                 </option>
@@ -6186,6 +6182,10 @@
                     <name>CCSTLinkJtagSpeedList</name>
                     <version>2</version>
                     <state>0</state>
+                </option>
+                <option>
+                    <name>CCSTLinkDAPNumber</name>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCSTLinkDebugAccessPortRadio</name>
@@ -6314,10 +6314,6 @@
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
-                    <name>CCXds100CatchSFERR</name>
-                    <state>0</state>
-                </option>
-                <option>
                     <name>OCDriverInfo</name>
                     <state>1</state>
                 </option>
@@ -6407,6 +6403,10 @@
                 </option>
                 <option>
                     <name>CCXds100CatchINTERR</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>CCXds100CatchSFERR</name>
                     <state>0</state>
                 </option>
                 <option>

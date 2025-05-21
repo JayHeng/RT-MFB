@@ -51,11 +51,7 @@
                    - \ref ARM_MATH_SIZE_MISMATCH : Matrix size check failed
  */
 
-#if defined(ARM_MATH_MVE_FLOAT16) && !defined(ARM_MATH_AUTOVECTORIZE) && defined(__CMSIS_GCC_H)
-#pragma GCC warning "Scalar version of arm_mat_cmplx_mult_f16 built. Helium version has build issues with gcc."
-#endif 
-
-#if defined(ARM_MATH_MVE_FLOAT16) && !defined(ARM_MATH_AUTOVECTORIZE) &&  !defined(__CMSIS_GCC_H)
+#if defined(ARM_MATH_MVE_FLOAT16) && !defined(ARM_MATH_AUTOVECTORIZE)
 
 #include "arm_helium_utils.h"
 
@@ -67,7 +63,7 @@ __STATIC_FORCEINLINE arm_status arm_mat_cmplx_mult_f16_2x2_mve(
     const arm_matrix_instance_f16 * pSrcB,
     arm_matrix_instance_f16 * pDst)
 {
-    const uint16_t   MATRIX_DIM = 2;
+#define MATRIX_DIM 2
     float16_t const *pInB = pSrcB->pData;  /* input data matrix pointer B */
     float16_t       *pInA = pSrcA->pData;  /* input data matrix pointer A */
     float16_t       *pOut = pDst->pData;   /* output data matrix pointer */
@@ -131,6 +127,7 @@ __STATIC_FORCEINLINE arm_status arm_mat_cmplx_mult_f16_2x2_mve(
      * Return to application
      */
     return (ARM_MATH_SUCCESS);
+#undef MATRIX_DIM
 }
 
 
@@ -140,7 +137,7 @@ __STATIC_FORCEINLINE arm_status arm_mat_cmplx_mult_f16_3x3_mve(
     const arm_matrix_instance_f16 * pSrcB,
     arm_matrix_instance_f16 * pDst)
 {
-    const uint16_t   MATRIX_DIM = 3;
+#define MATRIX_DIM 3
     float16_t const *pInB = pSrcB->pData;  /* input data matrix pointer B */
     float16_t       *pInA = pSrcA->pData;  /* input data matrix pointer A */
     float16_t       *pOut = pDst->pData;   /* output data matrix pointer */
@@ -226,6 +223,7 @@ __STATIC_FORCEINLINE arm_status arm_mat_cmplx_mult_f16_3x3_mve(
      * Return to application
      */
     return (ARM_MATH_SUCCESS);
+#undef MATRIX_DIM
 }
 
 
@@ -236,7 +234,7 @@ __STATIC_FORCEINLINE arm_status arm_mat_cmplx_mult_f16_4x4_mve(
     const arm_matrix_instance_f16 * pSrcB,
     arm_matrix_instance_f16 * pDst)
 {
-    const uint16_t   MATRIX_DIM = 4;
+#define MATRIX_DIM 4
     float16_t const *pInB = pSrcB->pData;  /* input data matrix pointer B */
     float16_t       *pInA = pSrcA->pData;  /* input data matrix pointer A */
     float16_t       *pOut = pDst->pData;   /* output data matrix pointer */
@@ -371,11 +369,12 @@ __STATIC_FORCEINLINE arm_status arm_mat_cmplx_mult_f16_4x4_mve(
      * Return to application
      */
     return (ARM_MATH_SUCCESS);
+#undef MATRIX_DIM
 }
 
 
 
-arm_status arm_mat_cmplx_mult_f16(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_cmplx_mult_f16(
   const arm_matrix_instance_f16 * pSrcA,
   const arm_matrix_instance_f16 * pSrcB,
   arm_matrix_instance_f16 * pDst)
@@ -415,8 +414,8 @@ if ((pSrcA->numCols != pSrcB->numRows) ||
     {
         if (numRowsA == 1)
         {
-            pOut[0] = pInA[0] * pInB[0] - pInA[1] * pInB[1];
-            pOut[1] = pInA[0] * pInB[1] + pInA[1] * pInB[0];
+            pOut[0] = (_Float16)pInA[0] * (_Float16)pInB[0] - (_Float16)pInA[1] * (_Float16)pInB[1];
+            pOut[1] = (_Float16)pInA[0] * (_Float16)pInB[1] + (_Float16)pInA[1] * (_Float16)pInB[0];
             return (ARM_MATH_SUCCESS);
         }
         else if  (numRowsA == 2)
@@ -701,7 +700,7 @@ if ((pSrcA->numCols != pSrcB->numRows) ||
 }
 #else
 
-arm_status arm_mat_cmplx_mult_f16(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_cmplx_mult_f16(
   const arm_matrix_instance_f16 * pSrcA,
   const arm_matrix_instance_f16 * pSrcB,
         arm_matrix_instance_f16 * pDst)

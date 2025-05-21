@@ -4,9 +4,9 @@
 **                          MIMXRT798SGFOA_cm33_core0
 **
 **     Compiler:            GNU C Compiler
-**     Reference manual:    iMXRT700RM Rev.1, 08/2022
-**     Version:             rev. 1.0, 2023-11-14
-**     Build:               b240227
+**     Reference manual:    iMXRT700RM Rev.2 DraftA, 05/2024
+**     Version:             rev. 2.0, 2024-05-28
+**     Build:               b240920
 **
 **     Abstract:
 **         Linker file for the GNU C Compiler
@@ -29,16 +29,18 @@ ENTRY(Reset_Handler)
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x00000300 : 0;
 
 m_core1_image_maximum_size = 0x00080000;
+m_ezhv_image_maximum_size = 0x00008000;
 
 DATA_START   = 0x20080000;
 DATA_SIZE    = 0x00180000;
 
-NCACHE_START = 0x20200000;
-NCACHE_SIZE  = 0x00200000;
+NCACHE_START = DEFINED(__use_shmem__) ? 0x20202000 : 0x20200000;
+NCACHE_SIZE  = DEFINED(__use_shmem__) ? 0x001FE000 : 0x00200000;
 
 HEAP_SIZE    = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE   = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 
+RPMSG_SHMEM_START = 0x20200000;
 RPMSG_SHMEM_SIZE = DEFINED(__use_shmem__) ? 0x2000 : 0;
 
 DATA_END     = DATA_START + DATA_SIZE - 1 - (DEFINED(__heap_noncacheable__) ? 0 : HEAP_SIZE);
@@ -56,9 +58,9 @@ MEMORY
   m_interrupts          (RX)  : ORIGIN = 0x28004000, LENGTH = 0x00000300
   m_text                (RX)  : ORIGIN = 0x28004300, LENGTH = 0x001FBD00
   m_data                (RW)  : ORIGIN = DATA_START, LENGTH = DATA_END - DATA_START + 1
-  m_ncache              (RW)  : ORIGIN = NCACHE_START + RPMSG_SHMEM_SIZE, LENGTH = NCACHE_END - NCACHE_START + 1 - RPMSG_SHMEM_SIZE
+  m_ncache              (RW)  : ORIGIN = NCACHE_START, LENGTH = NCACHE_SIZE
   m_heap                (RW)  : ORIGIN = HEAP_START, LENGTH = HEAP_SIZE
-  rpmsg_sh_mem          (RW)  : ORIGIN = NCACHE_START, LENGTH = RPMSG_SHMEM_SIZE
+  rpmsg_sh_mem          (RW)  : ORIGIN = RPMSG_SHMEM_START, LENGTH = RPMSG_SHMEM_SIZE
 }
 
 /* Define output sections */
@@ -102,9 +104,16 @@ SECTIONS
     *(.core1_code*)
     core1_image_end = .;
     . = ALIGN(4);
+
+    ezhv_image_start = .;
+    KEEP (*(.ezhv_code))
+    *(.ezhv_code*)
+    ezhv_image_end = .;
+    . = ALIGN(4);
   } > m_text
 
   ASSERT((core1_image_end - core1_image_start) <= m_core1_image_maximum_size, "Core1 image size exceeds the limit")
+  ASSERT((ezhv_image_end - ezhv_image_start) <= m_ezhv_image_maximum_size, "EZHV image size exceeds the limit")
 
   .ARM.extab :
   {
@@ -201,6 +210,8 @@ SECTIONS
     . = ALIGN(4);
     __DATA_RAM = .;
     __data_start__ = .;      /* create a global symbol at data start */
+    *(CacheLineData.init)    /* CacheLineData.init sections */
+    . = ALIGN(16);           /* cache line size = 16 bytes */
     *(CodeQuickAccess)       /* CodeQuickAccess sections */
     *(DataQuickAccess)       /* DataQuickAccess sections */
     *(.data)                 /* .data sections */
@@ -251,6 +262,8 @@ SECTIONS
     . = ALIGN(4);
     __START_BSS = .;
     __bss_start__ = .;
+    *(CacheLineData)
+    . = ALIGN(16); /* cache line size = 16 bytes */
     *(.bss)
     *(.bss*)
     *(COMMON)

@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2023 NXP                                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 #include "common.h"
@@ -32,7 +32,7 @@
  */
 
 MCUX_CSSL_ANALYSIS_START_PATTERN_DESCRIPTIVE_IDENTIFIER()
-psa_status_t mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(uint8_t **p,
+psa_status_t mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(const uint8_t **p,
                           uint8_t tag)
 MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
 {
@@ -92,7 +92,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
  */
 
 MCUX_CSSL_ANALYSIS_START_PATTERN_DESCRIPTIVE_IDENTIFIER()
-psa_status_t mcuxClPsaDriver_psa_driver_wrapper_der_get_integer(uint8_t **p,
+psa_status_t mcuxClPsaDriver_psa_driver_wrapper_der_get_integer(const uint8_t **p,
                           mcuxClRsa_KeyEntry_t  * key)
 MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
 {
@@ -150,11 +150,17 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
     if(first_octet == 0u)
     {
       //take next non-zero octet, the key date is unsigned
+      MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_WRAP("ptrLen will be at most 2+numberBytes, with numberBytes being an 8-bit value. This cannot wrap.")
       ptrLen++;
+      MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_WRAP()
+      MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_WRAP("Key entry lengths are always bigger than 1, so this cannot wrap.")
       key->keyEntryLength -= 1u;
+      MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_WRAP()
     }
     *p += ptrLen;
-    key->pKeyEntryData = *p;
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST_QUALIFIER("Const must be discarded to initialize the generic structure member.")
+    key->pKeyEntryData = (uint8_t *)*p;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST_QUALIFIER()
 
     *p += key->keyEntryLength;
 
@@ -188,10 +194,10 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
     *ptr = 0x02u;
     if(key->keyEntryLength > 0x7Fu) //long form
     {
-        uint8_t h3_byte = ((key->keyEntryLength) & 0xFF000000u) >> 24u;
-        uint8_t h2_byte = ((key->keyEntryLength) & 0xFF0000u) >> 16u;
-        uint8_t h1_byte = ((key->keyEntryLength) & 0xFF00u) >> 8u;
-        uint8_t h0_byte = (key->keyEntryLength) & 0xFFu;
+        uint8_t h3_byte = (uint8_t)(((key->keyEntryLength) & 0xFF000000u) >> 24u);
+        uint8_t h2_byte = (uint8_t)(((key->keyEntryLength) & 0xFF0000u) >> 16u);
+        uint8_t h1_byte = (uint8_t)(((key->keyEntryLength) & 0xFF00u) >> 8u);
+        uint8_t h0_byte = (uint8_t)((key->keyEntryLength) & 0xFFu);
         if(h3_byte != 0u)
         {
             ptr[1u] = 0x84u;
@@ -225,7 +231,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
     }
     else                           //short from
     {
-        ptr[1] = key->keyEntryLength;
+        ptr[1] = (uint8_t)key->keyEntryLength;
         ptrLen = 2u;
     }
 

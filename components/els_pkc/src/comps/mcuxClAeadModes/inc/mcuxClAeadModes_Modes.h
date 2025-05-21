@@ -1,15 +1,18 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2022 NXP                                                  */
+/* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
+
+/** @file  mcuxClAeadModes_Modes.h
+ *  @brief This file defines the modes for the mcuxClAeadModes component */
 
 #ifndef MCUXCLAEADMODES_MODES_H_
 #define MCUXCLAEADMODES_MODES_H_
@@ -22,20 +25,20 @@ extern "C" {
 #endif
 
 /**
- * \addtogroup mcuxClAPI MCUX CL -- API
+ * @addtogroup mcuxClAPI MCUX CL -- API
  *
- * \addtogroup mcuxClAead Aead API
- * \brief Authenticated Encryption with Associated Data (AEAD) operations.
- * \ingroup mcuxClAPI
+ * @addtogroup mcuxClAead Aead API
+ * @brief Authenticated Encryption with Associated Data (AEAD) operations.
+ * @ingroup mcuxClAPI
  */
 
 /**
- * \defgroup clAeadModes AEAD mode definitions
- * \brief Modes used by the AEAD operations.
- * \ingroup mcuxClAead
+ * @defgroup clAeadModes AEAD mode definitions
+ * @brief Modes used by the AEAD operations.
+ * @ingroup mcuxClAead
  */
 
-
+MCUX_CSSL_ANALYSIS_START_PATTERN_EXTERNAL_API_DECLARATIONS()
 
 /**
  * @brief AES CCM encrypt mode descriptor
@@ -80,8 +83,9 @@ extern const mcuxClAead_ModeDescriptor_t mcuxClAead_ModeDescriptor_AES_GCM_DEC;
  */
 static mcuxClAead_Mode_t mcuxClAead_Mode_AES_GCM_DEC =
   &mcuxClAead_ModeDescriptor_AES_GCM_DEC;
-/** @} */
 
+
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_EXTERNAL_API_DECLARATIONS()
 
 #ifdef __cplusplus
 } /* extern "C" */

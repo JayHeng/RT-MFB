@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2022-2023 NXP                                                  */
+/* Copyright 2022-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -23,16 +23,15 @@
 
 #include <internal/mcuxClPkc_Macros.h>
 
-#include <mcuxClEcc_Types.h>
+#include <mcuxClEcc.h>
 #include <internal/mcuxClEcc_Internal.h>
 #include <internal/mcuxClEcc_TwEd_Internal.h>
-#include <internal/mcuxClEcc_EdDSA_Internal_PkcWaLayout.h>
 
 /**
  * Plain pointer selection function
  */
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEcc_TwEd_PlainPtrSelectML, mcuxClEcc_TwEd_PtrSelectFunction_t)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_PlainPtrSelectML(
+MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_TwEd_PlainPtrSelectML(
     mcuxClSession_Handle_t pSession,
     uint32_t scalarWord,
     uint8_t scalarBitOffset
@@ -64,10 +63,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_PlainPtrSelectML(
      *         pOperands[TWED_VZ2] = pOperands[TWED_ML_Z2];
      *     };
      */
-    uint16_t *pOperands = MCUXCLPKC_GETUPTRT();
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("32-bit aligned UPTRT table is assigned in CPU workarea")
-    uint32_t *pOperands32 = (uint32_t *) pOperands;
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
+    uint32_t *pOperands32 = MCUXCLPKC_GETUPTRT32();
     uint32_t offsets_VY1_VZ1 = pOperands32[(TWED_ML_Y1 / 2u) + b];
     uint32_t offsets_VY2_VZ2 = pOperands32[(TWED_ML_Y2 / 2u) - b];
 
@@ -76,5 +72,5 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_PlainPtrSelectML(
     MCUXCLECC_STORE_2OFFSETS(pOperands32, TWED_VY1, TWED_VZ1, offsets_VY1_VZ1);
     MCUXCLECC_STORE_2OFFSETS(pOperands32, TWED_VY2, TWED_VZ2, offsets_VY2_VZ2);
 
-    MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_TwEd_PlainPtrSelectML, MCUXCLECC_STATUS_OK);
+    MCUX_CSSL_FP_FUNCTION_EXIT_VOID(mcuxClEcc_TwEd_PlainPtrSelectML);
 }

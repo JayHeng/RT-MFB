@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2024 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -160,7 +160,7 @@ uint32_t LPSPI_GetInstance(LPSPI_Type *base)
     /* Find the instance index from base address mappings. */
     for (instance = 0; instance < ARRAY_SIZE(s_lpspiBases); instance++)
     {
-        if (s_lpspiBases[instance] == base)
+        if (MSDK_REG_SECURE_ADDR(s_lpspiBases[instance]) == MSDK_REG_SECURE_ADDR(base))
         {
             break;
         }
@@ -197,9 +197,9 @@ void LPSPI_SetDummyData(LPSPI_Type *base, uint8_t dummyData)
 void LPSPI_MasterInit(LPSPI_Type *base, const lpspi_master_config_t *masterConfig, uint32_t srcClock_Hz)
 {
     assert(masterConfig != NULL);
-    
+
     uint32_t tcrPrescaleValue = 0;
-    uint32_t instance = LPSPI_GetInstance(base);    
+    uint32_t instance = LPSPI_GetInstance(base);
 
     if(LP_FLEXCOMM_GetBaseAddress(instance) != 0U)
     {
@@ -295,7 +295,7 @@ void LPSPI_MasterGetDefaultConfig(lpspi_master_config_t *masterConfig)
 
     masterConfig->whichPcs           = kLPSPI_Pcs0;
     masterConfig->pcsActiveHighOrLow = kLPSPI_PcsActiveLow;
-    masterConfig->pcsFunc            = kLPSPI_PcsAsCs; 
+    masterConfig->pcsFunc            = kLPSPI_PcsAsCs;
 
     masterConfig->pinCfg        = kLPSPI_SdiInSdoOut;
     masterConfig->dataOutConfig = kLpspiDataOutRetained;
@@ -312,7 +312,7 @@ void LPSPI_MasterGetDefaultConfig(lpspi_master_config_t *masterConfig)
 void LPSPI_SlaveInit(LPSPI_Type *base, const lpspi_slave_config_t *slaveConfig)
 {
     assert(slaveConfig != NULL);
-    
+
     uint32_t instance = LPSPI_GetInstance(base);
 
     if(LP_FLEXCOMM_GetBaseAddress(instance) != 0U)
@@ -339,7 +339,7 @@ void LPSPI_SlaveInit(LPSPI_Type *base, const lpspi_slave_config_t *slaveConfig)
 
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
     }
-    
+
     LPSPI_SetMasterSlaveMode(base, kLPSPI_Slave);
 
     LPSPI_SetOnePcsPolarity(base, slaveConfig->whichPcs, slaveConfig->pcsActiveHighOrLow);
@@ -425,7 +425,7 @@ void LPSPI_Deinit(LPSPI_Type *base)
 #endif
     }
     else
-    {        
+    {
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
         /* Disable LPSPI clock */
         (void)CLOCK_DisableClock(s_lpspiClocks[instance]);
@@ -675,7 +675,7 @@ uint32_t LPSPI_MasterSetDelayTimes(LPSPI_Type *base,
     /*As the RM note, the LPSPI baud rate clock is itself divided by the PRESCALE setting, which can vary between
      * transfers.*/
     clockDividedPrescaler =
-        srcClock_Hz / s_baudratePrescaler[(base->TCR & LPSPI_TCR_PRESCALE_MASK) >> LPSPI_TCR_PRESCALE_SHIFT];
+        srcClock_Hz / s_baudratePrescaler[(LPSPI_GetTcr(base) & LPSPI_TCR_PRESCALE_MASK) >> LPSPI_TCR_PRESCALE_SHIFT];
 
     /* Find combination of prescaler and scaler resulting in the delay closest to the requested value.*/
     min_diff = 0xFFFFFFFFU;
@@ -787,7 +787,7 @@ void LPSPI_MasterTransferCreateHandle(LPSPI_Type *base,
                                       void *userData)
 {
     assert(handle != NULL);
-    
+
     uint32_t instance = LPSPI_GetInstance(base);
 
     /* Zero the handle. */
@@ -805,7 +805,7 @@ void LPSPI_MasterTransferCreateHandle(LPSPI_Type *base,
         LP_FLEXCOMM_SetIRQHandler(instance, handler.lpflexcomm_handler, handle, LP_FLEXCOMM_PERIPH_LPSPI);
     }
     else
-    {        
+    {
         s_lpspiHandle[instance] = handle;
 
         /* Set irq handler. */
@@ -824,7 +824,7 @@ void LPSPI_MasterTransferCreateHandle(LPSPI_Type *base,
 bool LPSPI_CheckTransferArgument(LPSPI_Type *base, lpspi_transfer_t *transfer, bool isEdma)
 {
     assert(transfer != NULL);
-    uint32_t bitsPerFrame  = ((base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) + 1U;
+    uint32_t bitsPerFrame  = ((LPSPI_GetTcr(base) & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) + 1U;
     uint32_t bytesPerFrame = (bitsPerFrame + 7U) / 8U;
     uint32_t temp          = (base->CFGR1 & LPSPI_CFGR1_PINCFG_MASK);
     /* If the transfer count is zero, then return immediately.*/
@@ -941,7 +941,7 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
         ((uint32_t)dummyData) | ((uint32_t)dummyData << 8) | ((uint32_t)dummyData << 16) | ((uint32_t)dummyData << 24);
     /*The TX and RX FIFO sizes are always the same*/
     uint32_t fifoSize      = LPSPI_GetRxFifoSize(base);
-    uint32_t bytesPerFrame = ((base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
+    uint32_t bytesPerFrame = ((LPSPI_GetTcr(base) & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
     /* No need to configure PCS continous if the transfer byte count is smaller than frame size */
     bool isPcsContinuous    = (((transfer->configFlags & (uint32_t)kLPSPI_MasterPcsContinuous) != 0U) &&
                             (bytesPerFrame < transfer->dataSize));
@@ -965,7 +965,7 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
     LPSPI_Enable(base, true);
 
     /* Configure transfer control register. */
-    base->TCR = (base->TCR & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_RXMSK_MASK |
+    base->TCR = (LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_RXMSK_MASK |
                                LPSPI_TCR_TXMSK_MASK | LPSPI_TCR_PCS_MASK)) |
                 LPSPI_TCR_PCS(whichPcs) | LPSPI_TCR_WIDTH(width);
 
@@ -976,7 +976,7 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
     }
 
     /* PCS should be configured separately from the other bits, otherwise it will not take effect. */
-    base->TCR |= LPSPI_TCR_CONT(isPcsContinuous) | LPSPI_TCR_CONTC(isPcsContinuous) | LPSPI_TCR_RXMSK(NULL == rxData);
+    base->TCR = LPSPI_GetTcr(base) | LPSPI_TCR_CONT(isPcsContinuous) | LPSPI_TCR_CONTC(isPcsContinuous) | LPSPI_TCR_RXMSK(NULL == rxData);
 
     /*TCR is also shared the FIFO, so wait for TCR written.*/
     if (!LPSPI_TxFifoReady(base))
@@ -1027,13 +1027,13 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
                 /* When TCR[TXMSK]=1, transfer is initiate by writting a new command word to TCR. TCR[TXMSK] is cleared
                    by hardware every time when TCR[FRAMESZ] bit of data is transfered.
                    In this case TCR[TXMSK] should be set to initiate each transfer. */
-                base->TCR |= LPSPI_TCR_TXMSK_MASK;
+                base->TCR = LPSPI_GetTcr(base) | LPSPI_TCR_TXMSK_MASK;
                 if (isPcsContinuous && (txRemainingByteCount == bytesPerFrame))
                 {
                     /* For the last piece of frame size of data, if is PCS continous mode(TCR[CONT]), TCR[CONTC] should
                      * be cleared to de-assert the PCS. Be sure to clear the TXMSK as well otherwise another FRAMESZ
                      * of data will be received. */
-                    base->TCR &= ~(LPSPI_TCR_CONTC_MASK | LPSPI_TCR_CONT_MASK | LPSPI_TCR_TXMSK_MASK);
+                    base->TCR = LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONTC_MASK | LPSPI_TCR_CONT_MASK | LPSPI_TCR_TXMSK_MASK);
                 }
                 txRemainingByteCount -= bytesPerFrame;
             }
@@ -1104,7 +1104,7 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
             return kStatus_LPSPI_Timeout;
         }
 #endif
-        base->TCR = (base->TCR & ~(LPSPI_TCR_CONTC_MASK | LPSPI_TCR_CONT_MASK));
+        base->TCR = (LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONTC_MASK | LPSPI_TCR_CONT_MASK));
     }
 
     /*Read out the RX data in FIFO*/
@@ -1216,7 +1216,7 @@ status_t LPSPI_MasterTransferNonBlocking(LPSPI_Type *base, lpspi_master_handle_t
     handle->rxRemainingByteCount = transfer->dataSize;
     handle->totalByteCount       = transfer->dataSize;
     handle->writeTcrInIsr        = false;
-    handle->bytesPerFrame = (uint16_t)((base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
+    handle->bytesPerFrame = (uint16_t)((LPSPI_GetTcr(base) & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
     /* No need to configure PCS continous if the transfer byte count is smaller than frame size */
     bool isPcsContinuous = (((transfer->configFlags & (uint32_t)kLPSPI_MasterPcsContinuous) != 0U) &&
                             (transfer->dataSize > handle->bytesPerFrame));
@@ -1276,7 +1276,7 @@ status_t LPSPI_MasterTransferNonBlocking(LPSPI_Type *base, lpspi_master_handle_t
     LPSPI_Enable(base, true);
 
     /* Configure transfer control register. */
-    base->TCR = (base->TCR & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_RXMSK_MASK |
+    base->TCR = (LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_RXMSK_MASK |
                                LPSPI_TCR_TXMSK_MASK | LPSPI_TCR_PCS_MASK)) |
                 LPSPI_TCR_PCS(whichPcs);
 
@@ -1287,7 +1287,7 @@ status_t LPSPI_MasterTransferNonBlocking(LPSPI_Type *base, lpspi_master_handle_t
     }
 
     /* PCS should be configured separately from the other bits, otherwise it will not take effect. */
-    base->TCR |= LPSPI_TCR_CONT(isPcsContinuous) | LPSPI_TCR_CONTC(isPcsContinuous) | LPSPI_TCR_RXMSK(isRxMask);
+    base->TCR = LPSPI_GetTcr(base) | LPSPI_TCR_CONT(isPcsContinuous) | LPSPI_TCR_CONTC(isPcsContinuous) | LPSPI_TCR_RXMSK(isRxMask);
 
     /* Enable the NVIC for LPSPI peripheral. Note that below code is useless if the LPSPI interrupt is in INTMUX ,
      * and you should also enable the INTMUX interupt in your application.
@@ -1306,7 +1306,7 @@ status_t LPSPI_MasterTransferNonBlocking(LPSPI_Type *base, lpspi_master_handle_t
            hardware every time when TCR[FRAMESZ] bit of data is transfered. In this case TCR[TXMSK] should be set to
            initiate each transfer. */
 
-        base->TCR |= LPSPI_TCR_TXMSK_MASK;
+        base->TCR = LPSPI_GetTcr(base) | LPSPI_TCR_TXMSK_MASK;
         handle->txRemainingByteCount -= (uint32_t)handle->bytesPerFrame;
     }
     else
@@ -1408,7 +1408,7 @@ static void LPSPI_MasterTransferFillUpTxFifo(LPSPI_Type *base, lpspi_master_hand
                 /* Only write to the TCR if the FIFO has room */
                 if (LPSPI_GetTxFifoCount(base) < fifoSize)
                 {
-                    base->TCR             = (base->TCR & ~(LPSPI_TCR_CONTC_MASK));
+                    base->TCR             = (LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONTC_MASK));
                     handle->writeTcrInIsr = false;
                 }
                 /* Else, set a global flag to tell the ISR to do write to the TCR */
@@ -1578,13 +1578,13 @@ void LPSPI_MasterTransferHandleIRQ(uint32_t instance, lpspi_master_handle_t *han
             /* When TCR[TXMSK]=1, transfer is initiate by writting a new command word to TCR. TCR[TXMSK] is cleared by
                hardware every time when TCR[FRAMESZ] bit of data is transfered.
                In this case TCR[TXMSK] should be set to initiate each transfer. */
-            base->TCR |= LPSPI_TCR_TXMSK_MASK;
+            base->TCR = LPSPI_GetTcr(base) | LPSPI_TCR_TXMSK_MASK;
             if ((handle->txRemainingByteCount == (uint32_t)handle->bytesPerFrame) && (handle->isPcsContinuous))
             {
                 /* For the last piece of frame size of data, if is PCS continous mode(TCR[CONT]), TCR[CONTC] should
                  * be cleared to de-assert the PCS. Be sure to clear the TXMSK as well otherwise another FRAMESZ
                  * of data will be received. */
-                base->TCR &= ~(LPSPI_TCR_CONTC_MASK | LPSPI_TCR_CONT_MASK | LPSPI_TCR_TXMSK_MASK);
+                base->TCR = LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONTC_MASK | LPSPI_TCR_CONT_MASK | LPSPI_TCR_TXMSK_MASK);
             }
             handle->txRemainingByteCount -= (uint32_t)handle->bytesPerFrame;
         }
@@ -1599,7 +1599,7 @@ void LPSPI_MasterTransferHandleIRQ(uint32_t instance, lpspi_master_handle_t *han
         {
             if ((handle->isPcsContinuous) && (handle->writeTcrInIsr) && (!handle->isTxMask))
             {
-                base->TCR             = (base->TCR & ~(LPSPI_TCR_CONTC_MASK));
+                base->TCR             = (LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONTC_MASK));
                 handle->writeTcrInIsr = false;
             }
         }
@@ -1659,10 +1659,10 @@ void LPSPI_SlaveTransferCreateHandle(LPSPI_Type *base,
     handle->userData = userData;
 
     if(LP_FLEXCOMM_GetBaseAddress(instance) != 0U)
-    {      
+    {
         lpspi_to_lpflexcomm_t handler;
         handler.lpspi_slave_handler = LPSPI_SlaveTransferHandleIRQ;
-        
+
         /* Save the handle in global variables to support the double weak mechanism. */
         LP_FLEXCOMM_SetIRQHandler(instance, handler.lpflexcomm_handler, handle, LP_FLEXCOMM_PERIPH_LPSPI);
     }
@@ -1720,7 +1720,7 @@ status_t LPSPI_SlaveTransferNonBlocking(LPSPI_Type *base, lpspi_slave_handle_t *
     uint8_t txWatermark;
     uint32_t readRegRemainingTimes;
     uint32_t whichPcs      = (transfer->configFlags & LPSPI_SLAVE_PCS_MASK) >> LPSPI_SLAVE_PCS_SHIFT;
-    uint32_t bytesPerFrame = ((base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
+    uint32_t bytesPerFrame = ((LPSPI_GetTcr(base) & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
 
     /* Assign the original value for members of transfer handle. */
     handle->state                  = (uint8_t)kLPSPI_Busy;
@@ -1775,7 +1775,7 @@ status_t LPSPI_SlaveTransferNonBlocking(LPSPI_Type *base, lpspi_slave_handle_t *
     /* Enable module for following configuration of TCR to take effect. */
     LPSPI_Enable(base, true);
 
-    base->TCR = (base->TCR & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_RXMSK_MASK |
+    base->TCR = (LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_RXMSK_MASK |
                                LPSPI_TCR_TXMSK_MASK | LPSPI_TCR_PCS_MASK)) |
                 LPSPI_TCR_RXMSK(isRxMask) | LPSPI_TCR_TXMSK(isTxMask) | LPSPI_TCR_PCS(whichPcs);
 
@@ -2054,8 +2054,8 @@ void LPSPI_SlaveTransferHandleIRQ(uint32_t instance, lpspi_slave_handle_t *handl
         {
             handle->state = (uint8_t)kLPSPI_Error;
         }
-        handle->errorCount++;     
-        /* ERR051588: Clear FIFO after underrun occurs */   
+        handle->errorCount++;
+        /* ERR051588: Clear FIFO after underrun occurs */
         LPSPI_FlushFifo(base, true, false);
     }
     /* Catch rx fifo overflow conditions, service only if rx over flow interrupt enabled */
@@ -2255,6 +2255,7 @@ static bool LPSPI_TxFifoReady(LPSPI_Type *base)
     return true;
 }
 
+void LPSPI_CommonIRQHandler(LPSPI_Type *base, uint32_t instance);
 void LPSPI_CommonIRQHandler(LPSPI_Type *base, uint32_t instance)
 {
     assert(s_lpspiHandle[instance] != NULL);

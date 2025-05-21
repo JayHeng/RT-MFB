@@ -379,7 +379,7 @@ __STATIC_FORCEINLINE arm_status arm_mat_mult_f16_4x4_mve(
 }
 
 
-arm_status arm_mat_mult_f16(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_mult_f16(
   const arm_matrix_instance_f16 * pSrcA,
   const arm_matrix_instance_f16 * pSrcB,
   arm_matrix_instance_f16 * pDst)
@@ -621,7 +621,7 @@ arm_status arm_mat_mult_f16(
 #else
 
 
-arm_status arm_mat_mult_f16(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_mult_f16(
   const arm_matrix_instance_f16 * pSrcA,
   const arm_matrix_instance_f16 * pSrcB,
         arm_matrix_instance_f16 * pDst)
@@ -687,16 +687,16 @@ arm_status arm_mat_mult_f16(
           /* c(m,n) = a(1,1) * b(1,1) + a(1,2) * b(2,1) + .... + a(m,p) * b(p,n) */
 
           /* Perform the multiply-accumulates */
-          sum += *pIn1++ * *pIn2;
+          sum += (_Float16)*pIn1++ * (_Float16)*pIn2;
           pIn2 += numColsB;
 
-          sum += *pIn1++ * *pIn2;
+          sum += (_Float16)*pIn1++ * (_Float16)*pIn2;
           pIn2 += numColsB;
 
-          sum += *pIn1++ * *pIn2;
+          sum += (_Float16)*pIn1++ * (_Float16)*pIn2;
           pIn2 += numColsB;
 
-          sum += *pIn1++ * *pIn2;
+          sum += (_Float16)*pIn1++ * (_Float16)*pIn2;
           pIn2 += numColsB;
 
           /* Decrement loop counter */
@@ -718,7 +718,7 @@ arm_status arm_mat_mult_f16(
           /* c(m,n) = a(1,1) * b(1,1) + a(1,2) * b(2,1) + .... + a(m,p) * b(p,n) */
 
           /* Perform the multiply-accumulates */
-          sum += *pIn1++ * *pIn2;
+          sum += (_Float16)*pIn1++ * (_Float16)*pIn2;
           pIn2 += numColsB;
 
           /* Decrement loop counter */

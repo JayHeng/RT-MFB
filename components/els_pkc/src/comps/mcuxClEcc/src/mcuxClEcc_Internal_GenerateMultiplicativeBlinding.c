@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021-2023 NXP                                                  */
+/* Copyright 2021-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -24,6 +24,7 @@
 #include <mcuxClPkc.h>
 #include <mcuxClMath.h>
 #include <mcuxClSession.h>
+#include <mcuxClBuffer.h>
 #include <mcuxClRandom.h>
 
 #include <mcuxClEcc.h>
@@ -62,15 +63,14 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_GenerateMultiplicative
 
     const uint16_t *pOperands = MCUXCLPKC_GETUPTRT();
 
-    uint8_t *pS0 = MCUXCLPKC_OFFSET2PTR(pOperands[ECC_S0]);
+    uint32_t *p32S0 = MCUXCLPKC_OFFSET2PTRWORD(pOperands[ECC_S0]);
 
     /* Generate S0 = phi = a 32-bit non-zero random, with PRNG. */
     MCUXCLPKC_WAITFORFINISH();
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("PKC buffer is CPU word aligned.")
-    volatile uint32_t *p32S0 = (volatile uint32_t *) pS0;
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
+    uint8_t *pS0 = (uint8_t *) p32S0;
 
-    MCUX_CSSL_FP_FUNCTION_CALL(retGetRandom, mcuxClRandom_ncGenerate(pSession, pS0, MCUXCLECC_SCALARBLINDING_BYTELEN));
+    MCUXCLBUFFER_INIT(buffS0, NULL, pS0, MCUXCLECC_SCALARBLINDING_BYTELEN);
+    MCUX_CSSL_FP_FUNCTION_CALL(retGetRandom, mcuxClRandom_ncGenerate(pSession, buffS0, MCUXCLECC_SCALARBLINDING_BYTELEN));
     if (MCUXCLRANDOM_STATUS_OK != retGetRandom)
     {
         /* if it fails, error code is related to RNG issue, so translated to generic return code */
@@ -79,7 +79,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_GenerateMultiplicative
     }
 
     /* Set MSBit and LSBit of phi */
-    *p32S0 |= 0x80000001u;
+    *p32S0 |= 0x80000001UL;
 
     /* Copy S0 = phi to S1 before calling ModInv (which will destroy input). */
     MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_S1, ECC_S0, 0u);

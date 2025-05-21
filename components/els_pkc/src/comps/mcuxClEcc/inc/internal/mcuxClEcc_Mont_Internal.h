@@ -1,33 +1,31 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021-2023 NXP                                                  */
+/* Copyright 2021-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
  * @file  mcuxClEcc_Mont_Internal.h
- * @brief internal header of mcuxClEcc MontDh functionalities
+ * @brief internal header of mcuxClEcc MontDH functionalities
  */
 
 
 #ifndef MCUXCLECC_MONT_INTERNAL_H_
 #define MCUXCLECC_MONT_INTERNAL_H_
 
-#include <stdint.h>
-
-#include <mcuxClConfig.h> // Exported features flags header
+#include <mcuxClCore_Platform.h>
 #include <mcuxClSession.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
+#include <mcuxClEcc_Types.h>
 #include <mcuxClPkc.h>
-#include <mcuxClEcc.h>
 
 #include <internal/mcuxClEcc_Internal.h>
 #include <internal/mcuxClEcc_Mont_Internal_PkcWaLayout.h>
@@ -46,7 +44,7 @@ extern "C" {
 /* Internal MontDH defines                                */
 /**********************************************************/
 
-/** Use 4-byte (32-bit) multiplicative blinding in MontDh. */
+/** Use 4-byte (32-bit) multiplicative blinding in MontDH. */
 #define MCUXCLECC_MONTDH_SCALAR_BLINDING_BYTELEN  4u
 
 
@@ -55,7 +53,7 @@ extern "C" {
 /**********************************************************/
 
 /**
- * Domain parameter structure for MontDh functions.
+ * Domain parameter structure for MontDH functions.
  */
 struct mcuxClEcc_MontDH_DomainParams
 {
@@ -64,6 +62,12 @@ struct mcuxClEcc_MontDH_DomainParams
     uint16_t t;     ///< bit position of MSBit of decoded scalar
 };
 
+
+/* Curve25519 domain parameters */
+extern const mcuxClEcc_MontDH_DomainParams_t mcuxClEcc_MontDH_DomainParams_Curve25519;
+
+/* Curve448 domain parameters */
+extern const mcuxClEcc_MontDH_DomainParams_t mcuxClEcc_MontDH_DomainParams_Curve448;
 
 
 /**********************************************************/
@@ -102,6 +106,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_MontDH_X(
     mcuxClEcc_MontDH_DomainParams_t *pDomainParameters,
     const uint8_t *pCoordinateUEnc
     );
+
 
 #ifdef __cplusplus
 } /* extern "C" */

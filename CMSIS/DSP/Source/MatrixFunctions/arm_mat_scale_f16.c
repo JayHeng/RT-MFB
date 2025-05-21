@@ -52,7 +52,7 @@
  */
 #if defined(ARM_MATH_MVE_FLOAT16) && !defined(ARM_MATH_AUTOVECTORIZE)
 
-arm_status arm_mat_scale_f16(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_scale_f16(
   const arm_matrix_instance_f16 * pSrc,
   float16_t scale,
   arm_matrix_instance_f16 * pDst)
@@ -123,7 +123,7 @@ arm_status arm_mat_scale_f16(
 }
 #else
 
-arm_status arm_mat_scale_f16(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_scale_f16(
   const arm_matrix_instance_f16 * pSrc,
         float16_t                 scale,
         arm_matrix_instance_f16 * pDst)
@@ -161,10 +161,10 @@ arm_status arm_mat_scale_f16(
       /* C(m,n) = A(m,n) * scale */
 
       /* Scale and store result in destination buffer. */
-      *pOut++ = (*pIn++) * scale;
-      *pOut++ = (*pIn++) * scale;
-      *pOut++ = (*pIn++) * scale;
-      *pOut++ = (*pIn++) * scale;
+      *pOut++ = (_Float16)(*pIn++) * (_Float16)scale;
+      *pOut++ = (_Float16)(*pIn++) * (_Float16)scale;
+      *pOut++ = (_Float16)(*pIn++) * (_Float16)scale;
+      *pOut++ = (_Float16)(*pIn++) * (_Float16)scale;
 
       /* Decrement loop counter */
       blkCnt--;
@@ -185,7 +185,7 @@ arm_status arm_mat_scale_f16(
       /* C(m,n) = A(m,n) * scale */
 
       /* Scale and store result in destination buffer. */
-      *pOut++ = (*pIn++) * scale;
+      *pOut++ = (_Float16)(*pIn++) * (_Float16)scale;
 
       /* Decrement loop counter */
       blkCnt--;

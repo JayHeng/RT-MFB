@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -21,12 +21,15 @@
 #define MCUXCLECC_FUNCTIONS_H_
 
 
-#include <stdint.h>
-#include <mcuxClConfig.h> // Exported features flags header
+#include <mcuxClCore_Platform.h>
 #include <mcuxClSession.h>
+#include <mcuxClBuffer.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
 #include <mcuxCsslAnalysis.h>
+#ifdef MCUXCL_FEATURE_ECC_ECDSA_DETERMINISTIC
+#include <mcuxClMac.h>
+#endif /* MCUXCL_FEATURE_ECC_ECDSA_DETERMINISTIC */
 
 #include <mcuxClEcc_Types.h>
 
@@ -40,13 +43,13 @@ extern "C" {
 /**********************************************************/
 /* Public APIs of mcuxClEcc                                */
 /**********************************************************/
-
 /**
  * @defgroup mcuxClEcc_Functions mcuxClEcc_Functions
  * @brief Defines all functions of @ref mcuxClEcc
  * @ingroup mcuxClEcc
  * @{
  */
+
 
 /** implements ECDSA key generation.
  * @retval #MCUXCLECC_STATUS_OK                     if private key and public key are generated successfully;
@@ -57,9 +60,10 @@ extern "C" {
  */
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_KeyGen)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
-    mcuxClSession_Handle_t pSession,  ///< [in] pointer to #mcuxClSession_Descriptor.
+    mcuxClSession_Handle_t pSession,         ///< [in] Handle for the current CL session.
     const mcuxClEcc_KeyGen_Param_t * pParam  ///< [in] pointer to ECDSA Key Generation parameter structure.
     );
+
 
 /** implements ECDSA signature generation.
  * @retval #MCUXCLECC_STATUS_OK                   if signature is generated successfully;
@@ -70,7 +74,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
  */
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_Sign)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_Sign(
-    mcuxClSession_Handle_t pSession,  ///< [in] pointer to #mcuxClSession_Descriptor.
+    mcuxClSession_Handle_t pSession,       ///< [in] Handle for the current CL session.
     const mcuxClEcc_Sign_Param_t * pParam  ///< [in] pointer to ECDSA Sign parameter structure.
     );
 
@@ -83,9 +87,10 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_Sign(
  */
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_Verify)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_Verify(
-    mcuxClSession_Handle_t pSession,  ///< [in] pointer to #mcuxClSession_Descriptor.
+    mcuxClSession_Handle_t pSession,         ///< [in] Handle for the current CL session.
     const mcuxClEcc_Verify_Param_t * pParam  ///< [in] pointer to ECDSA Verify parameter structure.
     );
+
 
 /**
  * @brief implements ECC point multiplication.
@@ -95,7 +100,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_Verify(
  * Invalid curve parameters or point might cause the return of #MCUXCLECC_STATUS_INVALID_PARAMS,
  * invalid result, and unexpected behavior (e.g., the return of #MCUXCLECC_STATUS_FAULT_ATTACK).
  *
- * @param[in] pSession  pointer to #mcuxClSession_Descriptor.
+ * @param[in] pSession  Handle for the current CL session.
  * @param[in] pParam    pointer to ECC point multiplication parameter structure.
  *
  * <dl>
@@ -123,22 +128,17 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
 
 
 /**
- * @brief implements ECC key pair generation step for a MontDh key agreement according to rfc7748.
+ * @brief implements ECC key pair generation step for a MontDH key agreement according to rfc7748.
  *
- * This API performs elliptic curve key generation of the private key and calculates corresponding public key for MontDh key agreement
+ * This function performs elliptic curve key generation of the private key and calculates corresponding public key for MontDH key agreement
+ * as specified in rfc7748.
  * This API does not check if the curve parameters are correct.
  * This API might return MCUXCLECC_STATUS_RNG_ERROR when RNG behave in unexpected way
  * Unexpected behavior will return MCUXCLECC_STATUS_FAULT_ATTACK.
  *
  * @param[in] pSession          #mcuxClSession_Descriptor structure
- * @param[in] type              type structure specifying requested key type to be generated. Also contains domain parameters
- * @param[in] protection        #mcuxClKey_Protection structure
  * @param[out] privKey          private key handling structure
- * @param[out] pPrivData        buffer for private key of the MCUXCLECC_MONT_CURVE25519/448_SIZE_PRIVATEKEY length
- * @param[out] pPrivDataLength  private key length
  * @param[out] pubKey           public key handling structure
- * @param[out] pPubData         buffer for public key x-coordinate of MCUXCLECC_MONT_CURVE25519/448_SIZE_PUBLICKEY length
- * @param[out] pPubDataLength   public key x-coordinate length
  *
  *
  * @return A code-flow protected error code (see @ref MCUXCLECC_STATUS_ and @ref MCUXCLECC_MONTDH_STATUS_)
@@ -148,32 +148,26 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointMult(
  *
  * @attention This function uses PRNG. Caller needs to check if PRNG is ready.
  */
-MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_Mont_DhKeyGeneration)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_Mont_DhKeyGeneration(
+MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_MontDH_GenerateKeyPair)
+MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_MontDH_GenerateKeyPair(
     mcuxClSession_Handle_t pSession,
-    mcuxClKey_Type_t type,
-    mcuxClKey_Protection_t protection,
     mcuxClKey_Handle_t privKey,
-    uint8_t * pPrivData,
-    uint32_t * const pPrivDataLength,
-    mcuxClKey_Handle_t pubKey,
-    uint8_t * pPubData,
-    uint32_t * const pPubDataLength
+    mcuxClKey_Handle_t pubKey
     );
 
 /**
- * @brief implements ECC key agreement according to rfc7748.
+ * @brief Implements the MontDH key agreement according to rfc7748.
  *
- * This API performs elliptic curve key agreement to compute shared secret between two parties using the function X25519
+ * This function performs a MontDH key agreement to compute a shared secret between two parties using according to Curve25519 or Curve448 as specified in rfc7748.
  * This API does not check if the curve parameters are correct.
  * This API might return MCUXCLECC_STATUS_RNG_ERROR when RNG behave in unexpected way
  * This API might return MCUXCLECC_STATUS_ERROR_SMALL_SUBGROUP if generated public key lies in the small subgroup
  * Unexpected behavior will return MCUXCLECC_STATUS_FAULT_ATTACK.
  *
- * @param[in] pSession     pointer to #mcuxClSession_Descriptor.
+ * @param[in] pSession     Handle for the current CL session.
  * @param[in] key          private key handling structure
  * @param[in] otherKey     public key handling structure
- * @param[out] pOut        buffer for shared secret of length MCUXCLECC_MONT_CURVE25519/448_SIZE_SHAREDSECRET
+ * @param[out] pOut        buffer for shared secret of length MCUXCLECC_MONTDH_CURVE25519/448_SIZE_SHAREDSECRET
  * @param[out] pOutLength  shared secret length
  *
  *
@@ -185,8 +179,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_Mont_DhKeyGeneration(
  *
  * @attention This function uses PRNG. Caller needs to check if PRNG is ready.
  */
-MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_Mont_DhKeyAgreement)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_Mont_DhKeyAgreement(
+MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_MontDH_KeyAgreement)
+MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_MontDH_KeyAgreement(
     mcuxClSession_Handle_t pSession,
     mcuxClKey_Handle_t key,
     mcuxClKey_Handle_t otherKey,
@@ -195,26 +189,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_Mont_DhKeyAgreement(
     );
 
 
-/**
- * @brief This function initializes an EdDSA mode descriptor for EdDSA key pair generation with private key input.
- *
- * @param[in]     pSession              Handle for the current CL session
- * @param[in/out] mode                  Pointer to mode descriptor to be initialized for EdDSA key pair generation with private key input
- * @param[in]     pPrivKey              Pointer to private key input
- *
- * @return A code-flow protected error code (see @ref MCUXCLECC_STATUS_)
- * @retval #MCUXCLECC_STATUS_OK           EdDSA mode descriptor has been initialized successfully
- * @retval #MCUXCLECC_STATUS_FAULT_ATTACK fault attack (unexpected behavior) is detected
- */
-MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_EdDSA_InitPrivKeyInputMode)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_InitPrivKeyInputMode(
-    mcuxClSession_Handle_t pSession,
-    mcuxClEcc_EdDSA_GenerateKeyPairDescriptor_t *mode,
-    const uint8_t *pPrivKey
-    );
-
-
-MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comments.")
+MCUX_CSSL_ANALYSIS_START_PATTERN_HYPERLINK_IN_COMMENTS()
 /**
  * @brief This function implements the EdDSA key pair generation for Ed25519 and Ed448 as specified in rfc8032
  *  (see Sections 5.1.5 and 5.2.5 of https://datatracker.ietf.org/doc/html/rfc8032).
@@ -239,7 +214,7 @@ MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comment
  * @retval #MCUXCLECC_STATUS_RNG_ERROR    random number generation (DRBG / PRNG) error (unexpected behavior)
  * @retval #MCUXCLECC_STATUS_FAULT_ATTACK fault attack (unexpected behavior) is detected
  */
-MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TEXT_IN_COMMENTS()
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_HYPERLINK_IN_COMMENTS()
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_EdDSA_GenerateKeyPair)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_GenerateKeyPair(
     mcuxClSession_Handle_t pSession,
@@ -248,7 +223,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_GenerateKeyPair(
     mcuxClKey_Handle_t pubKey
     );
 
-MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comments.")
+MCUX_CSSL_ANALYSIS_START_PATTERN_HYPERLINK_IN_COMMENTS()
 /**
  * @brief This function implements the EdDSA signature generation for Ed25519 and Ed448 as specified in rfc8032 (see Sections 5.1.6 and 5.2.6 of https://datatracker.ietf.org/doc/html/rfc8032).
  *  For given hash prefix prefix (either dom2(x, y) or dom4(x, y) according to the chosen EdDSA variant; see Sections 5.1 and 5.2 of https://datatracker.ietf.org/doc/html/rfc8032),
@@ -269,9 +244,9 @@ MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comment
  * @param[in]  pSession       Handle for the current CL session
  * @param[in]  key            Key handle for private key related data which a.o. references the secret signing keys s and (hb,...,h{2b-1}) as well as the public key Qenc.
  * @param[in]  mode           Mode descriptor specifying the EdDSA variant
- * @param[in]  pIn            Pointer to message digest m'
+ * @param[in]  pIn            Buffer for message digest m'
  * @param[in]  inSize         Size of message digest m'
- * @param[out] pSignature     Pointer to buffer where the signature (Renc,S) will be stored
+ * @param[out] pSignature     Buffer for where the signature (Renc,S) will be stored
  * @param[out] pSignatureSize Will be set to the number of bytes of data that have been written to the pSignature buffer
  *
  * @return A code-flow protected error code (see @ref MCUXCLECC_STATUS_)
@@ -279,19 +254,19 @@ MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comment
  * @retval #MCUXCLECC_STATUS_RNG_ERROR     random number generation (DRBG / PRNG) error (unexpected behavior)
  * @retval #MCUXCLECC_STATUS_FAULT_ATTACK  fault attack (unexpected behavior) is detected
  */
-MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TEXT_IN_COMMENTS()
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_HYPERLINK_IN_COMMENTS()
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_EdDSA_GenerateSignature)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_GenerateSignature(
     mcuxClSession_Handle_t pSession,
     mcuxClKey_Handle_t key,
     const mcuxClEcc_EdDSA_SignatureProtocolDescriptor_t *mode,
-    const uint8_t *pIn,
+    mcuxCl_InputBuffer_t pIn,
     uint32_t inSize,
-    uint8_t *pSignature,
+    mcuxCl_Buffer_t pSignature,
     uint32_t * const pSignatureSize
     );
 
-MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comments.")
+MCUX_CSSL_ANALYSIS_START_PATTERN_HYPERLINK_IN_COMMENTS()
 /**
  * @brief This function implements the EdDSA signature verification for Ed25519 and Ed448 as specified in rfc8032 (see Sections 5.1.7 and 5.2.7 of https://datatracker.ietf.org/doc/html/rfc8032).
  *  For given hash prefix prefix (either dom2(x, y) or dom4(x, y) according to the chosen EdDSA variant; see Sections 5.1 and 5.2 of https://datatracker.ietf.org/doc/html/rfc8032),
@@ -310,9 +285,9 @@ MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comment
  * @param[in]  session         Handle for the current CL session
  * @param[in]  key             Key handle for public key Qenc
  * @param[in]  mode            Mode descriptor specifying the EdDSA variant
- * @param[in]  pIn             Pointer to message digest m'
+ * @param[in]  pIn             Buffer for message digest m'
  * @param[in]  inSize          Size of message digest m'
- * @param[in]  pSignature      Pointer to buffer containing the signature (Renc,S)
+ * @param[in]  pSignature      Buffer for signature (Renc,S)
  * @param[in]  signatureSize   Number of bytes of data in the pSignature buffer
  *
  * @return A code-flow protected error code (see @ref MCUXCLECC_STATUS_)
@@ -321,22 +296,40 @@ MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comment
  * @retval #MCUXCLECC_STATUS_INVALID_PARAMS    input parameters are invalid
  * @retval #MCUXCLECC_STATUS_FAULT_ATTACK      fault attack (unexpected behavior) is detected
  */
-MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TEXT_IN_COMMENTS()
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_HYPERLINK_IN_COMMENTS()
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_EdDSA_VerifySignature)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_VerifySignature(
     mcuxClSession_Handle_t session,
     mcuxClKey_Handle_t key,
     const mcuxClEcc_EdDSA_SignatureProtocolDescriptor_t *mode,
-    const uint8_t *pIn,
+    mcuxCl_InputBuffer_t pIn,
     uint32_t inSize,
-    const uint8_t *pSignature,
+    mcuxCl_InputBuffer_t pSignature,
     uint32_t signatureSize
+    );
+
+/**
+ * @brief This function initializes an EdDSA mode descriptor for EdDSA key pair generation with private key input.
+ *
+ * @param[in]     pSession              Handle for the current CL session
+ * @param[in/out] mode                  Pointer to mode descriptor to be initialized for EdDSA key pair generation with private key input
+ * @param[in]     pPrivKey              Pointer to private key input
+ *
+ * @return A code-flow protected error code (see @ref MCUXCLECC_STATUS_)
+ * @retval #MCUXCLECC_STATUS_OK           EdDSA mode descriptor has been initialized successfully
+ * @retval #MCUXCLECC_STATUS_FAULT_ATTACK fault attack (unexpected behavior) is detected
+ */
+MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_EdDSA_InitPrivKeyInputMode)
+MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_InitPrivKeyInputMode(
+    mcuxClSession_Handle_t pSession,
+    mcuxClEcc_EdDSA_GenerateKeyPairDescriptor_t *mode,
+    const uint8_t *pPrivKey
     );
 
 /**
  * @brief This function implements the protocol descriptor generation for Ed25519ctx, Ed25519ph, Ed448 and Ed448ph
  *
- * @param[in]  pSession             pointer to #mcuxClSession_Descriptor
+ * @param[in]  pSession             Handle for the current CL session
  * @param[in]  pDomainParams        Pointer to domain parameters of the used curve
  * @param[in]  pProtocolDescriptor  Protocol descriptor specifying the EdDSA variant
  * @param[in]  phflag               Option whether pre-hashing is enabled
@@ -344,7 +337,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_VerifySignature(
  * @param[in]  contextLen           Length of the context
  *
  * @return A code-flow protected error code (see @ref MCUXCLECC_STATUS_)
- * @retval #MCUXCLECC_STATUS_OK                signature verification passed
+ * @retval #MCUXCLECC_STATUS_OK                EdDSA protocol descriptor generated successfully
  * @retval #MCUXCLECC_STATUS_FAULT_ATTACK      fault attack (unexpected behavior) is detected
  */
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_EdDSA_GenerateProtocolDescriptor)
@@ -354,15 +347,51 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_GenerateProtocol
                                                     mcuxClEcc_EdDSA_SignatureProtocolDescriptor_t *pProtocolDescriptor,
                                                     uint32_t phflag,
                                                     mcuxCl_InputBuffer_t pContext,
-                                                    uint32_t contextLen);
+                                                    uint32_t contextLen
+                                                    );
 
 
 
+
+
+#ifdef MCUXCL_FEATURE_ECC_ECDSA_DETERMINISTIC
+
+/**
+ * @brief Function to generate a deterministic ECDSA protocol descriptor.
+ *
+ * This function generates an ECDSA protocol descriptor to perform deterministic ECDSA signature generation
+ * based on a given HMAC mode.
+ * 
+ * NOTE: This protocol is implemented according to RFC6979 which deviates from FIPS 186-5 standard in cases
+ * when generated r or s signature components equal zero. In such cases a new signature is generated using
+ * the (deterministic) HMAC_DRBG state from previous iteration.
+ *
+ * @param[in]  pSession             Handle for the current CL session.
+ * @param[out] pProtocolDescriptor  Pointer to output deterministic ECDSA protocol descriptor.
+ * @param[in]  hmacMode             pointer to HMAC mode.
+ *
+ *
+ * @return A code-flow protected error code (see @ref MCUXCLECC_STATUS_)
+ * @retval #MCUXCLECC_STATUS_OK              if the operation finished successfully.
+ * @retval #MCUXCLECC_STATUS_INVALID_PARAMS  if the input parameters are invalid.
+ * @retval #MCUXCLECC_STATUS_FAULT_ATTACK    if a fault attack (unexpected behavior) is detected.
+ */
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_DECLARED_BUT_NEVER_DEFINED("Definition is provided assuming library is built properly")
+MCUX_CSSL_FP_FUNCTION_DECL(mcuxClEcc_ECDSA_GenerateProtocolDescriptor_Deterministic)
+MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_ECDSA_GenerateProtocolDescriptor_Deterministic(
+    mcuxClSession_Handle_t session,
+    mcuxClEcc_ECDSA_SignatureProtocolDescriptor_t * const pProtocolDescriptor,
+    mcuxClMac_Mode_t hmacMode
+    );
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DECLARED_BUT_NEVER_DEFINED()
+#define mcuxClEcc_DeterministicECDSA_GenerateProtocolDescriptor mcuxClEcc_ECDSA_GenerateProtocolDescriptor_Deterministic ///< @deprecated Please use mcuxClEcc_ECDSA_GenerateProtocolDescriptor_Deterministic instead
+#endif /* MCUXCL_FEATURE_ECC_ECDSA_DETERMINISTIC */
 
 
 /**
  * @}
  */ /* mcuxClEcc_Functions */
+
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -72,7 +72,6 @@ void DSP_Init(void)
         /* Already powered on and reset, do nothing. */
     }
 
-    CLOCK_EnableClock(kCLOCK_Hifi4AccessRamArbiter1);
     CLOCK_EnableClock(kCLOCK_Hifi4);
 #elif defined(SLEEPCON1)
     RESET_ClearPeripheralReset(kHIFI1_DEBUG_RST_SHIFT_RSTn);
@@ -96,7 +95,6 @@ void DSP_Deinit(void)
 
 #if defined(MIMXRT798S_cm33_core0_SERIES)
     CLOCK_DisableClock(kCLOCK_Hifi4);
-    CLOCK_DisableClock(kCLOCK_Hifi4AccessRamArbiter1);
 
     POWER_EnablePD(kPDRUNCFG_APD_DSP_DTCM);
     POWER_EnablePD(kPDRUNCFG_APD_DSP_ITCM);

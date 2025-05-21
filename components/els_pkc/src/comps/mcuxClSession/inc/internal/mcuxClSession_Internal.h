@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021-2023 NXP                                                  */
+/* Copyright 2021-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -25,6 +25,9 @@
 #include <mcuxClSession_Types.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
+#if defined(__COVERITY__)
+#include <internal/mcuxClPkc_Macros.h>
+#endif /* defined(__COVERITY__) */
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,40 +36,6 @@ extern "C" {
 /**********************************************
  * FUNCTIONS
  **********************************************/
-
-/**
- * \brief Allocate a CPU buffer in the CPU workarea of a session.
- *
- * This function allocates a new CPU buffer in the given \p session,
- * and sets the given \p buffer accordingly.
- *
- * \param  pSession        Session handle.
- * \param  buffer          A pointer to the buffer that we want to allocate.
- * \param  bufferLength    The size of the buffer.
- *
- * \return status
- */
-MCUX_CSSL_FP_FUNCTION_DECL(mcuxClSession_allocateCpuBuffer)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_allocateCpuBuffer(
-    mcuxClSession_Handle_t pSession,
-    uint32_t **buffer,
-    uint32_t bufferLength
-);
-
-/**
- * \brief Free all CPU buffers of a session.
- *
- * This function will free all allocated CPU buffers of the given \p session.
- *
- * \param  pSession Session handle.
- *
- * \return status
- */
-MCUX_CSSL_FP_FUNCTION_DECL(mcuxClSession_freeAllCpuBuffers)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_freeAllCpuBuffers(
-    mcuxClSession_Handle_t pSession
-);
-
 
 /**
  * @brief (inline) function to allocate CPU buffer.
@@ -86,12 +55,13 @@ static inline uint32_t* mcuxClSession_allocateWords_cpuWa(
 {
     uint32_t * pCpuBuffer = NULL;
     const uint32_t usedWords = pSession->cpuWa.used;
+
+    MCUX_CSSL_ANALYSIS_ASSERT_PARAMETER(usedWords, 0u, (UINT32_MAX >> 2u), NULL)
+    MCUX_CSSL_ANALYSIS_ASSERT_PARAMETER(wordsToAllocate, 0u, (UINT32_MAX >> 2u) - usedWords, NULL)
     const uint32_t expectedUsed = usedWords + wordsToAllocate;
-    /* TODO: CLNS-5886 [DEV][Session] enable size checking when allocating buffers */
-#if 0  /* checking disabled before all components/tests allocate workarea properly */
+
     if (expectedUsed <= pSession->cpuWa.size)
     {
-#endif
         pCpuBuffer = & (pSession->cpuWa.buffer[usedWords]);
         pSession->cpuWa.used = expectedUsed;
 
@@ -99,11 +69,22 @@ static inline uint32_t* mcuxClSession_allocateWords_cpuWa(
         {
             pSession->cpuWa.dirty = expectedUsed;
         }
-#if 0
     }
-#endif
 
     return pCpuBuffer;
+}
+
+/**
+ * @brief Get workarea buffer
+ *
+ * @param session   Handle for the current CL session.
+ *
+ * @return Pointer to first unused place in current work area
+ */
+MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_getCpuWaBuffer)
+static inline uint32_t* mcuxClSession_getCpuWaBuffer(mcuxClSession_Handle_t pSession)
+{
+    return &(pSession->cpuWa.buffer[pSession->cpuWa.used]);
 }
 
 /**
@@ -131,12 +112,13 @@ static inline uint32_t* mcuxClSession_allocateWords_pkcWa(
 {
     uint32_t * pPkcBuffer = NULL;
     const uint32_t usedWords = pSession->pkcWa.used;
+
+    MCUX_CSSL_ANALYSIS_ASSERT_PARAMETER(usedWords, 0u, MCUXCLPKC_RAM_SIZE, NULL)
+    MCUX_CSSL_ANALYSIS_ASSERT_PARAMETER(wordsToAllocate, 0u, MCUXCLPKC_RAM_SIZE - usedWords, NULL)
     const uint32_t expectedUsed = usedWords + wordsToAllocate;
-    /* TODO: CLNS-5886 [DEV][Session] enable size checking when allocating buffers */
-#if 0  /* checking disabled before all components/tests allocate workarea properly */
+
     if (expectedUsed <= pSession->pkcWa.size)
     {
-#endif
         pPkcBuffer = & (pSession->pkcWa.buffer[usedWords]);
         pSession->pkcWa.used = expectedUsed;
 
@@ -144,9 +126,7 @@ static inline uint32_t* mcuxClSession_allocateWords_pkcWa(
         {
             pSession->pkcWa.dirty = expectedUsed;
         }
-#if 0
     }
-#endif
 
     return pPkcBuffer;
 }
@@ -200,95 +180,12 @@ static inline void mcuxClSession_freeWords_pkcWa(
 }
 
 /**
- * @brief (inline) function to get number of used words in CPU workarea
+ * @brief Set the Security options in a Crypto Library session.
  *
- * This function returns the number of used words in CPU workarea.
+ * @param  session          Handle for the current CL session.
+ * @param  securityOptions  Security options that will be set
  *
- * @param[in] pSession  Session handle.
- *
- * @return The number of CPU words (uint32_t) of used part of CPU workarea.
- */
-MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_getUsage_cpuWa)
-static inline uint32_t mcuxClSession_getUsage_cpuWa(
-    mcuxClSession_Handle_t pSession)
-{
-    return pSession->cpuWa.used;
-}
-
-/**
- * @brief (inline) function to get number of used words in PKC workarea
- *
- * This function returns the number of used words in PKC workarea.
- *
- * @param[in] pSession  Session handle.
- *
- * @return The number of CPU words (uint32_t) of used part of PKC workarea.
- */
-MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_getUsage_pkcWa)
-static inline uint32_t mcuxClSession_getUsage_pkcWa(
-    mcuxClSession_Handle_t pSession)
-{
-    return pSession->pkcWa.used;
-}
-
-/**
- * @brief (inline) function to set number of used words in CPU workarea
- *
- * This function sets (restores) the number of used word(s) in CPU workarea.
- * It frees all space allocated after the corresponding call to #mcuxClSession_getUsage_cpuWa.
- * The space is freed but **not** erased (zeroed).
- *
- * @param[in] pSession         Session handle.
- * @param[in] backupUsedCpuWa  backup of the number of used word(s).
- */
-MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_setUsage_cpuWa)
-static inline void mcuxClSession_setUsage_cpuWa(
-    mcuxClSession_Handle_t pSession,
-    uint32_t backupUsedCpuWa)
-{
-    if(backupUsedCpuWa > pSession->cpuWa.size)
-    {
-        pSession->cpuWa.used = pSession->cpuWa.size;
-    }
-    else
-    {
-        pSession->cpuWa.used = backupUsedCpuWa;
-    }
-}
-
-/**
- * @brief (inline) function to set number of used words in PKC workarea
- *
- * This function sets (restores) the number of used word(s) in PKC workarea.
- * It frees all space allocated after the corresponding call to #mcuxClSession_getUsage_pkcWa.
- * The space is freed but **not** erased (zeroed).
- *
- * @param[in] pSession         Session handle.
- * @param[in] backupUsedPkcWa  backup of the number of used word(s).
- */
-MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_setUsage_pkcWa)
-static inline void mcuxClSession_setUsage_pkcWa(
-    mcuxClSession_Handle_t pSession,
-    uint32_t backupUsedPkcWa)
-{
-    if(backupUsedPkcWa > pSession->pkcWa.size)
-    {
-        pSession->pkcWa.used = pSession->pkcWa.size;
-    }
-    else
-    {
-        pSession->pkcWa.used = backupUsedPkcWa;
-    }
-}
-
-
-/**
- * \brief Set the Security options in a Crypto Library session.
- *
- * \param  session          Handle for the current CL session.
- * \param  securityOptions  Security options that will be set
- *
- * \return void
+ * @return void
  */
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_setSecurityOptions_Internal)
 static inline void mcuxClSession_setSecurityOptions_Internal(
@@ -302,11 +199,11 @@ static inline void mcuxClSession_setSecurityOptions_Internal(
 }
 
 /**
- * \brief Get the Security options from a Crypto Library session.
+ * @brief Get the Security options from a Crypto Library session.
  *
- * \param  session          Handle for the current CL session.
+ * @param  session          Handle for the current CL session.
  *
- * \return securityOptions  Security options that will be returned
+ * @return securityOptions  Security options that will be returned
  */
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClSession_getSecurityOptions_Internal)
 static inline mcuxClSession_SecurityOptions_t mcuxClSession_getSecurityOptions_Internal(

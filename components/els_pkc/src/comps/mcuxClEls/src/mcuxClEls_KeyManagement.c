@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClEls_KeyManagement.c
@@ -57,7 +57,9 @@ MCUXCLELS_API MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEls_Status_t) mcuxClEls_KeyDelet
 
     /* Increment drbg_block_counter. If the counter overflowed, the interrupt handler will
      * reseed the DRBG and reset the counter after the upcoming ELS operation. */
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_OVERFLOW("Overflow handled in interrupt handler")
     mcuxClEls_rng_drbg_block_counter += drbg_counter_increase;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_OVERFLOW()
 
     MCUX_CSSL_FP_EXPECT(MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_GetKeyProperties));
 #endif /* MCUXCL_FEATURE_ELS_ITERATIVE_SEEDING */
@@ -128,7 +130,7 @@ MCUXCLELS_API MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEls_Status_t) mcuxClEls_KeyImpor
 
     mcuxClEls_setInput0(pCertificate, certificateLength);
     mcuxClEls_setInput1_fixedSize(pSignature);
-    mcuxClEls_setInput2_fixedSize((const uint8_t *) publicKeyOffset);
+    mcuxClEls_setInput2Offset_fixedSize((uint32_t)publicKeyOffset);
 
     mcuxClEls_setRequestedKeyProperties(keyProperties.word.value);
     mcuxClEls_setKeystoreIndex1(targetKeyIdx);
@@ -143,7 +145,8 @@ MCUXCLELS_API MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEls_Status_t) mcuxClEls_KeyImpor
 }
 #endif /* MCUXCL_FEATURE_ELS_PUK_INTERNAL */
 
-static MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEls_Status_t) mcuxClEls_handleKeyExportError(uint8_t *pOutput, size_t keyLength, mcuxClEls_InterruptOptionEn_t interrupt_state_old)
+MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEls_handleKeyExportError)
+MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEls_Status_t) mcuxClEls_handleKeyExportError(uint8_t *pOutput, size_t keyLength, mcuxClEls_InterruptOptionEn_t interrupt_state_old)
 {
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEls_handleKeyExportError,
                                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_ResetIntFlags),

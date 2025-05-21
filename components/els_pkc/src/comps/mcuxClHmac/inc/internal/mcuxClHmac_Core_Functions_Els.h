@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2023 NXP                                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClHmac_Core_Functions_Els.h
@@ -41,9 +41,9 @@ MCUX_CSSL_FP_FUNCTION_DECL(mcuxClHmac_Engine_Oneshot_Els, mcuxClHmac_ComputeEngi
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Oneshot_Els(
     mcuxClSession_Handle_t session,                /* HMAC session handle */
     mcuxClHmac_Context_Generic_t * const pContext, /* HMAC context */
-    const uint8_t * const pIn,                    /* HMAC input */
+    mcuxCl_InputBuffer_t pIn,                    /* HMAC input */
     uint32_t inLength,                            /* Input size */
-    uint8_t * const pOut,                         /* HMAC output */
+    mcuxCl_Buffer_t pOut,                         /* HMAC output */
     uint32_t * const pOutLength                   /* Output size */
 );
 
@@ -69,7 +69,7 @@ MCUX_CSSL_FP_FUNCTION_DECL(mcuxClHmac_Engine_Update_Els, mcuxClHmac_UpdateEngine
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Update_Els(
     mcuxClSession_Handle_t session,                /*  HMAC session handle */
     mcuxClHmac_Context_Generic_t * const pContext, /* HMAC context */
-    const uint8_t *const pIn,                     /*  HMAC input */
+    mcuxCl_InputBuffer_t pIn,                      /*  HMAC input */
     uint32_t inLength                             /*  Input size */
 );
 
@@ -83,7 +83,7 @@ MCUX_CSSL_FP_FUNCTION_DECL(mcuxClHmac_Engine_Finalize_Els, mcuxClHmac_FinalizeEn
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_Engine_Finalize_Els(
     mcuxClSession_Handle_t session,                /*  HMAC session handle */
     mcuxClHmac_Context_Generic_t * const pContext, /* HMAC context */
-    uint8_t *const pOut,                          /*  HMAC output */
+    mcuxCl_Buffer_t pOut,                          /*  HMAC output */
     uint32_t *const pOutLength                    /*  Output size */
 );
 

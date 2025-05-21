@@ -24,8 +24,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief reset driver version 2.0.0. */
-#define FSL_RESET_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+/*! @brief reset driver version 2.1.0. */
+#define FSL_RESET_DRIVER_VERSION (MAKE_VERSION(2, 1, 0))
 /*@}*/
 
 #if defined(MIMXRT798S_hifi1_SERIES) || defined(MIMXRT798S_cm33_core1_SERIES) || \
@@ -34,6 +34,8 @@
 #elif defined(MIMXRT798S_hifi4_SERIES) || defined(MIMXRT798S_cm33_core0_SERIES) || \
     defined(MIMXRT758S_cm33_core0_SERIES) || defined(MIMXRT735S_cm33_core0_SERIES)
 #define FSL_RESET_DRIVER_COMPUTE
+#elif defined(MIMXRT798S_ezhv_SERIES)
+#define FSL_RESET_DRIVER_MEDIA
 #else
 #error "Unsupported core!"
 #endif
@@ -148,7 +150,7 @@ typedef enum _RSTCTL_RSTn
     kPINT_RST_SHIFT_RSTn = (RST_CTL0_PSCCTL4 << 8) | 5U,           /*!< PINT0 reset control */
 #endif
     kINPUTMUX0_RST_SHIFT_RSTn = (RST_CTL0_PSCCTL4 << 8) | 7U,      /*!< INPUTMUX0 reset control */
-    kFREQME0_RST_SHIFT_RSTn   = (RST_CTL0_PSCCTL4 << 8) | 8U,      /*!< FREQME0 reset control */
+    kFREQME_RST_SHIFT_RSTn    = (RST_CTL0_PSCCTL4 << 8) | 8U,      /*!< FREQME0 reset control */
     kSYSPM0_RST_SHIFT_RSTn    = (RST_CTL0_PSCCTL4 << 8) | 10U,     /*!< SYSPM_PC reset control */
     kSYSPM1_RST_SHIFT_RSTn    = (RST_CTL0_PSCCTL4 << 8) | 11U,     /*!< SYSPM_PS reset control */
     kNPU0_RST_SHIFT_RSTn      = (RST_CTL0_PSCCTL4 << 8) | 12U,     /*!< NPU0 reset control */
@@ -215,11 +217,62 @@ typedef enum _RSTCTL_RSTn
     kUSDHC1_RST_SHIFT_RSTn  = (RST_CTL4_PSCCTL1 << 8) | 5U,        /*!< USDHC1 reset control */
 } RSTCTL_RSTn_t;
 
+/*! @brief Flash device current running mode. */
+enum
+{
+    kFlashInstMode_ExtendedSpi = 0x0U,
+    kFlashInstMode_0_4_4_SDR   = 0x1U,
+    kFlashInstMode_0_4_4_DDR   = 0x2U,
+    kFlashInstMode_DPI_SDR     = 0x21U,
+    kFlashInstMode_DPI_DDR     = 0x22U,
+    kFlashInstMode_QPI_SDR     = 0x41U,
+    kFlashInstMode_QPI_DDR     = 0x42U,
+    kFlashInstMode_OPI_SDR     = 0x81U,
+    kFlashInstMode_OPI_DDR     = 0x82U,
+};
+
+/*! @brief flash reset sequence of standard SPI mode. */
+enum
+{
+    kRestoreSeqence_None             = 0U,
+    kRestoreSeqence_QPI_4_0xFFs      = 2U,
+    kRestoreSeqence_QPI_Mode_0x00    = 3U,
+    kRestoreSeqence_Send_F0          = 5U,
+    kRestoreSeqence_Send_66_99       = 6U,
+    kRestoreSeqence_Send_6699_9966   = 7U,
+    kRestoreSeqence_Send_06_FF       = 8U,
+    kRestoreSeqence_QPI_5_0xFFs      = 9U,
+    kRestoreSeqence_Send_QPI_8_0xFFs = 10U,
+    kRestoreSeqence_Wakep_0xAB       = 11U,
+    kRestoreSeqence_Wakep_0xAB_54    = 12U,
+};
+
+/*!
+ * @brief Flash context
+ *
+ * Defines the flash context parameter used by ROM.
+ */
+typedef union _FLASH_run_context_t
+{
+    struct
+    {
+        uint8_t reseverd0;        /*!< Reserved. */
+        uint8_t current_mode;     /*!< Flash device current running mode. */
+        uint8_t reserved1;        /*!< Reserved. */ 
+        uint8_t restore_sequence; /*!< Flash reset sequence of standard SPI mode. */
+    } B;
+    uint32_t U;
+} FLASH_run_context_t;
+
 /** Array initializers with peripheral reset bits **/
 #define ADC_RSTS             \
     {                        \
         kADC0_RST_SHIFT_RSTn \
     } /* Reset bits for ADC peripheral */
+#define SDADC_RSTS             \
+    {                          \
+        kSDADC0_RST_SHIFT_RSTn \
+    } /* Reset bits for SDADC peripheral */
 #define CRC_RSTS             \
     {                        \
         kCRC0_RST_SHIFT_RSTn \
@@ -249,18 +302,22 @@ typedef enum _RSTCTL_RSTn
     {                           \
         kFLEXIO0_RST_SHIFT_RSTn \
     } /* Resets bits for FLEXIO peripheral */
+#define FREQME_RSTS_N          \
+    {                          \
+        kFREQME_RST_SHIFT_RSTn \
+    } /* Resets bits for FREQME0 peripheral */
 #define XSPI_RSTS                                                           \
     {                                                                       \
         kXSPI0_RST_SHIFT_RSTn, kXSPI1_RST_SHIFT_RSTn, kXSPI2_RST_SHIFT_RSTn \
     } /* Resets bits for FLEXSPI peripheral */
-#define GPIO_RSTS                                                                                       \
-    {                                                                                                   \
-        kGPIO0_RST_SHIFT_RSTn, kGPIO1_RST_SHIFT_RSTn, kGPIO2_RST_SHIFT_RSTn, kGPIO3_RST_SHIFT_RSTn,     \
-            kGPIO4_RST_SHIFT_RSTn, kGPIO5_RST_SHIFT_RSTn, kGPIO6_RST_SHIFT_RSTn, kGPIO7_RST_SHIFT_RSTn, \
-            kGPIO8_RST_SHIFT_RSTn, kGPIO9_RST_SHIFT_RSTn, kGPIO10_RST_SHIFT_RSTn, kGPIO0_RST_SHIFT_RSTn,\
-            kGPIO1_RST_SHIFT_RSTn, kGPIO2_RST_SHIFT_RSTn, kGPIO3_RST_SHIFT_RSTn, kGPIO4_RST_SHIFT_RSTn, \
-            kGPIO5_RST_SHIFT_RSTn, kGPIO6_RST_SHIFT_RSTn, kGPIO7_RST_SHIFT_RSTn, kGPIO8_RST_SHIFT_RSTn, \
-            kGPIO9_RST_SHIFT_RSTn, kGPIO10_RST_SHIFT_RSTn                                               \
+#define GPIO_RSTS                                                                                        \
+    {                                                                                                    \
+        kGPIO0_RST_SHIFT_RSTn, kGPIO1_RST_SHIFT_RSTn, kGPIO2_RST_SHIFT_RSTn, kGPIO3_RST_SHIFT_RSTn,      \
+            kGPIO4_RST_SHIFT_RSTn, kGPIO5_RST_SHIFT_RSTn, kGPIO6_RST_SHIFT_RSTn, kGPIO7_RST_SHIFT_RSTn,  \
+            kGPIO8_RST_SHIFT_RSTn, kGPIO9_RST_SHIFT_RSTn, kGPIO10_RST_SHIFT_RSTn, kGPIO0_RST_SHIFT_RSTn, \
+            kGPIO1_RST_SHIFT_RSTn, kGPIO2_RST_SHIFT_RSTn, kGPIO3_RST_SHIFT_RSTn, kGPIO4_RST_SHIFT_RSTn,  \
+            kGPIO5_RST_SHIFT_RSTn, kGPIO6_RST_SHIFT_RSTn, kGPIO7_RST_SHIFT_RSTn, kGPIO8_RST_SHIFT_RSTn,  \
+            kGPIO9_RST_SHIFT_RSTn, kGPIO10_RST_SHIFT_RSTn                                                \
     } /* Reset bits for GPIO peripheral */
 #define I3C_RSTS                                                                               \
     {                                                                                          \
@@ -313,6 +370,7 @@ typedef enum _RSTCTL_RSTn
     {                                            \
         kMU0_RST_SHIFT_RSTn, kMU3_RST_SHIFT_RSTn \
     } /* Reset bits for MU peripheral */
+#elif defined(MIMXRT798S_ezhv_SERIES)
 #else
 #error "Unsupported core!"
 #endif
@@ -445,6 +503,32 @@ static inline uint32_t RESET_GetDomainResetStatus(void)
 {
     return RSTCTL3->DOMRSTSTAT;
 }
+
+#if defined(FSL_RESET_DRIVER_COMPUTE)
+
+/*!
+ * @brief Set flash state context register used by ROM.
+ *
+ * During flash boot, the ROM requires the flash memory device to be in 1-bit
+ * SPI compatible mode. The boot process requires special processing to restore
+ * the flash device if it was changed by application. The flash state context
+ * can be used by ROM to reset the flash to default working mode.
+ * @code
+ *     FLASH_run_context_t run_ctx = {.U = 0 };
+ *     // Set the current FLASH mode
+ *     run_ctx.B.current_mode = kFlashInstMode_OPI_DDR;
+ *     // Select the FLASH reset sequences
+ *     run_ctx.B.restore_sequence = kRestoreSeqence_Send_6699_9966;
+ *     RESET_SetFlashStateContext(run_ctx.U) // Update the context register
+ * @endcode
+ *
+ * @param context Flash state context defined by @ref FLASH_run_context_t.
+ */
+static inline void RESET_SetFlashStateContext(uint32_t context)
+{
+    RTC0->GPR = context;
+}
+#endif
 
 #if defined(__cplusplus)
 }

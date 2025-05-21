@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2023 NXP                                                       */
+/* Copyright 2023-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClMac_Internal_Constants.h
@@ -20,7 +20,9 @@
 
 #include <mcuxClConfig.h> // Exported features flags header
 #include <mcuxClMacModes_Constants.h>
+#include <internal/mcuxClMacModes_Els_Ctx.h>
 #include <mcuxClHmac_Constants.h>
+#include <internal/mcuxClHmac_Internal_Memory.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,9 +34,25 @@ extern "C" {
 /* Define maximum output size for mcuxClMacModes modes */
 #define MCUXCLMAC_MAX_OUTPUT_SIZE_MACMODES                   (MCUXCLMACMODES_MAX_OUTPUT_SIZE)
 
-#define MCUXCLMAC_MAX_OUTPUT_SIZE                            ((MCUXCLMAC_MAX_OUTPUT_SIZE_HMAC > MCUXCLMAC_MAX_OUTPUT_SIZE_MACMODES) ? MCUXCLMAC_MAX_OUTPUT_SIZE_HMAC : MCUXCLMAC_MAX_OUTPUT_SIZE_MACMODES)
+#define MCUXCLMAC_MAX_OUTPUT_SIZE                            ( \
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_CONTROLLING_EXPRESSION_IS_INVARIANT("Size calculation macro supports constant values") \
+    ((MCUXCLMAC_MAX_OUTPUT_SIZE_HMAC > MCUXCLMAC_MAX_OUTPUT_SIZE_MACMODES) ? MCUXCLMAC_MAX_OUTPUT_SIZE_HMAC : MCUXCLMAC_MAX_OUTPUT_SIZE_MACMODES) \
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_CONTROLLING_EXPRESSION_IS_INVARIANT())
 
 #define MCUXCLMAC_MAX_OUTPUT_SIZE_IN_WORDS                   (MCUXCLMAC_MAX_OUTPUT_SIZE / sizeof(uint32_t))
+
+
+/* Define maximum context size for mcuxClHmac modes */
+#define MCUXCLMAC_MAX_CONTEXT_SIZE_HMAC                       (MCUXCLHMAC_INTERNAL_MAX_CONTEXT_SIZE)
+
+/* Define maximum context size for mcuxClMacModes modes */
+#define MCUXCLMAC_MAX_CONTEXT_SIZE_MACMODES                   (sizeof(mcuxClMacModes_Context_t))
+
+#define MCUXCLMAC_MAX_CONTEXT_SIZE                            ( \
+MCUX_CSSL_ANALYSIS_START_SUPPRESS_CONTROLLING_EXPRESSION_IS_INVARIANT("Size calculation macro supports constant values") \
+    ((MCUXCLMAC_MAX_CONTEXT_SIZE_HMAC > MCUXCLMAC_MAX_CONTEXT_SIZE_MACMODES) ? MCUXCLMAC_MAX_CONTEXT_SIZE_HMAC : MCUXCLMAC_MAX_CONTEXT_SIZE_MACMODES) \
+MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_CONTROLLING_EXPRESSION_IS_INVARIANT())
+#define MCUXCLMAC_MAX_CONTEXT_SIZE_IN_WORDS                   (MCUXCLMAC_MAX_CONTEXT_SIZE / sizeof(uint32_t))
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -66,13 +66,13 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_init(
 );
 
 /**
- * \brief Set the RTF option in a Crypto Library session.
+ * @brief Set the RTF option in a Crypto Library session.
  *
- * \param  pSession    Session to be initialized.
- * \param  pRtf        buffer to store the rtf result.
- * \param  RtfOptions  Options to define RTF processing.
+ * @param  pSession    Session to be initialized.
+ * @param  pRtf        buffer to store the rtf result.
+ * @param  RtfOptions  Options to define RTF processing.
  *
- * \return status
+ * @return status
  */
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClSession_setRtf)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_setRtf(
@@ -88,13 +88,13 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_setRtf(
 
 
 /**
- * \brief Clean up a Crypto Library session.
+ * @brief Clean up a Crypto Library session.
  *
  * This function will (securely) cleanup the session, which will still be usable afterwards.
  *
- * \param  pSession Session to be cleaned.
+ * @param  pSession Session to be cleaned.
  *
- * \return status
+ * @return status
  * @retval #MCUXCLSESSION_STATUS_OK  Session operation successful
  */
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClSession_cleanup)
@@ -103,29 +103,30 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_cleanup(
 );
 
 /**
- * \brief Destroy a Crypto Library session.
+ * @brief Destroy a Crypto Library session.
  *
  * This function will (securely) cleanup the session, including uninitialization etc.
  * The session will no longer be usable afterwards.
  *
- * \param  pSession Session to be destroyed.
+ * @param  pSession Session to be destroyed.
  *
- * \return status
+ * @return status
+ * @retval #MCUXCLSESSION_STATUS_OK     Session operation successful
+ * @retval #MCUXCLSESSION_STATUS_ERROR  Error occurred during Session operation
  */
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClSession_destroy)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_destroy(
   mcuxClSession_Handle_t pSession
 );
 
-#ifdef MCUXCL_FEATURE_SESSION_HAS_RANDOM
 /**
- * \brief Function to switch to another random configuration.
+ * @brief Function to switch to another random configuration.
  *
- * \param  session     Session to set the new random configuration.
- * \param  randomMode  Random data generation mode/algorithm. It should be the same mode used to initialize randomCtx.
- * \param  randomCtx   Random context.
+ * @param  session     Session to set the new random configuration.
+ * @param  randomMode  Random data generation mode/algorithm. It should be the same mode used to initialize randomCtx.
+ * @param  randomCtx   Random context.
  *
- * \return status
+ * @return status
  */
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClSession_setRandom)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_setRandom(
@@ -133,7 +134,6 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClSession_Status_t) mcuxClSession_setRandom(
     mcuxClRandom_Mode_t randomMode,
     mcuxClRandom_Context_t randomCtx
 );
-#endif // MCUXCL_FEATURE_SESSION_HAS_RANDOM
 
 /**
  * @}

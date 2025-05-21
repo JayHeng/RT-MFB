@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClMacModes_Els_Functions.c
@@ -22,7 +22,7 @@
 #include <mcuxClCore_FunctionIdentifiers.h>
 #include <internal/mcuxClKey_Internal.h>
 #include <internal/mcuxClMac_Internal_Types.h>
-#include <internal/mcuxClMacModes_Internal_Functions.h>
+#include <internal/mcuxClMacModes_Common_Functions.h>
 #include <internal/mcuxClMacModes_Els_Ctx.h>
 #include <internal/mcuxClMacModes_Els_Types.h>
 
@@ -36,9 +36,9 @@ uint32_t inLength,
 mcuxCl_Buffer_t pMac,
 uint32_t * const pMacLength)
 {
-  MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY("Reinterpret structure for different MacModes Algorithm types")
+  MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
   mcuxClMacModes_Algorithm_t pAlgo = (mcuxClMacModes_Algorithm_t) mode->common.pAlgorithm;
-  MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY()
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
   MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClMacModes_compute, pAlgo->protectionToken_engineOneshot);
   mcuxClMacModes_Context_t context = {0u};
   context.common.pMode = mode;
@@ -53,9 +53,10 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClMacModes_init(
   mcuxClMac_Context_t * const pContext,
   mcuxClKey_Handle_t key)
 {
-  /* MISRA Ex. 9 to Rule 11.3 - reinterpret memory */
+  MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
   mcuxClMacModes_Context_t * const pCtx = (mcuxClMacModes_Context_t *) pContext;
   mcuxClMacModes_Algorithm_t pAlgo = (mcuxClMacModes_Algorithm_t) pCtx->common.pMode->common.pAlgorithm;
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
   MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClMacModes_init, pAlgo->protectionToken_engineInit);
   pCtx->key = (mcuxClKey_Descriptor_t *) key;
   MCUX_CSSL_FP_FUNCTION_CALL(result, pAlgo->engineInit(session, pCtx));
@@ -69,9 +70,10 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClMacModes_process(
   mcuxCl_InputBuffer_t pIn,
   uint32_t inLength)
 {
-  /* MISRA Ex. 9 to Rule 11.3 - reinterpret memory */
+  MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
   mcuxClMacModes_Context_t * const pCtx = (mcuxClMacModes_Context_t *) pContext;
   mcuxClMacModes_Algorithm_t pAlgo = (mcuxClMacModes_Algorithm_t) pCtx->common.pMode->common.pAlgorithm;
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
   MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClMacModes_process, pAlgo->protectionToken_engineUpdate);
   MCUX_CSSL_FP_FUNCTION_CALL(result, pAlgo->engineUpdate(session, pCtx, pIn, inLength));
   MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClMacModes_process, result);
@@ -84,9 +86,10 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClMacModes_finish(
   mcuxCl_Buffer_t pMac,
   uint32_t * const pMacLength)
 {
-  /* MISRA Ex. 9 to Rule 11.3 */
+  MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
   mcuxClMacModes_Context_t * const pCtx = (mcuxClMacModes_Context_t *) pContext;
   mcuxClMacModes_Algorithm_t pAlgo = (mcuxClMacModes_Algorithm_t) pCtx->common.pMode->common.pAlgorithm;
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
   MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClMacModes_finish, pAlgo->protectionToken_engineFinalize);
   MCUX_CSSL_FP_FUNCTION_CALL(result, pAlgo->engineFinalize(session, pCtx, pMac, pMacLength));
   MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClMacModes_finish, result);

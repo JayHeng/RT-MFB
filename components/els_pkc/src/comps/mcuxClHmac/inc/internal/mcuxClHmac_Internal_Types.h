@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2023 NXP                                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClHmac_Internal_Types.h
@@ -19,7 +19,7 @@
 #define MCUXCLHMAC_INTERNAL_TYPES_H_
 
 #include <mcuxClConfig.h> // Exported features flags header
-#include <mcuxClCore_Buffer.h>
+#include <mcuxClBuffer.h>
 #include <mcuxClCore_Platform.h>
 #include <mcuxClSession_Types.h>
 #include <mcuxCsslFlowProtection.h>
@@ -30,6 +30,7 @@
 #include <internal/mcuxClPadding_Types_Internal.h> /* for mcuxClHash_ContextBuffer_t */
 #include <mcuxClHash_Types.h>
 #include <internal/mcuxClHash_Internal.h>
+#include <internal/mcuxClHashModes_Internal_Memory.h>
 #include <mcuxClEls_Hmac.h>
 
 #ifdef __cplusplus
@@ -79,9 +80,9 @@ typedef struct mcuxClHmac_Context_Els
 typedef struct mcuxClHmac_Context_Sw
 {
     MCUXCLHMAC_CONTEXT_COMMON_ENTRIES
-    mcuxClHash_ContextDescriptor_t *hashCtx;                                                 /* Hash context for SW-HMAC */
-    mcuxClHash_ContextDescriptor_t hashContextBuffer;                                        /* Buffer to store the actual hash context data */
-    uint32_t preparedHmacKey[MCUXCLHASH_BLOCK_SIZE_MAX / sizeof(uint32_t)];                  /* Padded/Hashed HMAC key, must be large enough to hold any block */
+    mcuxClHash_ContextDescriptor_t *hashCtx;                                                             /* Hash context for SW-HMAC */
+    uint32_t hashContextBuffer[MCUXCLHASHMODES_CONTEXT_MAX_SIZE_INTERNAL_NO_SECSHA / sizeof(uint32_t)];  /* Buffer to store the actual hash context data using maximum size of a hash context */
+    uint32_t preparedHmacKey[MCUXCLHASH_BLOCK_SIZE_MAX / sizeof(uint32_t)];                              /* Padded/Hashed HMAC key, must be large enough to hold any block */
 } mcuxClHmac_Context_Sw_t;
 
 
@@ -100,9 +101,9 @@ MCUX_CSSL_FP_FUNCTION_POINTER(mcuxClHmac_ComputeEngine_t,
 typedef MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) (*mcuxClHmac_ComputeEngine_t)(
     mcuxClSession_Handle_t session,
     mcuxClHmac_Context_Generic_t * const pContext,
-    const uint8_t *const pIn,
+    mcuxCl_InputBuffer_t pIn,
     uint32_t inLength,
-    uint8_t *const pOut,
+    mcuxCl_Buffer_t pOut,
     uint32_t *const outLength
 ));
 

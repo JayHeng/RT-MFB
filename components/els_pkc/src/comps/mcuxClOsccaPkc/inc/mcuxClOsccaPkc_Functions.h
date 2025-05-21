@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2018-2022 NXP                                                  */
+/* Copyright 2018-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -66,6 +66,43 @@ MCUX_CSSL_FP_FUNCTION_DECL(mcuxClOsccaPkc_ComputeNDash) /* No semicolon */
 MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClOsccaPkc_ComputeNDash(uint32_t iNiTiXiX);
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClOsccaPkc_ComputeQSquared) /* No semicolon */
 MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClOsccaPkc_ComputeQSquared(uint32_t iQiMiTiX, uint16_t iMs);
+
+/**********************************************************/
+/* UPTR table                                             */
+/**********************************************************/
+/**
+ * @addtogroup mcuxClOsccaPkc_Functions_UPTRT
+ * mcuxClOsccaPkc functions of PKC UPTR table setup
+ * @{
+ */
+
+/**
+ * @brief Initialize UPTR table.
+ *
+ * This function initializes elements in UPTR table.
+ * UPTR table contains the address (16-bit offset in PKC workarea) of each buffer (PKC operand).
+ * Each element of the table will be initialized with a 16-bit offset, associated with a buffer allocated in sequence in PKC workarea.
+ * When calling this function, there shall be no on-going and pending PKC calculations using the specified UPTR table elements.
+ *
+ * @param[out] pOperandsBase      pointer to the first element to be initialized in UPTR table.
+ * @param[in] pBufferBase         address of the buffer in PKC workarea, with which the first element will be associated.
+ * @param[in] bufferSize          byte length of each buffer in PKC workarea.
+ * @param[in] bufferNums          number of elements to be initialized.
+ *
+ * <dl>
+ *   <dt>Parameter properties</dt>
+ *   <dd><dl>
+ *     <dt>@p pOperandsBase</dt>
+ *       <dd>this pointer shall be 2-byte aligned.
+ *     <dt>@p pBufferBase</dt>
+ *       <dd>this address shall be MCUXCLOSCCAPKC_WORDSIZE aligned.
+ *     <dt>@p bufferSize</dt>
+ *       <dd>this length shall be a multiple of MCUXCLOSCCAPKC_WORDSIZE.
+ *     <dt>@p bufferNums</dt>
+ *       <dd>this number shall be less then PKC RAM area/bufferSize.
+ *   </dl></dd>
+ * </dl>
+ */
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClOsccaPkc_GeneratePointerTable) /* No semicolon */
 MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClOsccaPkc_GeneratePointerTable(uint16_t *pOperandsBase, uint8_t *pBufferBase, uint32_t bufferSize, uint32_t bufferNums);
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClOsccaPkc_MultipleShiftRotate_Index) /* No semicolon */
@@ -74,8 +111,6 @@ MCUX_CSSL_FP_FUNCTION_DECL(mcuxClOsccaPkc_LeadingZeros) /* No semicolon */
 MCUX_CSSL_FP_PROTECTED_TYPE(uint32_t) mcuxClOsccaPkc_LeadingZeros(uint8_t *pNum, uint32_t numLen);
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClOsccaPkc_ComputeModInv) /* No semicolon */
 MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClOsccaPkc_ComputeModInv(uint32_t iRiIiNiT, uint32_t iT2);
-MCUX_CSSL_FP_FUNCTION_DECL(mcuxClOsccaPkc_CalcMontInverse) /* No semicolon */
-MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClOsccaPkc_CalcMontInverse(uint32_t iIiRiNiT, uint32_t R2);
 
 
 /**

@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2018-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -23,7 +23,6 @@
 
 #include <stdint.h>
 #include <mcuxClConfig.h> // Exported features flags header
-#include <platform_specific_headers.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClOscca_FunctionIdentifiers.h>
 
@@ -38,8 +37,7 @@
 /**********************************************************/
 /* PKC information                                        */
 /**********************************************************/
-#define MCUXCLOSCCAPKC_PKC_RAM_BASEADDR              ((uint32_t)PKC_RAM_ADDR)
-#define MCUXCLOSCCAPKC_WORD_SIZE                     (PKC_WORD_SIZE)
+#define MCUXCLOSCCAPKC_RAM_SIZE           0x00001000u  ///< PKC workarea size = 4 KByte
 
 /**
  * @}

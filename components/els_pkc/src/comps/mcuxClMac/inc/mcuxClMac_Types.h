@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2022 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClMac_Types.h
@@ -74,6 +74,7 @@ typedef const mcuxClMac_ModeDescriptor_t * const mcuxClMac_Mode_t;
  */
 typedef mcuxClMac_ModeDescriptor_t * const mcuxClMac_CustomMode_t;
 
+
 /**
  * @brief Mac context structure
  *
@@ -90,6 +91,8 @@ struct mcuxClMac_Context;
  *
  * The size of the context depends on the mode used
  * (see @ref mcuxClMac_MemoryConsumption).
+ * 
+ * Note: A copy of the Mac context to another memory location is only supported if both source and destination addresses have the same 64 bit alignment.
  *
  */
 typedef struct mcuxClMac_Context mcuxClMac_Context_t;

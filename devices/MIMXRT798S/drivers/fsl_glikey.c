@@ -46,9 +46,8 @@ static inline void Glikey_Internal_Set_WR_1(GLIKEY_Type *base, uint32_t value);
 
 __WEAK void GLIKEY0_DriverIRQHandler(void)
 {
-    // GLIKEY generates IRQ until corresponding bit in STATUS is cleared by calling
-    // GLIKEY_ClearStatusFlags();
-    //
+    GLIKEY generates IRQ until corresponding bit in STATUS is cleared by calling
+    GLIKEY_ClearStatusFlags();
 }
 */
 
@@ -81,7 +80,7 @@ uint32_t GLIKEY_GetStatus(GLIKEY_Type *base)
 
 status_t GLIKEY_IsLocked(GLIKEY_Type *base)
 {
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked == retCode)
     {
         return kStatus_GLIKEY_NotLocked;
@@ -111,11 +110,11 @@ status_t GLIKEY_GetVersion(GLIKEY_Type *base, uint32_t *result)
 
     return kStatus_Success;
 }
-#endif
+#endif /* GLIKEY_VERSION_FSM_CONFIG */
 
 status_t GLIKEY_SyncReset(GLIKEY_Type *base)
 {
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode)
     {
         return retCode;
@@ -129,7 +128,7 @@ status_t GLIKEY_SyncReset(GLIKEY_Type *base)
 
 status_t GLIKEY_SetIntEnable(GLIKEY_Type *base, uint32_t value)
 {
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode)
     {
         return retCode;
@@ -149,7 +148,7 @@ status_t GLIKEY_GetIntEnable(GLIKEY_Type *base, uint32_t *value)
 
 status_t GLIKEY_ClearIntStatus(GLIKEY_Type *base)
 {
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode)
     {
         return retCode;
@@ -162,7 +161,7 @@ status_t GLIKEY_ClearIntStatus(GLIKEY_Type *base)
 
 status_t GLIKEY_SetIntStatus(GLIKEY_Type *base)
 {
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode)
     {
         return retCode;
@@ -176,7 +175,7 @@ status_t GLIKEY_SetIntStatus(GLIKEY_Type *base)
 status_t GLIKEY_Lock(GLIKEY_Type *base)
 {
     /* Check if SFR_LOCK is locked */
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode) /* Glikey is not locked -> lock */
     {
         uint32_t ctrl1 = ((GLIKEY_Type *)base)->CTRL_1;
@@ -218,7 +217,7 @@ status_t GLIKEY_IsIndexLocked(GLIKEY_Type *base, uint32_t index)
 status_t GLIKEY_LockIndex(GLIKEY_Type *base)
 {
     /* Check if Glikey SFR locked */
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode)
     {
         return retCode;
@@ -240,8 +239,10 @@ status_t GLIKEY_LockIndex(GLIKEY_Type *base)
 
 status_t GLIKEY_StartEnable(GLIKEY_Type *base, uint32_t index)
 {
+    status_t retCode = GLIKEY_CheckLock(base);
+    uint32_t ctrl0 = 0u, ctrl1 = 0u;
+
     /* Check if Glikey SFR locked */
-    uint32_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode)
     {
         return retCode;
@@ -254,26 +255,43 @@ status_t GLIKEY_StartEnable(GLIKEY_Type *base, uint32_t index)
         return retCode;
     }
 
-    /* CTRL0 */
-    uint32_t ctrl0 = ((GLIKEY_Type *)base)->CTRL_0;
-    /* Clear old index */
-    ctrl0 = ctrl0 & (~GLIKEY_CTRL_0_WRITE_INDEX_MASK);
+    /* Return to INIT if LOCKED (it can happen after SFR reset if previous write index was locked) */
+    if (GLIKEY_FSM_LOCKED == (GLIKEY_GetStatus(base) & GLIKEY_STATUS_FSM_STATE_MASK) >> GLIKEY_STATUS_FSM_STATE_SHIFT)
+    {
+        /* LOCKED -> INIT */
+        ctrl0 = ((GLIKEY_Type *)base)->CTRL_0;
+        /* Clear old index */
+        ctrl0 = ctrl0 & (~GLIKEY_CTRL_0_WRITE_INDEX_MASK);
+        /* Set new index */
+        ctrl0 |= GLIKEY_CTRL_0_WRITE_INDEX(index);
+        /* Set CTRL0.WR_EN_0 = 0x2 */
+        ctrl0 = (ctrl0 & (~GLIKEY_CTRL_0_WR_EN_0_MASK)) | GLIKEY_CTRL_0_WR_EN_0(2U);
+        /* Write to CTRL0 (new index and WR_EN_0 = 0x2) */
+        ((GLIKEY_Type *)base)->CTRL_0 = ctrl0;
+
+        /* CTRL1 */
+        ctrl1 = ((GLIKEY_Type *)base)->CTRL_1;
+        /* Clear CTRL1.WR_EN_1 */
+        ctrl1 &= ~GLIKEY_CTRL_1_WR_EN_1_MASK;
+        ((GLIKEY_Type *)base)->CTRL_1 = ctrl1;
+    }
+
     /* Clear old CTRL0.WR_EN_0 */
     ctrl0 = ctrl0 & (~GLIKEY_CTRL_0_WR_EN_0_MASK);
     /* Set new index */
     ctrl0 |= GLIKEY_CTRL_0_WRITE_INDEX(index);
 
     /* Start the enable process by writting 0x01 to CTRL0.WR_EN_0 */
-    ctrl0 = ctrl0 | (0x01u << GLIKEY_CTRL_0_WR_EN_0_SHIFT);
+    ctrl0 = ctrl0 | ((uint32_t)0x01u << GLIKEY_CTRL_0_WR_EN_0_SHIFT);
 
     /* Write to CTRL0 (new index and WR_EN_0 = 0x01) */
     ((GLIKEY_Type *)base)->CTRL_0 = ctrl0;
 
     /* CTRL1 */
-    uint32_t ctrl1 = ((GLIKEY_Type *)base)->CTRL_1;
+    ctrl1 = ((GLIKEY_Type *)base)->CTRL_1;
     /* Clear CTRL1.WR_EN_1 */
     ctrl1 &= ~GLIKEY_CTRL_1_WR_EN_1_MASK;
-    ((GLIKEY_Type*)base)->CTRL_1 = ctrl1;
+    ((GLIKEY_Type *)base)->CTRL_1 = ctrl1;
 
     return kStatus_Success;
 }
@@ -281,7 +299,7 @@ status_t GLIKEY_StartEnable(GLIKEY_Type *base, uint32_t index)
 status_t GLIKEY_ContinueEnable(GLIKEY_Type *base, uint32_t codeword)
 {
     /* Check if Glikey SFR locked */
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode)
     {
         return retCode;
@@ -319,7 +337,7 @@ status_t GLIKEY_ContinueEnable(GLIKEY_Type *base, uint32_t codeword)
 status_t GLIKEY_EndOperation(GLIKEY_Type *base)
 {
     /* Check if Glikey SFR locked */
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode)
     {
         return retCode;
@@ -343,7 +361,8 @@ status_t GLIKEY_EndOperation(GLIKEY_Type *base)
                 return kStatus_GLIKEY_Locked;
             }
 
-            return kStatus_Success;
+            retCode = kStatus_Success;
+            break;
         }
 
         case GLIKEY_FSM_SSR_RESET:
@@ -354,19 +373,23 @@ status_t GLIKEY_EndOperation(GLIKEY_Type *base)
             Glikey_Internal_Set_WR_0(base, WR_0_INIT);
             Glikey_Internal_Set_WR_1(base, WR_1_INIT);
 
-            return kStatus_Success;
+            retCode = kStatus_Success;
+            break;
         }
 
         default:
             /* Disabled error */
-            return kStatus_GLIKEY_DisabledError;
+            retCode = kStatus_GLIKEY_DisabledError;
+            break;
     }
+
+    return retCode;
 }
 
 status_t GLIKEY_ResetIndex(GLIKEY_Type *base, uint32_t index)
 {
     /* Check if Glikey SFR locked */
-    uint32_t retCode = GLIKEY_CheckLock(base);
+    status_t retCode = GLIKEY_CheckLock(base);
     if (kStatus_GLIKEY_NotLocked != retCode)
     {
         return retCode;

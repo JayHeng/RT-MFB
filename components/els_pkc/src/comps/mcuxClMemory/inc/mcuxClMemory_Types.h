@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2021, 2023 NXP                                            */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClMemory_Types.h
@@ -41,22 +41,6 @@
  * @{
  */
 #define MCUXCLMEMORY_API extern  ///< Marks a function as a public API function of the mcuxClMemory component
-
-/**
- * @defgroup MCUXCLMEMORY_STATUS_ MCUXCLMEMORY_STATUS_
- * @brief Defines valid mcuxClMemory function return codes
- * @ingroup mcuxClMemory_Types_Macros
- * @{
- */
-
-#define MCUXCLMEMORY_STATUS_OK ((mcuxClMemory_Status_t) 0x09992E03u) ///< Memory operation successful
-
-/**
- * @}
- */
-
-#define MCUXCLMEMORY_ERRORCODE_OK MCUXCLMEMORY_STATUS_OK ///< Memory operation successful
-                                                       ///< @deprecated Please use #MCUXCLMEMORY_STATUS_OK instead
 
 /**
  * @}

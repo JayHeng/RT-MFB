@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -31,10 +31,10 @@
 #include <internal/mcuxClPkc_Operations.h>
 #include <internal/mcuxClPkc_ImportExport.h>
 #include <internal/mcuxClPkc_Macros.h>
+#include <internal/mcuxClPkc_Resource.h>
 #include <internal/mcuxClEcc_Weier_Internal.h>
 #include <internal/mcuxClEcc_Weier_Internal_FP.h>
-#include <internal/mcuxClEcc_Weier_Internal_ConvertPoint_FUP.h>
-#include <internal/mcuxClEcc_Weier_KeyGen_FUP.h>
+#include <internal/mcuxClEcc_Weier_Internal_FUP.h>
 
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEcc_KeyGen)
@@ -49,9 +49,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
     /**********************************************************/
 
     /* mcuxClEcc_CpuWa_t will be allocated and placed in the beginning of CPU workarea free space by SetupEnvironment. */
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("MISRA Ex. 9 to Rule 11.3 - mcuxClEcc_CpuWa_t is 32 bit aligned")
-    mcuxClEcc_CpuWa_t *pCpuWorkarea = (mcuxClEcc_CpuWa_t *) mcuxClSession_allocateWords_cpuWa(pSession, 0u);
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
+    mcuxClEcc_CpuWa_t * const pCpuWorkarea = mcuxClEcc_castToEccCpuWorkarea(mcuxClSession_getCpuWaBuffer(pSession));
+
     uint8_t *pPkcWorkarea = (uint8_t *) mcuxClSession_allocateWords_pkcWa(pSession, 0u);
     MCUX_CSSL_FP_FUNCTION_CALL(ret_SetupEnvironment,
         mcuxClEcc_Weier_SetupEnvironment(pSession,
@@ -66,6 +65,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
                 MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_Weier_SetupEnvironment) );
         }
 
+        MCUXCLECC_HANDLE_HW_UNAVAILABLE(ret_SetupEnvironment, mcuxClEcc_KeyGen);
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_KeyGen, MCUXCLECC_STATUS_FAULT_ATTACK);
     }
 
@@ -81,10 +81,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
     }
 
     MCUXCLMATH_FP_QSQUARED(ECC_NQSQR, ECC_NS, ECC_N, ECC_T0);
-
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("32-bit aligned UPTRT table is assigned in CPU workarea")
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_CASTING("UPTR table is 32-bit aligned in ECC component")
     uint32_t *pOperands32 = (uint32_t *) pOperands;
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_CASTING()
     const uint32_t operandSize = MCUXCLPKC_PS1_GETOPLEN();
     const uint32_t bufferSize = operandSize + MCUXCLPKC_WORDSIZE;
 
@@ -96,8 +95,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
     /**********************************************************/
 
     /* Import G to (X1,Y1). */
-    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC(WEIER_X1, pParam->curveParam.pG, byteLenP);
-    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC(WEIER_Y1, pParam->curveParam.pG + byteLenP, byteLenP);
+    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC_BUFFER(mcuxClEcc_KeyGen, WEIER_X1, pParam->curveParam.pG, byteLenP);
+    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC_BUFFEROFFSET(mcuxClEcc_KeyGen, WEIER_Y1, pParam->curveParam.pG, byteLenP, byteLenP);
 
     /* Check G in (X1,Y1) affine NR. */
 //  MCUXCLPKC_WAITFORREADY();  <== there is WaitForFinish in import function.
@@ -105,13 +104,15 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
     MCUX_CSSL_FP_FUNCTION_CALL(pointCheckStatus, mcuxClEcc_PointCheckAffineNR());
     if (MCUXCLECC_INTSTATUS_POINTCHECK_NOT_OK == pointCheckStatus)
     {
-        MCUXCLPKC_FP_DEINITIALIZE(& pCpuWorkarea->pkcStateBackup);
         mcuxClSession_freeWords_pkcWa(pSession, pCpuWorkarea->wordNumPkcWa);
+        MCUXCLPKC_FP_DEINITIALIZE_RELEASE(pSession, &pCpuWorkarea->pkcStateBackup,
+            mcuxClEcc_KeyGen, MCUXCLECC_STATUS_FAULT_ATTACK);
+
         mcuxClSession_freeWords_cpuWa(pSession, pCpuWorkarea->wordNumCpuWa);
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_KeyGen, MCUXCLECC_STATUS_INVALID_PARAMS,
             MCUXCLECC_FP_KEYGEN_BASE_POINT,
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize) );
+            MCUXCLPKC_FP_CALLED_DEINITIALIZE_RELEASE);
     }
     else if (MCUXCLECC_STATUS_OK != pointCheckStatus)
     {
@@ -128,18 +129,20 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
     /* d = d0 * d1 mod n, where d0 is a 64-bit odd number.    */
     /**********************************************************/
 
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_CoreKeyGen, mcuxClEcc_Int_CoreKeyGen(pSession, byteLenN));
+    MCUX_CSSL_FP_FUNCTION_CALL(ret_CoreKeyGen, mcuxClEcc_WeierECC_BlindedSecretKeyGen_RandomWithExtraBits(pSession, byteLenN));
     if (MCUXCLECC_STATUS_OK != ret_CoreKeyGen)
     {
         if (MCUXCLECC_STATUS_RNG_ERROR == ret_CoreKeyGen)
         {
-            MCUXCLPKC_FP_DEINITIALIZE(& pCpuWorkarea->pkcStateBackup);
             mcuxClSession_freeWords_pkcWa(pSession, pCpuWorkarea->wordNumPkcWa);
+            MCUXCLPKC_FP_DEINITIALIZE_RELEASE(pSession, &pCpuWorkarea->pkcStateBackup,
+                mcuxClEcc_KeyGen, MCUXCLECC_STATUS_FAULT_ATTACK);
+
             mcuxClSession_freeWords_cpuWa(pSession, pCpuWorkarea->wordNumCpuWa);
 
             MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_KeyGen, MCUXCLECC_STATUS_RNG_ERROR,
                 MCUXCLECC_FP_KEYGEN_GENERATE_PRIKEY,
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize) );
+                MCUXCLPKC_FP_CALLED_DEINITIALIZE_RELEASE);
         }
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_KeyGen, MCUXCLECC_STATUS_FAULT_ATTACK);
@@ -149,7 +152,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
     /* Derive the plain private key d = d0 * d1 mod n < n.    */
     /**********************************************************/
 
-    /* Compute d in S2 using a blinded multiplication utilizing the random still stored in S3 after mcuxClEcc_Int_CoreKeyGen. */
+    /* Compute d in S2 using a blinded multiplication utilizing the random still stored in S3 after mcuxClEcc_WeierECC_BlindedSecretKeyGen_RandomWithExtraBits. */
     MCUXCLPKC_FP_CALCFUP(mcuxClEcc_FUP_Weier_KeyGen_DerivePlainPrivKey,
                         mcuxClEcc_FUP_Weier_KeyGen_DerivePlainPrivKey_LEN);
 
@@ -236,8 +239,8 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
     /**********************************************************/
 
     /* Import prime p and order n again, and check (compare with) existing one. */
-    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC(ECC_T0, pParam->curveParam.pP, byteLenP);
-    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC(ECC_T1, pParam->curveParam.pN, byteLenN);
+    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC_BUFFER(mcuxClEcc_KeyGen, ECC_T0, pParam->curveParam.pP, byteLenP);
+    MCUXCLPKC_FP_IMPORTBIGENDIANTOPKC_BUFFER(mcuxClEcc_KeyGen, ECC_T1, pParam->curveParam.pN, byteLenN);
 
     MCUXCLPKC_FP_CALC_OP1_CMP(ECC_T0, ECC_P);
     uint32_t zeroFlag_checkP = MCUXCLPKC_WAITFORFINISH_GETZERO();
@@ -258,20 +261,22 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_KeyGen(
             MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_KeyGen, MCUXCLECC_STATUS_FAULT_ATTACK);
         }
 
-        MCUXCLPKC_FP_EXPORTBIGENDIANFROMPKC(pParam->pPublicKey, WEIER_XA, byteLenP);
-        MCUXCLPKC_FP_EXPORTBIGENDIANFROMPKC(pParam->pPublicKey + byteLenP, WEIER_YA, byteLenP);
+        MCUXCLPKC_FP_EXPORTBIGENDIANFROMPKC(pParam->pPublicKey, WEIER_XA, byteLenP); // CLNS-TODO-10884: looks like keyData
+        MCUXCLPKC_FP_EXPORTBIGENDIANFROMPKC(pParam->pPublicKey + byteLenP, WEIER_YA, byteLenP); // CLNS-TODO-10884: looks like keyData
 
         /* Clear PKC workarea. */
         MCUXCLPKC_PS1_SETLENGTH(0u, bufferSize * ECC_KEYGEN_NO_OF_BUFFERS);
         pOperands[ECC_P] = MCUXCLPKC_PTR2OFFSET(pPkcWorkarea);
         MCUXCLPKC_FP_CALC_OP1_CONST(ECC_P, 0u);
 
-        MCUXCLPKC_FP_DEINITIALIZE(& pCpuWorkarea->pkcStateBackup);
         mcuxClSession_freeWords_pkcWa(pSession, pCpuWorkarea->wordNumPkcWa);
+        MCUXCLPKC_FP_DEINITIALIZE_RELEASE(pSession, &pCpuWorkarea->pkcStateBackup,
+            mcuxClEcc_KeyGen, MCUXCLECC_STATUS_FAULT_ATTACK);
+
         mcuxClSession_freeWords_cpuWa(pSession, pCpuWorkarea->wordNumCpuWa);
 
         MCUX_CSSL_FP_FUNCTION_EXIT_WITH_CHECK(mcuxClEcc_KeyGen, MCUXCLECC_STATUS_OK, MCUXCLECC_STATUS_FAULT_ATTACK,
-            MCUXCLECC_FP_KEYGEN_FINAL );
+            MCUXCLECC_FP_KEYGEN_FINAL);
     }
 
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_KeyGen, MCUXCLECC_STATUS_FAULT_ATTACK);

@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -25,7 +25,6 @@
 #include <mcuxClCore_FunctionIdentifiers.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClSession.h>
-
 #include <mcuxClPkc_Types.h>
 
 #ifdef __cplusplus
@@ -313,7 +312,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClPkc_CalcFup(
 /** Helper macro to call #mcuxClPkc_CalcFup with flow protection. */
 #define MCUXCLPKC_FP_CALCFUP(pUPTR, ulen)  \
     MCUX_CSSL_FP_FUNCTION_CALL_VOID(mcuxClPkc_CalcFup(pUPTR, ulen))
-        
+
 /** Helper macro to call #mcuxClPkc_CalcFup (skipping first skipLen calculation(s)) with flow protection. */
 #define MCUXCLPKC_FP_CALCFUP_OFFSET(pUPTR, skipLen, ulen)  \
     MCUX_CSSL_FP_FUNCTION_CALL_VOID(mcuxClPkc_CalcFup(&((mcuxClPkc_PtrFUPEntry_t) (pUPTR))[(skipLen)], ulen))

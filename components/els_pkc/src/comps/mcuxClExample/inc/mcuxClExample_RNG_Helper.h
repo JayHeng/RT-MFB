@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2022-2023 NXP                                                  */
+/* Copyright 2022-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 #ifndef MCUXCLEXAMPLE_RNG_HELPER_H_
@@ -23,7 +23,7 @@
 
 // always allocate a minimum size buffer to avoid issues
 // The size is given in bytes and allocated in words
-#define MCUXCLEXAMPLE_ALLOCATE_RNG_CTXT(rngCtxLength) (rngCtxLength?((rngCtxLength + sizeof(uint32_t) - 1u) / sizeof(uint32_t)):1u)  
+#define MCUXCLEXAMPLE_ALLOCATE_RNG_CTXT(rngCtxLength) (((rngCtxLength) > 0u)?(((rngCtxLength) + sizeof(uint32_t) - 1u) / sizeof(uint32_t)) : 1u)
 
 
 /**
@@ -35,12 +35,17 @@
 
 #define MCUXCLEXAMPLE_ALLOCATE_AND_INITIALIZE_RNG(pSession, rngCtxLength, mode)                                               \
     uint32_t context[MCUXCLEXAMPLE_ALLOCATE_RNG_CTXT(rngCtxLength)] = {0};                                                    \
+    MCUX_CSSL_ANALYSIS_START_PATTERN_CAST_TO_MORE_SPECIFIC_TYPE()                                                             \
     mcuxClRandom_Context_t pRng_ctx = (mcuxClRandom_Context_t)context;                                                         \
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_CAST_TO_MORE_SPECIFIC_TYPE()                                                              \
                                                                                                                              \
     /* Initialize the RNG context */                                                                                         \
-    MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(randomInit_result, randomInit_token, mcuxClRandom_init(pSession,                          \
-                                                                                          pRng_ctx,                          \
-                                                                                          mode));                            \
+    MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(randomInit_result, randomInit_token, mcuxClRandom_init(                                   \
+        pSession,                                                                                                            \
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("pRng_ctx has the correct type and the cast was safe and valid.") \
+        pRng_ctx,                                                                                                            \
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()                                                               \
+        mode));                                                                                                              \
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClRandom_init) != randomInit_token) || (MCUXCLRANDOM_STATUS_OK != randomInit_result))  \
     {                                                                                                                        \
         return MCUXCLEXAMPLE_STATUS_ERROR;                                                                                    \

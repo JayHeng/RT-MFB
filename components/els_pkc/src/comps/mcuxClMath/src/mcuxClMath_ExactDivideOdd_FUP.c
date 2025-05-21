@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021-2022 NXP                                                  */
+/* Copyright 2021-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -19,10 +19,6 @@
 #include <internal/mcuxClMath_ExactDivideOdd_FUP.h>
 #include <internal/mcuxClMath_Internal_ExactDivideOdd.h>
 
-const mcuxClPkc_FUPEntry_t mcuxClMath_Fup_ExactDivideOdd_DivideLoop[5] MCUX_FUP_ATTRIBUTE = {{0x10u,0x00u,0xd5u,0x8bu,0x65u,0xe0u},{0x40u,0x20u,0x02u,0x00u,0x00u,0x00u},{0x40u,0x00u,0x02u,0x00u,0x00u,0x04u},{0x40u,0x1eu,0x00u,0x04u,0x08u,0x05u},{0x00u,0x62u,0x00u,0x01u,0x02u,0x02u}};
-const mcuxClPkc_FUPEntry_t mcuxClMath_Fup_ExactDivideOdd_NDashY[4] MCUX_FUP_ATTRIBUTE = {{0x10u,0x00u,0x8fu,0x8au,0x30u,0x35u},{0x40u,0x00u,0x00u,0x01u,0x00u,0x04u},{0x40u,0x1au,0x00u,0x04u,0x05u,0x04u},{0x40u,0x00u,0x04u,0x00u,0x00u,0x00u}};
-
-
 /**
  * [DESIGN]
  * Suppose T \equiv (-Y)^(-1) (mod 2^(bit)).
@@ -31,6 +27,10 @@ const mcuxClPkc_FUPEntry_t mcuxClMath_Fup_ExactDivideOdd_NDashY[4] MCUX_FUP_ATTR
  */
 /* PS2 length = (-, MCUXCLPKC_WORDSIZE) */
 /* uptrt[DivOdd_Ri] = 2                */
+MCUX_CSSL_ANALYSIS_START_PATTERN_FUP_PROGRAM()
+const mcuxClPkc_FUPEntry_t mcuxClMath_Fup_ExactDivideOdd_NDashY[4] MCUX_FUP_ATTRIBUTE = {{0x10u,0x00u,0x3du,0x63u,0xf6u,0xe8u},{0x40u,0x00u,0x00u,0x01u,0x00u,0x04u},{0x40u,0x1au,0x04u,0x04u,0x05u,0x04u},{0x40u,0x00u,0x04u,0x00u,0x04u,0x00u}};
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_FUP_PROGRAM()
+
 
 /**
  * [DESIGN]
@@ -45,3 +45,7 @@ const mcuxClPkc_FUPEntry_t mcuxClMath_Fup_ExactDivideOdd_NDashY[4] MCUX_FUP_ATTR
  */
 /* PS1 length = (-, effectivePkcByteLenY) */
 /* PS2 length = (-, MCUXCLPKC_WORDSIZE) */
+MCUX_CSSL_ANALYSIS_START_PATTERN_FUP_PROGRAM()
+const mcuxClPkc_FUPEntry_t mcuxClMath_Fup_ExactDivideOdd_DivideLoop[5] MCUX_FUP_ATTRIBUTE = {{0x10u,0x00u,0x20u,0x50u,0xb3u,0x58u},{0x40u,0x20u,0x02u,0x00u,0x02u,0x02u},{0x40u,0x00u,0x02u,0x00u,0x02u,0x04u},{0x40u,0x1eu,0x04u,0x04u,0x08u,0x05u},{0x00u,0x62u,0x01u,0x01u,0x02u,0x02u}};
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_FUP_PROGRAM()
+

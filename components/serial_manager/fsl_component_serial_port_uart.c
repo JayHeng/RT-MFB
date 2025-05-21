@@ -1,6 +1,5 @@
 /*
  * Copyright 2018 -2021 NXP
- * All rights reserved.
  *
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -425,10 +424,6 @@ serial_manager_status_t Serial_UartExitLowpower(serial_handle_t serialHandle)
     uartstatus = HAL_UartExitLowpower(((hal_uart_handle_t)&serialUartHandle->usartHandleBuffer[0]));
     assert(kStatus_HAL_UartSuccess == uartstatus);
     (void)uartstatus;
-
-#if (defined(SERIAL_MANAGER_NON_BLOCKING_MODE) && (SERIAL_MANAGER_NON_BLOCKING_MODE > 0U))
-    status = Serial_UartEnableReceiving(serialUartHandle);
-#endif
 
     return status;
 }

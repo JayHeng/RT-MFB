@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020, 2022-2023 NXP                                            */
+/* Copyright 2020, 2022-2024 NXP                                            */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -19,6 +19,7 @@
  * @brief   TLS key derivation example
  */
 
+#include <mcuxClToolchain.h>
 #include <mcuxClEls.h> // Interface to the entire mcuxClEls component
 #include <mcuxClMemory.h>
 #include <mcuxCsslFlowProtection.h>
@@ -29,15 +30,15 @@
 
 
 /** Destination buffer to receive the public key of the mcuxClEls_EccKeyGen_Async operation. */
-static mcuxClEls_EccByte_t ecc_public_key_client[MCUXCLELS_ECC_PUBLICKEY_SIZE];
-static mcuxClEls_EccByte_t ecc_public_key_server[MCUXCLELS_ECC_PUBLICKEY_SIZE];
+static mcuxClEls_EccByte_t ecc_public_key_client[MCUXCLELS_ECC_PUBLICKEY_SIZE] ALIGNED;
+static mcuxClEls_EccByte_t ecc_public_key_server[MCUXCLELS_ECC_PUBLICKEY_SIZE] ALIGNED;
 
-static uint8_t derivation_data[MCUXCLELS_TLS_DERIVATIONDATA_SIZE];
-static uint8_t client_random[MCUXCLELS_TLS_RANDOM_SIZE];
-static uint8_t server_random[MCUXCLELS_TLS_RANDOM_SIZE];
+static ALIGNED uint8_t derivation_data[MCUXCLELS_TLS_DERIVATIONDATA_SIZE];
+static ALIGNED uint8_t client_random[MCUXCLELS_TLS_RANDOM_SIZE];
+static ALIGNED uint8_t server_random[MCUXCLELS_TLS_RANDOM_SIZE];
 
-static uint8_t master_key_string[] = "master secret";
-static uint8_t key_expansion_string[] = "key expansion";
+static ALIGNED uint8_t master_key_string[] = "master secret";
+static ALIGNED uint8_t key_expansion_string[] = "key expansion";
 
 
 /** Performs key derivation for TLS protocol.
@@ -57,8 +58,10 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Tls_Master_Key_Session_Keys_example)
     KeyGenOptions.bits.kgtypedh = MCUXCLELS_ECC_OUTPUTKEY_KEYEXCHANGE; //Key will be used for Key Exchange
 
     mcuxClEls_KeyProp_t GenKeyProp = {0};
+    MCUX_CSSL_ANALYSIS_START_PATTERN_0U_1U_ARE_UNSIGNED()
     GenKeyProp.bits.upprot_priv = MCUXCLELS_KEYPROPERTY_PRIVILEGED_FALSE; // Configure that user access rights: non-privileged access
     GenKeyProp.bits.upprot_sec = MCUXCLELS_KEYPROPERTY_SECURE_TRUE;       // Configure that user access rights: secure access
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_0U_1U_ARE_UNSIGNED()
 
     mcuxClEls_KeyIndex_t keyIdxPrivClient = 0u;  // Set keystore index at which mcuxClEls_EccKeyGen_Async is storing the private key.
 
@@ -67,7 +70,9 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Tls_Master_Key_Session_Keys_example)
             (mcuxClEls_KeyIndex_t) 0U,                       // This parameter (signingKeyIdx) is ignored, since no signature is requested in the configuration.
             keyIdxPrivClient,                               // Keystore index at which the generated private key is stored.
             GenKeyProp,                                     // Set the generated key properties.
+            MCUX_CSSL_ANALYSIS_START_PATTERN_NULL_POINTER_CONSTANT()
             NULL,
+            MCUX_CSSL_ANALYSIS_STOP_PATTERN_NULL_POINTER_CONSTANT()
             ecc_public_key_client                           // Output buffer, which the operation will write the public key to.
             ));
     // mcuxClEls_EccKeyGen_Async is a flow-protected function: Check the protection token and the return value
@@ -93,7 +98,9 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Tls_Master_Key_Session_Keys_example)
             (mcuxClEls_KeyIndex_t) 0U,                       // This parameter (signingKeyIdx) is ignored, since no signature is requested in the configuration.
             keyIdxPrivServer,                               // Keystore index at which the generated private key is stored.
             GenKeyProp,                                     // Set the generated key properties.
+            MCUX_CSSL_ANALYSIS_START_PATTERN_NULL_POINTER_CONSTANT()
             NULL,
+            MCUX_CSSL_ANALYSIS_STOP_PATTERN_NULL_POINTER_CONSTANT()
             ecc_public_key_server                           // Output buffer, which the operation will write the public key to.
             ));
     // mcuxClEls_EccKeyGen_Async is a flow-protected function: Check the protection token and the return value
@@ -115,9 +122,11 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Tls_Master_Key_Session_Keys_example)
     mcuxClEls_KeyIndex_t sharedSecretIdx = 10U; // Set shared key index
 
     mcuxClEls_KeyProp_t SharedSecretProp = {0};                           // Initialize a new configuration for the mcuxClEls_EccKeyExchange_Async generated key properties.
+    MCUX_CSSL_ANALYSIS_START_PATTERN_0U_1U_ARE_UNSIGNED()
     SharedSecretProp.bits.upprot_priv = MCUXCLELS_KEYPROPERTY_PRIVILEGED_FALSE; // Configure that user access rights: non-privileged access
     SharedSecretProp.bits.upprot_sec = MCUXCLELS_KEYPROPERTY_SECURE_TRUE;       // Configure that user access rights: secure access
     SharedSecretProp.bits.utlpsms = MCUXCLELS_KEYPROPERTY_TLS_PREMASTER_SECRET_TRUE; //Shared Secret is used as pre-master secret for TLS
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_0U_1U_ARE_UNSIGNED()
 
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClEls_EccKeyExchange_Async(
                                     keyIdxPrivClient,
@@ -232,9 +241,11 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Tls_Master_Key_Session_Keys_example)
 
 
     mcuxClEls_KeyProp_t tlsMasterKeyProp = {0};
+    MCUX_CSSL_ANALYSIS_START_PATTERN_0U_1U_ARE_UNSIGNED()
     tlsMasterKeyProp.bits.upprot_priv = MCUXCLELS_KEYPROPERTY_PRIVILEGED_FALSE; // Configure that user access rights: non-privileged access
     tlsMasterKeyProp.bits.upprot_sec = MCUXCLELS_KEYPROPERTY_SECURE_TRUE;       // Configure that user access rights: secure access
     tlsMasterKeyProp.bits.utlsms = MCUXCLELS_KEYPROPERTY_TLS_MASTER_SECRET_TRUE;
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_0U_1U_ARE_UNSIGNED()
     //Generate TLS master key
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClEls_TlsGenerateMasterKeyFromPreMasterKey_Async(
                  derivation_data,  ///< [in] The TLS derivation data
@@ -326,7 +337,12 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Tls_Master_Key_Session_Keys_example)
     MCUX_CSSL_FP_FUNCTION_CALL_END();
 
     mcuxClEls_KeyProp_t KeyProp = {0};
-    mcuxClEls_GetKeyProperties(sharedSecretIdx, &KeyProp);
+    MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result_keyprop, token, mcuxClEls_GetKeyProperties(sharedSecretIdx, &KeyProp));
+    if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_GetKeyProperties) != token) || (MCUXCLELS_STATUS_OK != result_keyprop))
+    {
+        return MCUXCLEXAMPLE_STATUS_ERROR;
+    }
+    MCUX_CSSL_FP_FUNCTION_CALL_END();
 
     //Generate TLS session keys
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClEls_TlsGenerateSessionKeysFromMasterKey_Async(
@@ -362,7 +378,7 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Tls_Master_Key_Session_Keys_example)
         return MCUXCLEXAMPLE_STATUS_ERROR;
     }
 
-    for(uint8_t i = sharedSecretIdx;i<sharedSecretIdx + 6;i++)
+    for(mcuxClEls_KeyIndex_t i = sharedSecretIdx; i < sharedSecretIdx + 6u; i++)
     {
         /** deleted i keySlot **/
         if(!mcuxClExample_Els_KeyDelete(i))
@@ -376,6 +392,12 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Tls_Master_Key_Session_Keys_example)
     //Server Mac Key : sharedSecretIdx+2 (4-5)
     //Client Encryption Key : sharedSecretIdx+4 (6)
     //Server Encryption Key : sharedSecretIdx+6 (7)
+
+    /* Disable the ELS */
+    if(!mcuxClExample_Els_Disable())
+    {
+        return MCUXCLEXAMPLE_STATUS_ERROR;
+    }
 
     return MCUXCLEXAMPLE_STATUS_OK;
 }

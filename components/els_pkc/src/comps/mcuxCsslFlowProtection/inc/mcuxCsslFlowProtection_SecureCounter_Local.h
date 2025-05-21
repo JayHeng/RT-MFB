@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -319,28 +319,51 @@
   MCUX_CSSL_CPP_OVERLOADED1(MCUX_CSSL_FP_FUNCTION_EXIT_VOID_IMPL, __VA_ARGS__)
 
 /**
- * \def MCUX_CSSL_FP_FUNCTION_CALL_IMPL
+ * \def MCUX_CSSL_FP_FUNCTION_CALL_IMPL3
  * \brief Event implementation of a flow protected function call.
  * \ingroup csslFpCntFunction
  *
- *
- * \declaration{MCUX_CSSL_FP_FUNCTION_DECL_IMPL}
- * \expectation{MCUX_CSSL_FP_FUNCTION_CALLED_IMPL}
+ * \param type   Type of the \p result variable.
+ * \param result Fresh variable name to store the result of \p call.
+ * \param call   The (protected) function call that must be performed.
+ */
+#define MCUX_CSSL_FP_FUNCTION_CALL_IMPL3(type, result, call) \
+  const uint64_t MCUX_CSSL_CPP_CAT(result, _protected) = (call); \
+  MCUX_CSSL_SC_ADD_ON_CALL( \
+    MCUX_CSSL_FP_PROTECTION_TOKEN(MCUX_CSSL_CPP_CAT(result, _protected))); \
+  type const result = MCUX_CSSL_FP_RESULT(type, \
+    MCUX_CSSL_CPP_CAT(result, _protected))
+
+/**
+ * \def MCUX_CSSL_FP_FUNCTION_CALL_IMPL2
+ * \brief Event implementation of a flow protected function call.
+ * \ingroup csslFpCntFunction
  *
  * \param result Fresh variable name to store the result of \p call.
  * \param call   The (protected) function call that must be performed.
  */
-#define MCUX_CSSL_FP_FUNCTION_CALL_IMPL(result, call) \
-  const uint64_t MCUX_CSSL_CPP_CAT(result, _protected) = (call); \
-  MCUX_CSSL_SC_ADD_ON_CALL( \
-    MCUX_CSSL_FP_PROTECTION_TOKEN(MCUX_CSSL_CPP_CAT(result, _protected))); \
-  const uint32_t result = MCUX_CSSL_FP_RESULT( \
-    MCUX_CSSL_CPP_CAT(result, _protected))
+#define MCUX_CSSL_FP_FUNCTION_CALL_IMPL2(result, call) \
+  MCUX_CSSL_FP_FUNCTION_CALL_IMPL3(uint32_t, result, call)
+
+/**
+ * \def MCUX_CSSL_FP_FUNCTION_CALL_IMPL
+ * \brief Event implementation of a flow protected function call.
+ * \ingroup csslFpCntFunction
+ *
+ * \declaration{MCUX_CSSL_FP_FUNCTION_DECL_IMPL}
+ * \expectation{MCUX_CSSL_FP_FUNCTION_CALLED_IMPL}
+ *
+ * \param type   Optional, type of the \p result variable.
+ * \param result Fresh variable name to store the result of \p call.
+ * \param call   The (protected) function call that must be performed.
+ */
+#define MCUX_CSSL_FP_FUNCTION_CALL_IMPL(...) \
+  MCUX_CSSL_CPP_OVERLOADED3(MCUX_CSSL_FP_FUNCTION_CALL_IMPL, __VA_ARGS__)
 
 /**
  * \def MCUX_CSSL_FP_FUNCTION_CALL_VOID_IMPL
  * \brief Event implementation of a flow protected void function call.
- * \ingroup csslFpNoneFunction
+ * \ingroup csslFpCntFunction
  *
  * \declaration{MCUX_CSSL_FP_FUNCTION_DECL_IMPL}
  * \expectation{MCUX_CSSL_FP_FUNCTION_CALLED_IMPL}
@@ -411,7 +434,9 @@ do                                                                  \
  * \ingroup csslFpCntFunction
  */
 #define MCUX_CSSL_FP_FUNCTION_CALL_END_IMPL() \
-} while (false)
+MCUX_CSSL_ANALYSIS_START_PATTERN_BOOLEAN_TYPE_FOR_CONDITIONAL_EXPRESSION() \
+} while (false) \
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_BOOLEAN_TYPE_FOR_CONDITIONAL_EXPRESSION()
 
 /**
  * \def MCUX_CSSL_FP_FUNCTION_CALL_VOID_BEGIN_IMPL
@@ -436,7 +461,9 @@ do                                                                  \
  * \ingroup csslFpCntFunction
  */
 #define MCUX_CSSL_FP_FUNCTION_CALL_VOID_END_IMPL() \
-} while (false)
+MCUX_CSSL_ANALYSIS_START_PATTERN_BOOLEAN_TYPE_FOR_CONDITIONAL_EXPRESSION() \
+} while (false) \
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_BOOLEAN_TYPE_FOR_CONDITIONAL_EXPRESSION()
 
 /**
  * @def MCUX_CSSL_FP_ASSERT_IMPL

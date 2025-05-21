@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020, 2022-2023 NXP                                            */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -54,10 +54,10 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Rng_Prng_Get_Random_example)
     }
     MCUX_CSSL_FP_FUNCTION_CALL_END();
 
-    uint32_t random[16];  // buffers of 16 CPU words to be filled with random numbers from PRNG.
+    uint32_t prng_random[16];  // buffers of 16 CPU words to be filled with random numbers from PRNG.
 
     // fill the buffer with random numbers from PRNG.
-    MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClEls_Prng_GetRandom((uint8_t*) random, sizeof(random)));
+    MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClEls_Prng_GetRandom((uint8_t*) prng_random, sizeof(prng_random)));
     // mcuxClEls_Prng_GetRandom is a flow-protected function: Check the protection token and the return value
     if ((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Prng_GetRandom) != token) || (MCUXCLELS_STATUS_OK != result))
     {

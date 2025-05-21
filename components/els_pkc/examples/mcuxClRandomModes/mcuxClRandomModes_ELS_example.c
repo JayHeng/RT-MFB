@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021-2023 NXP                                                  */
+/* Copyright 2021-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -19,6 +19,7 @@
  * @brief   Example for the mcuxClRandomModes component
  */
 
+#include <mcuxClToolchain.h>
 #include <mcuxClRandom.h>
 #include <mcuxClRandomModes.h>
 #include <mcuxClSession.h>
@@ -45,16 +46,16 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClRandomModes_ELS_example)
     }
 
     /* Buffers to store the generated random values in. */
-    uint8_t prng_buffer[10u];
+    ALIGNED uint8_t prng_buffer[10u];
 
-    uint8_t drbg_buffer1[3u];
-    uint8_t drbg_buffer2[4u];
-    uint8_t drbg_buffer3[5u];
+    ALIGNED uint8_t drbg_buffer1[3u];
+    ALIGNED uint8_t drbg_buffer2[4u];
+    ALIGNED uint8_t drbg_buffer3[5u];
 
     mcuxClSession_Descriptor_t sessionDesc;
     mcuxClSession_Handle_t session = &sessionDesc;
     //Allocate and initialize session
-    MCUXCLEXAMPLE_ALLOCATE_AND_INITIALIZE_SESSION(session, 0u, 0u);
+    MCUXCLEXAMPLE_ALLOCATE_AND_INITIALIZE_SESSION(session, MCUXCLEXAMPLE_MAX_WA(MCUXCLRANDOMMODES_NCINIT_WACPU_SIZE, MCUXCLRANDOMMODES_NCGENERATE_WACPU_SIZE), 0u);
 
     /* We don't need a context for ELS Rng. */
     mcuxClRandom_Context_t context = NULL;
@@ -64,10 +65,13 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClRandomModes_ELS_example)
     /**************************************************************************/
 
     /* Initialize the Random session with ELS mode. */
+
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(randomInitresult, token, mcuxClRandom_init(
-                                                  session,
-                                                  context,
-                                                  mcuxClRandomModes_Mode_ELS_Drbg));
+        session,
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_DEREFERENCE_NULL_POINTER("NULL argument (context) is not dereferenced with mode mcuxClRandomModes_Mode_ELS_Drbg")
+        context,
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DEREFERENCE_NULL_POINTER()
+        mcuxClRandomModes_Mode_ELS_Drbg));
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClRandom_init) != token) || (MCUXCLRANDOM_STATUS_OK != randomInitresult))
     {
         return MCUXCLEXAMPLE_STATUS_ERROR;
@@ -80,10 +84,13 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClRandomModes_ELS_example)
     /**************************************************************************/
 
     /* Generate random values of smaller amount than one word size. */
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_ESCAPING_LOCAL_ADDRESS("Address of drbg_buffer1 is for internal use only and does not escape")
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(randomGenerateresult1, token, mcuxClRandom_generate(
                                                   session,
                                                   drbg_buffer1,
                                                   sizeof(drbg_buffer1)));
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_ESCAPING_LOCAL_ADDRESS()
+
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClRandom_generate) != token) || (MCUXCLRANDOM_STATUS_OK != randomGenerateresult1))
     {
         return MCUXCLEXAMPLE_STATUS_ERROR;
@@ -92,10 +99,13 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClRandomModes_ELS_example)
     MCUX_CSSL_FP_FUNCTION_CALL_END();
 
     /* Generate random values of multiple of word size. */
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_ESCAPING_LOCAL_ADDRESS("Address of drbg_buffer1 is for internal use only and does not escape")
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(randomGenerateresult2, token, mcuxClRandom_generate(
                                                   session,
                                                   drbg_buffer2,
                                                   sizeof(drbg_buffer2)));
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_ESCAPING_LOCAL_ADDRESS()
+
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClRandom_generate) != token) || (MCUXCLRANDOM_STATUS_OK != randomGenerateresult2))
     {
         return MCUXCLEXAMPLE_STATUS_ERROR;
@@ -104,10 +114,13 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClRandomModes_ELS_example)
     MCUX_CSSL_FP_FUNCTION_CALL_END();
 
     /* Generate random values of larger amount than but not multiple of one word size. */
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_ESCAPING_LOCAL_ADDRESS("Address of drbg_buffer1 is for internal use only and does not escape")
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(randomGenerateresult3, token, mcuxClRandom_generate(
                                                   session,
                                                   drbg_buffer3,
                                                   sizeof(drbg_buffer3)));
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_ESCAPING_LOCAL_ADDRESS()
+
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClRandom_generate) != token) || (MCUXCLRANDOM_STATUS_OK != randomGenerateresult3))
     {
         return MCUXCLEXAMPLE_STATUS_ERROR;

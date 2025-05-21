@@ -33,7 +33,7 @@
  */
 
 /**
- * @defgroup q15_to_x  Convert 16-bit Integer value
+ * @defgroup q15_to_x  Convert 16-bit fixed point value
  */
 
 /**
@@ -46,7 +46,6 @@
   @param[in]     pSrc       points to the Q15 input vector
   @param[out]    pDst       points to the floating-point output vector
   @param[in]     blockSize  number of samples in each vector
-  @return        none
 
   @par           Details
                    The equation used for the conversion process is:
@@ -56,7 +55,7 @@
  */
 
 #if defined(ARM_MATH_MVEF) && !defined(ARM_MATH_AUTOVECTORIZE)
-void arm_q15_to_float(
+ARM_DSP_ATTRIBUTE void arm_q15_to_float(
   const q15_t * pSrc,
   float32_t * pDst,
   uint32_t blockSize)
@@ -65,16 +64,16 @@ void arm_q15_to_float(
 
   q15x8_t vecDst;
   q15_t const *pSrcVec;
-  
+
   pSrcVec = (q15_t const *) pSrc;
   blkCnt = blockSize >> 2;
   while (blkCnt > 0U)
   {
       /* C = (float32_t) A / 32768 */
       /* convert from q15 to float and then store the results in the destination buffer */
-      vecDst = vldrhq_s32(pSrcVec); 
+      vecDst = vldrhq_s32(pSrcVec);
       pSrcVec += 4;
-      vstrwq(pDst, vcvtq_n_f32_s32(vecDst, 15));  
+      vstrwq(pDst, vcvtq_n_f32_s32((int32x4_t)vecDst, 15));
       pDst += 4;
       /*
        * Decrement the blockSize loop counter
@@ -96,7 +95,7 @@ void arm_q15_to_float(
 }
 #else
 #if defined(ARM_MATH_NEON_EXPERIMENTAL)
-void arm_q15_to_float(
+ARM_DSP_ATTRIBUTE void arm_q15_to_float(
   const q15_t * pSrc,
   float32_t * pDst,
   uint32_t blockSize)
@@ -129,7 +128,7 @@ void arm_q15_to_float(
     outV = vcvtq_n_f32_s32(inV1,15);
     vst1q_f32(pDst, outV);
     pDst += 4;
-  
+
     /* Decrement the loop counter */
     blkCnt--;
   }
@@ -150,7 +149,7 @@ void arm_q15_to_float(
   }
 }
 #else
-void arm_q15_to_float(
+ARM_DSP_ATTRIBUTE void arm_q15_to_float(
   const q15_t * pSrc,
         float32_t * pDst,
         uint32_t blockSize)

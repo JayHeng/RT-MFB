@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2022-2023 NXP                                                  */
+/* Copyright 2022-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClTrng_ELS.c
@@ -20,6 +20,7 @@
 #include <mcuxClSession.h>
 #include <mcuxClEls.h>
 #include <mcuxCsslMemory.h>
+#include <mcuxCsslDataIntegrity.h>
 #include <internal/mcuxClTrng_Internal.h>
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClTrng_Init)
@@ -28,6 +29,70 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClTrng_Status_t) mcuxClTrng_Init(void)
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClTrng_Init);
 
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_Init, MCUXCLTRNG_STATUS_OK);
+}
+
+/*
+ * @brief Function returns requested number of random bytes rounded down to full words.
+ * 
+ * @param[out]      pEntropyInput        pointer to entropy buffer
+ * @param[in]       entropyInputLength   number of entropy bytes requested
+ * @return status
+ */
+
+MCUX_CSSL_FP_FUNCTION_DEF(mcuxClTrng_getEntropyInput_fullBlocks)
+static MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClTrng_Status_t) mcuxClTrng_getEntropyInput_fullBlocks(
+    uint32_t *pEntropyInput,
+    uint32_t entropyInputLength
+)
+{
+    uint32_t requestSizeELSrawRequest       = MCUXCLTRNG_ELS_TRNG_OUTPUT_SIZE;
+    uint32_t remainingNonFullELSblockBytes  = entropyInputLength % requestSizeELSrawRequest;
+    uint32_t fullELSblocksBytes             = entropyInputLength - remainingNonFullELSblockBytes;
+    uint32_t fullELSblocks                  = fullELSblocksBytes/requestSizeELSrawRequest;
+
+    MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClTrng_getEntropyInput_fullBlocks);
+    /* Request as many random bytes as possible with full 32 bytes size. */
+    if (fullELSblocksBytes > 0u)
+    {
+        for(uint32_t i = 0; i < fullELSblocks; i++)
+        {
+            MCUX_CSSL_FP_FUNCTION_CALL(ret_DTRNG_GetTrng1, mcuxClEls_Rng_DrbgRequestRaw_Async((uint8_t *)&pEntropyInput[i*MCUXCLTRNG_ELS_TRNG_OUTPUT_SIZE/sizeof(uint32_t)]));
+            if(MCUXCLELS_STATUS_SW_CANNOT_INTERRUPT == ret_DTRNG_GetTrng1)
+            {
+                MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput_fullBlocks, MCUXCLTRNG_STATUS_ERROR,
+                    (i+1u) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
+                    i * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation));
+            }
+            else if (MCUXCLELS_STATUS_OK_WAIT != ret_DTRNG_GetTrng1)
+            {
+                MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput_fullBlocks, MCUXCLTRNG_STATUS_FAULT_ATTACK);
+            }
+            else
+            {
+                /* Intentionally left empty */
+            }
+
+            MCUX_CSSL_FP_FUNCTION_CALL(ret_DRBG_Wait1, mcuxClEls_WaitForOperation(MCUXCLELS_ERROR_FLAGS_CLEAR));
+            if((MCUXCLELS_STATUS_HW_OPERATIONAL == ret_DRBG_Wait1) || (MCUXCLELS_STATUS_HW_ALGORITHM == ret_DRBG_Wait1) || (MCUXCLELS_STATUS_HW_BUS == ret_DRBG_Wait1))
+            {
+                MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput_fullBlocks, MCUXCLTRNG_STATUS_ERROR,
+                    (i+1u) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
+                    (i+1u) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation));
+            }
+            else if (MCUXCLELS_STATUS_OK != ret_DRBG_Wait1)
+            {
+                MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput_fullBlocks, MCUXCLTRNG_STATUS_FAULT_ATTACK);
+            }
+            else
+            {
+                /* Intentionally left empty */
+            }
+        }
+    }
+
+    MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput_fullBlocks, MCUXCLTRNG_STATUS_OK,
+        (entropyInputLength / MCUXCLTRNG_ELS_TRNG_OUTPUT_SIZE) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
+        (entropyInputLength / MCUXCLTRNG_ELS_TRNG_OUTPUT_SIZE) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation));
 }
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClTrng_getEntropyInput)
@@ -61,46 +126,16 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClTrng_Status_t) mcuxClTrng_getEntropyInput(
 
     uint32_t requestSizeELSrawRequest       = MCUXCLTRNG_ELS_TRNG_OUTPUT_SIZE;
     uint32_t remainingNonFullELSblockBytes  = entropyInputLength % requestSizeELSrawRequest;
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_WRAP("does not wrap since remainingNonFullELSblockBytes is not larger than entropyInputLength due to modulo operation")
     uint32_t fullELSblocksBytes             = entropyInputLength - remainingNonFullELSblockBytes;
-    uint32_t fullELSblocks                  = fullELSblocksBytes/requestSizeELSrawRequest;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_WRAP()
 
     /* Request as many random bytes as possible with full 32 bytes size. */
-    if (fullELSblocksBytes > 0u)
-    {
-        for(uint32_t i = 0; i < fullELSblocks; i++)
-        {
-            MCUX_CSSL_FP_FUNCTION_CALL(ret_DTRNG_GetTrng1, mcuxClEls_Rng_DrbgRequestRaw_Async((uint8_t *)&pEntropyInput[i*MCUXCLTRNG_ELS_TRNG_OUTPUT_SIZE/sizeof(uint32_t)]));
-            if(MCUXCLELS_STATUS_SW_CANNOT_INTERRUPT == ret_DTRNG_GetTrng1)
-            {
-                MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput, MCUXCLTRNG_STATUS_ERROR,
-                    (i+1u) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
-                    i * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation));
-            }
-            else if (MCUXCLELS_STATUS_OK_WAIT != ret_DTRNG_GetTrng1)
-            {
-                MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput, MCUXCLTRNG_STATUS_FAULT_ATTACK);
-            }
-            else
-            {
-                /* Intentionally left empty */
-            }
 
-            MCUX_CSSL_FP_FUNCTION_CALL(ret_DRBG_Wait1, mcuxClEls_WaitForOperation(MCUXCLELS_ERROR_FLAGS_CLEAR));
-            if((MCUXCLELS_STATUS_HW_OPERATIONAL == ret_DRBG_Wait1) || (MCUXCLELS_STATUS_HW_ALGORITHM == ret_DRBG_Wait1) || (MCUXCLELS_STATUS_HW_BUS == ret_DRBG_Wait1))
-            {
-                MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput, MCUXCLTRNG_STATUS_ERROR,
-                    (i+1u) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
-                    (i+1u) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation));
-            }
-            else if (MCUXCLELS_STATUS_OK != ret_DRBG_Wait1)
-            {
-                MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput, MCUXCLTRNG_STATUS_FAULT_ATTACK);
-            }
-            else
-            {
-                /* Intentionally left empty */
-            }
-        }
+    MCUX_CSSL_FP_FUNCTION_CALL(ret_fullBlocks, mcuxClTrng_getEntropyInput_fullBlocks(pEntropyInput, entropyInputLength));
+    if (MCUXCLTRNG_STATUS_OK != ret_fullBlocks)
+    {
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput, ret_fullBlocks, MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClTrng_getEntropyInput_fullBlocks));
     }
 
     /* If requested size is not a multiple of 32, request one (additional) 32 bytes and use it only partially. */
@@ -108,12 +143,14 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClTrng_Status_t) mcuxClTrng_getEntropyInput(
     {
         uint8_t requestRemainingBuffer[MCUXCLTRNG_ELS_TRNG_OUTPUT_SIZE] = {0u};
 
+        MCUX_CSSL_ANALYSIS_START_PATTERN_ADDRESS_IN_SFR_IS_NOT_REUSED_OUTSIDE()
         MCUX_CSSL_FP_FUNCTION_CALL(ret_DTRNG_GetTrng2, mcuxClEls_Rng_DrbgRequestRaw_Async(requestRemainingBuffer));
+        MCUX_CSSL_ANALYSIS_STOP_PATTERN_ADDRESS_IN_SFR_IS_NOT_REUSED_OUTSIDE()
         if(MCUXCLELS_STATUS_SW_CANNOT_INTERRUPT == ret_DTRNG_GetTrng2)
         {
             MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput, MCUXCLTRNG_STATUS_ERROR,
-                (fullELSblocks + 1u) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
-                fullELSblocks * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation));
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClTrng_getEntropyInput_fullBlocks),
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async));
         }
         else if (MCUXCLELS_STATUS_OK_WAIT != ret_DTRNG_GetTrng2)
         {
@@ -128,8 +165,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClTrng_Status_t) mcuxClTrng_getEntropyInput(
         if((MCUXCLELS_STATUS_HW_OPERATIONAL == ret_DRBG_Wait2) || (MCUXCLELS_STATUS_HW_ALGORITHM == ret_DRBG_Wait2) || (MCUXCLELS_STATUS_HW_BUS == ret_DRBG_Wait2))
         {
             MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput, MCUXCLTRNG_STATUS_ERROR,
-                (fullELSblocks + 1u) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
-                (fullELSblocks + 1u) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation));
+                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClTrng_getEntropyInput_fullBlocks),
+                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
+                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation));
         }
         else if (MCUXCLELS_STATUS_OK != ret_DRBG_Wait2)
         {
@@ -154,10 +192,10 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClTrng_Status_t) mcuxClTrng_getEntropyInput(
         }
     }
 
+    MCUX_CSSL_DI_RECORD(trngOutputSize, entropyInputLength);
+
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClTrng_getEntropyInput, MCUXCLTRNG_STATUS_OK,
-            MCUX_CSSL_FP_CONDITIONAL((fullELSblocksBytes > 0u),
-               (entropyInputLength/MCUXCLTRNG_ELS_TRNG_OUTPUT_SIZE) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
-               (entropyInputLength/MCUXCLTRNG_ELS_TRNG_OUTPUT_SIZE) * MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation)),
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClTrng_getEntropyInput_fullBlocks),
             MCUX_CSSL_FP_CONDITIONAL((remainingNonFullELSblockBytes > 0u),
                 MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Rng_DrbgRequestRaw_Async),
                 MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation),

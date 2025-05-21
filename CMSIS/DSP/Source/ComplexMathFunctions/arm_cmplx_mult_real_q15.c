@@ -43,7 +43,6 @@
   @param[in]     pSrcReal    points to real input vector
   @param[out]    pCmplxDst   points to complex output vector
   @param[in]     numSamples  number of samples in each vector
-  @return        none
 
   @par           Scaling and Overflow Behavior
                    The function uses saturating arithmetic.
@@ -51,7 +50,7 @@
  */
 #if defined(ARM_MATH_MVEI) && !defined(ARM_MATH_AUTOVECTORIZE)
 
-void arm_cmplx_mult_real_q15(
+ARM_DSP_ATTRIBUTE void arm_cmplx_mult_real_q15(
   const q15_t * pSrcCmplx,
   const q15_t * pSrcReal,
         q15_t * pCmplxDst,
@@ -105,7 +104,7 @@ void arm_cmplx_mult_real_q15(
   }
 }
 #else
-void arm_cmplx_mult_real_q15(
+ARM_DSP_ATTRIBUTE void arm_cmplx_mult_real_q15(
   const q15_t * pSrcCmplx,
   const q15_t * pSrcReal,
         q15_t * pCmplxDst,
@@ -133,10 +132,10 @@ void arm_cmplx_mult_real_q15(
 
 #if defined (ARM_MATH_DSP)
     /* read 2 complex numbers both real and imaginary from complex input buffer */
-    inA1 = read_q15x2_ia ((q15_t **) &pSrcCmplx);
-    inA2 = read_q15x2_ia ((q15_t **) &pSrcCmplx);
+    inA1 = read_q15x2_ia (&pSrcCmplx);
+    inA2 = read_q15x2_ia (&pSrcCmplx);
     /* read 2 real values at a time from real input buffer */
-    inB1 = read_q15x2_ia ((q15_t **) &pSrcReal);
+    inB1 = read_q15x2_ia (&pSrcReal);
 
     /* multiply complex number with real numbers */
 #ifndef ARM_MATH_BIG_ENDIAN
@@ -161,9 +160,9 @@ void arm_cmplx_mult_real_q15(
     write_q15x2_ia (&pCmplxDst, __PKHBT(out1, out2, 16));
     write_q15x2_ia (&pCmplxDst, __PKHBT(out3, out4, 16));
 
-    inA1 = read_q15x2_ia ((q15_t **) &pSrcCmplx);
-    inA2 = read_q15x2_ia ((q15_t **) &pSrcCmplx);
-    inB1 = read_q15x2_ia ((q15_t **) &pSrcReal);
+    inA1 = read_q15x2_ia (&pSrcCmplx);
+    inA2 = read_q15x2_ia (&pSrcCmplx);
+    inB1 = read_q15x2_ia (&pSrcReal);
 
 #ifndef ARM_MATH_BIG_ENDIAN
     mul1 = (q31_t) ((q15_t) (inA1)       * (q15_t) (inB1));

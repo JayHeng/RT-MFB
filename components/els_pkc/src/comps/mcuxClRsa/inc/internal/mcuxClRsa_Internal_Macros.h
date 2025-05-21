@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021, 2023 NXP                                                 */
+/* Copyright 2021, 2023-2024 NXP                                            */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -21,6 +21,7 @@
 
 #include <mcuxClConfig.h> // Exported features flags header
 #include <stdint.h>
+#include <mcuxClCore_Macros.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,38 +45,10 @@ extern "C" {
 
 /**
  * @defgroup MCUXCLRSA_INTERNAL_MACROS_ MCUXCLRSA_INTERNAL_MACROS_
- * @brief Internal macros of the mcuxClRsa component.
+ * @brief Internal macro of the mcuxClRsa component.
  * @ingroup mcuxClRsa_Internal_Macros
  * @{
  */
-#define MCUXCLRSA_MAX(value0, value1) \
-    ((value0) > (value1) ? (value0) : (value1))
-    ///< Macro computing the maximum value of value0 and value1.
-
-#define MCUXCLRSA_ROUND_UP_TO_CPU_WORDSIZE(size) \
-    ((((size) + sizeof(uint32_t) - 1U ) / (sizeof(uint32_t))) * (sizeof(uint32_t)))
-    ///< Round up a size (in bytes) to a multiple of the CPU wordsize (4 bytes).
-
-#define MCUXCLRSA_CALC_MODLEN_FROM_CRTKEY(pKey, keyBitLength) \
-    do {  \
-          uint32_t pBitLength = ((pKey)->pMod1->keyEntryLength - 1u) * 8u; /* Lengths without first byte */ \
-          uint32_t qBitLength = ((pKey)->pMod2->keyEntryLength - 1u) * 8u; \
-          uint8_t tmpByte = (uint8_t) (pKey)->pMod1->pKeyEntryData[0]; \
-          while (tmpByte != 0u) /* Iterate through first byte of p and add to bit length */ \
-          { \
-            ++pBitLength; \
-            tmpByte = (uint8_t) (tmpByte >> 1u); \
-          } \
-          tmpByte = (uint8_t) (pKey)->pMod2->pKeyEntryData[0]; \
-          while (tmpByte != 0u) /* Iterate through first byte of q and add to bit length */  \
-          { \
-            ++qBitLength; \
-            tmpByte = (uint8_t) (tmpByte >> 1u); \
-          } \
-          (keyBitLength) = (pBitLength + qBitLength); \
-    } while(false)
-    ///< Obtain bit-length of modulus by counting leading zeroes of P and Q (CRT key).
-    ///< Note that the most significant byte of P and Q should be non-zero.
 
 #define MCUXCLRSA_GET_MINIMUM_SECURITY_STRENGTH(keyBitLength) \
         (((keyBitLength) <= 2048u) ? 112u : \

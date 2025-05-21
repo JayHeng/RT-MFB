@@ -61,7 +61,7 @@
 
 #define MVE_ASRL_SAT16(acc, shift)          ((sqrshrl_sat48(acc, -(32-shift)) >> 32) & 0xffffffff)
 
-arm_status arm_mat_cmplx_mult_q15(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_cmplx_mult_q15(
   const arm_matrix_instance_q15 * pSrcA,
   const arm_matrix_instance_q15 * pSrcB,
         arm_matrix_instance_q15 * pDst,
@@ -312,7 +312,7 @@ arm_status arm_mat_cmplx_mult_q15(
   return (status);
 }
 #else
-arm_status arm_mat_cmplx_mult_q15(
+ARM_DSP_ATTRIBUTE arm_status arm_mat_cmplx_mult_q15(
   const arm_matrix_instance_q15 * pSrcA,
   const arm_matrix_instance_q15 * pSrcB,
         arm_matrix_instance_q15 * pDst,
@@ -461,8 +461,8 @@ arm_status arm_mat_cmplx_mult_q15(
 #if defined (ARM_MATH_DSP)
 
           /* read real and imag values from pSrcA and pSrcB buffer */
-          pSourceA = read_q15x2_ia ((q15_t **) &pInA);
-          pSourceB = read_q15x2_ia ((q15_t **) &pInB);
+          pSourceA = read_q15x2_ia (&pInA);
+          pSourceB = read_q15x2_ia (&pInB);
 
           /* Multiply and Accumlates */
 #ifdef ARM_MATH_BIG_ENDIAN
@@ -475,8 +475,8 @@ arm_status arm_mat_cmplx_mult_q15(
           sumImag += (q63_t) prod2;
 
           /* read real and imag values from pSrcA and pSrcB buffer */
-          pSourceA = read_q15x2_ia ((q15_t **) &pInA);
-          pSourceB = read_q15x2_ia ((q15_t **) &pInB);
+          pSourceA = read_q15x2_ia (&pInA);
+          pSourceB = read_q15x2_ia (&pInB);
 
           /* Multiply and Accumlates */
 #ifdef ARM_MATH_BIG_ENDIAN
@@ -534,8 +534,8 @@ arm_status arm_mat_cmplx_mult_q15(
 
 #if defined (ARM_MATH_DSP)
           /* read real and imag values from pSrcA and pSrcB buffer */
-          pSourceA = read_q15x2_ia ((q15_t **) &pInA);
-          pSourceB = read_q15x2_ia ((q15_t **) &pInB);
+          pSourceA = read_q15x2_ia (&pInA);
+          pSourceB = read_q15x2_ia (&pInB);
 
           /* Multiply and Accumlates */
 #ifdef ARM_MATH_BIG_ENDIAN

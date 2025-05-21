@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClHash_Types.h
@@ -18,13 +18,8 @@
 #ifndef MCUXCLHASH_TYPES_H_
 #define MCUXCLHASH_TYPES_H_
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
 #include <mcuxClConfig.h> // Exported features flags header
-#include <mcuxClSession_Types.h>
-#include <mcuxCsslFlowProtection.h>
-#include <mcuxClCore_FunctionIdentifiers.h>
+#include <mcuxClCore_Platform.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,11 +50,15 @@ typedef struct mcuxClHash_AlgorithmDescriptor mcuxClHash_AlgorithmDescriptor_t;
 typedef const mcuxClHash_AlgorithmDescriptor_t * const mcuxClHash_Algo_t;
 
 
+
 /**
  * @brief Hash Context buffer type
  *
  * This type is used in the streaming interfaces to store the information
  * about the current operation and the relevant internal state.
+ *
+ * Note: A copy of the Hash context to another memory location is only supported if both source and destination addresses have the same 64 bit alignment.
+ * This requirement can be ignored when using mcuxClHash_export_state and mcuxClHash_import_state to move a Hash context.
  *
  */
 typedef struct mcuxClHash_ContextDescriptor mcuxClHash_ContextDescriptor_t;

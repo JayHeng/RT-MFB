@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2021, 2023 NXP                                            */
+/* Copyright 2020-2021, 2023-2024 NXP                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -27,14 +27,14 @@
 
 #include <internal/mcuxClPkc_Operations.h>
 #include <internal/mcuxClEcc_Weier_Internal.h>
-#include <internal/mcuxClEcc_Weier_Internal_PointArithmetic_FUP.h>
+#include <internal/mcuxClEcc_Weier_Internal_FUP.h>
 
 
 /**
  * This function implements repeated point doubling, R = 2^(iteration) * P.
  *
  * Input:
- *   iteration: the iteration number of doubling.
+ *   iteration: the number of iterations of doublings, it has to be >= 2.
  *
  * Inputs in pOperands[] and PKC workarea:
  *   buffers (VX2,VY2, VZ2) contain input P, relative-z;
@@ -60,24 +60,13 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_RepeatPointDouble(uint32_t iteration
 {
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEcc_RepeatPointDouble);
 
-    if (1u == iteration)
-    {
-        /* Only 1 iteration: init/double. */
-        MCUXCLECC_FP_CALCFUP_ONE_DOUBLE();
-
-        MCUX_CSSL_FP_FUNCTION_EXIT_VOID(mcuxClEcc_RepeatPointDouble,
-            MCUXCLECC_FP_CALLED_CALCFUP_ONE_DOUBLE );
-    }
-
     /* The 1st iteration: init/double/update. */
     MCUXCLPKC_FP_CALCFUP(mcuxClEcc_FUP_Weier_RepeatDouble,
                         mcuxClEcc_FUP_Weier_RepeatDouble_Len);
 
     /* Switch to in-place. */
     uint16_t *pOperands = MCUXCLPKC_GETUPTRT();
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("32-bit aligned UPTRT table is assigned in CPU workarea")
-    uint32_t *pOperands32 = (uint32_t *) pOperands;
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
+    uint32_t *pOperands32 = MCUXCLPKC_GETUPTRT32();
     MCUXCLPKC_WAITFORREADY();
     MCUXCLECC_COPY_2OFFSETS(pOperands32, WEIER_VX2, WEIER_VY2, WEIER_VX0, WEIER_VY0);
     pOperands[WEIER_VZ2] = pOperands[WEIER_VZ0];
@@ -139,10 +128,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_PointFullAdd(void)
         MCUXCLPKC_FP_CALLED_CALC_MC1_MR,
         MCUXCLPKC_FP_CALLED_CALC_MC1_MS );
 
-    uint16_t *pOperands = MCUXCLPKC_GETUPTRT();
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("32-bit aligned UPTRT table is assigned in CPU workarea")
-    uint32_t *pOperands32 = (uint32_t *) pOperands;
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
+    uint32_t *pOperands32 = MCUXCLPKC_GETUPTRT32();
 
     MCUXCLPKC_WAITFORREADY();
 

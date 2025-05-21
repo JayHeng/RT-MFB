@@ -1,6 +1,5 @@
 /*
- * Copyright 2023 NXP
- * All rights reserved.
+ * Copyright 2023-2024 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,14 +7,16 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
-#include "clock_config.h"
 #include "fsl_common.h"
 #include "fsl_reset.h"
 #include "fsl_gpio.h"
+#if defined(MIMXRT798S_cm33_core0_SERIES) || defined(MIMXRT798S_cm33_core1_SERIES)
+#include "fsl_power.h"
+#include "clock_config.h"
+#include "fsl_glikey.h"
+#endif
 #if defined(MIMXRT798S_cm33_core0_SERIES)
 #include "fsl_xspi.h"
-#include "fsl_power.h"
-#include "fsl_glikey.h"
 #endif
 
 /*******************************************************************************
@@ -24,9 +25,13 @@
 /*! @brief The board name */
 #define BOARD_NAME "MIMXRT700-EVK"
 
+#ifndef BOARD_XTAL_SYS_CLK_HZ
+#define BOARD_XTAL_SYS_CLK_HZ 24000000U
+#endif
+
 /*! @brief The UART to use for debug messages. */
 #define BOARD_DEBUG_UART_TYPE kSerialPort_Uart
-#if (defined(MIMXRT798S_cm33_core0_SERIES) || defined(MIMXRT798S_hifi4_SERIES))
+#if (defined(MIMXRT798S_cm33_core0_SERIES) || defined(MIMXRT798S_hifi4_SERIES) || defined(MIMXRT798S_ezhv_SERIES))
 #define BOARD_DEBUG_UART_BASEADDR     (uint32_t) LPUART0
 #define BOARD_DEBUG_UART_INSTANCE     0U
 #define BOARD_DEBUG_UART_CLK_FREQ     CLOCK_GetLPFlexCommClkFreq(0)
@@ -46,6 +51,18 @@
 #else
 #error "Unsupported core!"
 #endif
+
+/* HCI UART configuration */
+#define BOARD_BT_UART_BASEADDR     LPUART3
+#define BOARD_BT_UART_INSTANCE     3U
+#define BOARD_BT_UART_CLK_FREQ     CLOCK_GetLPFlexCommClkFreq(3U)
+#define BOARD_BT_UART_CLK_ATTACH   kFCCLK1_to_FLEXCOMM3
+#define BOARD_BT_UART_FCCLK_DIV    kCLOCK_DivFcclk1Clk
+#define BOARD_BT_UART_FCCLK_ATTACH kOSC_CLK_to_FCCLK1
+#define BOARD_BT_UART_BAUDRATE     3000000
+
+#define BOARD_BT_UART_IRQ_HANDLER  LP_FLEXCOMM3_IRQHandler
+#define BOARD_BT_UART_IRQ          LP_FLEXCOMM3_IRQn
 
 #ifndef BOARD_DEBUG_UART_BAUDRATE
 #define BOARD_DEBUG_UART_BAUDRATE 115200
@@ -91,6 +108,13 @@
 /* MIPI panel. */
 #define BOARD_MIPI_PANEL_TOUCH_I2C_BASEADDR   LPI2C8
 #define BOARD_MIPI_PANEL_TOUCH_I2C_CLOCK_FREQ CLOCK_GetLPFlexCommClkFreq(8U)
+#define BOARD_MIPI_PANEL_TOUCH_RST_GPIO       GPIO3
+#define BOARD_MIPI_PANEL_TOUCH_RST_PIN        8
+#define BOARD_MIPI_PANEL_TOUCH_INT_GPIO       GPIO1
+#define BOARD_MIPI_PANEL_TOUCH_INT_PIN        13
+#define BOARD_MIPI_TOUCH_INT_GPIO_IRQ         GPIO10_IRQn
+#define BOARD_MIPI_TOUCH_INT_GPIO_IRQ_Handler GPIO10_IRQHandler
+
 /* RST pin. */
 #define BOARD_MIPI_RST_GPIO GPIO3
 #define BOARD_MIPI_RST_PIN  4
@@ -183,6 +207,35 @@
 #endif
 #define MU_IRQ_PRIORITY (2)
 
+#ifndef BOARD_PSRAM_ENABLE_VARIABLE_LATENCY
+#define BOARD_PSRAM_ENABLE_VARIABLE_LATENCY (1U)
+#endif
+
+/* ERPC LPSPI configuration */
+#define ERPC_BOARD_LPSPI_SLAVE_READY_USE_GPIO (1)
+#define ERPC_BOARD_LPSPI_BASEADDR             LPSPI14
+#define ERPC_BOARD_LPSPI_BAUDRATE             500000U
+#define ERPC_BOARD_LPSPI_CLK_FREQ             (CLOCK_GetFreq(kCLOCK_LPSpi14Clk))
+#define ERPC_BOARD_LPSPI_INT_GPIO             GPIO1
+#define ERPC_BOARD_LPSPI_INT_PIN              11U
+
+/* ERPC LPI2C configuration */
+#define ERPC_BOARD_LPI2C_BASEADDR LPI2C2_BASE
+#define ERPC_BOARD_LPI2C_BAUDRATE 100000U
+#define ERPC_BOARD_LPI2C_CLKSRC   kCLOCK_Flexcomm2
+#define ERPC_BOARD_LPI2C_CLK_FREQ CLOCK_GetLPFlexCommClkFreq(2u)
+#define ERPC_BOARD_LPI2C_INT_GPIO GPIO3
+#define ERPC_BOARD_LPI2C_INT_PIN  2U
+
+#if (defined(MIMXRT798S_cm33_core0_SERIES))
+#define IS_XIP_XSPI0()                                                                            \
+    ((((uint32_t)BOARD_ConfigMPU >= 0x28000000U) && ((uint32_t)BOARD_ConfigMPU < 0x30000000U)) || \
+     (((uint32_t)BOARD_ConfigMPU >= 0x38000000U) && ((uint32_t)BOARD_ConfigMPU < 0x40000000U)))
+#define IS_XIP_XSPI1()                                                                            \
+    ((((uint32_t)BOARD_ConfigMPU >= 0x08000000U) && ((uint32_t)BOARD_ConfigMPU < 0x10000000U)) || \
+     (((uint32_t)BOARD_ConfigMPU >= 0x18000000U) && ((uint32_t)BOARD_ConfigMPU < 0x20000000U)))
+#endif
+
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */
@@ -190,16 +243,41 @@ extern "C" {
 /*******************************************************************************
  * API
  ******************************************************************************/
-
 void BOARD_InitDebugConsole(void);
+void BOARD_ClockPreConfig(void);
+void BOARD_ClockPostConfig(void);
+/*!
+ * @brief Clock pre-initialization function for higher frequency run.
+ */
+void BOARD_ClockHSRunPreConfig(void);
+/*!
+ * @brief Clock post-initialization function for higher frequency run.
+ */
+void BOARD_ClockHSRunPostConfig(void);
+#if defined(MIMXRT798S_cm33_core0_SERIES) || defined(MIMXRT798S_cm33_core1_SERIES)
+/*!
+ * @brief Initializes the AHB Secure Controller, allow SRAM and Media access for masters.
+ */
+void BOARD_InitAHBSC(void);
+/*!
+ * @brief Enable write for the Glikey protected registers.
+ *
+ * @param base GLIKEY peripheral base pointer
+ * @param idx target index.
+ */
+void GlikeyWriteEnable(GLIKEY_Type *base, uint8_t idx);
+/*!
+ * @brief Reset the Glikey to init status.
+ *
+ * @param base GLIKEY peripheral base pointer
+ */
+void GlikeyClearConfig(GLIKEY_Type *base);
+#endif
+
 #if defined(MIMXRT798S_cm33_core0_SERIES)
 void BOARD_ConfigMPU(void);
 void BOARD_Init16bitsPsRam(XSPI_Type *base);
-/* Initializes the AHB Secure Controller, allow SRAM and Media access for masters. */
-void BOARD_InitAHBSC(void);
 void BOARD_XspiClockSafeConfig(void);
-void GlikeyWriteEnable(GLIKEY_Type *base, uint8_t idx); /* Temporary API to unlock glikey protect. */
-void GlikeyClearConfig(GLIKEY_Type *base);
 AT_QUICKACCESS_SECTION_CODE(void BOARD_SetXspiClock(XSPI_Type *base, uint32_t src, uint32_t divider));
 AT_QUICKACCESS_SECTION_CODE(void BOARD_DeinitXspi(XSPI_Type *base, CACHE64_CTRL_Type *cache));
 AT_QUICKACCESS_SECTION_CODE(void BOARD_InitXspi(XSPI_Type *base, CACHE64_CTRL_Type *cache));
@@ -226,8 +304,13 @@ status_t BOARD_PMIC_I2C_Send(
     uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, const uint8_t *txBuff, uint8_t txBuffSize);
 status_t BOARD_PMIC_I2C_Receive(
     uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, uint8_t *rxBuff, uint8_t rxBuffSize);
+
 #if defined(MIMXRT798S_cm33_core0_SERIES)
 void BOARD_MIPIPanelTouch_I2C_Init(void);
+status_t BOARD_MIPIPanelTouch_I2C_Send(
+    uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, const uint8_t *txBuff, uint8_t txBuffSize);
+status_t BOARD_MIPIPanelTouch_I2C_Receive(
+    uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, uint8_t *rxBuff, uint8_t rxBuffSize);
 #endif
 #endif /* SDK_I2C_BASED_COMPONENT_USED */
 

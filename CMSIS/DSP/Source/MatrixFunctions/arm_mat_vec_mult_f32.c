@@ -56,7 +56,7 @@
 
 #include "arm_helium_utils.h"
 
-void arm_mat_vec_mult_f32(
+ARM_DSP_ATTRIBUTE void arm_mat_vec_mult_f32(
     const arm_matrix_instance_f32   *pSrcMat,
     const float32_t                 *pSrcVec,
     float32_t                       *pDstVec)
@@ -165,7 +165,7 @@ void arm_mat_vec_mult_f32(
     }
 
     /*
-     * compute 2 rows in parrallel
+     * compute 2 rows in parallel
      */
     if (row >= 2)
     {
@@ -287,7 +287,7 @@ void arm_mat_vec_mult_f32(
 }
 #else
 
-void arm_mat_vec_mult_f32(const arm_matrix_instance_f32 *pSrcMat, const float32_t *pVec, float32_t *pDst)
+ARM_DSP_ATTRIBUTE void arm_mat_vec_mult_f32(const arm_matrix_instance_f32 *pSrcMat, const float32_t *pVec, float32_t *pDst)
 {
     uint32_t numRows = pSrcMat->numRows;
     uint32_t numCols = pSrcMat->numCols;
@@ -298,7 +298,8 @@ void arm_mat_vec_mult_f32(const arm_matrix_instance_f32 *pSrcMat, const float32_
     const float32_t *pInA4;      /* input data matrix pointer A of Q31 type */
     const float32_t *pInVec;     /* input data matrix pointer B of Q31 type */
     float32_t *px;               /* Temporary output data matrix pointer */
-    uint16_t i, row, colCnt; /* loop counters */
+    uint32_t i;
+    uint16_t row, colCnt; /* loop counters */
     float32_t matData, matData2, vecData, vecData2;
 
 
@@ -310,15 +311,15 @@ void arm_mat_vec_mult_f32(const arm_matrix_instance_f32 *pSrcMat, const float32_
     /* The following loop performs the dot-product of each row in pSrcA with the vector */
     /* row loop */
     while (row > 0) {
-        /* For every row wise process, the pInVec pointer is set
-         ** to the starting address of the vector */
-        pInVec = pVec;
-
         /* Initialize accumulators */
         float32_t sum1 = 0.0f;
         float32_t sum2 = 0.0f;
         float32_t sum3 = 0.0f;
         float32_t sum4 = 0.0f;
+
+        /* For every row wise process, the pInVec pointer is set
+         ** to the starting address of the vector */
+        pInVec = pVec;
 
         /* Loop unrolling: process 2 columns per iteration */
         colCnt = numCols;

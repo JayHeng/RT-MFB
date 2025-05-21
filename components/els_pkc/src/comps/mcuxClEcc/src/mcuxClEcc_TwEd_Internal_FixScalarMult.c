@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2022-2023 NXP                                                  */
+/* Copyright 2022-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -29,9 +29,9 @@
 #include <internal/mcuxClPkc_Operations.h>
 #include <internal/mcuxClEcc_TwEd_Internal.h>
 
-MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comments.")
+MCUX_CSSL_ANALYSIS_START_PATTERN_HYPERLINK_IN_COMMENTS()
 /**
- * This function implements a scalar multiplication lambda*G for a given secret scalar lambda in {1,...,n-1}
+ * This function implements a scalar multiplication lambda*G for a given secret scalar lambda in {0,...,n-1}
  * and the base point G on a twisted Edwards curves. The result will be returned in homogeneous coordinates (Xres:Yres:Zres).
  * The scalar multiplication is implemented using a regular comb method processing 4 bits at a time. To achieve regularity,
  * the scalar is recoded into a non-zero BSD representation and the comb method is implemented by doing a double-and-add-or-subtract
@@ -46,14 +46,19 @@ MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comment
  * Due to the fact that with the chosen regular scalar multiplication algorithm we don't have consecutive doublings, there's no point
  * in mixing extended homogeneous with homogeneous coordinates as suggested in Section 4.3 of https://eprint.iacr.org/2008/522.pdf.
  *
+ * The function also outputs the correct result, namely the neutral point, in case the input scalar is zero.
+ *
  * Input:
- *  - pSession          Handle for the current CL session
- *  - pDomainParams     Pointer to ECC common domain parameters structure
- *  - iScalar Pointer   table index of secret scalar lambda
- *  - scalarBitLength   Bit length of the scalar; must coincide with the bit length of n
- *  - pMixedPointAddFct Curve dependent function to perform mixed point addition on twisted Edwards curve
- *  - pPointDoubleFct   Curve dependent function to perform point doubling on twisted Edwards curve
- *  - pPtrSelectFctFP   Function to select pre-computed point to be added
+ *  - pSession              Handle for the current CL session
+ *  - pDomainParams         Pointer to ECC common domain parameters structure
+ *  - iScalar Pointer       table index of secret scalar lambda
+ *  - scalarBitLength       Bit length of the scalar; must coincide with the bit length of n
+ *  - mixedPointAddFct      Curve dependent function to perform mixed point addition on twisted Edwards curve
+ *  - mixedPointAddFctFPId  FP ID of the function mixedPointAddFct
+ *  - pointDoubleFct        Curve dependent function to perform point doubling on twisted Edwards curve
+ *  - pointDoubleFctFPId    FP ID of the function pointDoubleFct
+ *  - ptrSelectFct          Function to select accumulated ladder points
+ *  - ptrSelectFctFPId      FP ID of the function ptrSelectFct
  *
  * Prerequisites:
  *  - Buffer buf(iScalar) contains the secret scalar lambda of bit length scalarBitLength
@@ -67,16 +72,19 @@ MCUX_CSSL_ANALYSIS_START_SUPPRESS_TEXT_IN_COMMENTS("Links are allowed in comment
  *
  * @attention The PKC calculation might be still on-going, call #mcuxClPkc_WaitForFinish before CPU accesses to the result.
  */
-MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TEXT_IN_COMMENTS()
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_HYPERLINK_IN_COMMENTS()
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEcc_TwEd_FixScalarMult)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_FixScalarMult(
     mcuxClSession_Handle_t pSession,
     mcuxClEcc_CommonDomainParams_t *pDomainParams,
     uint8_t iScalar,
     uint32_t scalarBitLength,
-    const mcuxClEcc_TwEd_MixedPointAddFunction_FP_t *pMixedPointAddFctFP,
-    const mcuxClEcc_TwEd_PointDoubleFunction_FP_t *pPointDoubleFctFP,
-    const mcuxClEcc_TwEd_PtrSelectFunction_FP_t *pPtrSelectFctFP
+    mcuxClEcc_TwEd_MixedPointAddFunction_t mixedPointAddFct,
+    uint32_t mixedPointAddFctFPId,
+    mcuxClEcc_TwEd_PointDoubleFunction_t pointDoubleFct,
+    uint32_t pointDoubleFctFPId,
+    mcuxClEcc_TwEd_PtrSelectFunction_t ptrSelectFct,
+    uint32_t ptrSelectFctFPId
     )
 {
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEcc_TwEd_FixScalarMult);
@@ -111,7 +119,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_FixScalarMult(
      */
 
     /* Round scalar length up to the next multiple of f as this is required by the reordering and comb method. */
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_WRAP("scalarBitLength is in the range of [1, MCUXCLPKC_RAM_SIZE * 8u], this is false positive. ")
     scalarBitLength = MCUXCLECC_TWED_FIXSCALARMULT_DIGITSIZE * ((scalarBitLength + (MCUXCLECC_TWED_FIXSCALARMULT_DIGITSIZE - 1u)) / MCUXCLECC_TWED_FIXSCALARMULT_DIGITSIZE);
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_WRAP()
 
     /* Recode and reorder scalar. */
     MCUXCLECC_FP_RECODEANDREORDERSCALAR(iScalar, MCUXCLECC_TWED_FIXSCALARMULT_DIGITSIZE, scalarBitLength);
@@ -144,12 +154,12 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_FixScalarMult(
 
     /*
      * Step 5: For i from (scalarBitLength - 4) down to 0:
-     *          - Call point doubling routine defined by pPointDoubleFct to compute P = 2*P
+     *          - Call point doubling routine defined by pointDoubleFct to compute P = 2*P
      *          - Get digit (i3 i2 i1 i0)_2 at offset i in buf(iScalar), and set PP = P_((i3 i2 i1)_2 ^ (i0 i0 i0)_2 ^ (1 1 1)_2)
-     *          - Call pointer selection routine specified by pPtrSelectFct to set TWED_PP_VX0 to the buffer storing the X-coordinate of PP and
+     *          - Call pointer selection routine specified by ptrSelectFct to set TWED_PP_VX0 to the buffer storing the X-coordinate of PP and
      *             - if i0 = 1, set TWED_PP_VY0 and TWED_PP_VT0 to the buffers storing the Y- and T-coordinates of PP.
      *             - if i0 = 0, set TWED_PP_VY0 and TWED_PP_VT0 to buffers ECC_T2 and ECC_T3 and store the negative Y- and T-coordinates of PP in buffers ECC_T2 and ECC_T3.
-     *          - Call mixed point addition routine defined by pMixedPointAddFct to compute P = P + PP.
+     *          - Call mixed point addition routine defined by mixedPointAddFct to compute P = P + PP.
      */
     uint32_t currentDigitBitIndex = scalarBitLength; /* scalarBitLength is multiple of MCUXCLECC_TWED_FIXSCALARMULT_DIGITSIZE, so index can be unsigned. */
     uint32_t currentScalarWord = 0u;
@@ -162,7 +172,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_FixScalarMult(
 
         /* Read next scalar word if needed. */
         uint32_t currentDigitInWordIndex  = currentDigitBitIndex % 32u;
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_WRAP("The result does not wrap. The roundedScalarBitLength must coincide with the bit length of n rounded up to a multiple of 4.")
         if(((uint32_t)currentDigitBitIndex == (scalarBitLength - 4u)) || (currentDigitInWordIndex  == (32u - MCUXCLECC_TWED_FIXSCALARMULT_DIGITSIZE)))
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_WRAP()
         {
             MCUXCLPKC_PKC_CPU_ARBITRATION_WORKAROUND();  // avoid CPU accessing to PKC workarea when PKC is busy
             uint32_t currentScalarWordIndex = currentDigitBitIndex / 32u;
@@ -170,28 +182,23 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_FixScalarMult(
             MCUX_CSSL_FP_BRANCH_POSITIVE(ifInWhile);
         }
 
-        /* Call point doubling routine defined by pPointDoubleFct to compute P = 2*P */
-        MCUX_CSSL_FP_FUNCTION_CALL(ret_DoubleFct, pPointDoubleFctFP->pPointDoubleFct());
+        /* Call point doubling routine defined by pointDoubleFct to compute P = 2*P */
+        MCUX_CSSL_FP_FUNCTION_CALL_VOID(pointDoubleFct());
 
-        /* Call pointer selection routine specified by pPtrSelectFct to set TWED_PP_VX0, TWED_PP_VY0 and TWED_PP_VT0
+        /* Call pointer selection routine specified by ptrSelectFct to set TWED_PP_VX0, TWED_PP_VY0 and TWED_PP_VT0
          * to the buffers storing the X-, Y- and T-coordinates of PP. */
-        MCUX_CSSL_FP_FUNCTION_CALL(ret_PtrSelectFct, pPtrSelectFctFP->pPtrSelectFct(pSession, currentScalarWord, currentDigitInWordIndex));
+        MCUX_CSSL_FP_FUNCTION_CALL_VOID(ptrSelectFct(pSession, currentScalarWord, currentDigitInWordIndex));
 
-        /* Call mixed point addition routine defined by pMixedPointAddFct to compute P = P + PP. */
-        MCUX_CSSL_FP_FUNCTION_CALL(ret_MixedAddFct, pMixedPointAddFctFP->pMixedPointAddFct());
-
-        if((MCUXCLECC_STATUS_OK != ret_DoubleFct) || (MCUXCLECC_STATUS_OK != ret_PtrSelectFct) || (MCUXCLECC_STATUS_OK != ret_MixedAddFct))
-        {
-            MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_TwEd_FixScalarMult, MCUXCLECC_STATUS_FAULT_ATTACK);
-        }
+        /* Call mixed point addition routine defined by mixedPointAddFct to compute P = P + PP. */
+        MCUX_CSSL_FP_FUNCTION_CALL_VOID(mixedPointAddFct());
 
         /* FP balancing for the loop iteration */
         MCUX_CSSL_FP_LOOP_ITERATION(whileLoop,
             MCUX_CSSL_FP_BRANCH_TAKEN_POSITIVE(ifInWhile,
                                               (currentDigitBitIndex == (scalarBitLength - 1u)) || (currentDigitInWordIndex == (32u - MCUXCLECC_TWED_FIXSCALARMULT_DIGITSIZE))),
-            pPointDoubleFctFP->pointDoubleFct_FP_FuncId,
-            pPtrSelectFctFP->ptrSelectFct_FP_FuncId,
-            pMixedPointAddFctFP->mixedPointAddFct_FP_FuncId
+            pointDoubleFctFPId,
+            ptrSelectFctFPId,
+            mixedPointAddFctFPId
             );
     }
 
@@ -203,7 +210,6 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_FixScalarMult(
         MCUXCLPKC_FP_CALC_OP1_SUB(iScalar, ECC_N, iScalar);
         MCUXCLPKC_FP_CALC_MC1_MS(TWED_X, ECC_P, TWED_X, ECC_PS);
     }
-
 
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_TwEd_FixScalarMult, MCUXCLECC_STATUS_OK,
         MCUX_CSSL_FP_CONDITIONAL((0u == scalarLsb),

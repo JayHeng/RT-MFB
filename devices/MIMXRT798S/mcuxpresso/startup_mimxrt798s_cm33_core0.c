@@ -1,11 +1,10 @@
 //*****************************************************************************
 // MIMXRT798S_cm33_core0 startup code for use with MCUXpresso IDE
 //
-// Version : 110324
+// Version : 110924
 //*****************************************************************************
 //
 // Copyright 2016-2024 NXP
-// All rights reserved.
 //
 // SPDX-License-Identifier: BSD-3-Clause
 //*****************************************************************************
@@ -204,8 +203,8 @@ WEAK void MMU1_IRQHandler(void);
 WEAK void MMU2_IRQHandler(void);
 WEAK void Freqme_IRQHandler(void);
 WEAK void GDET0_IRQHandler(void);
-WEAK void GDET1_IRQHandler(void);
-WEAK void GDET2_IRQHandler(void);
+WEAK void Reserved142_IRQHandler(void);
+WEAK void Reserved143_IRQHandler(void);
 WEAK void GDET3_IRQHandler(void);
 WEAK void CDOG0_IRQHandler(void);
 WEAK void CDOG1_IRQHandler(void);
@@ -228,10 +227,10 @@ WEAK void GLIKEY0_IRQHandler(void);
 WEAK void GLIKEY2_IRQHandler(void);
 WEAK void GLIKEY3_IRQHandler(void);
 WEAK void GLIKEY5_IRQHandler(void);
-WEAK void PVT0_AMBER0_IRQHandler(void);
-WEAK void PVT0_RED0_IRQHandler(void);
-WEAK void PVT0_AMBER1_IRQHandler(void);
-WEAK void PVT0_RED1_IRQHandler(void);
+WEAK void PVTS0_CPU0_IRQHandler(void);
+WEAK void Reserved167_IRQHandler(void);
+WEAK void PVTS0_HIFI4_IRQHandler(void);
+WEAK void Reserved169_IRQHandler(void);
 WEAK void FRO0_IRQHandler(void);
 WEAK void FRO1_IRQHandler(void);
 WEAK void FRO2_IRQHandler(void);
@@ -369,8 +368,8 @@ void MMU1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void MMU2_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void Freqme_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void GDET0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void GDET1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void GDET2_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void Reserved142_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void Reserved143_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void GDET3_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void CDOG0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void CDOG1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
@@ -393,10 +392,10 @@ void GLIKEY0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void GLIKEY2_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void GLIKEY3_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void GLIKEY5_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void PVT0_AMBER0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void PVT0_RED0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void PVT0_AMBER1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void PVT0_RED1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void PVTS0_CPU0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void Reserved167_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void PVTS0_HIFI4_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void Reserved169_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void FRO0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void FRO1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void FRO2_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
@@ -589,10 +588,10 @@ void (* const g_pfnVectors[])(void) = {
     MMU1_IRQHandler,                    // 138: MMU: Interrupt request
     MMU2_IRQHandler,                    // 139: MMU: Interrupt request
     Freqme_IRQHandler,                  // 140: FREQME: Interrupt request
-    GDET0_IRQHandler,                   // 141: GDET: Interrupt request
-    GDET1_IRQHandler,                   // 142: GDET: Interrupt request
-    GDET2_IRQHandler,                   // 143: GDET: Interrupt request
-    GDET3_IRQHandler,                   // 144: GDET: Interrupt request
+    GDET0_IRQHandler,                   // 141: GDET0: Interrupt request
+    Reserved142_IRQHandler,             // 142: Reserved interrupt
+    Reserved143_IRQHandler,             // 143: Reserved interrupt
+    GDET3_IRQHandler,                   // 144: GDET3: Interrupt request
     CDOG0_IRQHandler,                   // 145: CDOG: Interrupt request
     CDOG1_IRQHandler,                   // 146: CDOG: Interrupt request
     CDOG2_IRQHandler,                   // 147: CDOG: Interrupt request
@@ -614,10 +613,10 @@ void (* const g_pfnVectors[])(void) = {
     GLIKEY2_IRQHandler,                 // 163: GLIKEY: Interrupt
     GLIKEY3_IRQHandler,                 // 164: GLIKEY: Interrupt
     GLIKEY5_IRQHandler,                 // 165: GLIKEY: Interrupt
-    PVT0_AMBER0_IRQHandler,             // 166: PVT0 AMBER0 interrupt
-    PVT0_RED0_IRQHandler,               // 167: PVT0 RED0 interrupt
-    PVT0_AMBER1_IRQHandler,             // 168: PVT0 AMBER1 interrupt
-    PVT0_RED1_IRQHandler,               // 169: PVT0 RED1 interrupt
+    PVTS0_CPU0_IRQHandler,              // 166: PVTS0 CPU0 interrupt
+    Reserved167_IRQHandler,             // 167: Reserved interrupt
+    PVTS0_HIFI4_IRQHandler,             // 168: PVTS0 HIFI4 interrupt
+    Reserved169_IRQHandler,             // 169: Reserved interrupt
     FRO0_IRQHandler,                    // 170: FRO: 300MHz FRO in VDD2 domain Async interrupt
     FRO1_IRQHandler,                    // 171: FRO: 192MHz FRO in VDD2 domain Async interrupt
     FRO2_IRQHandler,                    // 172: FRO: 300MHz FRO in VDD1 domain Async interrupt
@@ -1302,12 +1301,12 @@ WEAK void GDET0_IRQHandler(void)
 {   GDET0_DriverIRQHandler();
 }
 
-WEAK void GDET1_IRQHandler(void)
-{   GDET1_DriverIRQHandler();
+WEAK void Reserved142_IRQHandler(void)
+{   Reserved142_DriverIRQHandler();
 }
 
-WEAK void GDET2_IRQHandler(void)
-{   GDET2_DriverIRQHandler();
+WEAK void Reserved143_IRQHandler(void)
+{   Reserved143_DriverIRQHandler();
 }
 
 WEAK void GDET3_IRQHandler(void)
@@ -1398,20 +1397,20 @@ WEAK void GLIKEY5_IRQHandler(void)
 {   GLIKEY5_DriverIRQHandler();
 }
 
-WEAK void PVT0_AMBER0_IRQHandler(void)
-{   PVT0_AMBER0_DriverIRQHandler();
+WEAK void PVTS0_CPU0_IRQHandler(void)
+{   PVTS0_CPU0_DriverIRQHandler();
 }
 
-WEAK void PVT0_RED0_IRQHandler(void)
-{   PVT0_RED0_DriverIRQHandler();
+WEAK void Reserved167_IRQHandler(void)
+{   Reserved167_DriverIRQHandler();
 }
 
-WEAK void PVT0_AMBER1_IRQHandler(void)
-{   PVT0_AMBER1_DriverIRQHandler();
+WEAK void PVTS0_HIFI4_IRQHandler(void)
+{   PVTS0_HIFI4_DriverIRQHandler();
 }
 
-WEAK void PVT0_RED1_IRQHandler(void)
-{   PVT0_RED1_DriverIRQHandler();
+WEAK void Reserved169_IRQHandler(void)
+{   Reserved169_DriverIRQHandler();
 }
 
 WEAK void FRO0_IRQHandler(void)

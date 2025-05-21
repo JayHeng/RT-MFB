@@ -1,7 +1,5 @@
 /*
- * Copyright 2023 NXP
- * All rights reserved.
- *
+ * Copyright 2023-2024 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +14,6 @@
 #if defined(SDK_I2C_BASED_COMPONENT_USED) && SDK_I2C_BASED_COMPONENT_USED
 #include "fsl_lpi2c.h"
 #endif /* SDK_I2C_BASED_COMPONENT_USED */
-#include "clock_config.h"
 #include "board.h"
 
 /*******************************************************************************
@@ -50,7 +47,7 @@ void BOARD_InitDebugConsole(void)
 {
     uint32_t uartClkSrcFreq;
 
-#if (defined(MIMXRT798S_cm33_core0_SERIES) || defined(MIMXRT798S_hifi4_SERIES))
+#if (defined(MIMXRT798S_cm33_core0_SERIES) || defined(MIMXRT798S_hifi4_SERIES) || defined(MIMXRT798S_ezhv_SERIES))
     CLOCK_AttachClk(BOARD_DEBUG_UART_FCCLK_ATTACH);
     CLOCK_SetClkDiv(BOARD_DEBUG_UART_FCCLK_DIV, 1U);
 
@@ -65,8 +62,100 @@ void BOARD_InitDebugConsole(void)
 
     DbgConsole_Init(BOARD_DEBUG_UART_INSTANCE, BOARD_DEBUG_UART_BAUDRATE, BOARD_DEBUG_UART_TYPE, uartClkSrcFreq);
 }
+#if defined(MIMXRT798S_cm33_core1_SERIES)
+void BOARD_ClockPreConfig(void)
+{
+    CLOCK_AttachClk(kFRO1_DIV3_to_SENSE_BASE);
+    CLOCK_SetClkDiv(kCLOCK_DivSenseMainClk, 1);
+    CLOCK_AttachClk(kSENSE_BASE_to_SENSE_MAIN);
+}
+
+void BOARD_ClockHSRunPreConfig(void)
+{
+    BOARD_ClockPreConfig();
+       
+    /* Change power supply for LDO, if using external PMIC supply for VDD1/VDD2, need configure PMIC to change voltage supply. */
+    power_regulator_voltage_t ldo = {
+        .LDO.vsel0 = 700000U,  /* 700mv, 0.45 V + 12.5 mV * x */
+        .LDO.vsel1 = 800000U,  /* 800mv*/
+        .LDO.vsel2 = 900000U,  /* 900mv */
+        .LDO.vsel3 = 1100000U, /* 1100mv */
+    };
+
+    power_lvd_voltage_t lvd = {
+        .VDD12.lvl0 = 600000U, /* 600mv */
+        .VDD12.lvl1 = 700000U, /* 700mv */
+        .VDD12.lvl2 = 800000U, /* 800mv */
+        .VDD12.lvl3 = 1000000U, /* 1000mv */
+    };
+
+    POWER_ConfigRegulatorSetpoints(kRegulator_Vdd1LDO, &ldo, &lvd);
+
+    POWER_ApplyPD();
+}
+
+void BOARD_ClockPostConfig(void)
+{
+}
+
+void BOARD_ClockHSRunPostConfig(void)
+{
+}
+#endif
 
 #if defined(MIMXRT798S_cm33_core0_SERIES)
+void BOARD_ClockPreConfig(void)
+{
+    POWER_DisablePD(kPDRUNCFG_PD_FRO1); /* Make sure FRO1 is enabled. */
+
+    /* Switch to FRO1 for safe configure. */
+    CLOCK_AttachClk(kFRO1_DIV1_to_COMPUTE_BASE);
+    CLOCK_AttachClk(kCOMPUTE_BASE_to_COMPUTE_MAIN);
+    CLOCK_SetClkDiv(kCLOCK_DivCmptMainClk, 1U);
+    CLOCK_AttachClk(kFRO1_DIV1_to_RAM);
+    CLOCK_SetClkDiv(kCLOCK_DivComputeRamClk, 1U);
+    CLOCK_AttachClk(kFRO1_DIV1_to_COMMON_BASE);
+    CLOCK_AttachClk(kCOMMON_BASE_to_COMMON_VDDN);
+    CLOCK_SetClkDiv(kCLOCK_DivCommonVddnClk, 1U);
+
+    BOARD_XspiClockSafeConfig(); /*Change to common_base clock(Sourced by FRO1). */
+}
+
+void BOARD_ClockHSRunPreConfig(void)
+{
+    BOARD_ClockPreConfig();
+       
+    /* Change power supply for LDO, if using external PMIC supply for VDD1/VDD2, need configure PMIC to change voltage supply. */
+    power_regulator_voltage_t ldo = {
+        .LDO.vsel0 = 700000U,  /* 700mv, 0.45 V + 12.5 mV * x */
+        .LDO.vsel1 = 800000U,  /* 800mv*/
+        .LDO.vsel2 = 900000U,  /* 900mv */
+        .LDO.vsel3 = 1100000U, /* 1100mv */
+    };
+
+    power_lvd_voltage_t lvd = {
+        .VDD12.lvl0 = 600000U, /* 600mv */
+        .VDD12.lvl1 = 700000U, /* 700mv */
+        .VDD12.lvl2 = 800000U, /* 800mv */
+        .VDD12.lvl3 = 1000000U, /* 1000mv */
+    };
+
+    POWER_ConfigRegulatorSetpoints(kRegulator_Vdd2LDO, &ldo, &lvd);
+
+    POWER_ApplyPD();
+}
+
+void BOARD_ClockPostConfig(void)
+{
+    /* Call function BOARD_SetXspiClock() to set user configured clock source/divider for XSPI. */
+    BOARD_SetXspiClock(XSPI0, 3U, 1U); /* Main PLL PDF1 DIV1. */
+}
+
+void BOARD_ClockHSRunPostConfig(void)
+{
+    BOARD_ClockPostConfig();
+}
+
 AT_QUICKACCESS_SECTION_CODE(void BOARD_EnableXspiCache(CACHE64_CTRL_Type *cache))
 {
     /* First, invalidate the entire cache. */
@@ -127,7 +216,7 @@ void BOARD_ConfigMPU(void)
     ARM_MPU_Disable();
 
     /* Attr0: device memory. */
-    ARM_MPU_SetMemAttr(0U, ARM_MPU_ATTR(ARM_MPU_ATTR_DEVICE, ARM_MPU_ATTR_DEVICE));
+    ARM_MPU_SetMemAttr(0U, ARM_MPU_ATTR(ARM_MPU_ATTR_DEVICE, ARM_MPU_ATTR_DEVICE_nGnRnE));
     /* Attr1: non cacheable. */
     ARM_MPU_SetMemAttr(1U, ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, ARM_MPU_ATTR_NON_CACHEABLE));
     /* Attr2: non transient, write through, read allocate. */
@@ -169,6 +258,22 @@ void BOARD_ConfigMPU(void)
     __ISB();
 }
 
+/*!
+ * @brief For A0 Silicon, the XSPI AHB Buffer need to be reconfigured to allow the PKC, eDMA1, GPU to access external
+ * memory.
+ * @param base XSPI peripheral base pointer
+ */
+AT_QUICKACCESS_SECTION_CODE(void BOARD_ReConfigXspiAhbBuffer(XSPI_Type *base))
+{
+    while (((base->SR & XSPI_SR_AHB_ACC_MASK) != 0U) && ((base->SR & XSPI_SR_AHB_ACC_MASK) != 0U))
+    {
+    }
+    /* Configure Master ID to reserved master to not use buffer0-2. */
+    base->BUFCR[0] = 0x13U;
+    base->BUFCR[1] = 0x13U;
+    base->BUFCR[2] = 0x13U;
+}
+
 void BOARD_DeinitXspi(XSPI_Type *base, CACHE64_CTRL_Type *cache)
 {
     if (base == XSPI0)
@@ -204,7 +309,7 @@ void BOARD_InitXspi(XSPI_Type *base, CACHE64_CTRL_Type *cache)
     base->MCR |= XSPI_MCR_MDIS_MASK;
 
     base->MCR |= XSPI_MCR_SWRSTSD_MASK | XSPI_MCR_SWRSTHD_MASK;
-    for (uint32_t i = 0; i < 6; i++)
+    for (uint32_t i = 0U; i < 6U; i++)
     {
         __NOP();
     }
@@ -217,13 +322,28 @@ void BOARD_InitXspi(XSPI_Type *base, CACHE64_CTRL_Type *cache)
     base->MCR &= ~XSPI_MCR_MDIS_MASK;
 
     base->MCR |= XSPI_MCR_MDIS_MASK;
-    base->SMPR = 0x04000000;
+    base->SMPR = (((base->SMPR) & (~XSPI_SMPR_DLLFSMPFA_MASK)) |
+                  XSPI_SMPR_DLLFSMPFA(FSL_FEATURE_XSPI_DLL_REF_VALUE_DDR_DELAY_TAP_NUM));
     base->MCR &= ~XSPI_MCR_MDIS_MASK;
 
-    base->DLLCR[0] = 0xc240001d;
-    while (!(((base->DLLSR & XSPI_DLLSR_SLVA_LOCK_MASK) == XSPI_DLLSR_SLVA_LOCK_MASK) &&
-             ((base->DLLSR & XSPI_DLLSR_DLLA_LOCK_MASK) == XSPI_DLLSR_DLLA_LOCK_MASK)))
-        ;
+    base->DLLCR[0] &= ~(XSPI_DLLCR_SLV_DLL_BYPASS_MASK | XSPI_DLLCR_DLL_CDL8_MASK | XSPI_DLLCR_SLV_DLY_OFFSET_MASK |
+                        XSPI_DLLCR_SLV_FINE_OFFSET_MASK | XSPI_DLLCR_DLLRES_MASK | XSPI_DLLCR_DLL_REFCNTR_MASK |
+                        XSPI_DLLCR_FREQEN_MASK);
+    base->DLLCR[0] &= ~(XSPI_DLLCR_SLV_EN_MASK | XSPI_DLLCR_SLAVE_AUTO_UPDT_MASK | XSPI_DLLCR_DLLEN_MASK);
+    /* Enable subordinate as auto update mode. */
+    base->DLLCR[0] |= XSPI_DLLCR_SLV_EN_MASK | XSPI_DLLCR_SLAVE_AUTO_UPDT_MASK;
+    /* program DLL to desired delay. */
+    base->DLLCR[0] |= XSPI_DLLCR_DLLRES(FSL_FEATURE_XSPI_DLL_REF_VALUE_AUTOUPDATE_RES) |
+                      XSPI_DLLCR_DLL_REFCNTR(2U) | XSPI_DLLCR_DLL_CDL8(1U) |
+                      XSPI_DLLCR_SLV_FINE_OFFSET(0) | XSPI_DLLCR_SLV_DLY_OFFSET(0) | XSPI_DLLCR_FREQEN(1U);
+    /* Load above settings into delay chain. */
+    base->DLLCR[0] |= XSPI_DLLCR_SLV_UPD_MASK;
+    base->DLLCR[0] |= XSPI_DLLCR_DLLEN_MASK;
+    base->DLLCR[0] &= ~XSPI_DLLCR_SLV_UPD_MASK;
+
+    while ((base->DLLSR & XSPI_DLLSR_SLVA_LOCK_MASK) == 0UL)
+    {
+    }
 
     if ((cache->CCR & CACHE64_CTRL_CCR_ENCACHE_MASK) == 0x00U)
     {
@@ -295,73 +415,183 @@ void BOARD_XspiClockSafeConfig(void)
 {
     BOARD_SetXspiClock(XSPI0, 0U, 1U);
     BOARD_SetXspiClock(XSPI1, 0U, 1U);
+
+    /* For A0 Silicon, the XSPI AHB Buffer need to be reconfigured to allow the PKC, eDMA1, GPU to access external
+     * memory.*/
+    if (SYSCON3->SILICONREV_ID == 0xA0000UL)
+    {
+        BOARD_ReConfigXspiAhbBuffer(XSPI0);
+        BOARD_ReConfigXspiAhbBuffer(XSPI1);
+    }
+}
+
+static void xspi_hyper_ram_get_mcr(XSPI_Type *base, uint32_t regAddr, uint8_t *mrVal)
+{
+    xspi_transfer_t flashXfer = {0U};
+
+    /* Read data */
+    if (base == XSPI1)
+    {
+        flashXfer.deviceAddress = XSPI1_AMBA_BASE + regAddr;
+    }
+    else if (base == XSPI2)
+    {
+        flashXfer.deviceAddress = XSPI2_AMBA_BASE + regAddr;
+    }
+    flashXfer.cmdType         = kXSPI_Read;
+    flashXfer.seqIndex        = HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ;
+    flashXfer.targetGroup     = kXSPI_TargetGroup0;
+    flashXfer.data            = (uint32_t *)mrVal;
+    flashXfer.dataSize        = 4;
+    flashXfer.lockArbitration = false;
+
+    (void)XSPI_TransferBlocking(base, &flashXfer);
+}
+
+static void xspi_hyper_ram_write_mcr(XSPI_Type *base, uint32_t regAddr, uint8_t *mrVal)
+{
+    xspi_transfer_t flashXfer = {0U};
+
+    /* Write data */
+    if (base == XSPI1)
+    {
+        flashXfer.deviceAddress = XSPI1_AMBA_BASE + regAddr;
+    }
+    else if (base == XSPI2)
+    {
+        flashXfer.deviceAddress = XSPI2_AMBA_BASE + regAddr;
+    }
+    flashXfer.cmdType         = kXSPI_Write;
+    flashXfer.seqIndex        = HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE;
+    flashXfer.targetGroup     = kXSPI_TargetGroup0;
+    flashXfer.data            = (uint32_t *)mrVal;
+    flashXfer.dataSize        = 4;
+    flashXfer.lockArbitration = false;
+
+    (void)XSPI_TransferBlocking(base, &flashXfer);
 }
 
 void BOARD_Init16bitsPsRam(XSPI_Type *base)
 {
     xspi_config_t config;
+    xspi_ahb_access_config_t psRamAhbAccessConfig;
+    xspi_ip_access_config_t psRamIpAccessConfig;
 
+    config.ptrAhbAccessConfig = &psRamAhbAccessConfig;
+    config.ptrIpAccessConfig  = &psRamIpAccessConfig;
+
+    /* clang-format off */
+    /* 
+     * Errata ERR052528: Limitation on LUT-Data Size < 8byte in xspi.
+     * Description: Read command including RDSR command can't work if LUT data size in read status is less than 8.
+     * Workaround: Use LUT data size of minimum 8 byte for read commands including RDSR.
+    */
     const uint32_t customLUT[CUSTOM_LUT_LENGTH] = {
-        /* Memory Read */
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ] =
-            XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0xA0, kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ + 1] =
-            XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10, kXSPI_Command_DUMMY_SDR, kXSPI_8PAD,
-                         13), /*Dummy cycles -> 7  = 1 + 4 + 2*/
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ + 2] =
-            XSPI_LUT_SEQ(kXSPI_Command_READ_DDR, kXSPI_8PAD, 0x04, kXSPI_Command_STOP, kXSPI_1PAD, 0x0),
+#if (defined(BOARD_PSRAM_ENABLE_VARIABLE_LATENCY) && BOARD_PSRAM_ENABLE_VARIABLE_LATENCY)
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ] = XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0xA0,
+                                                                kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ + 1] = XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10,
+                                                                    kXSPI_Command_DUMMY_SDR, kXSPI_8PAD, 6), /* Dummy cycle: 2 * 6 + 2 */
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ + 2] = XSPI_LUT_SEQ(kXSPI_Command_READ_DDR, kXSPI_8PAD, 0x08,
+                                                                    kXSPI_Command_STOP, kXSPI_1PAD, 0x0),
 
         /* Memory Write */
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE] =
-            XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0x20, kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE + 1] =
-            XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10, kXSPI_Command_DUMMY_SDR, kXSPI_8PAD,
-                         13), /*Dummy cycles -> 7  = 1 + 4 + 2*/
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE + 2] =
-            XSPI_LUT_SEQ(kXSPI_Command_WRITE_DDR, kXSPI_8PAD, 0x04, kXSPI_Command_STOP, kXSPI_1PAD, 0X0),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE + 0] = XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0x20,
+                                                                    kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE + 1] = XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10,
+                                                                    kXSPI_Command_DUMMY_SDR, kXSPI_8PAD, 6), /* Dummy cycle: 2 * 6 + 2 */
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE + 2] = XSPI_LUT_SEQ(kXSPI_Command_WRITE_DDR, kXSPI_8PAD, 0x04,
+                                                                    kXSPI_Command_STOP, kXSPI_1PAD, 0X0),
 
-        /* Register Read */
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ] =
-            XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0xE0, kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ + 1] =
-            XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10, kXSPI_Command_DUMMY_SDR, kXSPI_8PAD,
-                         13), /*Dummy cycles -> 7  = 1 + 4 + 2*/
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ + 2] =
-            XSPI_LUT_SEQ(kXSPI_Command_READ_DDR, kXSPI_8PAD, 0x04, kXSPI_Command_STOP, kXSPI_1PAD, 0x0),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ] = XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0xE0,
+                                                            kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ + 1] = XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10,
+                                                                kXSPI_Command_DUMMY_SDR, kXSPI_8PAD, 0x6), /* Dummy cycle: 2 * 6 + 2 */
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ + 2] = XSPI_LUT_SEQ(kXSPI_Command_READ_DDR, kXSPI_8PAD, 0x08,
+                                                                kXSPI_Command_STOP, kXSPI_1PAD, 0x0),
 
         /* Register write */
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE] =
-            XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0x60, kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE + 1] =
-            XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10, kXSPI_Command_WRITE_DDR, kXSPI_8PAD, 0x02),
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE + 2] =
-            XSPI_LUT_SEQ(kXSPI_Command_STOP, kXSPI_1PAD, 0x0, kXSPI_Command_STOP, kXSPI_1PAD, 0x0),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE] = XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0x60,
+                                                                kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE + 1] = XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10,
+                                                                kXSPI_Command_WRITE_DDR, kXSPI_8PAD, 0x02),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE + 2] = XSPI_LUT_SEQ(kXSPI_Command_STOP, kXSPI_1PAD, 0x0,
+                                                                kXSPI_Command_STOP, kXSPI_1PAD, 0x0),
+#else
+        /* Memory Read */
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ] = XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0xA0,
+                                                                kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ + 1] = XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10,
+                                                                kXSPI_Command_DUMMY_SDR, kXSPI_8PAD, 13),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ + 2] = XSPI_LUT_SEQ(kXSPI_Command_READ_DDR, kXSPI_8PAD, 0x08,
+                                                                    kXSPI_Command_STOP, kXSPI_1PAD, 0x0),
 
+        /* Memory Write */
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE] = XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0x20,
+                                                                kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE + 1] = XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10,
+                                                                kXSPI_Command_DUMMY_SDR, kXSPI_8PAD, 13), /* Dummy cycle: 13 + 1 */
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE + 2] = XSPI_LUT_SEQ(kXSPI_Command_WRITE_DDR, kXSPI_8PAD, 0x04,
+                                                                    kXSPI_Command_STOP, kXSPI_1PAD, 0X0),
+
+        /* Register Read */
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ] = XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0xE0,
+                                                                kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ + 1] = XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10,
+                                                                    kXSPI_Command_DUMMY_SDR, kXSPI_8PAD, 13),  /* Dummy cycle: 13 + 1 */
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_READ + 2] = XSPI_LUT_SEQ(kXSPI_Command_READ_DDR, kXSPI_8PAD, 0x08,
+                                                                    kXSPI_Command_STOP, kXSPI_1PAD, 0x0),
+
+        /* Register write */
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE] = XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0x60,
+                                                                kXSPI_Command_RADDR_DDR, kXSPI_8PAD, 0x18),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE + 1] = XSPI_LUT_SEQ(kXSPI_Command_CADDR_DDR, kXSPI_8PAD, 0x10,
+                                                                    kXSPI_Command_WRITE_DDR, kXSPI_8PAD, 0x02),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_REG_WRITE + 2] = XSPI_LUT_SEQ(kXSPI_Command_STOP, kXSPI_1PAD, 0x0,
+                                                                    kXSPI_Command_STOP, kXSPI_1PAD, 0x0),
+#endif
         /* reset */
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_RESET] =
-            XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0xFF, kXSPI_Command_DDR, kXSPI_8PAD, 0xFF),
-        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_RESET + 1] XSPI_LUT_SEQ(kXSPI_Command_STOP, kXSPI_8PAD, 0x0, kXSPI_Command_STOP,
-                                                              kXSPI_8PAD, 0x0),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_RESET + 0]     = XSPI_LUT_SEQ(kXSPI_Command_DDR, kXSPI_8PAD, 0xFF, kXSPI_Command_DDR, kXSPI_8PAD, 0xFF),
+        [5 * HYPERRAM_CMD_LUT_SEQ_IDX_RESET + 1]     = XSPI_LUT_SEQ(kXSPI_Command_STOP, kXSPI_8PAD, 0x0, kXSPI_Command_STOP, kXSPI_8PAD, 0x0),
+    };
+    /* clang-format on */
+
+    xspi_device_ddr_config_t psRamDdrConfig = {
+        .ddrDataAlignedClk         = kXSPI_DDRDataAlignedWith2xInternalRefClk,
+        .enableByteSwapInOctalMode = false,
+        .enableDdr                 = true,
     };
 
-    xspi_device_config_t deviceconfig = {
-        .flashA1Size                      = 0x8000U, /* 256Mb/KByte */
-        .sampleTimeRef                    = kXSPI_2xFlashHalfClock,
-        .CSHoldTime                       = 3,
-        .CSSetupTime                      = 3,
-        .columnSpace                      = 3, /*!< Column space size. */
-        .AWRSeqIndex                      = HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE,
-        .ARDSeqIndex                      = HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ,
-        .enableDdr                        = true,
-        .dllConfig.dllMode                = kXSPI_AutoUpdateMode,
-        .dllConfig.useRefValue            = true,
-        .smprConfig.delayWithRef          = kXSPI_SameWithDqs,
-        .smprConfig.enableAtInvertedClock = 0,
-        .enable4BWordAddress              = true, /*!< 4B Word addressable memory. */
-        .enableX16Mode                    = true,
-        .xspiRootClk                      = 500000000,
+    xspi_device_config_t psRamDeviceConfig = {
+        .xspiRootClk                                = 500000000,      /*!< 500MHz */
+        .enableCknPad                               = true,           /*!< CKN signal is connected in board. */
+        .deviceInterface                            = kXSPI_HyperBus, /*!< HyperBus protocol. */
+        .interfaceSettings.hyperBusSettings.x16Mode = kXSPI_x16ModeEnabledOnlyData, /*!< Only Data use x16 mode. */
+#if (defined(BOARD_PSRAM_ENABLE_VARIABLE_LATENCY) && BOARD_PSRAM_ENABLE_VARIABLE_LATENCY)
+        .interfaceSettings.hyperBusSettings.enableVariableLatency =
+            true, /*!< Enable additional latency to increase performance. */
+#else
+         .interfaceSettings.hyperBusSettings.enableVariableLatency = false,
+#endif
+        .interfaceSettings.hyperBusSettings.forceBit10To1 = false,
+        .interfaceSettings.hyperBusSettings.pageSize      = 1024,
+        .CSHoldTime                                       = 2,
+        .CSSetupTime                                      = 2,
+        .sampleClkConfig.sampleClkSource                  = kXSPI_SampleClkFromExternalDQS,
+        .sampleClkConfig.enableDQSLatency                 = false,
+        .sampleClkConfig.dllConfig.dllMode                = kXSPI_AutoUpdateMode,
+        .sampleClkConfig.dllConfig.useRefValue            = true,
+        .sampleClkConfig.dllConfig.enableCdl8             = true,
+        .addrMode                                         = kXSPI_Device2ByteAddressable,
+        .columnAddrWidth                                  = 3U,
+        .enableCASInterleaving                            = false,
+        .deviceSize[0]                                    = 0x8000U,
+        .deviceSize[1]      = 0x8000U, /*!< Single die device, so deviceSize1 should equal to deviceSize0. */
+        .ptrDeviceRegInfo   = NULL,
+        .ptrDeviceDdrConfig = &psRamDdrConfig,
     };
-
+    /* Get XSPI default settings and configure the xspi. */
+    XSPI_GetDefaultConfig(&config);
     if (base == XSPI2)
     {
         POWER_DisablePD(kPDRUNCFG_APD_XSPI2);
@@ -376,6 +606,7 @@ void BOARD_Init16bitsPsRam(XSPI_Type *base)
     }
     else
     {
+        psRamDeviceConfig.xspiRootClk = 400000000;
         POWER_DisablePD(kPDRUNCFG_APD_XSPI1);
         POWER_DisablePD(kPDRUNCFG_PPD_XSPI1);
         POWER_ApplyPD();
@@ -387,21 +618,56 @@ void BOARD_Init16bitsPsRam(XSPI_Type *base)
 #endif
     }
 
-    /* Get XSPI default settings and configure the xspi. */
-    XSPI_GetDefaultConfig(base, &config, &deviceconfig);
-    config.rxSampleClock = kXSPI_ReadSampleClkExternalInputFromDqsPad;
-    /*Set AHB buffer size for reading data through AHB bus. */
-    config.ahbConfig.enableAHBPrefetch = false;
-    config.enableDqsOut                = true;
+    xspi_ahb_write_config_t psRamAhbWriteConfig = {
+        .AWRSeqIndex          = HYPERRAM_CMD_LUT_SEQ_IDX_BURST_WRITE,
+        .blockRead            = false,
+        .blockSequenceWrite   = false,
+        .pageWaitTimeoutValue = 0UL,
+        .policy               = kXSPI_SoftwareClearPPWFlag,
+    };
+    config.ptrAhbAccessConfig->ARDSeqIndex                 = HYPERRAM_CMD_LUT_SEQ_IDX_BURST_READ;
+    config.ptrAhbAccessConfig->ahbErrorPayload.highPayload = 0x5A5A5A5A;
+    config.ptrAhbAccessConfig->ahbErrorPayload.lowPayload  = 0x5A5A5A5A;
+    config.ptrAhbAccessConfig->enableAHBBufferWriteFlush   = true;
+    config.ptrAhbAccessConfig->enableAHBPrefetch           = true;
+    config.ptrAhbAccessConfig->ptrAhbWriteConfig           = &psRamAhbWriteConfig;
+
+    config.ptrIpAccessConfig->ptrSfpFradConfig = NULL;
+    config.ptrIpAccessConfig->ptrSfpMdadConfig = NULL;
 
     XSPI_Init(base, &config);
-    /* Configure flash settings according to serial flash feature. */
-    XSPI_SetFlashConfig(base, &deviceconfig);
+    XSPI_SetDeviceConfig(base, &psRamDeviceConfig);
 
     /* Update LUT table. */
     XSPI_UpdateLUT(base, 0, customLUT, CUSTOM_LUT_LENGTH);
+
+    uint16_t cr1Register[2] = {0x0, 0x0};
+
+    /* Enable CLKn. */
+    (void)xspi_hyper_ram_get_mcr(base, ((1U << 11) | (1U << 0)), (uint8_t *)cr1Register);
+    cr1Register[1] &= ~(0x01 << 6); /* enable ckn */
+    (void)xspi_hyper_ram_write_mcr(base, ((1U << 12) | (1U << 0)), (uint8_t *)cr1Register);
+
+#if (defined(BOARD_PSRAM_ENABLE_VARIABLE_LATENCY) && BOARD_PSRAM_ENABLE_VARIABLE_LATENCY)
+    /* Following code to enable variable latency for hyperRAM */
+    uint16_t cr0Register[2] = {0x0U, 0x0U};
+
+    (void)xspi_hyper_ram_get_mcr(base, (1U << 11), (uint8_t *)cr0Register);
+
+    cr0Register[1] &= ~(1U << 3U);
+    cr0Register[0] &= ~(0x07 << 4); /* Clear drive strength */
+    cr0Register[0] |= (0x03 << 4);  /* 46Ohms */
+
+    (void)xspi_hyper_ram_write_mcr(base, (1U << 11), (uint8_t *)cr0Register);
+#endif
+    /* Updated address mode for AHB access. */
+    psRamDeviceConfig.addrMode = kXSPI_Device4ByteAddressable;
+    XSPI_SetDeviceConfig(base, &psRamDeviceConfig);
 }
 
+#endif /* MIMXRT798S_cm33_core0_SERIES */
+
+#if defined(MIMXRT798S_cm33_core0_SERIES) || defined(MIMXRT798S_cm33_core1_SERIES)
 void GlikeyWriteEnable(GLIKEY_Type *base, uint8_t idx)
 {
     (void)GLIKEY_SyncReset(base);
@@ -421,13 +687,10 @@ void GlikeyClearConfig(GLIKEY_Type *base)
 /* Disable the secure check for AHBSC and enable periperhals/sram access for masters */
 void BOARD_InitAHBSC(void)
 {
+#if defined(MIMXRT798S_cm33_core0_SERIES)
     GlikeyWriteEnable(GLIKEY0, 1U);
     AHBSC0->MISC_CTRL_DP_REG = 0x000086aa;
     AHBSC0->MISC_CTRL_REG    = 0x000086aa; /* AHBSC0 MISC_CTRL_REG, disable Privilege & Secure checking. */
-
-    GlikeyWriteEnable(GLIKEY1, 1U);
-    AHBSC3->MISC_CTRL_DP_REG = 0x000086aa;
-    AHBSC3->MISC_CTRL_REG    = 0x000086aa; /* AHBSC3 MISC_CTRL_REG, disable Privilege & Secure checking.*/
 
     GlikeyWriteEnable(GLIKEY0, 7U);
     /* Enable arbiter0 accessing SRAM */
@@ -436,6 +699,11 @@ void BOARD_InitAHBSC(void)
     AHBSC0->MEDIA_ARB0RAM_ACCESS_ENABLE   = 0x3FFFFFFF;
     AHBSC0->NPU_ARB0RAM_ACCESS_ENABLE     = 0x3FFFFFFF;
     AHBSC0->HIFI4_ARB0RAM_ACCESS_ENABLE   = 0x3FFFFFFF;
+#endif
+
+    GlikeyWriteEnable(GLIKEY1, 1U);
+    AHBSC3->MISC_CTRL_DP_REG = 0x000086aa;
+    AHBSC3->MISC_CTRL_REG    = 0x000086aa; /* AHBSC3 MISC_CTRL_REG, disable Privilege & Secure checking.*/
 
     GlikeyWriteEnable(GLIKEY1, 9U);
     /* Enable arbiter1 accessing SRAM */
@@ -459,11 +727,13 @@ void BOARD_InitAHBSC(void)
     AHBSC4->MISC_CTRL_DP_REG = 0x000086aa;
     AHBSC4->MISC_CTRL_REG    = 0x000086aa;
 
+#if defined(MIMXRT798S_cm33_core0_SERIES)
     GlikeyClearConfig(GLIKEY0);
+#endif
     GlikeyClearConfig(GLIKEY1);
     GlikeyClearConfig(GLIKEY2);
 }
-#endif /* MIMXRT798S_cm33_core0_SERIES */
+#endif /* MIMXRT798S_cm33_core0_SERIES || MIMXRT798S_cm33_core1_SERIES */
 
 #if defined(SDK_I2C_BASED_COMPONENT_USED) && SDK_I2C_BASED_COMPONENT_USED
 void BOARD_I2C_Init(LPI2C_Type *base, uint32_t clkSrc_Hz)
@@ -471,6 +741,7 @@ void BOARD_I2C_Init(LPI2C_Type *base, uint32_t clkSrc_Hz)
     lpi2c_master_config_t i2cConfig = {0};
 
     LPI2C_MasterGetDefaultConfig(&i2cConfig);
+    i2cConfig.debugEnable = true;
     LPI2C_MasterInit(base, &i2cConfig, clkSrc_Hz);
 }
 
@@ -546,6 +817,20 @@ void BOARD_MIPIPanelTouch_I2C_Init(void)
     CLOCK_AttachClk(kFCCLK0_to_FLEXCOMM8);
     CLOCK_EnableClock(kCLOCK_LPFlexComm8);
     BOARD_I2C_Init(BOARD_MIPI_PANEL_TOUCH_I2C_BASEADDR, BOARD_MIPI_PANEL_TOUCH_I2C_CLOCK_FREQ);
+}
+
+status_t BOARD_MIPIPanelTouch_I2C_Send(
+    uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, const uint8_t *txBuff, uint8_t txBuffSize)
+{
+    return BOARD_I2C_Send(BOARD_MIPI_PANEL_TOUCH_I2C_BASEADDR, deviceAddress, subAddress, subAddressSize,
+                          (uint8_t *)txBuff, txBuffSize);
+}
+
+status_t BOARD_MIPIPanelTouch_I2C_Receive(
+    uint8_t deviceAddress, uint32_t subAddress, uint8_t subAddressSize, uint8_t *rxBuff, uint8_t rxBuffSize)
+{
+    return BOARD_I2C_Receive(BOARD_MIPI_PANEL_TOUCH_I2C_BASEADDR, deviceAddress, subAddress, subAddressSize, rxBuff,
+                             rxBuffSize);
 }
 #endif
 #endif

@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2021-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 #include <mcuxClRandomModes.h>
@@ -129,19 +129,17 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
 
 
 #ifdef MCUXCL_FEATURE_RANDOMMODES_SECSTRENGTH_256
-MCUX_CSSL_ANALYSIS_START_PATTERN_DESCRIPTIVE_IDENTIFIER()
 MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST_QUALIFIER("Const must be discarded to initialize the generic structure member.")
+MCUX_CSSL_ANALYSIS_START_PATTERN_DESCRIPTIVE_IDENTIFIER()
 const mcuxClRandom_ModeDescriptor_t mcuxClRandomModes_mdCtrDrbg_AES256_DRG3 = {
 MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
     .pOperationMode   = &mcuxClRandomModes_OperationModeDescriptor_NormalMode_PrDisabled,
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST("Casts to void* are allowed")
     .pDrbgMode        = (void *) &mcuxClRandomModes_DrbgModeDescriptor_CtrDrbg_AES256_PrDisabled,
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST()
     .contextSize      = MCUXCLRANDOMMODES_CTR_DRBG_AES256_CONTEXT_SIZE,
 #ifdef MCUXCL_FEATURE_RANDOMMODES_TESTMODE
-    .auxParam         = (uint32_t) &mcuxClRandomModes_OperationModeDescriptor_TestMode_PrDisabled,
+    .auxParam         = (uint32_t *) &mcuxClRandomModes_OperationModeDescriptor_TestMode_PrDisabled,
 #else
-    .auxParam         = 0u
+    .auxParam         = NULL,
 #endif /* MCUXCL_FEATURE_RANDOMMODES_TESTMODE */
     .securityStrength = MCUXCLRANDOMMODES_SECURITYSTRENGTH_CTR_DRBG_AES256
 };

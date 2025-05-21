@@ -21,7 +21,7 @@
 
 /*! @name Driver version */
 /*! @{ */
-#define FSL_IRTC_DRIVER_VERSION (MAKE_VERSION(2, 3, 0))
+#define FSL_IRTC_DRIVER_VERSION (MAKE_VERSION(2, 3, 1))
 /*! @} */
 
 #if !(defined(FSL_FEATURE_RTC_IS_SLAVE) && (FSL_FEATURE_RTC_IS_SLAVE != 0U))

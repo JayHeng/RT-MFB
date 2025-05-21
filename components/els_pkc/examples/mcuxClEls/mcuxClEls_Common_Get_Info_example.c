@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020, 2022-2023 NXP                                            */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -52,7 +52,7 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Common_Get_Info_example)
     (void) revision;
     (void) minor;
     (void) major;
-#if MCUXCL_FEATURE_ELS_GET_FW_VERSION == 0
+#if !defined(MCUXCL_FEATURE_ELS_GET_FW_VERSION) || MCUXCL_FEATURE_ELS_GET_FW_VERSION == 0
     uint32_t level = hw_version.bits.level;                                              // Release level version
     (void) level;
 #else /* MCUXCL_FEATURE_ELS_GET_FW_VERSION == 0 */
@@ -78,25 +78,43 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClEls_Common_Get_Info_example)
 
     // Access and store config struct elements
     uint32_t ciphersup = config.bits.ciphersup;                                          // cipher command not supported
+    (void)ciphersup;
     uint32_t authciphersup = config.bits.authciphersup;                                  // auth_cipher command not supported
+    (void)authciphersup;
     uint32_t ecsignsup = config.bits.ecsignsup;                                          // ecsign command not supported
+    (void)ecsignsup;
     uint32_t ecvfysup = config.bits.ecvfysup;                                            // ecvfy command not supported
+    (void)ecvfysup;
     uint32_t eckxchsup = config.bits.eckxchsup;                                          // dhkey_xch command is supported
+    (void)eckxchsup;
     uint32_t keygensup = config.bits.keygensup;                                          // keygen command not supported
+    (void)keygensup;
     uint32_t keyinsup = config.bits.keyinsup;                                            // keyin command not supported
+    (void)keyinsup;
     uint32_t keyoutsup = config.bits.keyoutsup;                                          // keyout command  not supported
+    (void)keyoutsup;
     uint32_t kdeletesup = config.bits.kdeletesup;                                        // kdelete command not supported
+    (void)kdeletesup;
     uint32_t ckdfsup = config.bits.ckdfsup;                                              // ckdf command not supported
+    (void)ckdfsup;
     uint32_t hkdfsup = config.bits.hkdfsup;                                              // hkdf command not supported
+    (void)hkdfsup;
     uint32_t tlsinitsup = config.bits.tlsinitsup;                                        // tls_init command not supported
+    (void)tlsinitsup;
     uint32_t hashsup = config.bits.hashsup;                                              // hash command not supported
+    (void)hashsup;
     uint32_t hmacsup = config.bits.hmacsup;                                              // hmac command not supported
+    (void)hmacsup;
     uint32_t drbgreqsub = config.bits.drbgreqsub;                                        // drbg_req command not supported
+    (void)drbgreqsub;
     uint32_t dtrgncfgloadsup = config.bits.dtrgncfgloadsup;                              // dtrng_cfg_load command is not supported
+    (void)dtrgncfgloadsup;
     uint32_t dtrngevalsup = config.bits.dtrngevalsup;                                    // dtrng_eval command not supported
+    (void)dtrngevalsup;
 
     char const* sw_version = mcuxCl_GetVersion();                                         // Read the CLNS version string that uniquely identifies this release of the CLNS.
                                                                                          // MCUXCL_VERSION_MAX_SIZE is the maximum size in bytes of the version string.
+    (void)sw_version;
 
     /** Disable the ELS **/
     if(!mcuxClExample_Els_Disable())

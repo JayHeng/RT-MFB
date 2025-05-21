@@ -183,7 +183,7 @@ static void LPSPI_PrepareTransferEDMA(LPSPI_Type *base)
 /*!
  * brief LPSPI master config transfer parameter using eDMA.
  *
- * This function is preparing to transfers data using eDMA. 
+ * This function is preparing to transfers data using eDMA.
  *
  * param base LPSPI peripheral base address.
  * param handle pointer to lpspi_master_edma_handle_t structure which stores the transfer state.
@@ -213,7 +213,7 @@ status_t LPSPI_MasterTransferPrepareEDMALite(LPSPI_Type *base, lpspi_master_edma
     uint8_t dummyData    = g_lpspiDummyData[instance];
     /*Used for byte swap*/
     uint32_t whichPcs      = (configFlags & LPSPI_MASTER_PCS_MASK) >> LPSPI_MASTER_PCS_SHIFT;
-    uint32_t bytesPerFrame = ((base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
+    uint32_t bytesPerFrame = ((LPSPI_GetTcr(base) & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
 
     handle->txBuffIfNull =
         ((uint32_t)dummyData) | ((uint32_t)dummyData << 8) | ((uint32_t)dummyData << 16) | ((uint32_t)dummyData << 24);
@@ -234,7 +234,7 @@ status_t LPSPI_MasterTransferPrepareEDMALite(LPSPI_Type *base, lpspi_master_edma
 
     /* For DMA transfer , we'd better not masked the transmit data and receive data in TCR since the transfer flow is
      * hard to controlled by software. */
-    base->TCR = (base->TCR & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_BYSW_MASK | LPSPI_TCR_PCS_MASK)) |
+    base->TCR = (LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_BYSW_MASK | LPSPI_TCR_PCS_MASK)) |
                 LPSPI_TCR_CONT(isPcsContinuous) | LPSPI_TCR_BYSW(isByteSwap) | LPSPI_TCR_PCS(whichPcs);
     /*Calculate the bytes for write/read the TX/RX register each time*/
     if (bytesPerFrame <= 4U)
@@ -260,7 +260,7 @@ status_t LPSPI_MasterTransferPrepareEDMALite(LPSPI_Type *base, lpspi_master_edma
  * is transferred, the callback function is called.
  *
  * Note:
- * This API is only for transfer through DMA without configuration. 
+ * This API is only for transfer through DMA without configuration.
  * Before calling this API, you must call LPSPI_MasterTransferPrepareEDMALite to configure it once.
  * The transfer data size should be an integer multiple of bytesPerFrame if bytesPerFrame is less than or equal to 4.
  * For bytesPerFrame greater than 4:
@@ -300,7 +300,7 @@ status_t LPSPI_MasterTransferEDMALite(LPSPI_Type *base, lpspi_master_edma_handle
     uint32_t addrOffset    = 0;
     uint32_t rxAddr        = LPSPI_GetRxRegisterAddress(base);
     uint32_t txAddr        = LPSPI_GetTxRegisterAddress(base);
-    uint32_t bytesPerFrame = ((base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
+    uint32_t bytesPerFrame = ((LPSPI_GetTcr(base) & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
     edma_transfer_config_t transferConfigRx = {0};
     edma_transfer_config_t transferConfigTx = {0};
     edma_tcd_t *softwareTCD_pcsContinuous   = (edma_tcd_t *)((uint32_t)(&handle->lpspiSoftwareTCD[2]) & (~0x1FU));
@@ -449,8 +449,20 @@ status_t LPSPI_MasterTransferEDMALite(LPSPI_Type *base, lpspi_master_edma_handle
         transferConfigTx.destAddr        = (uint32_t)txAddr + addrOffset;
         transferConfigTx.majorLoopCounts = 1;
 
+#if defined FSL_EDMA_DRIVER_EDMA4 && FSL_EDMA_DRIVER_EDMA4
+        EDMA_TcdResetExt(handle->edmaRxRegToRxDataHandle->base, softwareTCD_extraBytes);
+        if (handle->isPcsContinuous)
+        {
+            EDMA_TcdSetTransferConfigExt(handle->edmaRxRegToRxDataHandle->base, softwareTCD_extraBytes,
+                                         &transferConfigTx, softwareTCD_pcsContinuous);
+        }
+        else
+        {
+            EDMA_TcdSetTransferConfigExt(handle->edmaRxRegToRxDataHandle->base, softwareTCD_extraBytes,
+                                         &transferConfigTx, NULL);
+        }
+#else
         EDMA_TcdReset(softwareTCD_extraBytes);
-
         if (handle->isPcsContinuous)
         {
             EDMA_TcdSetTransferConfig(softwareTCD_extraBytes, &transferConfigTx, softwareTCD_pcsContinuous);
@@ -459,11 +471,12 @@ status_t LPSPI_MasterTransferEDMALite(LPSPI_Type *base, lpspi_master_edma_handle
         {
             EDMA_TcdSetTransferConfig(softwareTCD_extraBytes, &transferConfigTx, NULL);
         }
+#endif
     }
 
     if (handle->isPcsContinuous)
     {
-        handle->transmitCommand = base->TCR & ~(LPSPI_TCR_CONTC_MASK | LPSPI_TCR_CONT_MASK);
+        handle->transmitCommand = LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONTC_MASK | LPSPI_TCR_CONT_MASK);
 
         transferConfigTx.srcAddr   = (uint32_t) & (handle->transmitCommand);
         transferConfigTx.srcOffset = 0;
@@ -476,8 +489,14 @@ status_t LPSPI_MasterTransferEDMALite(LPSPI_Type *base, lpspi_master_edma_handle
         transferConfigTx.minorLoopBytes   = 4;
         transferConfigTx.majorLoopCounts  = 1;
 
+#if defined FSL_EDMA_DRIVER_EDMA4 && FSL_EDMA_DRIVER_EDMA4
+        EDMA_TcdResetExt(handle->edmaRxRegToRxDataHandle->base, softwareTCD_pcsContinuous);
+        EDMA_TcdSetTransferConfigExt(handle->edmaRxRegToRxDataHandle->base, softwareTCD_pcsContinuous,
+                                     &transferConfigTx, NULL);
+#else
         EDMA_TcdReset(softwareTCD_pcsContinuous);
         EDMA_TcdSetTransferConfig(softwareTCD_pcsContinuous, &transferConfigTx, NULL);
+#endif
     }
 
     if (handle->txData != NULL)
@@ -576,12 +595,12 @@ status_t LPSPI_MasterTransferEDMALite(LPSPI_Type *base, lpspi_master_edma_handle
 status_t LPSPI_MasterTransferEDMA(LPSPI_Type *base, lpspi_master_edma_handle_t *handle, lpspi_transfer_t *transfer)
 {
     status_t status = kStatus_Fail;
-    status = LPSPI_MasterTransferPrepareEDMALite(base, handle, transfer->configFlags);
-    if(kStatus_Success != status)
+    status          = LPSPI_MasterTransferPrepareEDMALite(base, handle, transfer->configFlags);
+    if (kStatus_Success != status)
     {
-       return status;
+        return status;
     }
-    return LPSPI_MasterTransferEDMALite(base,handle,transfer);
+    return LPSPI_MasterTransferEDMALite(base, handle, transfer);
 }
 
 static void EDMA_LpspiMasterCallback(edma_handle_t *edmaHandle,
@@ -780,7 +799,7 @@ status_t LPSPI_SlaveTransferEDMA(LPSPI_Type *base, lpspi_slave_edma_handle_t *ha
     uint32_t rxAddr        = LPSPI_GetRxRegisterAddress(base);
     uint32_t txAddr        = LPSPI_GetTxRegisterAddress(base);
     uint32_t whichPcs      = (transfer->configFlags & LPSPI_MASTER_PCS_MASK) >> LPSPI_MASTER_PCS_SHIFT;
-    uint32_t bytesPerFrame = ((base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
+    uint32_t bytesPerFrame = ((LPSPI_GetTcr(base) & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT) / 8U + 1U;
     edma_transfer_config_t transferConfigRx = {0};
     edma_transfer_config_t transferConfigTx = {0};
     edma_tcd_t *softwareTCD_extraBytes      = (edma_tcd_t *)((uint32_t)(&handle->lpspiSoftwareTCD[1]) & (~0x1FU));
@@ -813,7 +832,7 @@ status_t LPSPI_SlaveTransferEDMA(LPSPI_Type *base, lpspi_slave_edma_handle_t *ha
     /* For DMA transfer, mask the transmit data if the tx data is null, for rx the receive data should not be masked at
        any time since we use rx dma transfer finish cllback to indicate transfer finish. */
     base->TCR =
-        (base->TCR & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_BYSW_MASK | LPSPI_TCR_TXMSK_MASK)) |
+        (LPSPI_GetTcr(base) & ~(LPSPI_TCR_CONT_MASK | LPSPI_TCR_CONTC_MASK | LPSPI_TCR_BYSW_MASK | LPSPI_TCR_TXMSK_MASK)) |
         LPSPI_TCR_TXMSK(transfer->txData == NULL) | LPSPI_TCR_BYSW(isByteSwap) | LPSPI_TCR_PCS(whichPcs);
 
     /*Calculate the bytes for write/read the TX/RX register each time*/
@@ -953,8 +972,14 @@ status_t LPSPI_SlaveTransferEDMA(LPSPI_Type *base, lpspi_slave_edma_handle_t *ha
             transferConfigTx.destAddr        = (uint32_t)txAddr + addrOffset;
             transferConfigTx.majorLoopCounts = 1;
 
+#if defined FSL_EDMA_DRIVER_EDMA4 && FSL_EDMA_DRIVER_EDMA4
+            EDMA_TcdResetExt(handle->edmaTxDataToTxRegHandle->base, softwareTCD_extraBytes);
+            EDMA_TcdSetTransferConfigExt(handle->edmaTxDataToTxRegHandle->base, softwareTCD_extraBytes,
+                                         &transferConfigTx, NULL);
+#else
             EDMA_TcdReset(softwareTCD_extraBytes);
             EDMA_TcdSetTransferConfig(softwareTCD_extraBytes, &transferConfigTx, NULL);
+#endif
         }
 
         transferConfigTx.srcAddr         = (uint32_t)(handle->txData);

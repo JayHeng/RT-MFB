@@ -1,8 +1,8 @@
 /******************************************************************************
  * @file     filtering_functions_f16.h
  * @brief    Public header file for CMSIS DSP Library
- * @version  V1.9.0
- * @date     23 April 2021
+ * @version  V1.10.0
+ * @date     08 July 2021
  * Target Processor: Cortex-M and Cortex-A cores
  ******************************************************************************/
 /*
@@ -24,8 +24,8 @@
  */
 
  
-#ifndef _FILTERING_FUNCTIONS_F16_H_
-#define _FILTERING_FUNCTIONS_F16_H_
+#ifndef FILTERING_FUNCTIONS_F16_H_
+#define FILTERING_FUNCTIONS_F16_H_
 
 #include "arm_math_types_f16.h"
 #include "arm_math_memory.h"
@@ -222,7 +222,6 @@ extern "C"
   @param[out]    a        autoregressive coefficients
   @param[out]    err      prediction error (variance)
   @param[in]     nbCoefs  number of autoregressive coefficients
-  @return        none
  */
 void arm_levinson_durbin_f16(const float16_t *phi,
   float16_t *a, 

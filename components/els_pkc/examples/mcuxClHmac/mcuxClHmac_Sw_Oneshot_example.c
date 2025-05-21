@@ -1,16 +1,17 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2023 NXP                                                       */
+/* Copyright 2023-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
+#include <mcuxClToolchain.h>
 #include <mcuxClCore_Examples.h> // Defines and assertions for examples
 #include <mcuxClExample_Session_Helper.h>
 #include <mcuxClEls.h>               // Interface to the entire mcuxClEls component
@@ -22,6 +23,7 @@
 #include <mcuxClMac.h> // Interface to the entire mcuxClMac component
 #include <mcuxClHmac.h> // Interface to the entire mcuxClHmac component
 #include <mcuxClHash.h>
+#include <mcuxClHashModes.h>
 #include <mcuxClExample_RNG_Helper.h>
 
 /** Performs a HMAC computation using functions of the mcuxClKey component.
@@ -30,7 +32,7 @@
 MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Sw_Oneshot_example)
 {
     /* Example (unpadded) key. */
-    const uint8_t hmac_key[] = {
+    const ALIGNED uint8_t hmac_key[] = {
         0x00u, 0x11u, 0x22u, 0x33u, 0x44u, 0x55u, 0x66u, 0x77u,
         0x88u, 0x99u, 0xaau, 0xbbu, 0xccu, 0xddu, 0xeeu, 0xffu,
         0x00u, 0x11u, 0x22u, 0x33u, 0x44u, 0x55u, 0x66u, 0x77u,
@@ -38,7 +40,7 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Sw_Oneshot_example)
     };
 
     /* Example input to the HMAC function. */
-    const uint8_t hmac_input[] = {
+    const ALIGNED uint8_t hmac_input[] = {
         0x00u, 0x9fu, 0x5eu, 0x39u, 0x94u, 0x30u, 0x03u, 0x82u,
         0x50u, 0x72u, 0x1bu, 0xe1u, 0x79u, 0x65u, 0x35u, 0xffu,
         0x21u, 0xa6u, 0x09u, 0xfdu, 0xf9u, 0xf0u, 0xf6u, 0x12u,
@@ -50,7 +52,7 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Sw_Oneshot_example)
     };
 
     /* Example reference HMAC. */
-    const uint8_t hmac_output_reference[MCUXCLHASH_OUTPUT_SIZE_SHA_256] = {
+    const ALIGNED uint8_t hmac_output_reference[MCUXCLHASH_OUTPUT_SIZE_SHA_256] = {
         0x06u, 0xb8u, 0xb8u, 0xc3u, 0x21u, 0x79u, 0x15u, 0xbeu,
         0x0bu, 0x0fu, 0x86u, 0x90u, 0x4fu, 0x76u, 0x74u, 0x1bu,
         0x1bu, 0xe2u, 0x86u, 0x79u, 0x38u, 0xf4u, 0xf0u, 0x5du,
@@ -67,9 +69,6 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Sw_Oneshot_example)
         return MCUXCLEXAMPLE_STATUS_ERROR;
     }
 
-    /* Key buffer for the key in memory. */
-    uint32_t key_buffer[sizeof(hmac_key) / sizeof(uint32_t)];
-
     /* Output buffer for the computed MAC. */
     static uint8_t result_buffer[MCUXCLHMAC_MAX_OUTPUT_SIZE];
 
@@ -78,7 +77,7 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Sw_Oneshot_example)
     mcuxClSession_Handle_t session = &sessionDesc;
 
     /* Allocate and initialize session / workarea */
-    MCUXCLEXAMPLE_ALLOCATE_AND_INITIALIZE_SESSION(session, MCUXCLHMAC_MAX_CPU_WA_BUFFER_SIZE + MCUXCLRANDOMMODES_NCINIT_WACPU_SIZE, 0u);
+    MCUXCLEXAMPLE_ALLOCATE_AND_INITIALIZE_SESSION(session, MCUXCLEXAMPLE_MAX_WA(MCUXCLHMAC_MAX_CPU_WA_BUFFER_SIZE, MCUXCLRANDOMMODES_NCINIT_WACPU_SIZE), 0u);
 
     /* Initialize the PRNG */
     MCUXCLEXAMPLE_INITIALIZE_PRNG(session);
@@ -89,27 +88,20 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Sw_Oneshot_example)
 
     /* Create and initialize mcuxClKey_Descriptor_t structure. */
     uint32_t keyDesc[MCUXCLKEY_DESCRIPTOR_SIZE_IN_WORDS];
-    mcuxClKey_Handle_t key = (mcuxClKey_Handle_t) &keyDesc;
+    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
+    mcuxClKey_Handle_t key = (mcuxClKey_Handle_t) keyDesc;
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
 
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(keyInit_result, keyInit_token, mcuxClKey_init(
         /* mcuxClSession_Handle_t pSession:                */  session,
+      MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer key points to an object of the right type, the cast was valid.")
         /* mcuxClKey_Handle_t key:                         */  key,
-        /* const mcuxClKey_Type* type:                     */  mcuxClKey_Type_HmacSw_variableLength,
-        /* mcuxCl_Buffer_t pKeyData:                       */  (uint8_t *) hmac_key,
+      MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
+        /* const mcuxClKey_Type* type:                     */  mcuxClKey_Type_Hmac_variableLength,
+        /* const uint8_t * pKeyData:                      */  hmac_key,
         /* uint32_t keyDataLength:                        */  sizeof(hmac_key)));
 
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClKey_init) != keyInit_token) || (MCUXCLKEY_STATUS_OK != keyInit_result))
-    {
-        return MCUXCLEXAMPLE_STATUS_ERROR;
-    }
-    MCUX_CSSL_FP_FUNCTION_CALL_END();
-
-    /* Load key to memory. */
-    MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(keyLoad_result, keyLoad_token, mcuxClKey_loadMemory(session,
-                                                                       key,
-                                                                       key_buffer));
-
-    if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClKey_loadMemory) != keyLoad_token) || (MCUXCLKEY_STATUS_OK != keyLoad_result))
     {
         return MCUXCLEXAMPLE_STATUS_ERROR;
     }
@@ -119,12 +111,16 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Sw_Oneshot_example)
     /* Generate an HMAC mode containing the hash algorithm                    */
     /**************************************************************************/
 
-    uint8_t hmacModeDescBuffer[MCUXCLHMAC_HMAC_MODE_DESCRIPTOR_SIZE];
+    uint32_t hmacModeDescBuffer[MCUXCLHMAC_HMAC_MODE_DESCRIPTOR_SIZE_IN_WORDS];
+    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
     mcuxClMac_CustomMode_t mode = (mcuxClMac_CustomMode_t) hmacModeDescBuffer;
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
 
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(hashCreateMode_result, hashCreateMode_token, mcuxClHmac_createHmacMode(
-    /* mcuxClMac_CustomMode_t mode:       */ mode,
-    /* mcuxClHash_Algo_t hashAlgorithm:   */ mcuxClHash_Algorithm_Sha256)
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer mode points to an object of the right type, the cast was valid.")
+        /* mcuxClMac_CustomMode_t mode:       */ mode,
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
+        /* mcuxClHash_Algo_t hashAlgorithm:   */ mcuxClHash_Algorithm_Sha256)
     );
 
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClHmac_createHmacMode) != hashCreateMode_token) || (MCUXCLMAC_STATUS_OK != hashCreateMode_result))
@@ -139,13 +135,15 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Sw_Oneshot_example)
 
     /* Call the mcuxClMac_compute function to compute a HMAC in one shot. */
     uint32_t result_size = 0u;
+    MCUXCLBUFFER_INIT_RO(hmac_input_buf, session, hmac_input, sizeof(hmac_input));
+    MCUXCLBUFFER_INIT_RW(hmac_output_buf, session, result_buffer, sizeof(result_buffer));
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(macCompute_result, macCompute_token, mcuxClMac_compute(
         /* mcuxClSession_Handle_t session:  */ session,
         /* const mcuxClKey_Handle_t key:    */ key,
         /* const mcuxClMac_Mode_t mode:     */ mode,
-        /* mcuxCl_InputBuffer_t pIn:        */ (uint8_t*) hmac_input, /* No extra space for padding is required */
+        /* mcuxCl_InputBuffer_t pIn:        */ hmac_input_buf, /* No extra space for padding is required */
         /* uint32_t inLength:              */ sizeof(hmac_input),
-        /* mcuxCl_Buffer_t pMac:            */ result_buffer,
+        /* mcuxCl_Buffer_t pMac:            */ hmac_output_buf,
         /* uint32_t * const pMacLength:    */ &result_size
     ));
 

@@ -1,88 +1,25 @@
-CLNS SDK (1.6.0) Release Notes
+CLNS SDK (2.0.0) Release Notes
 
-- Release: RW61x_EAR8
-- Version: CLNS_SDK_1.6.0
-- Date:    2023-07-10
-- Compiler: ARMCLANG keilmdk 533
---- Test Target:   
-   - RW610 A0 Sample
---- CLNS memory consumption: static_library/RW61x/libclns.a
-    TEXT  RO    RW ZI TOTAL_CONSUMPTION
-    78558 23909 0  0  102467 
+- Release: SDK_V2.0.0 RT700 PRC
+- Version: SDK_V2.0.0
+- Date:    2024-10-18
+- Link to Nexus RepositoryManager: https://nl-nxrm.sw.nxp.com/service/rest/repository/browse/cccs-releases-raw/
+- Compiler: IAR ANSI C/C++ Compiler V8.40.1.212/W32 for ARM
+--- Test Target: 
+	RT700 A0 sample
+	Redfinch sample
+	Nirvana sample
+	Niobe4a sample
 
 --- New Features 
-   - Doxygen documentation switched to use short file names to avoid issues with long paths
-   - Return code naming aligned to always contain _STATUS_
-   - HMAC functionality separated into dedicated component mcuxClHmac
-   
---- Features:
-   - Components included: mcuxClAead, mcuxClAeadModes, mcuxClAes, mcuxClCipher, mcuxClCipherModes, mcuxClCore,
-   mcuxClEcc, mcuxClEls, mcuxClExample, mcuxClHash, mcuxClKey, mcuxClMac, mcuxClMacModes, mcuxClMath, mcuxClMemory,
-   mcuxClPadding, mcuxClPkc, mcuxClPrng, mcuxClPsaDriver, mcuxClRandom, mcuxClRandomModes, mcuxClRsa, mcuxClSession,
-   mcuxClTrng, mcuxCsslCPreProcessor, mcuxCsslFlowProtection, mcuxCsslMemory, mcuxCsslParamIntegrity, mcuxCsslSecureCounter
+   - Coverity (MISRA/CERT-C) violations resolved
+   - Improved code coverage
+   - Updated file structure (platform specific files are now located in platform specific folders, instead of manually merged with feature flags)
+   - Memory aliasing workaround improvements (translate addresses in 0x0000 0000-0x0078 0000 range to 0x20.. .... address range when passed to HW IPs)
+   - Switched to Online_Code_Hosting License (removes clause 2.2/2.3 distinction as it allows distribution by default, even in source; still requires use in combination with NXP product)
+   - AEAD oneshot decrypt operation (nxpClAead_crypt) outputs correct plaintext size
+   - AEAD oneshot decrypt operation (nxpClAead_crypt) verifies the tag instead of producing one
+   - Resolved EdDSA Verify bug
+   - Aligned deterministic ECDSA behavior for special case (r=0) to RFC6979 specification
 
 --- Known Issues Limitations:
-   - platform_specific_headers.h: 
-      #include "fsl_device_registers.h" 
-      // #include "RW610.h" 
-      // #include "RW610_features.h" 
-      // #include "system_RW610.h"
-   - 129 "required" MISRA violations pending in the mcuxClPsaDriver component
-   - Cert-C / Coverity static analysis violations to be cleaned up 
-   - When MCUXCLECC_STATUS_RNG_ERROR or MCUXCLRSA_STATUS_RNG_ERROR is returned the security counter is not guaranteed to be balanced properly
-
-- Release: MCXN_PRC
-- Version: CLNS_SDK_1.6.0
-- Date:    2023-07-10
-- Compiler: IAR Compiler v.8.40.1
---- Test Target:   
-   - MCXN sample
---- CLNS memory consumption: static_library/mcxn/libclns.a
-    TEXT  RO    RW ZI TOTAL_CONSUMPTION
-    68176 19684 0  0  87860
-
-
---- New Features: 
-   - Maintenance release
-   - Doxygen documentation switched to use short file names to avoid issues with long paths
-   - Return code naming aligned to always contain _STATUS_
-   - HMAC functionality separated into dedicated component mcuxClHmac
-   
---- Features:
-   - Components included: mcuxClAead, mcuxClAeadModes, mcuxClAes, mcuxClCipher, mcuxClCipherModes, mcuxClCore,
-   mcuxClEcc, mcuxClEls, mcuxClExample, mcuxClHash, mcuxClKey, mcuxClMac, mcuxClMacModes, mcuxClMath, mcuxClMemory,
-   mcuxClOsccaPkc, mcuxClOsccaSm3, mcuxClPadding, mcuxClPkc, mcuxClPrng, mcuxClRandom, mcuxClRandomModes, mcuxClRsa, mcuxClSession,
-   mcuxClTrng, mcuxCsslCPreProcessor, mcuxCsslFlowProtection, mcuxCsslMemory, mcuxCsslParamIntegrity, mcuxCsslSecureCounter
-
---- Known Issues Limitations: 
-   - par_els_semaphore_master tests failed due to test issues (reading MASTER ID SFR from ELS "secure" BASE in non-secure mode, missing exception/fault handling when exceptions/faults occur in non-secure)
-   - Cert-C / Coverity static analysis violations to be cleaned up 
-   - When MCUXCLECC_STATUS_RNG_ERROR or MCUXCLRSA_STATUS_RNG_ERROR is returned the security counter is not guaranteed to be balanced
-
-- Release: LPC_PRC
-- Version: CLNS_SDK_1.6.0
-- Date:    2023-07-10
-- Compiler: IAR Compiler v.8.40.1
---- Test Target:   
-   - LPC55S36_sample
---- CLNS memory consumption: static_library/lpc/libclns.a
-    TEXT  RO    RW ZI TOTAL_CONSUMPTION
-    58168 19016 0  4  77188
-
- 
---- New Features: 
-   - Maintenance release
-   - Doxygen documentation switched to use short file names to avoid issues with long paths
-   - Return code naming aligned to always contain _STATUS_
-   - HMAC functionality separated into dedicated component mcuxClHmac
-   
---- Features:
-   - Components included: mcuxClAead, mcuxClAeadModes, mcuxClAes, mcuxClCipher, mcuxClCipherModes, mcuxClCore,
-   mcuxClEcc, mcuxClEls, mcuxClExample, mcuxClHash, mcuxClKey, mcuxClMac, mcuxClMacModes, mcuxClMath, mcuxClMemory,
-   mcuxClPadding, mcuxClPkc, mcuxClPrng, mcuxClRandom, mcuxClRandomModes, mcuxClRsa, mcuxClSession,
-   mcuxCsslCPreProcessor, mcuxCsslFlowProtection, mcuxCsslMemory, mcuxCsslParamIntegrity, mcuxCsslSecureCounter
-
---- Known Issues Limitations:
-   - Negative tests which try to provoke an uninitialized PRNG error had to be disabled since ELS_ITERATIVE_SEEDING inherently always initalizes the PRNG (sim_random_ncGenerate_negative, par_ecc_pkc_keygen_rng_error, par_ecc_pkc_sign_rng_error)
-   - Cert-C / Coverity static analysis violations to be cleaned up 
-   - When MCUXCLECC_STATUS_RNG_ERROR or MCUXCLRSA_STATUS_RNG_ERROR is returned the security counter is not guaranteed to be balanced

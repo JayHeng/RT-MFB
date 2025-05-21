@@ -43,7 +43,6 @@
   @param[in]     offset     is the offset to be added
   @param[out]    pDst       points to the output vector
   @param[in]     blockSize  number of samples in each vector
-  @return        none
 
   @par           Scaling and Overflow Behavior
                    The function uses saturating arithmetic.
@@ -53,7 +52,7 @@
 
 #include "arm_helium_utils.h"
 
-void arm_offset_q7(
+ARM_DSP_ATTRIBUTE void arm_offset_q7(
     const q7_t * pSrc,
     q7_t   offset,
     q7_t * pDst,
@@ -95,7 +94,7 @@ void arm_offset_q7(
 }
 
 #else
-void arm_offset_q7(
+ARM_DSP_ATTRIBUTE void arm_offset_q7(
   const q7_t * pSrc,
         q7_t offset,
         q7_t * pDst,
@@ -121,7 +120,7 @@ void arm_offset_q7(
 
 #if defined (ARM_MATH_DSP)
     /* Add offset and store result in destination buffer (4 samples at a time). */
-    write_q7x4_ia (&pDst, __QADD8(read_q7x4_ia ((q7_t **) &pSrc), offset_packed));
+    write_q7x4_ia (&pDst, __QADD8(read_q7x4_ia (&pSrc), offset_packed));
 #else
     *pDst++ = (q7_t) __SSAT((q15_t) *pSrc++ + offset, 8);
     *pDst++ = (q7_t) __SSAT((q15_t) *pSrc++ + offset, 8);

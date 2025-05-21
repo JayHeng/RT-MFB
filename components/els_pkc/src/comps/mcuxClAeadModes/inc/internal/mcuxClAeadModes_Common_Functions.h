@@ -1,18 +1,18 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2022-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClAeadModes_Common_Functions.h
- *  @brief Internal function declaration for the mcuxClAead component */
+ *  @brief Internal function declaration for the mcuxClAeadModes component */
 
 #ifndef MCUXCLAEADMODES_COMMON_FUNCTIONS_H_
 #define MCUXCLAEADMODES_COMMON_FUNCTIONS_H_
@@ -59,6 +59,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClAead_Status_t) mcuxClAeadModes_verify(
   uint32_t * const pOutLength
 );
 
+
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClAeadModes_init)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClAead_Status_t)  mcuxClAeadModes_init(
   mcuxClSession_Handle_t session,
@@ -71,7 +72,6 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClAead_Status_t)  mcuxClAeadModes_init(
   uint32_t adataLength,
   uint32_t tagLength
 );
-
 MCUX_CSSL_FP_FUNCTION_DECL(mcuxClAeadModes_crypt)
 MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClAead_Status_t)  mcuxClAeadModes_crypt(
   mcuxClSession_Handle_t session,
@@ -88,6 +88,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClAead_Status_t)  mcuxClAeadModes_crypt(
   mcuxCl_Buffer_t pTag,
   uint32_t tagLength
 );
+
 
 
 #ifdef __cplusplus

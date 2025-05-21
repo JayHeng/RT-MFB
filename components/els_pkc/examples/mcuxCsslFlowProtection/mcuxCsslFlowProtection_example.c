@@ -1,16 +1,15 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
-
 
 #define MCUX_CSSL_FP_ASSERT_CALLBACK() assertCallback()
 
@@ -20,7 +19,7 @@
 #include <mcuxCsslFlowProtection_FunctionIdentifiers.h>
 
 /* Example global SC */
-static volatile uint32_t testVariable = 0u; 
+static volatile uint32_t testVariable = 0u;
 
 /* Protected function pointer type */
 MCUX_CSSL_FP_FUNCTION_POINTER(functionPointerType_t,
@@ -79,7 +78,7 @@ uint32_t functionOnly(void)
 
 void assertCallback(void)
 {
-  testVariable += 1UL;
+  testVariable = 0xFFU;
 }
 
 /****************************************************************************/
@@ -339,7 +338,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) functionAssert(void)
   MCUX_CSSL_FP_FUNCTION_ENTRY(functionAssert,
     MCUX_CSSL_FP_FUNCTION_CALLED(functionOnly0)
   );
- 
+
   MCUX_CSSL_FP_FUNCTION_CALL_VOID(functionOnly0());
 
   /* The ASSERT macro allows the currently recorded code flow to be checked.
@@ -366,7 +365,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(void) functionAssert(void)
     MCUX_CSSL_FP_FUNCTION_ENTERED(functionAssert)
   );
 
-  /* At this point MCUX_CSSL_FP_ASSERT_CALLBACK should be already executed 
+  /* At this point MCUX_CSSL_FP_ASSERT_CALLBACK should be already executed
   testVariable should be set to 0xFF*/
 
   /* FUNCTION_EXIT can be used with and without providing expectations. */
@@ -379,11 +378,12 @@ MCUX_CSSL_EX_FUNCTION(mcuxCsslFlowProtection_example)
 {
   const uint32_t rOnly = functionOnly();
   (void) rOnly;
-  functionCall();
+  /* Return value from FP token is not used */
+  (void) functionCall();
 
   MCUX_CSSL_FP_FUNCTION_CALL_PROTECTED(returnCode, token, functionCalls());
 
-  if (0xC0E4u != returnCode)  
+  if (0xC0E4u != returnCode)
   {
     return MCUX_CSSL_EX_ERROR;
   }
@@ -396,7 +396,7 @@ MCUX_CSSL_EX_FUNCTION(mcuxCsslFlowProtection_example)
 #else
   (void) token;
 #endif
-    
+
   MCUX_CSSL_FP_FUNCTION_CALL_PROTECTED(returnCode1, token1, functionLoop(10));
 
   if (0xC0DEu != returnCode1)
@@ -466,8 +466,8 @@ MCUX_CSSL_EX_FUNCTION(mcuxCsslFlowProtection_example)
 #else
   (void) token4;
 #endif
-
-  functionAssert();
+  /* Return value from FP token is not used */
+  (void) functionAssert();
 
   return MCUX_CSSL_EX_OK;
 }

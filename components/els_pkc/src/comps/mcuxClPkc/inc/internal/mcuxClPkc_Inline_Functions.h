@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -28,6 +28,7 @@
 #include <mcuxCsslFlowProtection.h>
 
 #include <mcuxClPkc_Types.h>
+#include <internal/mcuxClPkc_Macros.h>
 #include <internal/mcuxClPkc_SfrAccess.h>
 
 
@@ -42,7 +43,7 @@ static inline void mcuxClPkc_inline_setUptrt(const uint16_t * pUptrt)
     uint32_t uptrtAddr = (uint32_t) pUptrt;
     MCUX_CSSL_ANALYSIS_COVERITY_STOP_DEVIATE(MISRA_C_2012_Rule_11_4)
 
-    MCUXCLPKC_SFR_WRITE(UPTRT, uptrtAddr);
+    MCUXCLPKC_SFR_WRITE(UPTRT, MCUXCL_HW_DMA_WORKAROUND(uptrtAddr));
 }
 
 /** Inline function to get the address of UPTRT (Universal pointer FUP table). */
@@ -53,6 +54,19 @@ static inline uint16_t * mcuxClPkc_inline_getUptrt(void)
 
     MCUX_CSSL_ANALYSIS_START_SUPPRESS_TYPECAST_INTEGER_TO_POINTER("Convert UPTRT address to pointer.")
     return (uint16_t *) uptrtAddr;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TYPECAST_INTEGER_TO_POINTER()
+}
+
+/** Inline function to get the CPU word-aligned address of UPTRT (Universal pointer FUP table). */
+MCUX_CSSL_FP_FUNCTION_DEF(mcuxClPkc_inline_getUptrt32)
+static inline uint32_t * mcuxClPkc_inline_getUptrt32(void)
+{
+    uint32_t uptrtAddr = MCUXCLPKC_SFR_READ(UPTRT);
+
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_TYPECAST_INTEGER_TO_POINTER("Convert UPTRT address to pointer.")
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_CASTING("The UPTR table is always ensured to be 32-bit by the calling components.")
+    return (uint32_t *) uptrtAddr;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_CASTING()
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TYPECAST_INTEGER_TO_POINTER()
 }
 
@@ -77,8 +91,8 @@ static inline uint8_t * mcuxClPkc_inline_offset2Ptr(uint16_t pkcOffset)
 {
     MCUX_CSSL_ANALYSIS_START_SUPPRESS_TYPECAST_INTEGER_TO_POINTER("convert PKC operand offset to pointer.")
 
-    uint32_t address = (uint32_t) pkcOffset | (uint32_t) MCUXCLPKC_RAM_START_ADDRESS;
-    uint8_t * ptr = (uint8_t *) address;
+    uint32_t ptrAddress = (uint32_t) pkcOffset | (uint32_t) MCUXCLPKC_RAM_START_ADDRESS;
+    uint8_t * ptr = (uint8_t *) ptrAddress;
 
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TYPECAST_INTEGER_TO_POINTER()
 
@@ -90,15 +104,27 @@ MCUX_CSSL_FP_FUNCTION_DEF(mcuxClPkc_inline_offset2PtrWord)
 static inline uint32_t * mcuxClPkc_inline_offset2PtrWord(uint16_t pkcOffset)
 {
     MCUX_CSSL_ANALYSIS_START_SUPPRESS_TYPECAST_INTEGER_TO_POINTER("convert PKC operand offset (PKC-word aligned) to pointer.")
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_CASTING("Buffers in the PKC RAM are ensured to be aligned to the PKC word-size MCUXCLPKC_WORDSIZE. Any given pkcOffset follows this requirement.")
 
-    uint32_t address = (uint32_t) pkcOffset | (uint32_t) MCUXCLPKC_RAM_START_ADDRESS;
-    uint32_t * ptrWord = (uint32_t *) address;
+    uint32_t ptrAddress = (uint32_t) pkcOffset | (uint32_t) MCUXCLPKC_RAM_START_ADDRESS;
+    uint32_t * ptrWord = (uint32_t *) ptrAddress;
 
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_CASTING()
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TYPECAST_INTEGER_TO_POINTER()
 
     return ptrWord;
 }
 
+/** Inline function to convert MCUXCLPKC_RAM_START_ADDRESS to CPU word-aligned pointer. */
+MCUX_CSSL_FP_FUNCTION_DEF(mcuxClPkc_inline_getPointerToPkcRamStart)
+static inline uint32_t * mcuxClPkc_inline_getPointerToPkcRamStart(void)
+{
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_TYPECAST_INTEGER_TO_POINTER("The start address of the PKC RAM is 32-bit aligned, this conversion is safe.")
+
+    return ((uint32_t *) MCUXCLPKC_RAM_START_ADDRESS);
+
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_TYPECAST_INTEGER_TO_POINTER()
+}
 
 /**********************************************************/
 /* Inline functions for parameter set 1 and 2             */

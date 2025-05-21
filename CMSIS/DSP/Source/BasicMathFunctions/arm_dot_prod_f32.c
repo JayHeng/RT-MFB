@@ -3,8 +3,8 @@
  * Title:        arm_dot_prod_f32.c
  * Description:  Floating-point dot product
  *
- * $Date:        23 April 2021
- * $Revision:    V1.9.0
+ * $Date:        05 October 2021
+ * $Revision:    V1.9.1
  *
  * Target Processor: Cortex-M and Cortex-A cores
  * -------------------------------------------------------------------- */
@@ -56,7 +56,6 @@
   @param[in]     pSrcB      points to the second input vector.
   @param[in]     blockSize  number of samples in each vector.
   @param[out]    result     output result returned here.
-  @return        none
  */
 
 #if defined(ARM_MATH_MVEF) && !defined(ARM_MATH_AUTOVECTORIZE)
@@ -64,7 +63,7 @@
 #include "arm_helium_utils.h"
 
 
-void arm_dot_prod_f32(
+ARM_DSP_ATTRIBUTE void arm_dot_prod_f32(
     const float32_t * pSrcA,
     const float32_t * pSrcB,
     uint32_t    blockSize,
@@ -119,7 +118,7 @@ void arm_dot_prod_f32(
 
 #else
 
-void arm_dot_prod_f32(
+ARM_DSP_ATTRIBUTE void arm_dot_prod_f32(
   const float32_t * pSrcA,
   const float32_t * pSrcB,
         uint32_t blockSize,
@@ -132,7 +131,9 @@ void arm_dot_prod_f32(
     f32x4_t vec1;
     f32x4_t vec2;
     f32x4_t accum = vdupq_n_f32(0);   
-    f32x2_t tmp = vdup_n_f32(0);    
+#if !defined(__aarch64__)
+    f32x2_t tmp = vdup_n_f32(0); 
+#endif   
 
     /* Compute 4 outputs at a time */
     blkCnt = blockSize >> 2U;
@@ -158,7 +159,7 @@ void arm_dot_prod_f32(
         blkCnt--;
     }
     
-#if __aarch64__
+#if defined(__aarch64__)
     sum = vpadds_f32(vpadd_f32(vget_low_f32(accum), vget_high_f32(accum)));
 #else
     tmp = vpadd_f32(vget_low_f32(accum), vget_high_f32(accum));

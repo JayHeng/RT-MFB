@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 #ifndef MCUXCLMACMODES_MODES_H_
@@ -70,6 +70,7 @@ static mcuxClMac_Mode_t mcuxClMac_Mode_CBCMAC_NoPadding =
   &mcuxClMac_ModeDescriptor_CBCMAC_NoPadding;
 MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DECLARED_BUT_NEVER_REFERENCED()
 
+
 /**
  * @brief CBC-MAC mode descriptor with ISO/IEC 9797-1 padding method 1
  * @ingroup mcuxClMacModes_Modes
@@ -99,6 +100,7 @@ MCUX_CSSL_ANALYSIS_START_SUPPRESS_DECLARED_BUT_NEVER_REFERENCED("Declaration pro
 static mcuxClMac_Mode_t mcuxClMac_Mode_CBCMAC_PaddingISO9797_1_Method2 =
   &mcuxClMac_ModeDescriptor_CBCMAC_PaddingISO9797_1_Method2;
 MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DECLARED_BUT_NEVER_REFERENCED()
+
 
 /**
  * @brief CBC-MAC mode descriptor with PKCS7 padding padding

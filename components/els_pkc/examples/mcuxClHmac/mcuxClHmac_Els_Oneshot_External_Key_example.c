@@ -1,16 +1,17 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2022-2023 NXP                                                  */
+/* Copyright 2022-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
+#include <mcuxClToolchain.h>
 #include <mcuxClCore_Examples.h> // Defines and assertions for examples
 #include <mcuxClExample_Session_Helper.h>
 
@@ -21,6 +22,7 @@
 #include <mcuxClCore_FunctionIdentifiers.h> // Code flow protection
 #include <mcuxClMac.h> // Interface to the entire mcuxClMac component
 #include <mcuxClHmac.h> // Interface to the entire mcuxClHmac component
+#include <mcuxClExample_ELS_Helper.h>
 #include <mcuxClExample_RNG_Helper.h>
 #include <mcuxClHmac.h> // Interface to the entire mcuxClHmac component
 
@@ -31,7 +33,7 @@
 MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Els_Oneshot_External_Key_example)
 {
     /* Example (unpadded) key. */
-    const uint8_t hmac_key[] = {
+    const ALIGNED uint8_t hmac_key[] = {
         0x00u, 0x11u, 0x22u, 0x33u, 0x44u, 0x55u, 0x66u, 0x77u,
         0x88u, 0x99u, 0xaau, 0xbbu, 0xccu, 0xddu, 0xeeu, 0xffu,
         0x00u, 0x11u, 0x22u, 0x33u, 0x44u, 0x55u, 0x66u, 0x77u,
@@ -39,7 +41,7 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Els_Oneshot_External_Key_example)
     };
 
     /* Example input to the HMAC function. */
-    const uint8_t hmac_input[MCUXCLELS_HASH_BLOCK_SIZE_SHA_256] = {
+    const ALIGNED uint8_t hmac_input[MCUXCLELS_HASH_BLOCK_SIZE_SHA_256] = {
         0x00u, 0x9fu, 0x5eu, 0x39u, 0x94u, 0x30u, 0x03u, 0x82u,
         0x50u, 0x72u, 0x1bu, 0xe1u, 0x79u, 0x65u, 0x35u, 0xffu,
         0x21u, 0xa6u, 0x09u, 0xfdu, 0xf9u, 0xf0u, 0xf6u, 0x12u,
@@ -51,7 +53,7 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Els_Oneshot_External_Key_example)
     };
 
     /* Example reference HMAC. */
-    const uint8_t hmac_output_reference[MCUXCLHMAC_ELS_OUTPUT_SIZE] = {
+    const ALIGNED uint8_t hmac_output_reference[MCUXCLHMAC_ELS_OUTPUT_SIZE] = {
         0x06u, 0xb8u, 0xb8u, 0xc3u, 0x21u, 0x79u, 0x15u, 0xbeu,
         0x0bu, 0x0fu, 0x86u, 0x90u, 0x4fu, 0x76u, 0x74u, 0x1bu,
         0x1bu, 0xe2u, 0x86u, 0x79u, 0x38u, 0xf4u, 0xf0u, 0x5du,
@@ -63,21 +65,10 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Els_Oneshot_External_Key_example)
     /**************************************************************************/
 
     /* Enable ELS */
-    MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClEls_Enable_Async()); // Enable the ELS.
-    // mcuxClEls_Enable_Async is a flow-protected function: Check the protection token and the return value
-    if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Enable_Async) != token) || (MCUXCLELS_STATUS_OK_WAIT != result))
+    if(!mcuxClExample_Els_Init(MCUXCLELS_RESET_DO_NOT_CANCEL))
     {
         return MCUXCLEXAMPLE_STATUS_ERROR;
     }
-    MCUX_CSSL_FP_FUNCTION_CALL_END();
-
-    MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClEls_WaitForOperation(MCUXCLELS_ERROR_FLAGS_CLEAR)); // Wait for the mcuxClEls_Enable_Async operation to complete.
-    // mcuxClEls_WaitForOperation is a flow-protected function: Check the protection token and the return value
-    if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_WaitForOperation) != token) || (MCUXCLELS_STATUS_OK != result))
-    {
-        return MCUXCLEXAMPLE_STATUS_ERROR;
-    }
-    MCUX_CSSL_FP_FUNCTION_CALL_END();
 
 
     /* Key buffer for the key in memory. */
@@ -90,7 +81,7 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Els_Oneshot_External_Key_example)
     mcuxClSession_Descriptor_t sessionDesc;
     mcuxClSession_Handle_t session = &sessionDesc;
 
-    MCUXCLEXAMPLE_ALLOCATE_AND_INITIALIZE_SESSION(session, MCUXCLHMAC_MAX_CPU_WA_BUFFER_SIZE + MCUXCLRANDOMMODES_NCINIT_WACPU_SIZE, 0u);
+    MCUXCLEXAMPLE_ALLOCATE_AND_INITIALIZE_SESSION(session, MCUXCLEXAMPLE_MAX_WA(MCUXCLHMAC_MAX_CPU_WA_BUFFER_SIZE, MCUXCLRANDOMMODES_NCINIT_WACPU_SIZE), 0u);
     /* Initialize the PRNG */
     MCUXCLEXAMPLE_INITIALIZE_PRNG(session);
 
@@ -100,14 +91,18 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Els_Oneshot_External_Key_example)
 
     /* Create and initialize mcuxClKey_Descriptor_t structure. */
     uint32_t keyDesc[MCUXCLKEY_DESCRIPTOR_SIZE_IN_WORDS];
-    mcuxClKey_Handle_t key = (mcuxClKey_Handle_t) &keyDesc;
+    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
+    mcuxClKey_Handle_t key = (mcuxClKey_Handle_t) keyDesc;
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
 
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClKey_init(
-        /* mcuxClSession_Handle_t pSession:                */  session,
-        /* mcuxClKey_Handle_t key:                         */  key,
-        /* const mcuxClKey_Type* type:                     */  mcuxClKey_Type_HmacSha256_variableLength,
-        /* mcuxCl_Buffer_t pKeyData:                       */  (uint8_t *) hmac_key,
-        /* uint32_t keyDataLength:                        */  sizeof(hmac_key)));
+      /* mcuxClSession_Handle_t pSession:                */  session,
+      MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer key points to an object of the right type, the cast was valid.")
+      /* mcuxClKey_Handle_t key:                         */  key,
+      MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
+      /* const mcuxClKey_Type* type:                     */  mcuxClKey_Type_Hmac_variableLength,
+      /* const uint8_t * pKeyData:                      */  hmac_key,
+      /* uint32_t keyDataLength:                        */  sizeof(hmac_key)));
 
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClKey_init) != token) || (MCUXCLKEY_STATUS_OK != result))
     {
@@ -130,15 +125,16 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Els_Oneshot_External_Key_example)
     /* HMAC computation                                                       */
     /**************************************************************************/
     /* Copy the input data to temp buffer with proper size */
-    uint8_t tempIn [MCUXCLHMAC_ELS_INPUTBUFFER_LENGTH(sizeof(hmac_input))];
+    ALIGNED uint8_t tempIn [MCUXCLHMAC_ELS_INPUTBUFFER_LENGTH(sizeof(hmac_input))];
 
-    for(int i=0 ; i < MCUXCLELS_HASH_BLOCK_SIZE_SHA_256; i++)
+    for(uint32_t i = 0u ; i < MCUXCLELS_HASH_BLOCK_SIZE_SHA_256; i++)
     {
        tempIn[i] =  hmac_input[i];
     }
 
     /* Call the mcuxClMac_compute function to compute a HMAC in one shot. */
     uint32_t result_size = 0u;
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_ESCAPING_LOCAL_ADDRESS("Address of tempIn is for internal use only and does not escape")
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClMac_compute(
         /* mcuxClSession_Handle_t session:  */ session,
         /* const mcuxClKey_Handle_t key:    */ key,
@@ -148,6 +144,7 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Els_Oneshot_External_Key_example)
         /* mcuxCl_Buffer_t pMac:            */ result_buffer,
         /* uint32_t * const pMacLength:    */ &result_size
     ));
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_ESCAPING_LOCAL_ADDRESS()
 
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClMac_compute) != token) || (MCUXCLMAC_STATUS_OK != result))
     {
@@ -204,13 +201,10 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClHmac_Els_Oneshot_External_Key_example)
 
 
     /* Disable ELS */
-    MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClEls_Disable()); // Disable the ELS.
-    // mcuxClEls_Disable is a flow-protected function: Check the protection token and the return value
-    if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_Disable) != token) || (MCUXCLELS_STATUS_OK != result))
+    if(!mcuxClExample_Els_Disable())
     {
         return MCUXCLEXAMPLE_STATUS_ERROR;
     }
-    MCUX_CSSL_FP_FUNCTION_CALL_END();
 
 
     return MCUXCLEXAMPLE_STATUS_OK;

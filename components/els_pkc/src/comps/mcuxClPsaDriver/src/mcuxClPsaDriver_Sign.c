@@ -1,23 +1,26 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2023 NXP                                                       */
+/* Copyright 2023-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 #include "common.h"
 
 #include <mcuxClEls.h>
+#include <mcuxClBuffer.h>
 #include <mcuxClEcc.h>
 #include <mcuxClHash.h>
+#include <mcuxClHashModes.h>
 #include <mcuxClPsaDriver.h>
 #include <mcuxClRandom.h>
+#include <internal/mcuxClRandom_Internal_Functions.h>
 #include <mcuxClRandomModes.h>
 #include <mcuxClRsa.h>
 #include <mcuxClSession.h>
@@ -25,11 +28,13 @@
 #include <mcuxCsslFlowProtection.h>
 
 #include <internal/mcuxClKey_Internal.h>
+#include <internal/mcuxClPkc_Macros.h>
 #include <internal/mcuxClPsaDriver_Functions.h>
 #include <mcuxClPsaDriver_MemoryConsumption.h>
 #include <internal/mcuxClPsaDriver_Internal.h>
 #include <internal/mcuxClKey_Functions_Internal.h>
 #include <internal/mcuxClRsa_Internal_Types.h>
+#include <internal/mcuxClPsaDriver_ExternalMacroWrappers.h>
 
 
 static psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign_ECDSASignLayer(mcuxClKey_Descriptor_t *pKey,
@@ -41,9 +46,7 @@ static psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign_ECDSASignLayer(mcuxC
                                                size_t *signature_length,
                                                bool isHash) //isHash = true
 {
-    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
-    psa_key_attributes_t *attributes =(psa_key_attributes_t *)mcuxClKey_getAuxData(pKey);
-    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY()
+    psa_key_attributes_t *attributes = mcuxClPsaDriver_castAuxDataToKeyAttributes(pKey);
 
     if(signature_size < MCUXCLELS_ECC_SIGNATURE_SIZE)
     {
@@ -56,7 +59,7 @@ static psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign_ECDSASignLayer(mcuxC
     if (isHash == false) /* the input needs to be hashed */
     {
         size_t digest_length;
-        psa_status_t status = mcuxClPsaDriver_psa_driver_wrapper_hash_compute(PSA_ALG_SIGN_GET_HASH(alg), input, input_length, (uint8_t*)digest, MCUXCLHASH_OUTPUT_SIZE_SHA_256, &digest_length);
+        psa_status_t status = mcuxClPsaDriver_psa_driver_wrapper_hash_compute(MCUXCLPSADRIVER_PSA_ALG_SIGN_GET_HASH(alg), input, input_length, (uint8_t*)digest, MCUXCLHASH_OUTPUT_SIZE_SHA_256, &digest_length);
         if(PSA_SUCCESS != status)
         {
             return status;
@@ -91,11 +94,13 @@ static psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign_ECDSASignLayer(mcuxC
     }
 
     mcuxClEls_EccSignOption_t SignOptions = {0}; // Initialize a new configuration for the planned mcuxClEls_EccSign_Async operation
-    SignOptions.bits.echashchl = MCUXCLELS_ECC_HASHED;
+    SignOptions.bits.echashchl = (uint8_t)MCUXCLELS_ECC_HASHED;
 
     /* Aligned output buffer on stack, needed by ELS */
     uint32_t signatureAligned[MCUXCLELS_ECC_SIGNATURE_SIZE / sizeof(uint32_t)];
 
+    MCUX_CSSL_ANALYSIS_START_PATTERN_ADDRESS_IN_SFR_IS_NOT_REUSED_OUTSIDE()
+    MCUX_CSSL_ANALYSIS_START_PATTERN_NULL_POINTER_CONSTANT()
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(result, token, mcuxClEls_EccSign_Async(  // Perform signature generation.
             SignOptions,                                                    // Set the prepared configuration.
             (mcuxClEls_KeyIndex_t)mcuxClKey_getLoadedKeySlot(pKey),           // Set index of private key in keystore.
@@ -104,6 +109,8 @@ static psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign_ECDSASignLayer(mcuxC
             0,                                                              // Message length, it is ignored in case of processing digest
             (uint8_t*)signatureAligned                                      // Output buffer, which the operation will write the signature to.
             ));
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_NULL_POINTER_CONSTANT()
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_ADDRESS_IN_SFR_IS_NOT_REUSED_OUTSIDE()
 
     // mcuxClEls_EccSign_Async is a flow-protected function: Check the protection token and the return value
     if ((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEls_EccSign_Async) != token) || (MCUXCLELS_STATUS_OK_WAIT != result))
@@ -164,9 +171,11 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
              * Check if really ECDSA is requested, in any form. PSA_ALG_IS_SIGN_MESSAGE more generic, not needed there.
              * Additional checks performed to make sure we are in proper case
              */
+            MCUX_CSSL_ANALYSIS_START_SUPPRESS_CAST_OF_COMPOSITE_EXPRESSION("PSA macros come from external library outside our control")
             if((PSA_ALG_IS_ECDSA(alg) != true)
-                || (PSA_KEY_TYPE_ECC_GET_FAMILY(attributes->core.type) != PSA_ECC_FAMILY_SECP_R1)
-                || (PSA_ALG_SIGN_GET_HASH(alg) != PSA_ALG_SHA_256))
+                || (MCUXCLPSADRIVER_PSA_KEY_TYPE_ECC_GET_FAMILY(psa_get_key_type(attributes)) != PSA_ECC_FAMILY_SECP_R1)
+                || (MCUXCLPSADRIVER_PSA_ALG_SIGN_GET_HASH(alg) != PSA_ALG_SHA_256))
+            MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_CAST_OF_COMPOSITE_EXPRESSION()
             {
                 status = PSA_ERROR_NOT_SUPPORTED;
             }
@@ -184,7 +193,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
         }
         else if(MCUXCLKEY_LOADSTATUS_MEMORY == mcuxClKey_getLoadStatus(&key))
         {
-            if(PSA_ALG_IS_SIGN_MESSAGE(alg) != 1u)
+            if(PSA_ALG_IS_SIGN_MESSAGE(alg) != true)
             {
                 /* In this scenario we know that alg is incorrect */
                 status = PSA_ERROR_NOT_SUPPORTED;
@@ -224,7 +233,7 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign_hash(
     const uint8_t *key_buffer,
     size_t key_buffer_size,
     psa_algorithm_t alg,
-    const uint8_t *hash,
+    const uint8_t *input_hash,
     size_t hash_length,
     uint8_t *signature,
     size_t signature_size,
@@ -244,9 +253,11 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
              * Check if really ECDSA is requested, in any form. PSA_ALG_IS_SIGN_MESSAGE more generic, not needed there.
              * Additional checks performed to make sure we are in proper case
              */
+            MCUX_CSSL_ANALYSIS_START_SUPPRESS_CAST_OF_COMPOSITE_EXPRESSION("PSA macros come from external library outside our control")
             if((PSA_ALG_IS_ECDSA(alg) != true)
-                || (PSA_KEY_TYPE_ECC_GET_FAMILY(attributes->core.type) != PSA_ECC_FAMILY_SECP_R1)
-                || attributes->core.bits != 256u)
+                || (MCUXCLPSADRIVER_PSA_KEY_TYPE_ECC_GET_FAMILY(psa_get_key_type(attributes)) != PSA_ECC_FAMILY_SECP_R1)
+                || psa_get_key_bits(attributes) != 256u)
+            MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_CAST_OF_COMPOSITE_EXPRESSION()
             {
                 status = PSA_ERROR_NOT_SUPPORTED;
             }
@@ -254,7 +265,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
             {
                 status = mcuxClPsaDriver_psa_driver_wrapper_sign_ECDSASignLayer(&key,
                                                        alg,
-                                                       hash,
+                                                       input_hash,
                                                        hash_length,
                                                        signature,
                                                        signature_size,
@@ -264,7 +275,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
         }
         else if(MCUXCLKEY_LOADSTATUS_MEMORY == mcuxClKey_getLoadStatus(&key))
         {
-            if(PSA_ALG_IS_SIGN_MESSAGE(alg) != 1u)
+            if(PSA_ALG_IS_SIGN_MESSAGE(alg) != true)
             {
                 /* In this scenario we know that alg is incorrect */
                 status = PSA_ERROR_NOT_SUPPORTED;
@@ -273,7 +284,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
             {
                 status = mcuxClPsaDriver_psa_driver_wrapper_sign(&key,
                                                      alg,
-                                                     hash,
+                                                     input_hash,
                                                      hash_length,
                                                      signature,
                                                      signature_size,
@@ -304,27 +315,25 @@ psa_status_t mcuxClPsaDriver_psa_driver_wrapper_sign(
     psa_algorithm_t alg,
     const uint8_t *input,
     size_t input_length,
-    const uint8_t *signature,
+    uint8_t *signature,
     size_t signature_size,
     size_t *signature_length,
     bool isHash
 )
 MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
 {
-    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
-    psa_key_attributes_t *attributes =(psa_key_attributes_t *)mcuxClKey_getAuxData(pKey);
-    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY()
+    psa_key_attributes_t *attributes = mcuxClPsaDriver_castAuxDataToKeyAttributes(pKey);
 
     /* WCBRD-1105: Also fallback to sw for determinisitc ecdsa case*/
     if( (!PSA_ALG_IS_RSA_PKCS1V15_SIGN(alg))
         && PSA_ALG_IS_RSA_PSS(alg) != true
-        && (PSA_ALG_IS_ECDSA(alg) != true || PSA_ALG_IS_DETERMINISTIC_ECDSA(alg) == true))
+        && (MCUXCLPSADRIVER_PSA_ALG_IS_ECDSA(alg) != true || MCUXCLPSADRIVER_PSA_ALG_IS_DETERMINISTIC_ECDSA(alg) == true))
     {
       return PSA_ERROR_NOT_SUPPORTED;
     }
 
     //for signature it must be a key pair
-    if(PSA_KEY_TYPE_IS_KEY_PAIR(attributes->core.type) != true)
+    if(PSA_KEY_TYPE_IS_KEY_PAIR(psa_get_key_type(attributes)) != true)
     {
       return PSA_ERROR_INVALID_ARGUMENT;
     }
@@ -350,12 +359,14 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
     uint32_t cpuWorkarea[MCUXCLPSADRIVER_SIGN_BY_CLNS_WACPU_SIZE_MAX / sizeof(uint32_t)];
 
     /* Create session */
+    MCUX_CSSL_ANALYSIS_START_PATTERN_INVARIANT_EXPRESSION_WORKAREA_CALCULATIONS()
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(resultSessionInit, tokenSessionInit,
                                     mcuxClSession_init(&session,
                                                       cpuWorkarea,
                                                       MCUXCLPSADRIVER_SIGN_BY_CLNS_WACPU_SIZE_MAX,
-                                                      (uint32_t *) MCUXCLPKC_RAM_START_ADDRESS,
+                                                      mcuxClPkc_inline_getPointerToPkcRamStart(),
                                                       MCUXCLPSADRIVER_SIGN_BY_CLNS_WAPKC_SIZE_MAX));
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_INVARIANT_EXPRESSION_WORKAREA_CALCULATIONS()
     if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClSession_init) != tokenSessionInit) || (MCUXCLSESSION_STATUS_OK != resultSessionInit))
     {
       return PSA_ERROR_GENERIC_ERROR;
@@ -369,20 +380,20 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
       return PSA_ERROR_GENERIC_ERROR;
     }
     MCUX_CSSL_FP_FUNCTION_CALL_END();
-    if( PSA_ALG_IS_RSA_PKCS1V15_SIGN(alg) == 1u
-        || PSA_ALG_IS_RSA_PSS(alg) == 1u)
+    if( PSA_ALG_IS_RSA_PKCS1V15_SIGN(alg) == true
+        || PSA_ALG_IS_RSA_PSS(alg) == true)
     {
       /*
        * Decode key
        */
-      uint8_t * pDerData = mcuxClKey_getLoadedKeyData(pKey);
+      const uint8_t * pDerData = mcuxClKey_getLoadedKeyData(pKey);
       /* check and skip the sequence + constructed tag */
-      if(PSA_SUCCESS != mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(&pDerData, 0x10 | 0x20))
+      if(PSA_SUCCESS != mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(&pDerData, 0x10u | 0x20u))
       {
         return PSA_ERROR_GENERIC_ERROR;
       }
       /* Check and skip the version tag */
-      if(PSA_SUCCESS != mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(&pDerData, 0x02))
+      if(PSA_SUCCESS != mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(&pDerData, 0x02u))
       {
         return PSA_ERROR_GENERIC_ERROR;
       }
@@ -400,7 +411,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
       }
 
       /* skip the next integer, it is public exponent e */
-      if(PSA_SUCCESS != mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(&pDerData, 0x02))
+      if(PSA_SUCCESS != mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(&pDerData, 0x02u))
       {
         return PSA_ERROR_GENERIC_ERROR;
       }
@@ -411,7 +422,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
          /* The key is in CRT form */
 
          /* skip the next integer, it is private exponent d */
-         if(PSA_SUCCESS != mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(&pDerData, 0x02))
+         if(PSA_SUCCESS != mcuxClPsaDriver_psa_driver_wrapper_der_updatePointerTag(&pDerData, 0x02u))
          {
            return PSA_ERROR_GENERIC_ERROR;
          }
@@ -483,54 +494,56 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
       }
 
       /* Set the signature mode and salt length (in case of PSA_ALG_RSA_PSS the salt length should be equal to the length of the hash) */
-      mcuxClRsa_SignVerifyMode_t * pVerifyMode;
-      psa_algorithm_t hash_alg = PSA_ALG_SIGN_GET_HASH( alg );
+      const mcuxClRsa_SignVerifyMode_t * pVerifyMode;
+      psa_algorithm_t hash_alg = MCUXCLPSADRIVER_PSA_ALG_SIGN_GET_HASH( alg );
       uint32_t saltLength = 0u;
       if(PSA_ALG_IS_RSA_PSS(alg))
       {
+        MCUX_CSSL_ANALYSIS_START_PATTERN_SWITCH_STATEMENT_RETURN_TERMINATION()
         switch(hash_alg)
         {
           case PSA_ALG_SHA_224:
-            pVerifyMode = (mcuxClRsa_SignVerifyMode_t *) &mcuxClRsa_Mode_Sign_Pss_Sha2_224;
+            pVerifyMode = &mcuxClRsa_Mode_Sign_Pss_Sha2_224;
             saltLength = MCUXCLHASH_OUTPUT_SIZE_SHA_224;
             break;
           case PSA_ALG_SHA_256:
-            pVerifyMode = (mcuxClRsa_SignVerifyMode_t *) &mcuxClRsa_Mode_Sign_Pss_Sha2_256;
+            pVerifyMode = &mcuxClRsa_Mode_Sign_Pss_Sha2_256;
             saltLength = MCUXCLHASH_OUTPUT_SIZE_SHA_256;
             break;
           case PSA_ALG_SHA_384:
-            pVerifyMode = (mcuxClRsa_SignVerifyMode_t *) &mcuxClRsa_Mode_Sign_Pss_Sha2_384;
+            pVerifyMode = &mcuxClRsa_Mode_Sign_Pss_Sha2_384;
             saltLength = MCUXCLHASH_OUTPUT_SIZE_SHA_384;
             break;
           case PSA_ALG_SHA_512:
-            pVerifyMode = (mcuxClRsa_SignVerifyMode_t *) &mcuxClRsa_Mode_Sign_Pss_Sha2_512;
+            pVerifyMode = &mcuxClRsa_Mode_Sign_Pss_Sha2_512;
             saltLength = MCUXCLHASH_OUTPUT_SIZE_SHA_512;
             break;
           default:
             return PSA_ERROR_NOT_SUPPORTED;
-            break;
         }
+        MCUX_CSSL_ANALYSIS_STOP_PATTERN_SWITCH_STATEMENT_RETURN_TERMINATION()
       }
       else if(PSA_ALG_IS_RSA_PKCS1V15_SIGN(alg))
       {
+        MCUX_CSSL_ANALYSIS_START_PATTERN_SWITCH_STATEMENT_RETURN_TERMINATION()
         switch(hash_alg)
         {
           case PSA_ALG_SHA_224:
-            pVerifyMode = (mcuxClRsa_SignVerifyMode_t *) &mcuxClRsa_Mode_Sign_PKCS1v15_Sha2_224;
+            pVerifyMode = &mcuxClRsa_Mode_Sign_PKCS1v15_Sha2_224;
             break;
           case PSA_ALG_SHA_256:
-            pVerifyMode = (mcuxClRsa_SignVerifyMode_t *) &mcuxClRsa_Mode_Sign_PKCS1v15_Sha2_256;
+            pVerifyMode = &mcuxClRsa_Mode_Sign_PKCS1v15_Sha2_256;
             break;
           case PSA_ALG_SHA_384:
-            pVerifyMode = (mcuxClRsa_SignVerifyMode_t *) &mcuxClRsa_Mode_Sign_PKCS1v15_Sha2_384;
+            pVerifyMode = &mcuxClRsa_Mode_Sign_PKCS1v15_Sha2_384;
             break;
           case PSA_ALG_SHA_512:
-            pVerifyMode = (mcuxClRsa_SignVerifyMode_t *) &mcuxClRsa_Mode_Sign_PKCS1v15_Sha2_512;
+            pVerifyMode = &mcuxClRsa_Mode_Sign_PKCS1v15_Sha2_512;
             break;
           default:
             return PSA_ERROR_NOT_SUPPORTED;
-            break;
         }
+        MCUX_CSSL_ANALYSIS_STOP_PATTERN_SWITCH_STATEMENT_RETURN_TERMINATION()
       }
       else
       {
@@ -553,9 +566,13 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
       MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(sign_result, sign_token, mcuxClRsa_sign(
         /* mcuxClSession_Handle_t           pSession: */           &session,
         /* const mcuxClRsa_Key * const      pKey: */               &private_key,
-        /* mcuxCl_InputBuffer_t             pMessageOrDigest: */   (uint8_t *)input,
+        /* mcuxCl_InputBuffer_t             pMessageOrDigest: */   input,
         /* const uint32_t                  messageLength: */      messageLength,
-        /* const mcuxClRsa_SignVerifyMode   pPaddingMode: */       pVerifyMode,
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST_QUALIFIER("Const must be discarded due to fixed function API. mcuxClRsa_sign does not modify this array")
+        MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The types are compatible.")
+        /* const mcuxClRsa_SignVerifyMode   pPaddingMode: */       (mcuxClRsa_SignVerifyMode_t *)pVerifyMode,
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
+        MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST_QUALIFIER()
         /* const uint32_t                  saltLength: */         saltLength,
         /* uint32_t                        options: */            options,
         /* uint8_t * const                 pSignature) */         (mcuxCl_Buffer_t )signature));
@@ -570,13 +587,13 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
     else
     {
       /* Buffer for hash */
-      uint8_t hash[64 /* maximum size of hash output */] = {0};
+      uint8_t hash_buffer[64 /* maximum size of hash output */] = {0};
       const uint8_t * pHash = input;
       uint32_t hashOutputSize = 0u;
       if(true != isHash)
       {
         /* Select algorithm descriptor */
-        psa_algorithm_t hash_alg = PSA_ALG_SIGN_GET_HASH( alg );
+        psa_algorithm_t hash_alg = MCUXCLPSADRIVER_PSA_ALG_SIGN_GET_HASH( alg );
         const mcuxClHash_AlgorithmDescriptor_t *hashAlgo = mcuxClPsaDriver_psa_driver_wrapper_hash_set_algorithmDescriptor(hash_alg);
 
         /* Perform the hashing operation */
@@ -585,7 +602,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
                                                               hashAlgo,
                                                               input,
                                                               input_length,
-                                                              hash,
+                                                              hash_buffer,
                                                               &hashOutputSize));
 
         if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClHash_compute) != token) || (MCUXCLHASH_STATUS_OK != result))
@@ -593,7 +610,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
           return PSA_ERROR_CORRUPTION_DETECTED;
         }
         MCUX_CSSL_FP_FUNCTION_CALL_END();
-        pHash = hash;
+        pHash = hash_buffer;
       }
 
       mcuxClEcc_Weier_DomainParams_t * domainParams = (mcuxClEcc_Weier_DomainParams_t *) mcuxClKey_getTypeInfo(pKey);
@@ -619,23 +636,33 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
           n[i] = domainParams->common.pFullModulusN[nLen + MCUXCLPKC_WORDSIZE - i - 1u];
       }
 
+      MCUXCLBUFFER_INIT_RO(buffA, NULL, a, pLen);
+      MCUXCLBUFFER_INIT_RO(buffB, NULL, b, pLen);
+      MCUXCLBUFFER_INIT_RO(buffP, NULL, p, pLen);
+      MCUXCLBUFFER_INIT_RO(buffG, NULL, G, pLen * 2u);
+      MCUXCLBUFFER_INIT_RO(buffN, NULL, n, nLen);
+
+      const uint32_t hashLen = isHash ? input_length : hashOutputSize;
+      MCUXCLBUFFER_INIT_RO(buffHash, NULL, pHash, hashLen);
+      MCUXCLBUFFER_INIT(buffSignature, NULL, signature, nLen * 2u);
 
       uint8_t * pPrivateKey = mcuxClKey_getLoadedKeyData(pKey);
       mcuxClEcc_Sign_Param_t paramSign =
       {
         .curveParam = (mcuxClEcc_DomainParam_t)
         {
-            .pA = a,
-            .pB = b,
-            .pP = p,
-            .pG = G,
-            .pN = n,
+            .pA = buffA,
+            .pB = buffB,
+            .pP = buffP,
+            .pG = buffG,
+            .pN = buffN,
             .misc = mcuxClEcc_DomainParam_misc_Pack(nLen, pLen)
         },
-        .pHash = pHash,
+        .pHash = buffHash,
         .pPrivateKey = (const uint8_t *) pPrivateKey,
-        .pSignature = (uint8_t *) signature,
-        .optLen = mcuxClEcc_Sign_Param_optLen_Pack((true != isHash) ? hashOutputSize : input_length)
+        .pSignature = buffSignature,
+        .optLen = mcuxClEcc_Sign_Param_optLen_Pack((256u <= hashLen) ? 255u : hashLen),
+        .pMode = &mcuxClEcc_ECDSA_ProtocolDescriptor
       };
 
       if(signature_size < 2u * nLen)
@@ -658,7 +685,7 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
 
       MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(randomInit_result, randomInit_token,
                                       mcuxClRandom_init(&session,
-                                                       (mcuxClRandom_Context_t)rng_ctx,
+                                                       mcuxClRandom_castToContext(rng_ctx),
                                                        randomMode));
       if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClRandom_init) != randomInit_token) || (MCUXCLRANDOM_STATUS_OK != randomInit_result))
       {
@@ -666,7 +693,8 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
       }
       MCUX_CSSL_FP_FUNCTION_CALL_END();
 
-      MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(sign_result, sign_token, mcuxClEcc_Sign(&session, &paramSign));
+      MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(sign_result, sign_token,
+          mcuxClEcc_Sign(&session, &paramSign) );
       *signature_length = 2u * nLen;
 
       if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_Sign) != sign_token) || (MCUXCLECC_STATUS_OK != sign_result))
@@ -688,5 +716,3 @@ MCUX_CSSL_ANALYSIS_STOP_PATTERN_DESCRIPTIVE_IDENTIFIER()
 
     return PSA_SUCCESS;
 }
-
-

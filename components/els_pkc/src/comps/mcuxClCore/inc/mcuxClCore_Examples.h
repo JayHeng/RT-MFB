@@ -1,28 +1,33 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 #ifndef MCUXCLCORE_EXAMPLES_H_
 #define MCUXCLCORE_EXAMPLES_H_
 
 #include <mcuxClCore_Platform.h>
+#include <mcuxClCore_Macros.h>
 #include <mcuxCsslFlowProtection.h>
+
 
 /**
  * \def MCUXCLEXAMPLE_FUNCTION
  * \brief Macro to indicate that the symbol is an example function.
  */
 // TODO CLNS-3599: #define MCUXCLEXAMPLE_FUNCTION(_name) uint32_t _name(void)
-#define MCUXCLEXAMPLE_FUNCTION(_name) bool _name(void)
+#define MCUXCLEXAMPLE_FUNCTION(_name) \
+MCUX_CSSL_ANALYSIS_START_PATTERN_EXAMPLE_FUNCTION() \
+bool _name(void) \
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_EXAMPLE_FUNCTION()
 
 /**
  * \def MCUXCLEXAMPLE_STATUS_OK
@@ -63,16 +68,6 @@
  * \deprecated{Replaced by MCUXCLEXAMPLE_STATUS_FAILURE}
  */
 #define MCUXCLEXAMPLE_FAILURE  MCUXCLEXAMPLE_STATUS_FAILURE
-
-/**
- * \brief Macro to calculate the maximum of two values.
- */
-#define MCUXCLEXAMPLE_MAX( x, y ) ( ( x ) > ( y ) ? ( x ) : ( y ) )
-
-/**
- * \brief Macro to calculate the ceiling of x/y.
- */
-#define MCUXCLEXAMPLE_CEILING(x,y)  (((x) + (y) - 1U) / (y))
 
 /**
  * \brief Assert whether two buffers are equal.

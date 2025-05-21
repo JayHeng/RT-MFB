@@ -42,7 +42,6 @@
   @param[in]     pSrc        points to the input vector
   @param[out]    pDst        points to the output vector
   @param[in]     numSamples  number of samples in each vector
-  @return        none
 
   @par           Scaling and Overflow Behavior
                    The function uses saturating arithmetic.
@@ -51,7 +50,7 @@
 
 
 #if defined(ARM_MATH_MVEI) && !defined(ARM_MATH_AUTOVECTORIZE)
-void arm_cmplx_conj_q15(
+ARM_DSP_ATTRIBUTE void arm_cmplx_conj_q15(
   const q15_t * pSrc,
         q15_t * pDst,
         uint32_t numSamples)
@@ -98,7 +97,7 @@ void arm_cmplx_conj_q15(
     }
 }
 #else
-void arm_cmplx_conj_q15(
+ARM_DSP_ATTRIBUTE void arm_cmplx_conj_q15(
   const q15_t * pSrc,
         q15_t * pDst,
         uint32_t numSamples)
@@ -122,11 +121,11 @@ void arm_cmplx_conj_q15(
 
     /* Calculate Complex Conjugate and store result in destination buffer. */
 
-    #if defined (ARM_MATH_DSP)
-    in1 = read_q15x2_ia ((q15_t **) &pSrc);
-    in2 = read_q15x2_ia ((q15_t **) &pSrc);
-    in3 = read_q15x2_ia ((q15_t **) &pSrc);
-    in4 = read_q15x2_ia ((q15_t **) &pSrc);
+#if defined (ARM_MATH_DSP)
+    in1 = read_q15x2_ia (&pSrc);
+    in2 = read_q15x2_ia (&pSrc);
+    in3 = read_q15x2_ia (&pSrc);
+    in4 = read_q15x2_ia (&pSrc);
 
 #ifndef ARM_MATH_BIG_ENDIAN
     in1 = __QASX(0, in1);

@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2022-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -20,12 +20,12 @@
 #include <mcuxClSession.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
+#include <mcuxClEcc.h>
 
-#include <internal/mcuxClMemory_Copy_Internal.h>
 #include <internal/mcuxClPkc_ImportExport.h>
 #include <internal/mcuxClPkc_Operations.h>
 #include <internal/mcuxClEcc_TwEd_Internal.h>
-#include <internal/mcuxClEcc_TwEd_Internal_PointValidation_FUP.h>
+#include <internal/mcuxClEcc_TwEd_Internal_FUP.h>
 
 
 /**
@@ -74,7 +74,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_PrecPointImportAn
     pOperands[TWED_V2] = (uint16_t) pOperands[iDst+2u];
 
     /* Step 3: Validate the coordinates by checking the curve equation a*x2 + y2 = 1 + d*x2*y2: */
-    MCUXCLPKC_FP_CALCFUP(mcuxClEcc_FUP_TwEd_PointValidation, mcuxClEcc_FUP_TwEd_PointValidation_Len);
+    MCUXCLPKC_FP_CALCFUP(mcuxClEcc_FUP_TwEd_PointValidation_AffineNR, mcuxClEcc_FUP_TwEd_PointValidation_AffineNR_Len);
 
     /* Step 4: If the ZERO flag of the PKC is not set, return #MCUXCLECC_STATUS_FAULT_ATTACK. Otherwise, return #MCUXCLECC_STATUS_OK. */
     if (MCUXCLPKC_FLAG_ZERO != MCUXCLPKC_WAITFORFINISH_GETZERO())

@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2022 NXP                                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 #ifndef MCUXCLAES_CONSTANTS_H_
@@ -29,8 +29,12 @@ extern "C" {
  * @{
  */
 
+/* Error codes */
+#define MCUXCLAES_STATUS_ERROR              ((mcuxClAes_Status_t) 0x0FF95330u)
+#define MCUXCLAES_STATUS_OK                 ((mcuxClAes_Status_t) 0x0FF92E03u)
+
 /* Block size */
-#define MCUXCLAES_BLOCK_SIZE                (16u)                                      ///< AES block size in bytes
+#define MCUXCLAES_BLOCK_SIZE                (16u)                                    ///< AES block size in bytes
 #define MCUXCLAES_BLOCK_SIZE_IN_WORDS       (MCUXCLAES_BLOCK_SIZE / sizeof(uint32_t)) ///< AES block size in words
 
 /* Key sizes */

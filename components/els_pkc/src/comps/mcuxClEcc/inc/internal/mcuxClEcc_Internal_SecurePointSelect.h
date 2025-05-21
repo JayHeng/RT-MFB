@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -20,9 +20,7 @@
 #ifndef MCUXCLECC_INTERNAL_SECUREPOINTSELECT_H_
 #define MCUXCLECC_INTERNAL_SECUREPOINTSELECT_H_
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <mcuxClConfig.h> // Exported features flags header
+#include <mcuxClCore_Platform.h>
 
 /**
  * This macro securely loads ofsP0 and ofsP1 from pOps[] table.
@@ -78,7 +76,9 @@
         );  \
         (ofsP0_) = temp0;  \
         (ofsP1_) = temp1;  \
-    } while (false)
+MCUX_CSSL_ANALYSIS_START_PATTERN_BOOLEAN_TYPE_FOR_CONDITIONAL_EXPRESSION() \
+    } while (false) \
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_BOOLEAN_TYPE_FOR_CONDITIONAL_EXPRESSION()
 
 #elif defined(ICCARM_ARMCC_GNUC)
 
@@ -113,7 +113,9 @@
         );  \
         (ofsP0_) = temp0;  \
         (ofsP1_) = temp1;  \
-    } while (false)
+MCUX_CSSL_ANALYSIS_START_PATTERN_BOOLEAN_TYPE_FOR_CONDITIONAL_EXPRESSION() \
+    } while (false) \
+MCUX_CSSL_ANALYSIS_STOP_PATTERN_BOOLEAN_TYPE_FOR_CONDITIONAL_EXPRESSION()
 
 #else
     #error Unsupported compiler. The above section must be manually adapted to support the inline assembly syntax.

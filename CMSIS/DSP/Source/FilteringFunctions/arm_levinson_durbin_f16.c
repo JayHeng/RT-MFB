@@ -32,10 +32,7 @@
   @ingroup groupFilters
  */
 
-/**
-  @defgroup LD Levinson Durbin Algorithm
 
- */
 
 /**
   @addtogroup LD
@@ -48,20 +45,19 @@
   @param[out]    a        autoregressive coefficients
   @param[out]    err      prediction error (variance)
   @param[in]     nbCoefs  number of autoregressive coefficients
-  @return        none
  */
 
-#if defined(ARM_MATH_MVE_FLOAT16) && !defined(ARM_MATH_AUTOVECTORIZE) && defined(__CMSIS_GCC_H)
+#if defined(ARM_MATH_MVE_FLOAT16) && !defined(ARM_MATH_AUTOVECTORIZE) && defined(ARM_DSP_BUILT_WITH_GCC)
 #pragma GCC warning "Scalar version of arm_levinson_durbin_f16 built. Helium version has build issues with gcc."
 #endif 
 
-#if defined(ARM_MATH_MVE_FLOAT16) && !defined(ARM_MATH_AUTOVECTORIZE) &&  !defined(__CMSIS_GCC_H)
+#if defined(ARM_MATH_MVE_FLOAT16) && !defined(ARM_MATH_AUTOVECTORIZE) &&  !defined(ARM_DSP_BUILT_WITH_GCC)
 
 #include "arm_helium_utils.h"
 
 #define LANE4567_MASK 0xFF00
 
-void arm_levinson_durbin_f16(const float16_t *phi,
+ARM_DSP_ATTRIBUTE void arm_levinson_durbin_f16(const float16_t *phi,
   float16_t *a, 
   float16_t *err,
   int nbCoefs)
@@ -129,17 +125,17 @@ void arm_levinson_durbin_f16(const float16_t *phi,
       k = ((_Float16)phi[p+1] - suma)/((_Float16)phi[0] - sumb);
 
       f16x8_t vecRevA,tmp;
-      static uint16_t orgOffsetArray[8]={0,1,2,3,-1,-2,-3,-4};
-      static const uint16_t offsetIncArray[8]={4,4,4,4,-4,-4,-4,-4};
+      static int16_t orgOffsetArray[8]={0,1,2,3,-1,-2,-3,-4};
+      static const int16_t offsetIncArray[8]={4,4,4,4,-4,-4,-4,-4};
 
       uint16x8_t offset,offsetInc,vecTmp;
 
 
-      offset = vld1q(orgOffsetArray);
+      offset = vld1q_u16((uint16_t*)orgOffsetArray);
       vecTmp = vdupq_n_u16(p);
 
       offset = vaddq_m_u16(offset,offset,vecTmp,LANE4567_MASK);
-      offsetInc = vld1q(offsetIncArray);
+      offsetInc = vld1q_u16((uint16_t*)offsetIncArray);
 
       nb = p >> 3;
       j=0;
@@ -215,7 +211,7 @@ void arm_levinson_durbin_f16(const float16_t *phi,
 
 #if defined(ARM_FLOAT16_SUPPORTED)
 
-void arm_levinson_durbin_f16(const float16_t *phi,
+ARM_DSP_ATTRIBUTE void arm_levinson_durbin_f16(const float16_t *phi,
   float16_t *a, 
   float16_t *err,
   int nbCoefs)

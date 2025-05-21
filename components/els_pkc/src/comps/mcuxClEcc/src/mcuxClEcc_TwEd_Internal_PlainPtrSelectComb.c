@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2022-2023 NXP                                                  */
+/* Copyright 2022-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -21,6 +21,7 @@
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
 
+#include <mcuxClEcc.h>
 #include <internal/mcuxClPkc_ImportExport.h>
 #include <internal/mcuxClPkc_Operations.h>
 #include <internal/mcuxClEcc_TwEd_Internal.h>
@@ -49,7 +50,7 @@
  *  - Virtual pointers TWED_PP_VX0, TWED_PP_VY0 and TWED_PP_VT0 as well as buffers ECC_T2 and ECC_T3 are prepared as described above.
  */
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEcc_TwEd_PlainPtrSelectComb, mcuxClEcc_TwEd_PtrSelectFunction_t)
-MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_PlainPtrSelectComb(
+MCUX_CSSL_FP_PROTECTED_TYPE(void) mcuxClEcc_TwEd_PlainPtrSelectComb(
     mcuxClSession_Handle_t pSession UNUSED_PARAM,
     uint32_t scalarWord,
     uint8_t scalarDigitOffset
@@ -82,7 +83,7 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_TwEd_PlainPtrSelectCom
         pOperands[TWED_PP_VT0] = (uint16_t) pOperands[ECC_T3];
     }
 
-    MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_TwEd_PlainPtrSelectComb, MCUXCLECC_STATUS_OK,
+    MCUX_CSSL_FP_FUNCTION_EXIT_VOID(mcuxClEcc_TwEd_PlainPtrSelectComb,
         MCUX_CSSL_FP_CONDITIONAL(0u == (nibble & 0x1u),
                                 MCUXCLPKC_FP_CALLED_CALC_OP1_SUB,
                                 MCUXCLPKC_FP_CALLED_CALC_OP1_SUB)

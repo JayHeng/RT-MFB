@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2021 NXP                                                  */
+/* Copyright 2020-2021, 2023 NXP                                            */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClAead_Types.h
@@ -61,6 +61,29 @@ typedef struct mcuxClAead_ModeDescriptor mcuxClAead_ModeDescriptor_t;
  * This type is used to refer to an AEAD mode/algorithm.
  */
 typedef const mcuxClAead_ModeDescriptor_t * const mcuxClAead_Mode_t;
+
+/**
+ * @brief Aead selftest mode/algorithm descriptor structure
+ *
+ * This structure captures all the information that the Aead selftest interfaces need
+ * to know about a particular Aead selftest mode/algorithm.
+ */
+struct mcuxClAead_TestDescriptor;
+
+/**
+ * @brief Aead selftest mode/algorithm descriptor type
+ *
+ * This type captures all the information that the Aead selftest interfaces need
+ * to know about a particular Aead selftest mode/algorithm.
+ */
+typedef struct mcuxClAead_TestDescriptor mcuxClAead_TestDescriptor_t;
+
+/**
+ * @brief Aead selftest mode/algorithm type
+ *
+ * This type is used to refer to a Aead selftest mode/algorithm.
+ */
+typedef const mcuxClAead_TestDescriptor_t * const mcuxClAead_Test_t;
 
 /**
  * @brief AEAD context structure

@@ -43,7 +43,6 @@
   @param[in]     pSrcB      points to the second input vector
   @param[out]    pDst       points to the output vector
   @param[in]     blockSize  number of samples in each vector
-  @return        none
 
   @par           Scaling and Overflow Behavior
                    The function uses saturating arithmetic.
@@ -54,7 +53,7 @@
 
 #include "arm_helium_utils.h"
 
-void arm_add_q15(
+ARM_DSP_ATTRIBUTE void arm_add_q15(
     const q15_t * pSrcA,
     const q15_t * pSrcB,
     q15_t * pDst,
@@ -100,7 +99,7 @@ void arm_add_q15(
 }
 
 #else
-void arm_add_q15(
+ARM_DSP_ATTRIBUTE void arm_add_q15(
   const q15_t * pSrcA,
   const q15_t * pSrcB,
         q15_t * pDst,
@@ -124,11 +123,11 @@ void arm_add_q15(
 
 #if defined (ARM_MATH_DSP)
     /* read 2 times 2 samples at a time from sourceA */
-    inA1 = read_q15x2_ia ((q15_t **) &pSrcA);
-    inA2 = read_q15x2_ia ((q15_t **) &pSrcA);
+    inA1 = read_q15x2_ia (&pSrcA);
+    inA2 = read_q15x2_ia (&pSrcA);
     /* read 2 times 2 samples at a time from sourceB */
-    inB1 = read_q15x2_ia ((q15_t **) &pSrcB);
-    inB2 = read_q15x2_ia ((q15_t **) &pSrcB);
+    inB1 = read_q15x2_ia (&pSrcB);
+    inB2 = read_q15x2_ia (&pSrcB);
 
     /* Add and store 2 times 2 samples at a time */
     write_q15x2_ia (&pDst, __QADD16(inA1, inB1));

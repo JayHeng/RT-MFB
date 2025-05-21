@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2023 NXP                                                       */
+/* Copyright 2023-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -19,11 +19,11 @@
 #ifndef MCUXCSSLDATAINTEGRITY_H_
 #define MCUXCSSLDATAINTEGRITY_H_
 
-/* Include the actual implementation of the data integrity mechanism. */
-#include <mcuxCsslDataIntegrity_Impl.h>
-
 /* Include the Secure Counter definitions */
 #include <mcuxCsslSecureCounter.h>
+
+/* Include the actual implementation of the data integrity mechanism. */
+#include <mcuxCsslDataIntegrity_Impl.h>
 
 /**
  * @addtogroup mcuxCsslAPI MCUX CSSL -- API
@@ -62,38 +62,24 @@
 #define MCUX_CSSL_DI_CHECK_FAILED \
   MCUX_CSSL_DI_CHECK_FAILED_IMPL
 
-/**
- * @def MCUX_CSSL_DI_INIT_DEFAULT_VALUE
- * @brief Default value use for the initialization of the data integrity mechanism.
- * @api
- * @ingroup diCore
- */
-#define MCUX_CSSL_DI_INIT_DEFAULT_VALUE \
-  (0x96969696u)
-
 /****************************************************************************/
 /* Initialization                                                           */
 /****************************************************************************/
 
 /**
- * @def MCUX_CSSL_DI_ALLOC
- * @brief Allocation operation for the data integrity register.
- * @api
- * @ingroup diCore
- */
-#define MCUX_CSSL_DI_ALLOC() \
-  MCUX_CSSL_DI_ALLOC_IMPL()
-
-/**
  * @def MCUX_CSSL_DI_INIT
- * @brief Initialization operation for the data integrity mechanism.
+ * @brief Backup of the current data integrity value, that will be checked later
+ *        on with MCUX_CSSL_SC_CHECK.
+ *        Note that in case the Security Counter back-end requires allocation, it
+ *        is expected that this will be handled by the Flow Protection mechanism
+ *        before the initialization of the Data Integrity.
  * @api
  * @ingroup diCore
  *
- * @param value Value with which the data integrity register must be initialized.
+ * @param backupValue Fresh variable name to store the current DI value.
  */
-#define MCUX_CSSL_DI_INIT(value) \
-  MCUX_CSSL_DI_INIT_IMPL(value)
+#define MCUX_CSSL_DI_INIT(backupValue) \
+  MCUX_CSSL_DI_INIT_IMPL(backupValue)
 
 /****************************************************************************/
 /* Check                                                                    */
@@ -105,12 +91,30 @@
  * @api
  * @ingroup diCore
  *
- * @param reference Reference value to compare the data integrity value against.
+ * @param reference Reference initial value to compare the data integrity value against.
  * @return          Either #MCUX_CSSL_DI_CHECK_PASSED, if the value matches, or
  *                  #MCUX_CSSL_DI_CHECK_FAILED if the value is different.
  */
 #define MCUX_CSSL_DI_CHECK(reference) \
   MCUX_CSSL_DI_CHECK_IMPL(reference)
+
+/**
+ * @def MCUX_CSSL_DI_CHECK_EXIT
+ * @brief Comparison operation for the data integrity.
+ *        It compares the data integrity value to reference initial value,
+ *        and exits with the given fault status code if the comparison fails.
+ *        The reference value shall be the initial value that was backed up
+ *        with MCUX_CSSL_DI_INIT.
+ *        If the comparison succeeds, the normal execution will continue.
+ * @api
+ * @ingroup diCore
+ *
+ * @param id        Identifier of the function from which we will exit.
+ * @param reference Reference initial value to compare the data integrity value against.
+ * @param fail      Result that should be returned if the data integrity check failed.
+ */
+#define MCUX_CSSL_DI_CHECK_EXIT(id, reference, fail) \
+  MCUX_CSSL_DI_CHECK_EXIT_IMPL(id, reference, fail)
 
 /****************************************************************************/
 /* Updates                                                                  */

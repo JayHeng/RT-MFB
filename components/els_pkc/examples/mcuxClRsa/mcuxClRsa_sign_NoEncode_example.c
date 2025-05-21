@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021-2023 NXP                                                  */
+/* Copyright 2021-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -21,12 +21,14 @@
  *      (private exponentiation and NO padding) according to PKCS #1 v2.2, using a key in plain format.
  */
 
+#include <mcuxClToolchain.h>
 #include <mcuxClSession.h>          // Interface to the entire mcuxClSession component
 #include <mcuxClExample_Session_Helper.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h> // Code flow protection
-#include <mcuxClPkc.h>              // Interface to the entire mcuxClPkc component
 #include <mcuxClRandom.h>           // Interface to the entire mcuxClRandom component
+#include <mcuxClRandomModes.h>
+#include <mcuxClBuffer.h>
 #include <mcuxClRsa.h>              // Interface to the entire mcuxClRsa component
 #include <mcuxClToolchain.h>             // Memory segment definitions
 #include <mcuxClCore_Examples.h>
@@ -43,7 +45,7 @@
 /**
  * @brief Example value for public RSA modulus N.
  */
-static const uint8_t modulus[RSA_KEY_BYTE_LENGTH] __attribute__ ((aligned (4))) = {
+static const ALIGNED uint8_t modulus[RSA_KEY_BYTE_LENGTH] = {
     0xd0u, 0xb7u, 0x50u, 0xc8u, 0x55u, 0x4bu, 0x64u, 0xc7u,
     0xa9u, 0xd3u, 0x4du, 0x06u, 0x8eu, 0x02u, 0x0fu, 0xb5u,
     0x2fu, 0xeau, 0x1bu, 0x39u, 0xc4u, 0x79u, 0x71u, 0xa3u,
@@ -66,7 +68,7 @@ static const uint8_t modulus[RSA_KEY_BYTE_LENGTH] __attribute__ ((aligned (4))) 
 /**
  * @brief Example value for private RSA exponent d.
  */
-static const uint8_t d[RSA_KEY_BYTE_LENGTH] __attribute__ ((aligned (4))) = {
+static const ALIGNED uint8_t d[RSA_KEY_BYTE_LENGTH] = {
     0x27u, 0xb7u, 0x11u, 0x9au, 0x09u, 0xedu, 0xb8u, 0x27u,
     0xc1u, 0x34u, 0x18u, 0xc8u, 0x20u, 0xb5u, 0x22u, 0xa1u,
     0xeeu, 0x08u, 0xdeu, 0x0eu, 0x4bu, 0xb2u, 0x81u, 0x06u,
@@ -88,7 +90,7 @@ static const uint8_t d[RSA_KEY_BYTE_LENGTH] __attribute__ ((aligned (4))) = {
  /**
  * @brief Input message
  */
-static const uint8_t message[RSA_KEY_BYTE_LENGTH] __attribute__ ((aligned (4))) = {
+static const ALIGNED uint8_t message[RSA_KEY_BYTE_LENGTH] = {
     0x00u, 0x01u, 0xffu, 0xffu, 0xffu, 0xffu, 0xffu, 0xffu,
     0xffu, 0xffu, 0xffu, 0xffu, 0xffu, 0xffu, 0xffu, 0xffu,
     0xffu, 0xffu, 0xffu, 0xffu, 0xffu, 0xffu, 0xffu, 0xffu,
@@ -110,7 +112,7 @@ static const uint8_t message[RSA_KEY_BYTE_LENGTH] __attribute__ ((aligned (4))) 
  /**
  * @brief Expected signature
  */
-static const uint8_t referenceSignature[RSA_KEY_BYTE_LENGTH] __attribute__ ((aligned (4))) = {
+static const ALIGNED uint8_t referenceSignature[RSA_KEY_BYTE_LENGTH] = {
     0x02u, 0x3au, 0x8du, 0x88u, 0x87u, 0xd3u, 0x81u, 0x4fu,
     0xb6u, 0xceu, 0xb1u, 0x2cu, 0xf9u, 0x87u, 0x9cu, 0x49u,
     0xebu, 0xf2u, 0x16u, 0xd0u, 0x6cu, 0x32u, 0x2du, 0xa7u,
@@ -151,12 +153,12 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClRsa_sign_NoEncode_example)
     mcuxClSession_Handle_t session = &sessionDesc;
 
     MCUXCLEXAMPLE_ALLOCATE_AND_INITIALIZE_SESSION(session,
-                                                 MCUXCLRSA_SIGN_PLAIN_NOENCODE_1024_WACPU_SIZE,
+                                                 MCUXCLEXAMPLE_MAX_WA(MCUXCLRSA_SIGN_PLAIN_NOENCODE_1024_WACPU_SIZE, MCUXCLRANDOMMODES_NCINIT_WACPU_SIZE),
                                                  MCUXCLRSA_SIGN_PLAIN_1024_WAPKC_SIZE);
 
     /* Initialize the PRNG */
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(prngInit_result, prngInit_token, mcuxClRandom_ncInit(session));
-    if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClRandom_ncInit) != prngInit_token) || (MCUXCLRANDOM_STATUS_OK != prngInit_result)) 
+    if((MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClRandom_ncInit) != prngInit_token) || (MCUXCLRANDOM_STATUS_OK != prngInit_result))
     {
         return MCUXCLEXAMPLE_STATUS_ERROR;
     }
@@ -164,38 +166,58 @@ MCUXCLEXAMPLE_FUNCTION(mcuxClRsa_sign_NoEncode_example)
 
     /* Create key struct of type MCUXCLRSA_KEY_PRIVATEPLAIN */
     const mcuxClRsa_KeyEntry_t Mod1 = {
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST("Required by API function")
                        .pKeyEntryData = (uint8_t *)modulus,
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST()
                        .keyEntryLength = RSA_KEY_BYTE_LENGTH };
 
     const mcuxClRsa_KeyEntry_t Exp1 = {
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST("Required by API function")
                        .pKeyEntryData = (uint8_t *)d,
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST()
                        .keyEntryLength = sizeof(d) };
 
     const mcuxClRsa_Key private_key = {
                                      .keytype = MCUXCLRSA_KEY_PRIVATEPLAIN,
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer Mod1 is of the right type (mcuxClRsa_KeyEntry_t)")
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST("Required by API function")
                                      .pMod1 = (mcuxClRsa_KeyEntry_t *)&Mod1,
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST()
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
                                      .pMod2 = NULL,
                                      .pQInv = NULL,
+    MCUX_CSSL_ANALYSIS_START_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST("Required by API function")
                                      .pExp1 = (mcuxClRsa_KeyEntry_t *)&Exp1,
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST()
+    MCUX_CSSL_ANALYSIS_STOP_PATTERN_REINTERPRET_MEMORY_OF_OPAQUE_TYPES()
                                      .pExp2 = NULL,
                                      .pExp3 = NULL };
 
     /* Prepare buffer to store the result */
-    uint8_t signature[RSA_KEY_BYTE_LENGTH];
+    ALIGNED uint8_t signature[RSA_KEY_BYTE_LENGTH] = {0};
 
     /**************************************************************************/
     /* RSA signature generation call                                          */
     /**************************************************************************/
 
+    MCUXCLBUFFER_INIT_RO(messageBuf, session, message, RSA_KEY_BYTE_LENGTH);
+    MCUXCLBUFFER_INIT(signatureBuf, session, signature, RSA_KEY_BYTE_LENGTH);
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer mcuxClRsa_Mode_Sign_NoEncode is of the right type (mcuxClRsa_SignVerifyMode_t)")
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_DEREFERENCE_NULL_POINTER("NULL arguments (private_key.pMod2) are not dereferenced during signature generation")
     MCUX_CSSL_FP_FUNCTION_CALL_BEGIN(sign_status, sign_token, mcuxClRsa_sign(
                 /* mcuxClSession_Handle_t           pSession: */           session,
                 /* const mcuxClRsa_Key * const      pKey: */               &private_key,
-                /* mcuxCl_InputBuffer_t             pMessageOrDigest: */   message,
+                /* mcuxCl_InputBuffer_t             pMessageOrDigest: */   messageBuf,
                 /* const uint32_t                  messageLength: */      RSA_KEY_BYTE_LENGTH,
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_DISCARD_CONST("Required by API function")
                 /* const mcuxClRsa_SignVerifyMode   pPaddingMode: */       (mcuxClRsa_SignVerifyMode_t *)&mcuxClRsa_Mode_Sign_NoEncode,
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DISCARD_CONST()
                 /* const uint32_t                  saltLength: */         0u,
                 /* uint32_t                        options: */            0u,
-                /* mcuxCl_Buffer_t                  pSignature: */         signature));
+                /* mcuxCl_Buffer_t                  pSignature: */         signatureBuf));
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_DEREFERENCE_NULL_POINTER()
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
 
     if(MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClRsa_sign) != sign_token || MCUXCLRSA_STATUS_SIGN_OK != sign_status)
     {

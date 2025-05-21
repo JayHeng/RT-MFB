@@ -69,7 +69,7 @@
 #include "arm_helium_utils.h"
 #include "arm_vec_math_f16.h"
 
-float16_t arm_logsumexp_f16(const float16_t *in, uint32_t blockSize)
+ARM_DSP_ATTRIBUTE float16_t arm_logsumexp_f16(const float16_t *in, uint32_t blockSize)
 {
     float16_t       maxVal;
     const float16_t *pIn;
@@ -111,18 +111,18 @@ float16_t arm_logsumexp_f16(const float16_t *in, uint32_t blockSize)
     while(blkCnt > 0)
     {
        tmp = *pIn++;
-       accum += expf(tmp - maxVal);
+       accum += (_Float16)expf((float32_t)((_Float16)tmp - (_Float16)maxVal));
        blkCnt--;
     
     }
 
-    accum = maxVal + logf(accum);
+    accum = (_Float16)maxVal + (_Float16)logf((float32_t)accum);
 
     return (accum);
 }
 
 #else
-float16_t arm_logsumexp_f16(const float16_t *in, uint32_t blockSize)
+ARM_DSP_ATTRIBUTE float16_t arm_logsumexp_f16(const float16_t *in, uint32_t blockSize)
 {
     _Float16 maxVal;
     _Float16 tmp;
@@ -154,11 +154,11 @@ float16_t arm_logsumexp_f16(const float16_t *in, uint32_t blockSize)
     while(blkCnt > 0)
     {
        tmp = *pIn++;
-       accum += expf(tmp - maxVal);
+       accum += (_Float16)expf((float32_t)((_Float16)tmp - (_Float16)maxVal));
        blkCnt--;
     
     }
-    accum = maxVal + logf(accum);
+    accum = (_Float16)maxVal + (_Float16)logf((float32_t)accum);
 
     return(accum);
 }

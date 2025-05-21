@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -104,7 +104,7 @@
  * \return       Aggregated counter value for the given expectations.
  */
 #define MCUX_CSSL_FP_EXPECTATIONS(...) \
-  (MCUX_CSSL_CPP_MAP(MCUX_CSSL_CPP_ADD, __VA_ARGS__))
+  ((uint32_t) 0u + (MCUX_CSSL_CPP_MAP(MCUX_CSSL_CPP_ADD, __VA_ARGS__)))
 
 /**
  * @def MCUX_CSSL_FP_COUNTER_STMT
@@ -115,11 +115,13 @@
  * This macro can be used to create counting variables that are only present if
  * the active configuration uses a secure counter, to avoid warnings about
  * unused variables.
- * 
+ *
  * @param statement The statement to be conditionally included.
  */
 #define MCUX_CSSL_FP_COUNTER_STMT_IMPL(statement) \
-  statement
+  MCUX_CSSL_ANALYSIS_START_PATTERN_SC_INTEGER_OVERFLOW() \
+  statement \
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_SC_INTEGER_OVERFLOW()
 
 /**
  * \def MCUX_CSSL_FP_CONDITIONAL_IMPL
@@ -142,7 +144,7 @@
  * @ingroup csslFpCntExpect
  *
  * This expectation macro indicates to the flow protection mechanism that nothing
- * is expected to happen. This is mainly intended for internal use (to ensure at 
+ * is expected to happen. This is mainly intended for internal use (to ensure at
  * least one expectation is passed).
  */
 #define MCUX_CSSL_FP_VOID_EXPECTATION_IMPL() \
@@ -239,7 +241,7 @@
  * \return   The counter value for the given function \p id.
  */
 #define MCUX_CSSL_FP_FUNCTION_VALUE(id) \
-  MCUX_CSSL_FP_FUNCTION_ID(id)
+  ((uint32_t) MCUX_CSSL_FP_FUNCTION_ID(id))
 
 /**
  * \def MCUX_CSSL_FP_FUNCTION_DEF_IMPL
@@ -292,14 +294,36 @@
   (((uint64_t)(result) & MCUX_CSSL_FP_RESULT_MASK) << MCUX_CSSL_FP_RESULT_OFFSET)
 
 /**
- * \def MCUX_CSSL_FP_RESULT_IMPL
+ * \def MCUX_CSSL_FP_RESULT_IMPL2
+ * \brief Extract the result value from a protected \p return value.
+ * \ingroup csslFpCntFunction
+ *
+ * \param type   Type of the result.
+ * \param return The protected return value which contains the result.
+ */
+#define MCUX_CSSL_FP_RESULT_IMPL2(type, return) \
+  ((type)(((return) >> MCUX_CSSL_FP_RESULT_OFFSET) & MCUX_CSSL_FP_RESULT_MASK))
+
+/**
+ * \def MCUX_CSSL_FP_RESULT_IMPL1
  * \brief Extract the result value from a protected \p return value.
  * \ingroup csslFpCntFunction
  *
  * \param return The protected return value which contains the result.
  */
-#define MCUX_CSSL_FP_RESULT_IMPL(return) \
-  (uint32_t)(((return) >> MCUX_CSSL_FP_RESULT_OFFSET) & MCUX_CSSL_FP_RESULT_MASK)
+#define MCUX_CSSL_FP_RESULT_IMPL1(return) \
+  MCUX_CSSL_FP_RESULT_IMPL2(uint32_t,return)
+
+/**
+ * \def MCUX_CSSL_FP_RESULT_IMPL
+ * \brief Extract the result value from a protected \p return value.
+ * \ingroup csslFpCntFunction
+ *
+ * \param type   Optional, type of the result.
+ * \param return The protected return value which contains the result.
+ */
+#define MCUX_CSSL_FP_RESULT_IMPL(...) \
+  MCUX_CSSL_CPP_OVERLOADED2(MCUX_CSSL_FP_RESULT_IMPL, __VA_ARGS__)
 
 /**
  * \def MCUX_CSSL_FP_PROTECTION_OFFSET
@@ -315,7 +339,7 @@
  * \ingroup csslFpCntFunction
  */
 #define MCUX_CSSL_FP_PROTECTION_MASK \
-  (0xFFFFFFFFuLL)
+  ((uint64_t) 0xFFFFFFFFuLL)
 
 /**
  * \def MCUX_CSSL_FP_PROTECTION_TOKEN_VALUE
@@ -485,7 +509,9 @@
  * \param count Number of expected iterations.
  */
 #define MCUX_CSSL_FP_LOOP_ITERATIONS_IMPL(id, count) \
-  ((count) * MCUX_CSSL_FP_LOOP_VALUE(id))
+  MCUX_CSSL_ANALYSIS_START_PATTERN_SC_INTEGER_OVERFLOW() \
+  ((count) * MCUX_CSSL_FP_LOOP_VALUE(id)) \
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_SC_INTEGER_OVERFLOW()
 
 
 
@@ -680,8 +706,10 @@
  * \param condition Condition under which this branch is taken.
  */
 #define MCUX_CSSL_FP_BRANCH_TAKEN_IMPL(id, scenario, condition) \
+  MCUX_CSSL_ANALYSIS_START_PATTERN_SC_INTEGER_OVERFLOW() \
   MCUX_CSSL_FP_CONDITIONAL_IMPL(condition, \
-    MCUX_CSSL_FP_BRANCH_VALUE(id) * (scenario))
+    MCUX_CSSL_FP_BRANCH_VALUE(id) * (scenario)) \
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_SC_INTEGER_OVERFLOW()
 
 /**
  * \def MCUX_CSSL_FP_BRANCH_TAKEN_POSITIVE_IMPL2
@@ -710,7 +738,13 @@
  * \param id Identifier of the flow protected branch.
  */
 #define MCUX_CSSL_FP_BRANCH_TAKEN_POSITIVE_IMPL1(id) \
-  MCUX_CSSL_FP_BRANCH_TAKEN_IMPL(id, MCUX_CSSL_FP_BRANCH_POSITIVE_VALUE, true)
+  MCUX_CSSL_ANALYSIS_COVERITY_START_FALSE_POSITIVE(MISRA_C_2012_Rule_10_8, "The macro does not contain a composite expression.") \
+  MCUX_CSSL_ANALYSIS_COVERITY_START_DEVIATE(MISRA_C_2012_Rule_14_3, "The usage of an invariant condition here is intended to keep the macro structures more clear.") \
+  MCUX_CSSL_ANALYSIS_COVERITY_START_FALSE_POSITIVE(MISRA_C_2012_Rule_10_1, "True is of boolean type.") \
+    MCUX_CSSL_FP_BRANCH_TAKEN_IMPL(id, MCUX_CSSL_FP_BRANCH_POSITIVE_VALUE, true) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_FALSE_POSITIVE(MISRA_C_2012_Rule_10_1) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_DEVIATE(MISRA_C_2012_Rule_14_3) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_FALSE_POSITIVE(MISRA_C_2012_Rule_10_8)
 
 /**
  * \def MCUX_CSSL_FP_BRANCH_TAKEN_POSITIVE_IMPL
@@ -755,7 +789,13 @@
  * \param id Identifier of the flow protected branch.
  */
 #define MCUX_CSSL_FP_BRANCH_TAKEN_NEGATIVE_IMPL1(id) \
-  MCUX_CSSL_FP_BRANCH_TAKEN_IMPL(id, MCUX_CSSL_FP_BRANCH_NEGATIVE_VALUE, true)
+  MCUX_CSSL_ANALYSIS_COVERITY_START_FALSE_POSITIVE(MISRA_C_2012_Rule_10_8, "The macro does not contain a composite expression.") \
+  MCUX_CSSL_ANALYSIS_COVERITY_START_DEVIATE(MISRA_C_2012_Rule_14_3, "The usage of an invariant condition here is intended to keep the macro structures more clear.") \
+  MCUX_CSSL_ANALYSIS_COVERITY_START_FALSE_POSITIVE(MISRA_C_2012_Rule_10_1, "True is of boolean type.") \
+    MCUX_CSSL_FP_BRANCH_TAKEN_IMPL(id, MCUX_CSSL_FP_BRANCH_NEGATIVE_VALUE, true) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_FALSE_POSITIVE(MISRA_C_2012_Rule_10_1) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_DEVIATE(MISRA_C_2012_Rule_14_3) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_FALSE_POSITIVE(MISRA_C_2012_Rule_10_8)
 
 /**
  * \def MCUX_CSSL_FP_BRANCH_TAKEN_NEGATIVE_IMPL
@@ -936,8 +976,10 @@
  * \param condition Optional, condition under which the \p case is taken.
  */
 #define MCUX_CSSL_FP_SWITCH_TAKEN_IMPL3(id, case, condition) \
+  MCUX_CSSL_ANALYSIS_START_PATTERN_SC_INTEGER_OVERFLOW() \
   MCUX_CSSL_FP_CONDITIONAL_IMPL(condition, \
-    MCUX_CSSL_FP_SWITCH_VALUE(id) * (case))
+    MCUX_CSSL_FP_SWITCH_VALUE(id) * (case)) \
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_SC_INTEGER_OVERFLOW()
 
 /**
  * \def MCUX_CSSL_FP_SWITCH_TAKEN_IMPL2
@@ -951,7 +993,13 @@
  * \param case Value of the case that is expected to be chosen in the switch.
  */
 #define MCUX_CSSL_FP_SWITCH_TAKEN_IMPL2(id, case) \
-  MCUX_CSSL_FP_SWITCH_TAKEN_IMPL3(id, case, true)
+  MCUX_CSSL_ANALYSIS_COVERITY_START_FALSE_POSITIVE(MISRA_C_2012_Rule_10_8, "The macro does not contain a composite expression.") \
+  MCUX_CSSL_ANALYSIS_COVERITY_START_DEVIATE(MISRA_C_2012_Rule_14_3, "The usage of an invariant condition here is intended to keep the macro structures more clear.") \
+  MCUX_CSSL_ANALYSIS_COVERITY_START_FALSE_POSITIVE(MISRA_C_2012_Rule_10_1, "True is of boolean type.") \
+    MCUX_CSSL_FP_SWITCH_TAKEN_IMPL3(id, case, true) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_FALSE_POSITIVE(MISRA_C_2012_Rule_10_1) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_DEVIATE(MISRA_C_2012_Rule_14_3) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_FALSE_POSITIVE(MISRA_C_2012_Rule_10_8)
 
 /**
  * \def MCUX_CSSL_FP_SWITCH_TAKEN_IMPL
@@ -996,7 +1044,13 @@
  * \param id        Identifier of the flow protected switch.
  */
 #define MCUX_CSSL_FP_SWITCH_TAKEN_DEFAULT_IMPL1(id) \
-  MCUX_CSSL_FP_SWITCH_TAKEN_DEFAULT_IMPL2(id, true)
+  MCUX_CSSL_ANALYSIS_COVERITY_START_FALSE_POSITIVE(MISRA_C_2012_Rule_10_8, "The macro does not contain a composite expression.") \
+  MCUX_CSSL_ANALYSIS_COVERITY_START_DEVIATE(MISRA_C_2012_Rule_14_3, "The usage of an invariant condition here is intended to keep the macro structures more clear.") \
+  MCUX_CSSL_ANALYSIS_COVERITY_START_FALSE_POSITIVE(MISRA_C_2012_Rule_10_1, "True is of boolean type.") \
+    MCUX_CSSL_FP_SWITCH_TAKEN_DEFAULT_IMPL2(id, true) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_FALSE_POSITIVE(MISRA_C_2012_Rule_10_1) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_DEVIATE(MISRA_C_2012_Rule_14_3) \
+  MCUX_CSSL_ANALYSIS_COVERITY_STOP_FALSE_POSITIVE(MISRA_C_2012_Rule_10_8)
 
 /**
  * \def MCUX_CSSL_FP_SWITCH_TAKEN_DEFAULT_IMPL

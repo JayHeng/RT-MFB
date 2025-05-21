@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClMacModes_Els_Ctx.h
@@ -40,11 +40,11 @@ typedef struct mcuxClMacModes_Context
 {
   mcuxClMac_Context_t common;                             ///< Common part of the context, for all modes
   mcuxClKey_Descriptor_t * key;                           ///< Key descriptor of the key to be used
-  uint32_t blockBuffer[MCUXCLAES_BLOCK_SIZE_IN_WORDS];  ///< Not yet processed input data from the input stream
+  uint32_t blockBuffer[MCUXCLAES_BLOCK_SIZE_IN_WORDS];    ///< Not yet processed input data from the input stream
   uint32_t blockBufferUsed;                              ///< Used bytes in blockBuffer
-  uint32_t state[MCUXCLAES_BLOCK_SIZE_IN_WORDS];        ///< state/intermediate result of the mac operation
+  uint32_t state[MCUXCLAES_BLOCK_SIZE_IN_WORDS];          ///< state/intermediate result of the mac operation
   mcuxClEls_CmacOption_t cmac_options;                    ///< Cmac ELS options to be used
-  uint32_t totalInput;                                  ///< Total input length
+  uint32_t totalInput;                                   ///< Total input length, only needed fro
 } mcuxClMacModes_Context_t;
 
 

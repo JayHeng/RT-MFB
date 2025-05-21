@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2021, 2023 NXP                                                 */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClRsa_TestPQDistance.c
@@ -23,7 +23,7 @@
  *  - PKC wordsize is not greater than 128 bits
  *
  *  NOTE: This function will require adaptation if need to support primeByteLength
- *  that is not multiple of FAME word.
+ *  that is not multiple of PKC word.
  *
  */
 
@@ -66,10 +66,12 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClRsa_Status_t) mcuxClRsa_TestPQDistance(uint32_
   uint32_t uptrtIndexQ = (iP_iQ_iT >> 8) & 0xFFu;
   uint32_t uptrtIndexT = (iP_iQ_iT) & 0xFFu;
 
-  pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_P128MSB] = backupPtrUptrt[uptrtIndexP] + (uint16_t)(pkcPrimeLen - pkcOperandLen) /* ofset to the 128 MSbits */;
-  pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_Q128MSB] = backupPtrUptrt[uptrtIndexQ] + (uint16_t)(pkcPrimeLen - pkcOperandLen) /* ofset to the 128 MSbits */;
+  MCUX_CSSL_ANALYSIS_START_SUPPRESS_INTEGER_WRAP("cannot wrap because the operandLen (= 128/8) is always <= the prime length (=byteKeyLength / 2, where byteKeyLength is a minimum of MCUXCLKEY_SIZE_1024/8=128)")
+  pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_P128MSB] = (backupPtrUptrt[uptrtIndexP] + (uint16_t)((pkcPrimeLen - pkcOperandLen) & 0xFFFFU)) & 0xFFFFU; /* ofset to the 128 MSbits */;
+  pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_Q128MSB] = (backupPtrUptrt[uptrtIndexQ] + (uint16_t)((pkcPrimeLen - pkcOperandLen) & 0xFFFFU)) & 0xFFFFU; /* ofset to the 128 MSbits */;
   pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_P100MSB] = backupPtrUptrt[uptrtIndexT];
-  pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_Q100MSB] = pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_P100MSB] + (uint16_t)pkcOperandLen;
+  pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_Q100MSB] = (pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_P100MSB] + (uint16_t)(pkcOperandLen & 0xFFFFU)) & 0xFFFFU;
+  MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_INTEGER_WRAP()
   /* Set shift value (128b-100b = 27b) */
   pOperands[MCUXCLRSA_INTERNAL_TESTPQDISTANCE_CONSTANT28] = 28u;
 

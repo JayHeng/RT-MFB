@@ -42,7 +42,6 @@
   @param[in]     pSrc        points to input vector
   @param[out]    pDst        points to output vector
   @param[in]     numSamples  number of samples in each vector
-  @return        none
 
   @par           Scaling and Overflow Behavior
                    The function implements 1.15 by 1.15 multiplications and finally output is converted into 3.13 format.
@@ -50,7 +49,7 @@
 
 #if defined(ARM_MATH_MVEI) && !defined(ARM_MATH_AUTOVECTORIZE)
 
-void arm_cmplx_mag_squared_q15(
+ARM_DSP_ATTRIBUTE void arm_cmplx_mag_squared_q15(
   const q15_t * pSrc,
         q15_t * pDst,
         uint32_t numSamples)
@@ -106,7 +105,7 @@ void arm_cmplx_mag_squared_q15(
 }
 
 #else
-void arm_cmplx_mag_squared_q15(
+ARM_DSP_ATTRIBUTE void arm_cmplx_mag_squared_q15(
   const q15_t * pSrc,
         q15_t * pDst,
         uint32_t numSamples)
@@ -131,20 +130,20 @@ void arm_cmplx_mag_squared_q15(
     /* C[0] = (A[0] * A[0] + A[1] * A[1]) */
 
 #if defined (ARM_MATH_DSP)
-    in = read_q15x2_ia ((q15_t **) &pSrc);
+    in = read_q15x2_ia (&pSrc);
     acc0 = __SMUAD(in, in);
     /* store result in 3.13 format in destination buffer. */
     *pDst++ = (q15_t) (acc0 >> 17);
 
-    in = read_q15x2_ia ((q15_t **) &pSrc);
+    in = read_q15x2_ia (&pSrc);
     acc0 = __SMUAD(in, in);
     *pDst++ = (q15_t) (acc0 >> 17);
 
-    in = read_q15x2_ia ((q15_t **) &pSrc);
+    in = read_q15x2_ia (&pSrc);
     acc0 = __SMUAD(in, in);
     *pDst++ = (q15_t) (acc0 >> 17);
 
-    in = read_q15x2_ia ((q15_t **) &pSrc);
+    in = read_q15x2_ia (&pSrc);
     acc0 = __SMUAD(in, in);
     *pDst++ = (q15_t) (acc0 >> 17);
 #else
@@ -193,7 +192,7 @@ void arm_cmplx_mag_squared_q15(
     /* C[0] = (A[0] * A[0] + A[1] * A[1]) */
 
 #if defined (ARM_MATH_DSP)
-    in = read_q15x2_ia ((q15_t **) &pSrc);
+    in = read_q15x2_ia (&pSrc);
     acc0 = __SMUAD(in, in);
 
     /* store result in 3.13 format in destination buffer. */

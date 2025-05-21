@@ -1,31 +1,31 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2021-2022 NXP                                                  */
+/* Copyright 2021-2022, 2024 NXP                                            */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
  * @file  mcuxClEcc_Mont_Internal_PkcWaLayout.h
- * @brief internal header of mcuxClEcc MontDh PKC workarea layout
+ * @brief internal header of mcuxClEcc MontDH PKC workarea layout
  */
 
 
 #ifndef MCUXCLECC_MONT_INTERNAL_PKCWALAYOUT_H_
 #define MCUXCLECC_MONT_INTERNAL_PKCWALAYOUT_H_
 
-#include <mcuxClConfig.h> // Exported features flags header
-#include <internal/mcuxClEcc_Internal.h>
+#include <mcuxClCore_Platform.h>
+#include <internal/mcuxClEcc_Internal_PkcWaLayout.h>
 
 
 /**********************************************************/
-/** PKC workarea memory layout used for MontDh functions. */
+/** PKC workarea memory layout used for MontDH functions. */
 /**********************************************************/
 #define MONT_V0   ECC_V0
 #define MONT_V1   ECC_V1

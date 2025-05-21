@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -79,6 +79,14 @@
 #define MCUX_CSSL_SC_VALUE_TYPE_IMPL \
   static const uint32_t
 
+/**
+ * \def MCUX_CSSL_SC_BALANCING_VALUE_TYPE_IMPL
+ * \brief Data type used for properly casting the secure counter balancing values.
+ * \ingroup scSwlCore
+ */
+#define MCUX_CSSL_SC_BALANCING_VALUE_TYPE_IMPL \
+  uint32_t
+
 /****************************************************************************/
 /* Initialization                                                           */
 /****************************************************************************/
@@ -99,7 +107,9 @@
  * \param value Value with which the secure counter must be initialized.
  */
 #define MCUX_CSSL_SC_INIT_IMPL(value) \
-  MCUX_CSSL_SC_ALLOC_IMPL() = (value)
+  MCUX_CSSL_ANALYSIS_START_PATTERN_SC_INTEGER_OVERFLOW() \
+  MCUX_CSSL_SC_ALLOC_IMPL() = ((MCUX_CSSL_SC_BALANCING_VALUE_TYPE_IMPL) (value)) \
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_SC_INTEGER_OVERFLOW()
 
 /****************************************************************************/
 /* Check                                                                    */
@@ -115,7 +125,9 @@
  *                  #MCUX_CSSL_SC_CHECK_FAILED if the value is different.
  */
 #define MCUX_CSSL_SC_CHECK_IMPL(value) \
-  (MCUX_CSSL_SC_CHECK_FAILED_IMPL ^ (MCUX_CSSL_SC_COUNTER_NAME - ((value) + 1u)))
+  MCUX_CSSL_ANALYSIS_START_PATTERN_SC_INTEGER_OVERFLOW() \
+  (MCUX_CSSL_SC_CHECK_FAILED_IMPL ^ (MCUX_CSSL_SC_COUNTER_NAME - (((MCUX_CSSL_SC_BALANCING_VALUE_TYPE_IMPL) (value)) + 1u))) \
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_SC_INTEGER_OVERFLOW()
 
 /****************************************************************************/
 /* Counter increment                                                        */
@@ -136,7 +148,9 @@
  * \param value Value with which the secure counter must be incremented.
  */
 #define MCUX_CSSL_SC_ADD_IMPL(value) \
-  MCUX_CSSL_SC_COUNTER_NAME += (value)
+  MCUX_CSSL_ANALYSIS_START_PATTERN_SC_INTEGER_OVERFLOW() \
+  MCUX_CSSL_SC_COUNTER_NAME += (MCUX_CSSL_SC_BALANCING_VALUE_TYPE_IMPL) (value) \
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_SC_INTEGER_OVERFLOW()
 
 /**
  * \def MCUX_CSSL_SC_ADD_ON_CALL_IMPL
@@ -199,7 +213,9 @@
  * \param value Value with which the secure counter must be decremented.
  */
 #define MCUX_CSSL_SC_SUB_IMPL(value) \
-  MCUX_CSSL_SC_COUNTER_NAME -= (value)
+  MCUX_CSSL_ANALYSIS_START_PATTERN_SC_INTEGER_OVERFLOW() \
+  MCUX_CSSL_SC_COUNTER_NAME -= (MCUX_CSSL_SC_BALANCING_VALUE_TYPE_IMPL) (value) \
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_SC_INTEGER_OVERFLOW()
 
 /**
  * \def MCUX_CSSL_SC_SUB_0X1_IMPL
@@ -270,7 +286,8 @@
  * \param value Value that needs to be assigned to the secure counter.
  */
 #define MCUX_CSSL_SC_ASSIGN_IMPL(value) \
-  MCUX_CSSL_SC_COUNTER_NAME = (value)
-
+  MCUX_CSSL_ANALYSIS_START_PATTERN_SC_INTEGER_OVERFLOW() \
+  MCUX_CSSL_SC_COUNTER_NAME = (MCUX_CSSL_SC_BALANCING_VALUE_TYPE_IMPL) (value) \
+  MCUX_CSSL_ANALYSIS_STOP_PATTERN_SC_INTEGER_OVERFLOW()
 
 #endif /* MCUXCSSLSECURECOUNTER_SW_LOCAL_H_ */

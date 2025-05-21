@@ -1,25 +1,11 @@
 /*
  * Copyright 2023-2024 NXP
- * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "fsl_common.h"
 #include "fsl_power.h"
 
-/*******************************************************************************
- * Variables
- ******************************************************************************/
-#if defined(PMC0)                               /* Only PMC0 can power down DCDC, LDO. */
-static power_vdd_src_t s_vddnSrc = kVddSrc_PMC; /* VDDN supply source, DCDC or PMIC. */
-static power_vdd_src_t s_vdd1Src = kVddSrc_PMC;
-static power_vdd_src_t s_vdd2Src = kVddSrc_PMC;
-
-AT_QUICKACCESS_SECTION_DATA(static uint32_t lpReqConfig[5]);
-AT_QUICKACCESS_SECTION_DATA(static bool xspiCacheEnabled);
-#else
-AT_QUICKACCESS_SECTION_DATA(static uint32_t lpReqConfig[4]);
-#endif /* PMC0 */
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -49,8 +35,9 @@ AT_QUICKACCESS_SECTION_DATA(static uint32_t lpReqConfig[4]);
 #define LP_STATE_REG(offset)       (*((volatile uint32_t *)((uint32_t)(&(SLEEPCON->SHA_MED_CSTAT0)) + ((offset) << 2U))))
 #define POWER_LP_REQ_TIMEOUT_COUNT (400U)
 
-/* Get AFBB bits mask from body bias domain _body_bias_domain */
-#define POWER_AFBB_BITS_MASK(x) (((x)&0x20000000u) << 2U | (((x)&0x05400000u) << 1U))
+/* Get AFBB bits mask from RBB bits mask for _body_bias_domain */
+/* #define POWER_AFBB_BITS_MASK(x) (((x)&0x20000000u) << 2U | (((x)&0x05400000u) << 1U)) */
+#define POWER_AFBB_BITS_MASK(x) (((x)&0x05400000u) << 1U)
 
 /* Each loop has 4 instructions.*/
 #define US2LOOP(clk, x) ((clk / MEGA * x) >> 2U)
@@ -70,10 +57,10 @@ AT_QUICKACCESS_SECTION_DATA(static uint32_t lpReqConfig[4]);
      SLEEPCON0_SLEEPCFG_AUDPLLANA_PD_MASK | SLEEPCON0_SLEEPCFG_AUDPLLLDO_PD_MASK | SLEEPCON0_SLEEPCFG_ADC0_PD_MASK | \
      SLEEPCON0_SLEEPCFG_FRO0_GATE_MASK | SLEEPCON0_SLEEPCFG_FRO2_GATE_MASK)
 
-#define IS_XIP_XSPI0()                                                                        \
+#define POWER_IS_XIP_XSPI0()                                                                  \
     ((((uint32_t)POWER_ApplyPD >= 0x28000000U) && ((uint32_t)POWER_ApplyPD < 0x30000000U)) || \
      (((uint32_t)POWER_ApplyPD >= 0x38000000U) && ((uint32_t)POWER_ApplyPD < 0x40000000U)))
-#define IS_XIP_XSPI1()                                                                        \
+#define POWER_IS_XIP_XSPI1()                                                                  \
     ((((uint32_t)POWER_ApplyPD >= 0x08000000U) && ((uint32_t)POWER_ApplyPD < 0x10000000U)) || \
      (((uint32_t)POWER_ApplyPD >= 0x18000000U) && ((uint32_t)POWER_ApplyPD < 0x20000000U)))
 
@@ -134,6 +121,36 @@ AT_QUICKACCESS_SECTION_DATA(static uint32_t lpReqConfig[4]);
 #define PCFG4_DEEP_SLEEP (0xFFFFFFFFU)
 #define PCFG5_DEEP_SLEEP (0xFFFFFFFFU)
 
+#define POWER_FREQ_LEVELS_NUM  (5U)
+#define POWER_DEFAULT_LVD_VOLT (200000U)       /* Default LVD threshold 200mV. */
+
+#define POWER_INVALID_VOLT_LEVEL (0xFFFFFFFFU) /*! Invalid voltage level. */
+#define POWER_MINI_ACTIVE_VOLT   (700000U)     /* Minimum VDD1/VDD2 volt for active mode. */
+#define POWER_MAX_ACTIVE_VOLT    (1100000U)    /* Maximum VDD1/VDD2 volt for active mode. */
+#define POWER_MINI_LVD_VOLT      (500000U)     /* Minimum LVDVDD1/LVDVDD2/LVDDCDC volt. */
+#define POWER_MINI_LDO_VOLT      (450000U)     /* Minimum LDO output volt. */
+#define POWER_MINI_DCDC_VOLT     (500000U)     /* Minimum DCDC output volt. */
+#define POWER_LVD_VOLT_SLOPE     (10000U)      /* LVDVDD1/LVDVDD2/LVDDCDC volt slope. */
+#define POWER_LDO_VOLT_SLOPE     (12500U)      /* LDO volt slope. */
+#define POWER_DCDC_VOLT_SLOPE    (6250U)       /* DCDC output volt slope. */
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
+#if defined(PMC0)                               /* Only PMC0 can power down DCDC, LDO. */
+static power_vdd_src_t s_vddnSrc = kVddSrc_PMC; /* VDDN supply source, DCDC or PMIC. */
+static power_vdd_src_t s_vdd1Src = kVddSrc_PMC;
+static power_vdd_src_t s_vdd2Src = kVddSrc_PMC;
+
+AT_QUICKACCESS_SECTION_DATA(static uint32_t lpReqConfig[5]);
+AT_QUICKACCESS_SECTION_DATA(static bool xspiCacheEnabled);
+#else
+AT_QUICKACCESS_SECTION_DATA(static uint32_t lpReqConfig[4]);
+#endif /* PMC0 */
+
+static const uint32_t powerFreqLevel[2U][POWER_FREQ_LEVELS_NUM] = {
+    {325U * MEGA, 250U * MEGA, 192U * MEGA, 110U * MEGA, 45U * MEGA},
+    {250U * MEGA, 205U * MEGA, 160U * MEGA, 100U * MEGA, 45U * MEGA}};
+static const uint32_t powerLdoVoltLevel[POWER_FREQ_LEVELS_NUM] = {1100000U, 1000000U, 900000U, 800000U, 700000U};
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -225,7 +242,8 @@ void POWER_SetPmicMode(uint32_t mode, pmic_mode_reg_t reg)
 {
     __disable_irq();
 
-    PMC_REG((uint32_t)reg) = (PMC_REG(reg) & ~PMC_PDSLEEPCFG0_PMICMODE_MASK) | (mode << PMC_PDSLEEPCFG0_PMICMODE_SHIFT);
+    PMC_REG((uint32_t)reg) =
+        (PMC_REG((uint32_t)reg) & ~PMC_PDSLEEPCFG0_PMICMODE_MASK) | (mode << PMC_PDSLEEPCFG0_PMICMODE_SHIFT);
 
     __enable_irq();
 }
@@ -397,7 +415,7 @@ void POWER_EnableAutoWake(uint16_t ticks)
 
 void POWER_EnableRunAFBB(uint32_t mask)
 {
-    /* clear AFBBxxx_PD, set RBBxxx_PD. No AFBBSRAM1 bit. */
+    /* clear AFBBxxx_PD, set RBBxxx_PD. No AFBBSRAM1, AFBBSRAM2 bit. */
     PMC->PDRUNCFG0 &= ~POWER_AFBB_BITS_MASK(mask);
     PMC->PDRUNCFG0 |= mask;
 }
@@ -429,9 +447,119 @@ void POWER_EnableSleepNBB(uint32_t mask)
 
 static uint32_t POWER_CalRegValueFromVolt(uint32_t volt, uint32_t base, uint32_t slope)
 {
-    uint32_t temp = 0U;
-    temp          = volt - base - 1U; /* Rounding up.*/
-    return (uint32_t)((temp + slope) / slope);
+    uint32_t temp     = 0U;
+    uint32_t regValue = 0U;
+
+    if (volt <= base)
+    {
+        regValue = 0U;
+    }
+    else
+    {
+        temp     = volt - base - 1U; /* Rounding up.*/
+        regValue = (uint32_t)((temp + slope) / slope);
+    }
+
+    return regValue;
+}
+
+uint32_t POWER_CalcVoltLevel(power_regulator_t regulator, uint32_t maxFreqHz, uint32_t miniVoltUV)
+{
+    uint32_t i;
+    uint32_t index;
+    uint32_t volt;
+
+    assert(regulator != kRegulator_DCDC);
+
+    miniVoltUV = miniVoltUV < POWER_MINI_ACTIVE_VOLT ? POWER_MINI_ACTIVE_VOLT : miniVoltUV;
+
+    for (i = 0U; i < POWER_FREQ_LEVELS_NUM; i++)
+    {
+        if ((maxFreqHz > powerFreqLevel[(uint32_t)regulator - 1U][i]) ||
+            ((POWER_MAX_ACTIVE_VOLT - 100000U * i) < miniVoltUV))
+        {
+            break;
+        }
+    }
+
+    if (i == 0U) /* Frequency exceed max supported */
+    {
+        volt = POWER_INVALID_VOLT_LEVEL;
+    }
+    else
+    {
+        index = i - 1U; /* The index for powerLdoVoltLevel */
+        volt  = powerLdoVoltLevel[index];
+    }
+
+    return volt;
+}
+
+static void POWER_SetRegulatorRegister(power_regulator_t regulator, uint32_t ldoVolt, uint32_t lvdVolt, uint32_t index)
+{
+    assert(index < 4);
+
+    uint32_t shift  = index * 8UL;
+    uint32_t ldoReg = POWER_CalRegValueFromVolt(ldoVolt, POWER_MINI_LDO_VOLT, POWER_LDO_VOLT_SLOPE);
+    uint32_t lvdReg = POWER_CalRegValueFromVolt(lvdVolt, POWER_MINI_LVD_VOLT, POWER_LVD_VOLT_SLOPE);
+
+    /* LDOVDDxVSEL */
+    PMC_REG(0x20U + 4U * (uint32_t)regulator) &= ~(0xFFUL << shift);
+    PMC_REG(0x20U + 4U * (uint32_t)regulator) |= (ldoReg & 0x3FU) << shift;
+
+    /* LVDVDDxCTRL */
+    PMC_REG(0x2CU + 4U * (uint32_t)regulator) &= ~(0xFFUL << shift);
+    PMC_REG(0x2CU + 4U * (uint32_t)regulator) |= (lvdReg & 0x3FU) << shift;
+}
+
+status_t POWER_ConfigRegulatorSetpointsForFreq(
+    power_regulator_t regulator, uint32_t *maxFreqHz, uint32_t *miniVoltUV, uint32_t startPoint, uint32_t num)
+{
+    uint32_t volt = 0U;
+    uint32_t regValue, preVolt = 0U;
+    uint32_t i, index, endPoint = startPoint + num;
+
+    assert((num >= 1U) && ((num - startPoint) <= 4U));
+    assert(regulator != kRegulator_DCDC);
+
+    /* The value of VSEL should meet, VSEL3 >= VSEL2 >= VSEL1 >= VSEL0, check parameter. */
+    if (startPoint != 0U)
+    {
+        regValue = (PMC_REG(0x20U + 4U * (uint32_t)regulator) >> ((startPoint - 1U) * 8UL)) & 0x3FUL;
+        preVolt  = POWER_MINI_LDO_VOLT + regValue * 12500U;
+    }
+
+    for (i = startPoint; i < endPoint; i++)
+    {
+        index = i - startPoint;
+        if (maxFreqHz[index] == 0U)
+        {
+            volt = miniVoltUV[index];
+        }
+        else
+        {
+            volt = POWER_CalcVoltLevel(regulator, maxFreqHz[index], miniVoltUV[index]);
+        }
+        if ((volt < preVolt) || (volt < POWER_MINI_LDO_VOLT) || (volt > 1150000U))
+        {
+            return kStatus_InvalidArgument;
+        }
+
+        preVolt = volt;
+        POWER_SetRegulatorRegister(regulator, volt, volt - POWER_DEFAULT_LVD_VOLT, i);
+    }
+
+    if (endPoint < 4U)
+    {
+        regValue = (PMC_REG(0x20U + 4U * (uint32_t)regulator) >> (endPoint * 8UL)) & 0x3FUL;
+        preVolt  = POWER_MINI_LDO_VOLT + regValue * 12500U;
+        if (volt > preVolt)
+        {
+            return kStatus_InvalidArgument;
+        }
+    }
+
+    return kStatus_Success;
 }
 
 status_t POWER_ConfigRegulatorSetpoints(power_regulator_t regulator,
@@ -450,10 +578,14 @@ status_t POWER_ConfigRegulatorSetpoints(power_regulator_t regulator,
         }
         else
         {
-            PMC->DCDCVSEL = PMC_DCDCVSEL_VSEL0(POWER_CalRegValueFromVolt(volt->DCDC.vsel0, 500000U, 6250U)) |
-                            PMC_DCDCVSEL_VSEL1(POWER_CalRegValueFromVolt(volt->DCDC.vsel1, 500000U, 6250U));
-            PMC->LVDVDDNCTRL = PMC_LVDVDDNCTRL_LVL0(POWER_CalRegValueFromVolt(lvd->VDDN.lvl0, 500000U, 10000U)) |
-                               PMC_LVDVDDNCTRL_LVL1(POWER_CalRegValueFromVolt(lvd->VDDN.lvl1, 500000U, 10000U));
+            PMC->DCDCVSEL = PMC_DCDCVSEL_VSEL0(POWER_CalRegValueFromVolt(volt->DCDC.vsel0, POWER_MINI_DCDC_VOLT,
+                                                                         POWER_DCDC_VOLT_SLOPE)) |
+                            PMC_DCDCVSEL_VSEL1(POWER_CalRegValueFromVolt(volt->DCDC.vsel1, POWER_MINI_DCDC_VOLT,
+                                                                         POWER_DCDC_VOLT_SLOPE));
+            PMC->LVDVDDNCTRL = PMC_LVDVDDNCTRL_LVL0(POWER_CalRegValueFromVolt(lvd->VDDN.lvl0, POWER_MINI_LVD_VOLT,
+                                                                              POWER_LVD_VOLT_SLOPE)) |
+                               PMC_LVDVDDNCTRL_LVL1(POWER_CalRegValueFromVolt(lvd->VDDN.lvl1, POWER_MINI_LVD_VOLT,
+                                                                              POWER_LVD_VOLT_SLOPE));
         }
     }
 #else
@@ -474,15 +606,23 @@ status_t POWER_ConfigRegulatorSetpoints(power_regulator_t regulator,
         else
         {
             PMC_REG(0x24U + 4U * ((uint32_t)regulator - 1U)) =
-                PMC_LDOVDD1VSEL_VSEL0(POWER_CalRegValueFromVolt(volt->LDO.vsel0, 450000U, 12500U)) |
-                PMC_LDOVDD1VSEL_VSEL1(POWER_CalRegValueFromVolt(volt->LDO.vsel1, 450000U, 12500U)) |
-                PMC_LDOVDD1VSEL_VSEL2(POWER_CalRegValueFromVolt(volt->LDO.vsel2, 450000U, 12500U)) |
-                PMC_LDOVDD1VSEL_VSEL3(POWER_CalRegValueFromVolt(volt->LDO.vsel3, 450000U, 12500U)); /* LDOVDDxVSEL */
+                PMC_LDOVDD1VSEL_VSEL0(
+                    POWER_CalRegValueFromVolt(volt->LDO.vsel0, POWER_MINI_LDO_VOLT, POWER_LDO_VOLT_SLOPE)) |
+                PMC_LDOVDD1VSEL_VSEL1(
+                    POWER_CalRegValueFromVolt(volt->LDO.vsel1, POWER_MINI_LDO_VOLT, POWER_LDO_VOLT_SLOPE)) |
+                PMC_LDOVDD1VSEL_VSEL2(
+                    POWER_CalRegValueFromVolt(volt->LDO.vsel2, POWER_MINI_LDO_VOLT, POWER_LDO_VOLT_SLOPE)) |
+                PMC_LDOVDD1VSEL_VSEL3(POWER_CalRegValueFromVolt(volt->LDO.vsel3, POWER_MINI_LDO_VOLT,
+                                                                POWER_LDO_VOLT_SLOPE)); /* LDOVDDxVSEL */
             PMC_REG(0x30U + 4U * ((uint32_t)regulator - 1U)) =
-                PMC_LVDVDD1CTRL_LVL0(POWER_CalRegValueFromVolt(lvd->VDD12.lvl0, 500000U, 10000U)) |
-                PMC_LVDVDD1CTRL_LVL1(POWER_CalRegValueFromVolt(lvd->VDD12.lvl1, 500000U, 10000U)) |
-                PMC_LVDVDD1CTRL_LVL2(POWER_CalRegValueFromVolt(lvd->VDD12.lvl2, 500000U, 10000U)) |
-                PMC_LVDVDD1CTRL_LVL3(POWER_CalRegValueFromVolt(lvd->VDD12.lvl3, 500000U, 10000U)); /* LVDVDDxCTRL */
+                PMC_LVDVDD1CTRL_LVL0(
+                    POWER_CalRegValueFromVolt(lvd->VDD12.lvl0, POWER_MINI_LVD_VOLT, POWER_LVD_VOLT_SLOPE)) |
+                PMC_LVDVDD1CTRL_LVL1(
+                    POWER_CalRegValueFromVolt(lvd->VDD12.lvl1, POWER_MINI_LVD_VOLT, POWER_LVD_VOLT_SLOPE)) |
+                PMC_LVDVDD1CTRL_LVL2(
+                    POWER_CalRegValueFromVolt(lvd->VDD12.lvl2, POWER_MINI_LVD_VOLT, POWER_LVD_VOLT_SLOPE)) |
+                PMC_LVDVDD1CTRL_LVL3(POWER_CalRegValueFromVolt(lvd->VDD12.lvl3, POWER_MINI_LVD_VOLT,
+                                                               POWER_LVD_VOLT_SLOPE)); /* LVDVDDxCTRL */
         }
     }
 
@@ -496,14 +636,16 @@ status_t POWER_ConfigLvdSetpoints(power_regulator_t regulator, const power_lvd_v
 #if defined(PMC0)
     if (regulator == kRegulator_DCDC) /* DCDC with 2 setpoints. */
     {
-        if ((lvd->VDDN.lvl1 < lvd->VDDN.lvl0) || (lvd->VDDN.lvl0 < 500000))
+        if ((lvd->VDDN.lvl1 < lvd->VDDN.lvl0) || (lvd->VDDN.lvl0 < POWER_MINI_LVD_VOLT))
         {
             ret = kStatus_InvalidArgument;
         }
         else
         {
-            PMC->LVDVDDNCTRL = PMC_LVDVDDNCTRL_LVL0(POWER_CalRegValueFromVolt(lvd->VDDN.lvl0, 500000U, 10000U)) |
-                               PMC_LVDVDDNCTRL_LVL1(POWER_CalRegValueFromVolt(lvd->VDDN.lvl1, 500000U, 10000U));
+            PMC->LVDVDDNCTRL = PMC_LVDVDDNCTRL_LVL0(POWER_CalRegValueFromVolt(lvd->VDDN.lvl0, POWER_MINI_LVD_VOLT,
+                                                                              POWER_LVD_VOLT_SLOPE)) |
+                               PMC_LVDVDDNCTRL_LVL1(POWER_CalRegValueFromVolt(lvd->VDDN.lvl1, POWER_MINI_LVD_VOLT,
+                                                                              POWER_LVD_VOLT_SLOPE));
         }
     }
 #else
@@ -515,17 +657,21 @@ status_t POWER_ConfigLvdSetpoints(power_regulator_t regulator, const power_lvd_v
     else /* LDO with 4 setpoints. */
     {
         if ((lvd->VDD12.lvl3 < lvd->VDD12.lvl2) || (lvd->VDD12.lvl2 < lvd->VDD12.lvl1) ||
-            (lvd->VDD12.lvl1 < lvd->VDD12.lvl0) || (lvd->VDD12.lvl0 < 500000U))
+            (lvd->VDD12.lvl1 < lvd->VDD12.lvl0) || (lvd->VDD12.lvl0 < POWER_MINI_LVD_VOLT))
         {
             ret = kStatus_InvalidArgument;
         }
         else
         {
             PMC_REG(0x30U + 4U * ((uint32_t)regulator - 1U)) =
-                PMC_LVDVDD1CTRL_LVL0(POWER_CalRegValueFromVolt(lvd->VDD12.lvl0, 500000U, 10000U)) |
-                PMC_LVDVDD1CTRL_LVL1(POWER_CalRegValueFromVolt(lvd->VDD12.lvl1, 500000U, 10000U)) |
-                PMC_LVDVDD1CTRL_LVL2(POWER_CalRegValueFromVolt(lvd->VDD12.lvl2, 500000U, 10000U)) |
-                PMC_LVDVDD1CTRL_LVL3(POWER_CalRegValueFromVolt(lvd->VDD12.lvl3, 500000U, 10000U)); /* LVDVDDxCTRL */
+                PMC_LVDVDD1CTRL_LVL0(
+                    POWER_CalRegValueFromVolt(lvd->VDD12.lvl0, POWER_MINI_LVD_VOLT, POWER_LVD_VOLT_SLOPE)) |
+                PMC_LVDVDD1CTRL_LVL1(
+                    POWER_CalRegValueFromVolt(lvd->VDD12.lvl1, POWER_MINI_LVD_VOLT, POWER_LVD_VOLT_SLOPE)) |
+                PMC_LVDVDD1CTRL_LVL2(
+                    POWER_CalRegValueFromVolt(lvd->VDD12.lvl2, POWER_MINI_LVD_VOLT, POWER_LVD_VOLT_SLOPE)) |
+                PMC_LVDVDD1CTRL_LVL3(POWER_CalRegValueFromVolt(lvd->VDD12.lvl3, POWER_MINI_LVD_VOLT,
+                                                               POWER_LVD_VOLT_SLOPE)); /* LVDVDDxCTRL */
         }
     }
 
@@ -536,7 +682,7 @@ void POWER_GetLvdSetpoints(power_regulator_t regulator, power_lvd_voltage_t *lvd
 {
     uint32_t reg = 0U;
 
-    memset(lvd, 0U, sizeof(power_lvd_voltage_t));
+    (void)memset(lvd, 0, sizeof(power_lvd_voltage_t));
 
     if (regulator == kRegulator_DCDC) /* DCDC with 2 setpoints. */
     {
@@ -566,17 +712,20 @@ void POWER_SelectRunSetpoint(power_regulator_t regulator, uint32_t setpoint)
     if (regulator == kRegulator_DCDC)
     {
         assert(setpoint < 2U);
-        PMC->PDRUNCFG0 &= (~PMC_PDRUNCFG0_DCDC_VSEL_MASK) | PMC_PDRUNCFG0_DCDC_VSEL(setpoint);
+        PMC->PDRUNCFG0 &= ~PMC_PDRUNCFG0_DCDC_VSEL_MASK;
+        PMC->PDRUNCFG0 |= PMC_PDRUNCFG0_DCDC_VSEL(setpoint);
     }
     else if (regulator == kRegulator_Vdd2LDO)
     {
         assert(setpoint < 4U);
-        PMC->PDRUNCFG0 &= (~PMC_PDRUNCFG0_LDO2_VSEL_MASK) | PMC_PDRUNCFG0_LDO2_VSEL(setpoint);
+        PMC->PDRUNCFG0 &= ~PMC_PDRUNCFG0_LDO2_VSEL_MASK;
+        PMC->PDRUNCFG0 |= PMC_PDRUNCFG0_LDO2_VSEL(setpoint);
     }
     else
     {
         assert(setpoint < 4U);
-        PMC->PDRUNCFG0 &= (~PMC_PDRUNCFG0_LDO1_VSEL_MASK) | PMC_PDRUNCFG0_LDO1_VSEL(setpoint);
+        PMC->PDRUNCFG0 &= ~PMC_PDRUNCFG0_LDO1_VSEL_MASK;
+        PMC->PDRUNCFG0 |= PMC_PDRUNCFG0_LDO1_VSEL(setpoint);
     }
 }
 
@@ -585,17 +734,20 @@ void POWER_SelectSleepSetpoint(power_regulator_t regulator, uint32_t setpoint)
     if (regulator == kRegulator_DCDC)
     {
         assert(setpoint < 2U);
-        PMC->PDSLEEPCFG0 &= (~PMC_PDSLEEPCFG0_DCDC_VSEL_MASK) | PMC_PDSLEEPCFG0_DCDC_VSEL(setpoint);
+        PMC->PDSLEEPCFG0 &= ~PMC_PDSLEEPCFG0_DCDC_VSEL_MASK;
+        PMC->PDSLEEPCFG0 |= PMC_PDSLEEPCFG0_DCDC_VSEL(setpoint);
     }
     else if (regulator == kRegulator_Vdd2LDO)
     {
         assert(setpoint < 4U);
-        PMC->PDSLEEPCFG0 &= (~PMC_PDSLEEPCFG0_LDO2_VSEL_MASK) | PMC_PDSLEEPCFG0_LDO2_VSEL(setpoint);
+        PMC->PDSLEEPCFG0 &= ~PMC_PDSLEEPCFG0_LDO2_VSEL_MASK;
+        PMC->PDSLEEPCFG0 |= PMC_PDSLEEPCFG0_LDO2_VSEL(setpoint);
     }
     else
     {
         assert(setpoint < 4U);
-        PMC->PDSLEEPCFG0 &= (~PMC_PDSLEEPCFG0_LDO1_VSEL_MASK) | PMC_PDSLEEPCFG0_LDO1_VSEL(setpoint);
+        PMC->PDSLEEPCFG0 &= ~PMC_PDSLEEPCFG0_LDO1_VSEL_MASK;
+        PMC->PDSLEEPCFG0 |= PMC_PDSLEEPCFG0_LDO1_VSEL(setpoint);
     }
 }
 
@@ -603,15 +755,18 @@ void POWER_SetRunRegulatorMode(power_regulator_t regulator, uint32_t mode)
 {
     if (regulator == kRegulator_DCDC)
     {
-        PMC->PDRUNCFG0 &= (~PMC_PDRUNCFG0_DCDC_LP_MASK) | PMC_PDRUNCFG0_DCDC_LP(mode);
+        PMC->PDRUNCFG0 &= ~PMC_PDRUNCFG0_DCDC_LP_MASK;
+        PMC->PDRUNCFG0 |= PMC_PDRUNCFG0_DCDC_LP(mode);
     }
     else if (regulator == kRegulator_Vdd2LDO)
     {
-        PMC->PDRUNCFG0 &= (~PMC_PDRUNCFG0_LDO2_MODE_MASK) | PMC_PDRUNCFG0_LDO2_MODE(mode);
+        PMC->PDRUNCFG0 &= ~PMC_PDRUNCFG0_LDO2_MODE_MASK;
+        PMC->PDRUNCFG0 |= PMC_PDRUNCFG0_LDO2_MODE(mode);
     }
     else
     {
-        PMC->PDRUNCFG0 &= (~PMC_PDRUNCFG0_LDO1_MODE_MASK) | PMC_PDRUNCFG0_LDO1_MODE(mode);
+        PMC->PDRUNCFG0 &= ~PMC_PDRUNCFG0_LDO1_MODE_MASK;
+        PMC->PDRUNCFG0 |= PMC_PDRUNCFG0_LDO1_MODE(mode);
     }
 }
 
@@ -619,16 +774,43 @@ void POWER_SetSleepRegulatorMode(power_regulator_t regulator, uint32_t mode)
 {
     if (regulator == kRegulator_DCDC)
     {
-        PMC->PDSLEEPCFG0 &= (~PMC_PDSLEEPCFG0_DCDC_LP_MASK) | PMC_PDSLEEPCFG0_DCDC_LP(mode);
+        PMC->PDSLEEPCFG0 &= ~PMC_PDSLEEPCFG0_DCDC_LP_MASK;
+        PMC->PDSLEEPCFG0 |= PMC_PDSLEEPCFG0_DCDC_LP(mode);
     }
     else if (regulator == kRegulator_Vdd2LDO)
     {
-        PMC->PDSLEEPCFG0 &= (~PMC_PDSLEEPCFG0_LDO2_MODE_MASK) | PMC_PDSLEEPCFG0_LDO2_MODE(mode);
+        PMC->PDSLEEPCFG0 &= ~PMC_PDSLEEPCFG0_LDO2_MODE_MASK;
+        PMC->PDSLEEPCFG0 |= PMC_PDSLEEPCFG0_LDO2_MODE(mode);
     }
     else
     {
-        PMC->PDSLEEPCFG0 &= (~PMC_PDSLEEPCFG0_LDO1_MODE_MASK) | PMC_PDSLEEPCFG0_LDO1_MODE(mode);
+        PMC->PDSLEEPCFG0 &= ~PMC_PDSLEEPCFG0_LDO1_MODE_MASK;
+        PMC->PDSLEEPCFG0 |= PMC_PDSLEEPCFG0_LDO1_MODE(mode);
     }
+}
+
+void POWER_ResetIOBank(uint32_t mask)
+{
+    uint32_t cfg = 0U;
+    cfg          = PMC->PADCFG;
+
+    cfg &= ~(PMC_PADCFG_ISOCTRL_MASK | PMC_PADCFG_RSTCTRL_MASK); /* Clear W1C bits. */
+    PMC->PADCFG = cfg | (mask << PMC_PADCFG_RSTCTRL_SHIFT);
+}
+
+void POWER_IOBankIsolationHold(uint32_t mask)
+{
+    uint32_t cfg = 0U;
+    cfg          = PMC->PADCFG;
+
+    cfg &= ~(PMC_PADCFG_ISOCTRL_MASK | PMC_PADCFG_RSTCTRL_MASK); /* Clear W1C bits. */
+
+    PMC->PADCFG = cfg | (mask << PMC_PADCFG_ISOHOLD_SHIFT);
+}
+
+void POWER_IOBankClearIsolationHold(uint32_t mask)
+{
+    PMC->PADCFG |= mask << PMC_PADCFG_ISOCTRL_SHIFT; /* W1C. */
 }
 
 #if defined(PMC0)
@@ -744,6 +926,36 @@ AT_QUICKACCESS_SECTION_CODE(static void deinitXSPI(XSPI_Type *base, CACHE64_CTRL
 
 AT_QUICKACCESS_SECTION_CODE(static void initXSPI(XSPI_Type *base, CACHE64_CTRL_Type *cache))
 {
+    /* Disable XSPI module */
+    base->MCR |= XSPI_MCR_MDIS_MASK;
+    base->MCR |= XSPI_MCR_IPS_TG_RST_MASK;
+
+    base->MCR &= ~XSPI_MCR_MDIS_MASK;
+
+    base->MCR |= XSPI_MCR_SWRSTSD_MASK | XSPI_MCR_SWRSTHD_MASK;
+    for (uint32_t i = 0U; i < 6U; i++)
+    {
+        __NOP();
+    }
+    base->MCR |= XSPI_MCR_MDIS_MASK;
+    base->MCR &= ~(XSPI_MCR_SWRSTSD_MASK | XSPI_MCR_SWRSTHD_MASK);
+    for (uint32_t i = 0U; i < 6U; i++)
+    {
+        __NOP();
+    }
+    base->MCR &= ~XSPI_MCR_MDIS_MASK;
+
+    base->MCR |= XSPI_MCR_MDIS_MASK;
+
+    /* Clear AHB buffer. */
+    base->SPTRCLR |= XSPI_SPTRCLR_ABRT_CLR_MASK;
+    while ((base->SPTRCLR & XSPI_SPTRCLR_ABRT_CLR_MASK) != 0UL)
+    {
+    }
+
+    /* Clear AHB access sequence pointer. */
+    base->SPTRCLR |= XSPI_SPTRCLR_BFPTRC_MASK;
+
     /* Enable XSPI module */
     base->MCR &= ~XSPI_MCR_MDIS_MASK;
 
@@ -751,23 +963,28 @@ AT_QUICKACCESS_SECTION_CODE(static void initXSPI(XSPI_Type *base, CACHE64_CTRL_T
     {
         POWER_EnableXspiCache(cache);
     }
+
+    __DSB();
+    __ISB();
 }
 
 AT_QUICKACCESS_SECTION_CODE(static void deinitXip(void))
 {
-    if (IS_XIP_XSPI0())
+    if (POWER_IS_XIP_XSPI0())
     {
         /* Enable XSPI clock again */
         CLKCTL0->PSCCTL1_SET = CLKCTL0_PSCCTL1_SET_XSPI0_MASK;
-        /* Re-enable XSPI module */
+        /* Disable XSPI module */
         deinitXSPI(XSPI0, CACHE64_CTRL0);
+        CLKCTL0->PSCCTL1_CLR = CLKCTL0_PSCCTL1_SET_XSPI0_MASK;
     }
-    else if (IS_XIP_XSPI1())
+    else if (POWER_IS_XIP_XSPI1())
     {
         /* Enable XSPI clock again */
         CLKCTL0->PSCCTL1_SET = CLKCTL0_PSCCTL1_SET_XSPI1_MASK;
-        /* Re-enable XSPI module */
+        /* Disable XSPI module */
         deinitXSPI(XSPI1, CACHE64_CTRL1);
+        CLKCTL0->PSCCTL1_CLR = CLKCTL0_PSCCTL1_SET_XSPI1_MASK;
     }
     else
     {
@@ -777,14 +994,14 @@ AT_QUICKACCESS_SECTION_CODE(static void deinitXip(void))
 
 AT_QUICKACCESS_SECTION_CODE(static void initXip(void))
 {
-    if (IS_XIP_XSPI0())
+    if (POWER_IS_XIP_XSPI0())
     {
         /* Enable XSPI clock again */
         CLKCTL0->PSCCTL1_SET = CLKCTL0_PSCCTL1_SET_XSPI0_MASK;
         /* Re-enable XSPI module */
         initXSPI(XSPI0, CACHE64_CTRL0);
     }
-    else if (IS_XIP_XSPI1())
+    else if (POWER_IS_XIP_XSPI1())
     {
         /* Enable XSPI clock again */
         CLKCTL0->PSCCTL1_SET = CLKCTL0_PSCCTL1_SET_XSPI1_MASK;
@@ -905,7 +1122,7 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
     uint32_t pmicMode;
     uint32_t pdsleepcfg0;
     bool cacheEnabled[2];
-    bool backupCache = false;
+    bool backupCache[2];
 
     uint32_t pmsk = __get_PRIMASK();
 
@@ -914,12 +1131,6 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
     /* Body bias is configured through other APIs before the API call. */
 
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-
-    if (mode == kPower_DeepSleep)
-    {
-        /* The DMA HWWake function requires all the ACK of modules supporting HWWake, do handshake for those modules. */
-        POWER_DMA_HWWake_LPRequest();
-    }
 
     /* Power on mask bit correspond modules during Deep Sleep mode. */
     SLEEPCON->SLEEPCFG = (SCFG0_DEEP_SLEEP & ~exclude_from_pd[0]) | (SLEEPCON->RUNCFG & ~exclude_from_pd[0]);
@@ -934,11 +1145,22 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
         SLEEPCON->PWRDOWN_WAIT &= ~SLEEPCON0_PWRDOWN_WAIT_IGN_FRO1PDR_MASK;
     }
 
-    pdsleepcfg0 = PMC->PDSLEEPCFG0 & (~PCFG0_DEEP_SLEEP);
+    pdsleepcfg0    = PMC->PDSLEEPCFG0 & (~PCFG0_DEEP_SLEEP);
+    backupCache[0] = false;
+    backupCache[1] = false;
 
     switch (mode)
     {
         case kPower_DeepSleep:
+            if ((exclude_from_pd[5] & PMC_PDSLEEPCFG4_CPU0_CCACHE_MASK) == 0U)
+            {
+                backupCache[1] = true;
+            }
+            if ((exclude_from_pd[5] & PMC_PDSLEEPCFG4_CPU0_SCACHE_MASK) == 0U)
+            {
+                backupCache[0] = true;
+            }
+
             /* Keep *BB, LDOVSEL, DCDV VSEL bits not changed. Clear DPD, FDPD, FDSR, V2COMP_DSR, V2COM_DSR(When
              * V2COM_DSR set all other VDD2 need to be off), PMICMODE bits. */
             pdsleepcfg0 &=
@@ -953,7 +1175,8 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
             break;
 
         case kPower_DeepSleepRetention:
-            backupCache = true;
+            backupCache[0] = true;
+            backupCache[1] = true;
             /* Keep *BB, LDOVSEL, DCDV VSEL bits not changed. Clear DPD, FDPD, PMICMODE bits. Always set
              * V2COMP_DSR(Compute DSR) and V2DSP_PD(When VDD2_COMP off, VDD2_DSP need to be off).*/
             pdsleepcfg0 &= ~(PMC_PDSLEEPCFG0_DPD_MASK | PMC_PDSLEEPCFG0_FDPD_MASK | PMC_PDSLEEPCFG0_PMICMODE_MASK);
@@ -978,7 +1201,9 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
             break;
 
         case kPower_DeepPowerDown:
-            backupCache = true; /* Incase the CPU is in DSR mode. */
+            /* Incase the CPU is in DSR mode. */
+            backupCache[0] = true;
+            backupCache[1] = true;
             /* Keep *BB, LDOVSEL, DCDV VSEL bits not changed. Clear PMICMODE bits.*/
             pdsleepcfg0 &= ~(PMC_PDSLEEPCFG0_PMICMODE_MASK | PMC_PDSLEEPCFG0_FDSR_MASK);
             PMC->PDSLEEPCFG0 =
@@ -986,7 +1211,9 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
             break;
 
         case kPower_FullDeepPowerDown:
-            backupCache = true; /* Incase the CPU is in DSR mode. */
+            /* Incase the CPU is in DSR mode. */
+            backupCache[0] = true;
+            backupCache[1] = true;
             /* Keep *BB, LDOVSEL, DCDV VSEL bits not changed. Clear PMICMODE bits.*/
             pdsleepcfg0 &= ~(PMC_PDSLEEPCFG0_PMICMODE_MASK | PMC_PDSLEEPCFG0_FDSR_MASK);
             PMC->PDSLEEPCFG0 =
@@ -994,6 +1221,7 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
             break;
 
         default:
+            /* Added comments to prevent the violation of MISRA C-2012 rule. */
             break;
     }
 
@@ -1030,14 +1258,14 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
     PMC->PDSLEEPCFG1 = (PCFG1_DEEP_SLEEP & ~exclude_from_pd[2]) | (PMC->PDRUNCFG1 & ~exclude_from_pd[2]);
 
     /* When either PLL, FRO, TEMPERATURE, POR, LVD, HVD enabled, the PMCREF_LP should be cleared. */
-    if ((exclude_from_pd[0] &
-         (SLEEPCON0_SLEEPCFG_FRO0_PD_MASK | SLEEPCON0_SLEEPCFG_FRO1_PD_MASK | SLEEPCON0_SLEEPCFG_FRO2_PD_MASK |
-          SLEEPCON0_SLEEPCFG_AUDPLLANA_PD_MASK | SLEEPCON0_SLEEPCFG_AUDPLLLDO_PD_MASK |
-          SLEEPCON0_SLEEPCFG_PLLANA_PD_MASK | SLEEPCON0_SLEEPCFG_PLLLDO_PD_MASK)) ||
-        (exclude_from_pd[2] &
-         (PMC_PDSLEEPCFG1_HVDN_PD_MASK | PMC_PDSLEEPCFG1_LVDN_LP_MASK | PMC_PDSLEEPCFG1_PORN_LP_MASK |
-          PMC_PDSLEEPCFG1_HVD2_PD_MASK | PMC_PDSLEEPCFG1_LVD2_LP_MASK | PMC_PDSLEEPCFG1_POR2_LP_MASK |
-          PMC_PDSLEEPCFG1_HVD1_PD_MASK | PMC_PDSLEEPCFG1_LVD1_LP_MASK | PMC_PDSLEEPCFG1_POR1_LP_MASK)))
+    if (((exclude_from_pd[0] &
+          (SLEEPCON0_SLEEPCFG_FRO0_PD_MASK | SLEEPCON0_SLEEPCFG_FRO1_PD_MASK | SLEEPCON0_SLEEPCFG_FRO2_PD_MASK |
+           SLEEPCON0_SLEEPCFG_AUDPLLANA_PD_MASK | SLEEPCON0_SLEEPCFG_AUDPLLLDO_PD_MASK |
+           SLEEPCON0_SLEEPCFG_PLLANA_PD_MASK | SLEEPCON0_SLEEPCFG_PLLLDO_PD_MASK)) != 0U) ||
+        ((exclude_from_pd[2] &
+          (PMC_PDSLEEPCFG1_HVDN_PD_MASK | PMC_PDSLEEPCFG1_LVDN_LP_MASK | PMC_PDSLEEPCFG1_PORN_LP_MASK |
+           PMC_PDSLEEPCFG1_HVD2_PD_MASK | PMC_PDSLEEPCFG1_LVD2_LP_MASK | PMC_PDSLEEPCFG1_POR2_LP_MASK |
+           PMC_PDSLEEPCFG1_HVD1_PD_MASK | PMC_PDSLEEPCFG1_LVD1_LP_MASK | PMC_PDSLEEPCFG1_POR1_LP_MASK)) != 0U))
     {
         PMC->PDSLEEPCFG1 &= ~PMC_PDSLEEPCFG1_PMCREF_LP_MASK;
     }
@@ -1048,7 +1276,7 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
     PMC->PDSLEEPCFG5 = (PCFG5_DEEP_SLEEP & ~exclude_from_pd[6]) | (PMC->PDRUNCFG5 & ~exclude_from_pd[6]);
 
     /* Stall Hifi4 if power down VDD2_DSP*/
-    if (PMC->PDSLEEPCFG0 & PMC_PDSLEEPCFG0_V2DSP_PD_MASK)
+    if ((PMC->PDSLEEPCFG0 & PMC_PDSLEEPCFG0_V2DSP_PD_MASK) != 0U)
     {
         SYSCON0->DSPSTALL = SYSCON0_DSPSTALL_DSPSTALL_MASK;
     }
@@ -1074,19 +1302,29 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
     /* Deinit XSPI interface in case XIP */
     deinitXip();
 
-    if (backupCache) /* Xcache is not retented in DSR mode. */
+    if (backupCache[1]) /* Xcache is not retented in DSR mode. */
     {
-        cacheEnabled[0] = ((XCACHE0->CCR & XCACHE_CCR_ENCACHE_MASK) == 0U) ? false : true;
         cacheEnabled[1] = ((XCACHE1->CCR & XCACHE_CCR_ENCACHE_MASK) == 0U) ? false : true;
 
         if (cacheEnabled[1])
         {
             POWER_DisableCache(XCACHE1);
         }
+    }
+    if (backupCache[0]) /* Xcache is not retented in DSR mode. */
+    {
+        cacheEnabled[0] = ((XCACHE0->CCR & XCACHE_CCR_ENCACHE_MASK) == 0U) ? false : true;
+
         if (cacheEnabled[0])
         {
             POWER_DisableCache(XCACHE0);
         }
+    }
+
+    if (mode == kPower_DeepSleep)
+    {
+        /* The DMA HWWake function requires all the ACK of modules supporting HWWake, do handshake for those modules. */
+        POWER_DMA_HWWake_LPRequest();
     }
 
     /* If the first one to Deep Sleep, ignore the Ignores power-down ready signal from LPOSC, FRO2. */
@@ -1103,12 +1341,15 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
         POWER_DMA_HWWake_LPRestore();
     }
 
-    if (backupCache)
+    if (backupCache[1])
     {
         if (cacheEnabled[1])
         {
             POWER_EnableCache(XCACHE1);
         }
+    }
+    if (backupCache[0])
+    {
         if (cacheEnabled[0])
         {
             POWER_EnableCache(XCACHE0);
@@ -1127,7 +1368,7 @@ AT_QUICKACCESS_SECTION_CODE(static void POWER_EnterLowPower_FullConfig(const uin
 
 AT_QUICKACCESS_SECTION_CODE(void POWER_EnterDSR(const uint32_t exclude_from_pd[7]))
 {
-    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_DeepSleepRetention, 0x1U);
+    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_DeepSleepRetention, POWER_DEFAULT_PMICMODE_DSR);
 }
 #else
 /* Need do low power request-ack for all the modules capable of DMA HW Wake function if the DMA_HWWake is used. */
@@ -1202,12 +1443,6 @@ AT_QUICKACCESS_SECTION_CODE(void static POWER_EnterLowPower_FullConfig(const uin
 
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 
-    if (mode == kPower_DeepSleep)
-    {
-        /* The DMA HWWake function requires all the ACK of modules supporting HWWake, do handshake for those modules. */
-        POWER_DMA_HWWake_LPRequest();
-    }
-
     /* Power on mask bit correspond modules during Deep Sleep mode. */
     SLEEPCON->SLEEPCFG = (SCFG0_DEEP_SLEEP & ~exclude_from_pd[0]) | (SLEEPCON->RUNCFG & ~exclude_from_pd[0]);
 
@@ -1249,6 +1484,7 @@ AT_QUICKACCESS_SECTION_CODE(void static POWER_EnterLowPower_FullConfig(const uin
             break;
 
         default:
+            /* Added comments to prevent the violation of MISRA C-2012 rule. */
             break;
     }
 
@@ -1285,13 +1521,13 @@ AT_QUICKACCESS_SECTION_CODE(void static POWER_EnterLowPower_FullConfig(const uin
     PMC->PDSLEEPCFG1 = (PCFG1_DEEP_SLEEP & ~exclude_from_pd[2]) | (PMC->PDRUNCFG1 & ~exclude_from_pd[2]);
 
     /* When either PLL, FRO, TEMPERATURE, POR, LVD, HVD enabled, the PMCREF_LP should be cleared. */
-    if ((exclude_from_pd[0] & (SLEEPCON1_SLEEPCFG_FRO2_PD_MASK | SLEEPCON1_SLEEPCFG_AUDPLLANA_PD_MASK |
-                               SLEEPCON1_SLEEPCFG_AUDPLLLDO_PD_MASK | SLEEPCON1_SLEEPCFG_PLLANA_PD_MASK |
-                               SLEEPCON1_SLEEPCFG_PLLLDO_PD_MASK)) ||
-        (exclude_from_pd[2] &
-         (PMC_PDSLEEPCFG1_HVDN_PD_MASK | PMC_PDSLEEPCFG1_LVDN_LP_MASK | PMC_PDSLEEPCFG1_PORN_LP_MASK |
-          PMC_PDSLEEPCFG1_HVD2_PD_MASK | PMC_PDSLEEPCFG1_LVD2_LP_MASK | PMC_PDSLEEPCFG1_POR2_LP_MASK |
-          PMC_PDSLEEPCFG1_HVD1_PD_MASK | PMC_PDSLEEPCFG1_LVD1_LP_MASK | PMC_PDSLEEPCFG1_POR1_LP_MASK)))
+    if (((exclude_from_pd[0] & (SLEEPCON1_SLEEPCFG_FRO2_PD_MASK | SLEEPCON1_SLEEPCFG_AUDPLLANA_PD_MASK |
+                                SLEEPCON1_SLEEPCFG_AUDPLLLDO_PD_MASK | SLEEPCON1_SLEEPCFG_PLLANA_PD_MASK |
+                                SLEEPCON1_SLEEPCFG_PLLLDO_PD_MASK)) != 0U) ||
+        ((exclude_from_pd[2] &
+          (PMC_PDSLEEPCFG1_HVDN_PD_MASK | PMC_PDSLEEPCFG1_LVDN_LP_MASK | PMC_PDSLEEPCFG1_PORN_LP_MASK |
+           PMC_PDSLEEPCFG1_HVD2_PD_MASK | PMC_PDSLEEPCFG1_LVD2_LP_MASK | PMC_PDSLEEPCFG1_POR2_LP_MASK |
+           PMC_PDSLEEPCFG1_HVD1_PD_MASK | PMC_PDSLEEPCFG1_LVD1_LP_MASK | PMC_PDSLEEPCFG1_POR1_LP_MASK)) != 0U))
     {
         PMC->PDSLEEPCFG1 &= ~PMC_PDSLEEPCFG1_PMCREF_LP_MASK;
     }
@@ -1319,6 +1555,12 @@ AT_QUICKACCESS_SECTION_CODE(void static POWER_EnterLowPower_FullConfig(const uin
     PMC->CTRL = pmc_ctrl & ~(PMC_CTRL_LVDNRE_MASK | PMC_CTRL_LVD2RE_MASK | PMC_CTRL_LVD1RE_MASK |
                              PMC_CTRL_AGDET2RE_MASK | PMC_CTRL_AGDET1RE_MASK);
 
+    if (mode == kPower_DeepSleep)
+    {
+        /* The DMA HWWake function requires all the ACK of modules supporting HWWake, do handshake for those modules. */
+        POWER_DMA_HWWake_LPRequest();
+    }
+
     /* If the first one to Deep Sleep, ignore the Ignores power-down ready signal from LPOSC, FRO2. */
     /* if ((PMC->STATUS & PMC_STATUS_DSCOMP_MASK) == 0U) Ignore FRO2, LPOSC power-down ready signal because sense don't
      * know if they are used by compute domain. */
@@ -1341,13 +1583,13 @@ AT_QUICKACCESS_SECTION_CODE(void static POWER_EnterLowPower_FullConfig(const uin
 
 AT_QUICKACCESS_SECTION_CODE(void POWER_RequestDSR(const uint32_t exclude_from_pd[7]))
 {
-    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_DeepSleepRetention, 0x1U);
+    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_DeepSleepRetention, POWER_DEFAULT_PMICMODE_DSR);
 }
 #endif
 
 AT_QUICKACCESS_SECTION_CODE(void POWER_EnterDeepSleep(const uint32_t exclude_from_pd[7]))
 {
-    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_DeepSleep, 0x1U);
+    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_DeepSleep, POWER_DEFAULT_PMICMODE_DS);
 }
 
 /**
@@ -1356,12 +1598,43 @@ AT_QUICKACCESS_SECTION_CODE(void POWER_EnterDeepSleep(const uint32_t exclude_fro
  */
 AT_QUICKACCESS_SECTION_CODE(void POWER_RequestDeepPowerDown(const uint32_t exclude_from_pd[7]))
 {
-    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_DeepPowerDown, 0x2U);
+    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_DeepPowerDown, POWER_DEFAULT_PMICMODE_DPD);
 }
 
 AT_QUICKACCESS_SECTION_CODE(void POWER_RequestFullDeepPowerDown(const uint32_t exclude_from_pd[7]))
 {
-    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_FullDeepPowerDown, 0x3U);
+    POWER_EnterLowPower_FullConfig(exclude_from_pd, kPower_FullDeepPowerDown, POWER_DEFAULT_PMICMODE_FDPD);
+}
+
+/* Enter Power mode */
+void POWER_EnterPowerMode(power_mode_cfg_t mode, const uint32_t exclude_from_pd[7])
+{
+    switch (mode)
+    {
+        case kPower_Sleep:
+            POWER_EnterSleep();
+            break;
+        case kPower_DeepSleep:
+            POWER_EnterDeepSleep(exclude_from_pd);
+            break;
+        case kPower_DeepSleepRetention:
+#if defined(PMC0)
+            POWER_EnterDSR(exclude_from_pd);
+#else
+            POWER_RequestDSR(exclude_from_pd);
+#endif
+            break;
+        case kPower_DeepPowerDown:
+            POWER_RequestDeepPowerDown(exclude_from_pd);
+            break;
+        case kPower_FullDeepPowerDown:
+            POWER_RequestFullDeepPowerDown(exclude_from_pd);
+            break;
+        default:
+            /* Invalide mode. */
+            assert(false);
+            break;
+    }
 }
 
 /* Get power lib version */

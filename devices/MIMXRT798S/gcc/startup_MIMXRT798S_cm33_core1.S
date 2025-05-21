@@ -2,13 +2,13 @@
 /*  @file:    startup_MIMXRT798S_cm33_core1.s                                */
 /*  @purpose: CMSIS Cortex-M33 Core Device Startup File                      */
 /*            MIMXRT798S_cm33_core1                                          */
-/*  @version: 1.0                                                            */
-/*  @date:    2022-8-1                                                       */
-/*  @build:   b231026                                                        */
+/*  @version: 2.0                                                            */
+/*  @date:    2024-5-28                                                      */
+/*  @build:   b241121                                                        */
 /* ------------------------------------------------------------------------- */
 /*                                                                           */
 /* Copyright 1997-2016 Freescale Semiconductor, Inc.                         */
-/* Copyright 2016-2023 NXP                                                   */
+/* Copyright 2016-2024 NXP                                                   */
 /* SPDX-License-Identifier: BSD-3-Clause                                     */
 /*****************************************************************************/
 /* Version: GCC for ARM Embedded Processors                                  */
@@ -42,9 +42,9 @@ __isr_vector:
     .long   SysTick_Handler                                 /* SysTick Handler*/
 
                                                             /* External Interrupts*/
-    .long   Reserved16_IRQHandler                           /* Reserved interrupt*/
-    .long   Reserved17_IRQHandler                           /* Reserved interrupt*/
-    .long   Reserved18_IRQHandler                           /* Reserved interrupt*/
+    .long   Reserved16_IRQHandler                           /* Reserved interrupt 16*/
+    .long   Reserved17_IRQHandler                           /* Reserved interrupt 17*/
+    .long   Reserved18_IRQHandler                           /* Reserved interrupt 18*/
     .long   FRO2_IRQHandler                                 /* FRO: 300MHz FRO in VDD1 domain Async interrupt*/
     .long   GLIKEY4_IRQHandler                              /* GLIKEY: Interrupt*/
     .long   UTICK1_IRQHandler                               /* Micro-tick Timer*/
@@ -57,8 +57,8 @@ __isr_vector:
     .long   LP_FLEXCOMM18_IRQHandler                        /* FLEXCOMM: Interrupt request*/
     .long   LP_FLEXCOMM19_IRQHandler                        /* FLEXCOMM: Interrupt request*/
     .long   LP_FLEXCOMM20_IRQHandler                        /* FLEXCOMM: Interrupt request*/
-    .long   ADC_IRQHandler                                  /* ADC0 Interrupt request*/
-    .long   SDADC_IRQHandler                                /* SDADC0 Interrupt request*/
+    .long   ADC_IRQHandler                                  /* ADC0: Interrupt request*/
+    .long   SDADC_IRQHandler                                /* SDADC0: Interrupt request*/
     .long   GLIKEY1_IRQHandler                              /* GLIKEY: Interrupt*/
     .long   ACMP_IRQHandler                                 /* ACMP: interrupt request*/
     .long   PDM_EVENT_IRQHandler                            /* MIC: Interrupt request for read data or Error*/
@@ -81,12 +81,12 @@ __isr_vector:
     .long   WDT2_IRQHandler                                 /* WDT: Interrupt request*/
     .long   WDT3_IRQHandler                                 /* WDT: Interrupt request*/
     .long   USBPHY0_IRQHandler                              /* HSUSBPHY: UTM interrupt request*/
-    .long   PMIC_IRQN_IRQHandler                            /* PMIC: External PMIC interrupt*/
+    .long   Reserved55_IRQHandler                           /* xxx Interrupt 55*/
     .long   I3C3_IRQHandler                                 /* I3C: Interrupt Request*/
     .long   FLEXIO_IRQHandler                               /* flexio: Interrupt request*/
     .long   LCDIF_IRQHandler                                /* dcn: Interrupt request*/
     .long   VGPU_IRQHandler                                 /* VGPU interrupt from graphics core*/
-    .long   MIPI_IRQHandler                                 /* dsi: Interrupt request*/
+    .long   MIPI_IRQHandler                                 /* DSI: Interrupt request*/
     .long   EDMA2_CH0_IRQHandler                            /* edma2: Channel 0 interrupt*/
     .long   EDMA2_CH1_IRQHandler                            /* edma2: Channel 1 interrupt*/
     .long   EDMA2_CH2_IRQHandler                            /* edma2: Channel 2 interrupt*/
@@ -109,8 +109,8 @@ __isr_vector:
     .long   GPIO91_IRQHandler                               /* rgpio9: Interupt request, channel 1*/
     .long   GPIO100_IRQHandler                              /* rgpio10: Interupt request, channel 0*/
     .long   GPIO101_IRQHandler                              /* rgpio10: Interupt request, channel 1*/
-    .long   Reserved83_IRQHandler                           /* Reserved*/
-    .long   Reserved84_IRQHandler                           /* Reserved*/
+    .long   Reserved83_IRQHandler                           /* Reserved interrupt 83*/
+    .long   Reserved84_IRQHandler                           /* Reserved interrupt 84*/
     .long   PIN_INT0_IRQHandler                             /* pint1: Interupt request 0*/
     .long   PIN_INT1_IRQHandler                             /* pint1: Interupt request 1*/
     .long   PIN_INT2_IRQHandler                             /* pint1: Interupt request 2*/
@@ -118,29 +118,34 @@ __isr_vector:
     .long   SAI3_IRQHandler                                 /* sai3: TX/RX interrupt*/
     .long   XSPI2_IRQHandler                                /* xspi2: Ored interrupt*/
     .long   MMU2_IRQHandler                                 /* mmu2: Interrupt request*/
-    .long   GDET2_IRQHandler                                /* gdet2_wrapper: Interrupt request*/
-    .long   GDET3_IRQHandler                                /* gdet3_wrapper: Interrupt request*/
+    .long   Reserved92_IRQHandler                           /* Reserved interrupt*/
+    .long   GDET3_IRQHandler                                /* GDET3: Interrupt request*/
     .long   CDOG3_IRQHandler                                /* cdog3: Interrupt request*/
     .long   CDOG4_IRQHandler                                /* cdog4: Interrupt request*/
-    .long   Reserved96_IRQHandler                           /* Reserved*/
+    .long   Reserved96_IRQHandler                           /* Reserved interrupt 96*/
     .long   CPU1_IRQHandler                                 /* CTI interrupt request*/
     .long   JPEGDEC_IRQHandler                              /* JPEGDEC Ored context 0-3 interrupt request*/
     .long   PNGDEC_IRQHandler                               /* PNGDEC interrupt request*/
-    .long   Reserved100_IRQHandler                          /* Reserved*/
+    .long   Reserved100_IRQHandler                          /* Reserved interrupt 100*/
     .long   TEMPDET0_IRQHandler                             /* TEMPDET0: Temperature Detect Interrupt request 0*/
     .long   TEMPDET1_IRQHandler                             /* TEMPDET1: Temperature Detect Interrupt request 1*/
     .long   EZHV_IRQHandler                                 /* ezhv: Interrupt request*/
     .long   SLEEPCON1_IRQHandler                            /* SLEEPCON_SENSE CPU1 wakeup event*/
-    .long   PVT1_AMBER0_IRQHandler                          /* pvt_monitor1: AMBER0 interrupt*/
-    .long   PVT1_RED0_IRQHandler                            /* pvt_monitor1: RED0 interrupt*/
-    .long   PVT1_AMBER1_IRQHandler                          /* pvt_monitor1: AMBER1 interrupt*/
-    .long   PVT1_RED1_IRQHandler                            /* pvt_monitor1: RED1 interrupt*/
+    .long   PVTS1_CPU1_IRQHandler                           /* PVTS1 CPU1 interrupt*/
+    .long   Reserved106_IRQHandler                          /* Reserved interrupt 106*/
+    .long   PVTS1_HIFI1_IRQHandler                          /* PVTS1 HIFI1 interrupt*/
+    .long   Reserved108_IRQHandler                          /* Reserved interrupt 108*/
 
     .size   __isr_vector, . - __isr_vector
 
     .text
     .thumb
 
+#if defined (__cplusplus)
+#ifdef __REDLIB__
+#error Redlib does not support C++
+#endif
+#endif
 /* Reset Handler */
 
     .thumb_func
@@ -214,28 +219,13 @@ Reset_Handler:
     blt    .LC2
 #endif /* __STARTUP_CLEAR_BSS */
 
-/* Add stack / heap initializaiton */
-    movs    r0, 0
-    ldr     r1, =__HeapBase
-    ldr     r2, =__HeapLimit
-.LC3:
-    cmp     r1, r2
-    itt     lt
-    strlt   r0, [r1], #4
-    blt     .LC3
-
-    ldr     r1, =__StackLimit
-    ldr     r2, =__StackTop
-.LC4:
-    cmp     r1, r2
-    itt     lt
-    strlt   r0, [r1], #4
-    blt     .LC4
-
-/*End of stack / heap initializaiton */
     cpsie   i               /* Unmask interrupts */
 #ifndef __START
+#ifdef __REDLIB__
+#define __START __main
+#else
 #define __START _start
+#endif
 #endif
 #ifndef __ATOLLIC__
     ldr   r0,=__START
@@ -655,12 +645,12 @@ USBPHY0_IRQHandler:
 
     .align 1
     .thumb_func
-    .weak PMIC_IRQN_IRQHandler
-    .type PMIC_IRQN_IRQHandler, %function
-PMIC_IRQN_IRQHandler:
-    ldr   r0,=PMIC_IRQN_DriverIRQHandler
+    .weak Reserved55_IRQHandler
+    .type Reserved55_IRQHandler, %function
+Reserved55_IRQHandler:
+    ldr   r0,=Reserved55_DriverIRQHandler
     bx    r0
-    .size PMIC_IRQN_IRQHandler, . - PMIC_IRQN_IRQHandler
+    .size Reserved55_IRQHandler, . - Reserved55_IRQHandler
 
     .align 1
     .thumb_func
@@ -988,12 +978,12 @@ MMU2_IRQHandler:
 
     .align 1
     .thumb_func
-    .weak GDET2_IRQHandler
-    .type GDET2_IRQHandler, %function
-GDET2_IRQHandler:
-    ldr   r0,=GDET2_DriverIRQHandler
+    .weak Reserved92_IRQHandler
+    .type Reserved92_IRQHandler, %function
+Reserved92_IRQHandler:
+    ldr   r0,=Reserved92_DriverIRQHandler
     bx    r0
-    .size GDET2_IRQHandler, . - GDET2_IRQHandler
+    .size Reserved92_IRQHandler, . - Reserved92_IRQHandler
 
     .align 1
     .thumb_func
@@ -1105,39 +1095,39 @@ SLEEPCON1_IRQHandler:
 
     .align 1
     .thumb_func
-    .weak PVT1_AMBER0_IRQHandler
-    .type PVT1_AMBER0_IRQHandler, %function
-PVT1_AMBER0_IRQHandler:
-    ldr   r0,=PVT1_AMBER0_DriverIRQHandler
+    .weak PVTS1_CPU1_IRQHandler
+    .type PVTS1_CPU1_IRQHandler, %function
+PVTS1_CPU1_IRQHandler:
+    ldr   r0,=PVTS1_CPU1_DriverIRQHandler
     bx    r0
-    .size PVT1_AMBER0_IRQHandler, . - PVT1_AMBER0_IRQHandler
+    .size PVTS1_CPU1_IRQHandler, . - PVTS1_CPU1_IRQHandler
 
     .align 1
     .thumb_func
-    .weak PVT1_RED0_IRQHandler
-    .type PVT1_RED0_IRQHandler, %function
-PVT1_RED0_IRQHandler:
-    ldr   r0,=PVT1_RED0_DriverIRQHandler
+    .weak Reserved106_IRQHandler
+    .type Reserved106_IRQHandler, %function
+Reserved106_IRQHandler:
+    ldr   r0,=Reserved106_DriverIRQHandler
     bx    r0
-    .size PVT1_RED0_IRQHandler, . - PVT1_RED0_IRQHandler
+    .size Reserved106_IRQHandler, . - Reserved106_IRQHandler
 
     .align 1
     .thumb_func
-    .weak PVT1_AMBER1_IRQHandler
-    .type PVT1_AMBER1_IRQHandler, %function
-PVT1_AMBER1_IRQHandler:
-    ldr   r0,=PVT1_AMBER1_DriverIRQHandler
+    .weak PVTS1_HIFI1_IRQHandler
+    .type PVTS1_HIFI1_IRQHandler, %function
+PVTS1_HIFI1_IRQHandler:
+    ldr   r0,=PVTS1_HIFI1_DriverIRQHandler
     bx    r0
-    .size PVT1_AMBER1_IRQHandler, . - PVT1_AMBER1_IRQHandler
+    .size PVTS1_HIFI1_IRQHandler, . - PVTS1_HIFI1_IRQHandler
 
     .align 1
     .thumb_func
-    .weak PVT1_RED1_IRQHandler
-    .type PVT1_RED1_IRQHandler, %function
-PVT1_RED1_IRQHandler:
-    ldr   r0,=PVT1_RED1_DriverIRQHandler
+    .weak Reserved108_IRQHandler
+    .type Reserved108_IRQHandler, %function
+Reserved108_IRQHandler:
+    ldr   r0,=Reserved108_DriverIRQHandler
     bx    r0
-    .size PVT1_RED1_IRQHandler, . - PVT1_RED1_IRQHandler
+    .size Reserved108_IRQHandler, . - Reserved108_IRQHandler
 
 
 /*    Macro to define default handlers. Default handler
@@ -1192,7 +1182,7 @@ PVT1_RED1_IRQHandler:
     def_irq_handler    WDT2_DriverIRQHandler
     def_irq_handler    WDT3_DriverIRQHandler
     def_irq_handler    USBPHY0_DriverIRQHandler
-    def_irq_handler    PMIC_IRQN_DriverIRQHandler
+    def_irq_handler    Reserved55_DriverIRQHandler
     def_irq_handler    I3C3_DriverIRQHandler
     def_irq_handler    FLEXIO_DriverIRQHandler
     def_irq_handler    LCDIF_DriverIRQHandler
@@ -1229,7 +1219,7 @@ PVT1_RED1_IRQHandler:
     def_irq_handler    SAI3_DriverIRQHandler
     def_irq_handler    XSPI2_DriverIRQHandler
     def_irq_handler    MMU2_DriverIRQHandler
-    def_irq_handler    GDET2_DriverIRQHandler
+    def_irq_handler    Reserved92_DriverIRQHandler
     def_irq_handler    GDET3_DriverIRQHandler
     def_irq_handler    CDOG3_DriverIRQHandler
     def_irq_handler    CDOG4_DriverIRQHandler
@@ -1242,9 +1232,9 @@ PVT1_RED1_IRQHandler:
     def_irq_handler    TEMPDET1_DriverIRQHandler
     def_irq_handler    EZHV_DriverIRQHandler
     def_irq_handler    SLEEPCON1_DriverIRQHandler
-    def_irq_handler    PVT1_AMBER0_DriverIRQHandler
-    def_irq_handler    PVT1_RED0_DriverIRQHandler
-    def_irq_handler    PVT1_AMBER1_DriverIRQHandler
-    def_irq_handler    PVT1_RED1_DriverIRQHandler
+    def_irq_handler    PVTS1_CPU1_DriverIRQHandler
+    def_irq_handler    Reserved106_DriverIRQHandler
+    def_irq_handler    PVTS1_HIFI1_DriverIRQHandler
+    def_irq_handler    Reserved108_DriverIRQHandler
 
     .end

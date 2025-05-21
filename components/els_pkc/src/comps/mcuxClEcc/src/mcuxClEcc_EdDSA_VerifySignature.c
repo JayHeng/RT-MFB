@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2022-2023 NXP                                                  */
+/* Copyright 2022-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -17,13 +17,15 @@
  */
 
 
-#include <stdint.h>
+#include <mcuxClCore_Platform.h>
 
 #include <mcuxClSession.h>
+#include <mcuxClBuffer.h>
 #include <mcuxClKey.h>
 #include <mcuxClPkc.h>
 #include <mcuxCsslFlowProtection.h>
 #include <mcuxClCore_FunctionIdentifiers.h>
+#include <mcuxClCore_Macros.h>
 #include <mcuxClMath.h>
 #include <mcuxClEcc.h>
 #include <mcuxClHash.h>
@@ -31,13 +33,269 @@
 #include <internal/mcuxClPkc_Macros.h>
 #include <internal/mcuxClPkc_Operations.h>
 #include <internal/mcuxClPkc_ImportExport.h>
-#include <internal/mcuxClMemory_Copy_Internal.h>
+#include <internal/mcuxClPkc_Resource.h>
 #include <internal/mcuxClKey_Types_Internal.h>
 #include <internal/mcuxClKey_Functions_Internal.h>
 #include <internal/mcuxClSession_Internal.h>
+#include <internal/mcuxClHash_Internal.h>
+#include <internal/mcuxClEcc_TwEd_Internal.h>
+#include <internal/mcuxClEcc_Internal_FUP.h>
+#include <internal/mcuxClEcc_TwEd_Internal_FUP.h>
 #include <internal/mcuxClEcc_EdDSA_Internal.h>
-#include <internal/mcuxClEcc_Internal_PointComparison_FUP.h>
-#include <internal/mcuxClEcc_TwEd_Internal_PointSubtraction_FUP.h>
+#include <internal/mcuxClEcc_EdDSA_Internal_FUP.h>
+
+
+/**
+ * This function verifies that the signature component S satisfies S < n and in this case performs the scalar multiplication
+ * h * S * G of S with the EdDSA base point as part of the EdDSA signature verification process.
+ *
+ * Input:
+ *  - pSession [in]         Handle for the current CL session
+ *  - pDomainParams [in]    Pointer to EdDSA domain parameters
+ *  - pSignature [in]       Buffer for the signature (Renc,S)
+ *  - bitLenN [in]          Bit length of the base point order n
+ *
+ * Prerequisites:
+ *  - ps1Len = (operandSize, operandSize)
+ *  - Buffers ECC_CP0 and ECC_CP1 contain the curve parameters a and d in MR
+ *  - Buffer ECC_PFULL contains p'||p
+ *  - Buffer ECC_PS contains the shifted modulus associated to p
+ *
+ * Result:
+ *  - If the function returned OK, then the result of the scalar multiplication h * S * G is stored
+ *    in homogeneous coordinates in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+ *    NOTE: This also holds for the neutral point result in case S = 0.
+ *
+ * Returns:
+ *  - MCUXCLECC_STATUS_OK                    if the function executed successfully
+ *  - MCUXCLECC_STATUS_INVALID_SIGNATURE     if S does not satisfy S < n, i.e. the signature is invalid
+ *  - MCUXCLECC_STATUS_FAULT_ATTACK          if a fault attack has been detected
+ */
+MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult)
+static MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult(
+    mcuxClSession_Handle_t pSession,
+    mcuxClEcc_EdDSA_DomainParams_t *pDomainParams,
+    mcuxCl_InputBuffer_t pSignature,
+    uint32_t bitLenN)
+{
+    MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult);
+
+    /*
+     * Step 1: Import signature component S to buffer ECC_S0 and check if it is smaller than n.
+     */
+    {  /* TODO: CLNS-11671, workaround for Ed448 */
+        const uint32_t operandSize = MCUXCLPKC_PS1_GETOPLEN();
+        const uint32_t bufferSize = operandSize + MCUXCLPKC_WORDSIZE;
+        MCUXCLPKC_WAITFORREADY();
+        MCUXCLPKC_PS1_SETLENGTH(0u, bufferSize);
+
+        /* Import S to ECC_S0 */
+        const uint32_t encodedLen = (uint32_t) pDomainParams->b / 8u;
+        MCUXCLPKC_FP_IMPORTLITTLEENDIANTOPKC_BUFFEROFFSET(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult, ECC_S0, pSignature, encodedLen, encodedLen);
+
+        MCUXCLPKC_WAITFORREADY();
+        MCUXCLPKC_PS1_SETLENGTH(operandSize, operandSize);
+    }
+
+    /* Check s < n. */
+    /* TODO: CLNS-11671, the comparison should include the 57th byte (p8S0[56]) for Ed448 */
+    MCUXCLPKC_FP_CALC_OP1_CMP(ECC_S0, ECC_N);
+    if (MCUXCLPKC_FLAG_NOCARRY == MCUXCLPKC_WAITFORFINISH_GETCARRY())
+    {   /* s >= n. */
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult, MCUXCLECC_STATUS_INVALID_SIGNATURE,
+            MCUXCLPKC_FP_CALLED_IMPORTLITTLEENDIANTOPKC_BUFFEROFFSET,
+            MCUXCLPKC_FP_CALLED_CALC_OP1_CMP);
+    }
+
+    /*
+     * Step 2: Calculate P1' = S * G, and store the result in homogeneous coordinates (X:Y:Z) in MR in buffers
+     *         ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+     *         NOTE: In case S = 0, the neutral point is correctly computed by the function and stored as (0:Z:Z)
+     */
+    MCUX_CSSL_FP_FUNCTION_CALL(ret_plainFixScalarMult,
+        pDomainParams->common.pScalarMultFunctions->plainFixScalarMultFct(
+            pSession,
+            (mcuxClEcc_CommonDomainParams_t *)&pDomainParams->common,
+            ECC_S0,
+            bitLenN,
+            MCUXCLECC_SCALARMULT_OPTION_PROJECTIVE_OUTPUT));
+    if(MCUXCLECC_STATUS_OK != ret_plainFixScalarMult)
+    {
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult, MCUXCLECC_STATUS_FAULT_ATTACK);
+    }
+
+    /*
+     * Step 3: Calculate P1 = h * P1' = h * S * G using repeated point doubling, and store the result in homogeneous
+     *          coordinates (X:Y:Z) in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+     */
+    MCUX_CSSL_FP_FUNCTION_CALL_VOID(mcuxClEcc_TwEd_RepeatedDoubling(pDomainParams->c));
+
+    MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult, MCUXCLECC_STATUS_OK,
+        MCUXCLPKC_FP_CALLED_IMPORTLITTLEENDIANTOPKC_BUFFEROFFSET,
+        MCUXCLPKC_FP_CALLED_CALC_OP1_CMP,
+        pDomainParams->common.pScalarMultFunctions->plainFixScalarMultFctFPId,
+        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_TwEd_RepeatedDoubling));
+}
+
+
+/**
+ * This function computes the value H(prefix||Renc||Qenc||m') mod n, decodes the public EdDSA key Qenc and performs the scalar multiplication
+ * h * H(prefix||Renc||Qenc||m') * Q = (H(prefix||Renc||Qenc||m') mod n) * h * Q with the decoded EdDSA public key Q as part of the
+ * EdDSA signature verification process.
+ *
+ * Input:
+ *  - pSession [in]         Handle for the current CL session
+ *  - pubKey [in]           Key handle for public key Qenc
+ *  - mode [in]             Pointer to signature protocol descriptor specifying the EdDSA variant
+ *  - pIn [in]              Buffer for message digest m'
+ *  - inSize [in]           Size of message digest m'
+ *  - pCpuWorkarea [in]     Pointer to ECC specific CPU workarea struct
+ *  - pDomainParams [in]    Pointer to EdDSA domain parameters
+ *  - buffSignatureR [in]   Buffer containing the EdDSA signature component Renc
+ *  - bitLenN [in]          Bit length of the base point order n
+ *
+ * Prerequisites:
+ *  - ps1Len = (operandSize, operandSize)
+ *  - Buffers ECC_CP0 and ECC_CP1 contain the curve parameters a and d in MR
+ *  - Buffer ECC_PFULL contains p'||p
+ *  - Buffer ECC_PS contains the shifted modulus associated to p
+ *
+ * Result:
+ *  - If the function returned OK, then the result of the scalar multiplication h * H(prefix||Renc||Qenc||m') * Q is stored
+ *    in homogeneous coordinates in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+ *
+ * Returns:
+ *  - MCUXCLECC_STATUS_OK                if the function executed successfully
+ *  - MCUXCLECC_STATUS_INVALID_PARAMS    if the public key decoding failed, i.e. the point is not on the curve
+ *  - MCUXCLECC_STATUS_FAULT_ATTACK      if a fault attack has been detected
+ *  - MCUXCLxxx_STATUS_xxx               The function execution failed and the first internal error will be returned
+ */
+MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult)
+static MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult(
+    mcuxClSession_Handle_t pSession,
+    mcuxClKey_Handle_t pubKey,
+    const mcuxClEcc_EdDSA_SignatureProtocolDescriptor_t *mode,
+    mcuxCl_InputBuffer_t pIn,
+    uint32_t inSize,
+    mcuxClEcc_CpuWa_t *pCpuWorkarea,
+    mcuxClEcc_EdDSA_DomainParams_t *pDomainParams,
+    mcuxCl_InputBuffer_t buffSignatureR,
+    uint32_t bitLenN)
+{
+    MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult);
+
+    /*
+     * Step 1: Derive the hash prefix from the mode parameter and calculate H(prefix||Renc||Qenc||m') mod n
+     * and store it in buffer ECC_S0.
+     */
+
+    /* Generate digest m' from m in case phflag is set */
+    const uint8_t *m = NULL;
+    uint32_t mLen = 0u;
+    MCUX_CSSL_FP_FUNCTION_CALL(retPreHash, mcuxClEcc_EdDSA_PreHashMessage(pSession, pDomainParams, pCpuWorkarea, mode->phflag, pIn, inSize, &m, &mLen));
+    if (MCUXCLECC_STATUS_OK != retPreHash)
+    {
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult, MCUXCLECC_STATUS_FAULT_ATTACK);
+    }
+
+    /* Initialize hash context */
+    uint32_t hashContextSizeInWords = mcuxClHash_getContextWordSize(pDomainParams->algoHash);
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_CASTING("Return pointer is 32-bit aligned and satisfies the requirement of mcuxClHash_Context_t");
+    mcuxClHash_Context_t pCtx = (mcuxClHash_Context_t) mcuxClSession_allocateWords_cpuWa(pSession, hashContextSizeInWords);
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_CASTING();
+    if (NULL == pCtx)
+    {
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult, MCUXCLECC_STATUS_FAULT_ATTACK);
+    }
+
+    const uint8_t *pPubKey = mcuxClKey_getKeyData(pubKey);
+    MCUXCLBUFFER_INIT_RO(buffM1, NULL, m, mLen);
+    mcuxCl_InputBuffer_t buffM = NULL;
+    if (MCUXCLECC_EDDSA_PHFLAG_ONE == mode->phflag)
+    {
+        buffM = buffM1;
+    }
+    else if (MCUXCLECC_EDDSA_PHFLAG_ZERO == mode->phflag)
+    {
+        buffM = pIn;
+    }
+    else
+    {
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult, MCUXCLECC_STATUS_FAULT_ATTACK);
+    }
+
+    MCUX_CSSL_FP_FUNCTION_CALL(ret_CalcHashModN,
+        mcuxClEcc_EdDSA_CalcHashModN(
+            pSession, pCtx, pDomainParams,
+            mode->pHashPrefix, mode->hashPrefixLen,
+            buffSignatureR,
+            pPubKey,
+            buffM, mLen) );
+    if (MCUXCLECC_STATUS_OK != ret_CalcHashModN)
+    {
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult, MCUXCLECC_STATUS_FAULT_ATTACK);
+    }
+
+    /* Free the hash context */
+    mcuxClSession_freeWords_cpuWa(pSession, hashContextSizeInWords);
+
+    /*
+     * Step 2: Call function pDomainParams->pDecodePointFct to decode the public key Qenc and store
+     * the homogeneous coordinates of the decoded point Q in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+     */
+
+    MCUXCLBUFFER_INIT_RO(buffPubKey, NULL, pPubKey, encodedLen);
+    MCUX_CSSL_FP_FUNCTION_CALL(ret_decodePoint,
+        pDomainParams->pDecodePointFct(
+            pDomainParams,
+            buffPubKey) );
+    if(MCUXCLECC_STATUS_OK != ret_decodePoint)
+    {
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult, ret_decodePoint,
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_PreHashMessage), 
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_CalcHashModN),
+            pDomainParams->pDecodePoint_FP_FuncId);
+    }
+
+
+    /*
+     * Step 3: Calculate P2' = h * Q using repeated point doubling, and store the result in homogeneous
+     *         coordinates (X:Y:Z) in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+     */
+    MCUX_CSSL_FP_FUNCTION_CALL_VOID(mcuxClEcc_TwEd_RepeatedDoubling(pDomainParams->c));
+
+    /*
+     * Step 4: Call function pDomainParameters->pPlainVarScalarMultFct to calculate
+     *           P2 = (H(prefix||Renc||Qenc||m') mod n) * P2'
+     *              = h * H(prefix||Renc||Qenc||m') * Q
+     *         and store the result in homogeneous coordinates in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+     *
+     * NOTES:
+     *  - Due to the scalar multiplication by the cofactor h above, P2' is ensured to be in the base point order group
+     *    of order n. Therefore, the variable scalar multiplication function, which only works for points for input points
+     *    in this group, can be used
+     *  - Since the input point P2' has order dividing n, it's fine to use the scalar (H(prefix||Renc||Qenc||m') mod n) instead
+     *    of H(prefix||Renc||Qenc||m'). Note that this would not have been the case for the public key which might be a point
+     *    of even order such that (H(prefix||Renc||Qenc||m') mod n) * Q is not necessarily the same as H(prefix||Renc||Qenc||m') * Q.
+     *  - If either the scalar is zero mod n or P2' is the neutal point, the resulting neutral point is correctly returned in buffers
+     *    ECC_COORD00, ECC_COORD01 and ECC_COORD02 by the function.
+     */
+
+    MCUX_CSSL_FP_FUNCTION_CALL(ret_plainVarScalarMult,
+        pDomainParams->common.pScalarMultFunctions->plainVarScalarMultFct(
+            pSession,
+            &pDomainParams->common,
+            ECC_S0,
+            bitLenN,
+            MCUXCLECC_SCALARMULT_OPTION_PROJECTIVE_OUTPUT));
+
+    MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult, ret_plainVarScalarMult,
+        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_PreHashMessage),
+        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_CalcHashModN),
+        pDomainParams->pDecodePoint_FP_FuncId,
+        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_TwEd_RepeatedDoubling),
+        pDomainParams->common.pScalarMultFunctions->plainVarScalarMultFctFPId);    
+}
 
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEcc_EdDSA_VerifySignature_Core)
@@ -45,9 +303,9 @@ static MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_VerifySig
     mcuxClSession_Handle_t session,
     mcuxClKey_Handle_t key,
     const mcuxClEcc_EdDSA_SignatureProtocolDescriptor_t *mode,
-    const uint8_t *pIn,
+    mcuxCl_InputBuffer_t pIn,
     uint32_t inSize,
-    const uint8_t *pSignature,
+    mcuxCl_InputBuffer_t pSignature,
     uint32_t signatureSize )
 {
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEcc_EdDSA_VerifySignature_Core);
@@ -55,24 +313,21 @@ static MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_VerifySig
     /*
      * Step 1: Set up the environment
      */
-
     /* mcuxClEcc_CpuWa_t will be allocated and placed in the beginning of CPU workarea free space by SetupEnvironment. */
-    MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES("MISRA Ex. 9 to Rule 11.3 - re-interpreting the memory")
-    mcuxClEcc_CpuWa_t * const pCpuWorkarea = (mcuxClEcc_CpuWa_t *) mcuxClSession_allocateWords_cpuWa(session, 0u);
-    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY_BETWEEN_INAPT_ESSENTIAL_TYPES()
+    mcuxClEcc_CpuWa_t * const pCpuWorkarea = mcuxClEcc_castToEccCpuWorkarea(mcuxClSession_getCpuWaBuffer(session));
     mcuxClEcc_EdDSA_DomainParams_t * const pDomainParams = (mcuxClEcc_EdDSA_DomainParams_t *) mcuxClKey_getTypeInfo(key);
 
     MCUX_CSSL_FP_FUNCTION_CALL(retSetupEnvironment,
         mcuxClEcc_EdDSA_SetupEnvironment(session, pDomainParams, ECC_EDDSA_NO_OF_BUFFERS) );
     if (MCUXCLECC_STATUS_OK != retSetupEnvironment)
     {
+        MCUXCLECC_HANDLE_HW_UNAVAILABLE(retSetupEnvironment, mcuxClEcc_EdDSA_VerifySignature_Core);
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
     }
 
     const uint32_t encodedLen = (uint32_t) pDomainParams->b / 8u;
     const uint32_t sigLength = encodedLen * 2u;
-    const uint8_t *pSignatureR = pSignature;
-    const uint8_t *pSignatureS = pSignature + encodedLen;
+    const mcuxCl_InputBuffer_t buffSignatureR = pSignature;
 
     /*
      * Step 2: Verify that the passed signatureSize value is as expected.
@@ -80,395 +335,227 @@ static MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_VerifySig
 
     if (signatureSize != sigLength)
     {
-        MCUXCLPKC_FP_DEINITIALIZE(&pCpuWorkarea->pkcStateBackup);
         mcuxClSession_freeWords_pkcWa(session, pCpuWorkarea->wordNumPkcWa);
+        MCUXCLPKC_FP_DEINITIALIZE_RELEASE(session, &pCpuWorkarea->pkcStateBackup,
+            mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
+
         mcuxClSession_freeWords_cpuWa(session, pCpuWorkarea->wordNumCpuWa);
 
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_INVALID_PARAMS,
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize),             /* Clean up */
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment) ); /* Step 1 */
+            MCUXCLPKC_FP_CALLED_DEINITIALIZE_RELEASE,
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment));
     }
 
+    uint32_t operandSize = MCUXCLPKC_PS1_GETOPLEN();
+    MCUX_CSSL_FP_FUNCTION_CALL(leadingZerosN, mcuxClMath_LeadingZeros(ECC_N));
+    MCUX_CSSL_ANALYSIS_ASSERT_PARAMETER(leadingZerosN, 0u, (operandSize * 8u), MCUXCLECC_STATUS_FAULT_ATTACK)
+    uint32_t bitLenN = (operandSize * 8u) - leadingZerosN;
 
     /*
-     * Step 3: Import signature component S to buffer ECC_S0 and check if it is smaller than n.
+     * Step 3: Import signature component S and check if S < n holds. If not, return INVALID_SIGNATURE. Otherwise, calculate
+     *         P1 = h * S * G, and store the result in homogeneous coordinates in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+     *         In case S = 0, the neutral point is also correctly computed by the function.
      */
-
-    /* Import S to ECC_S0 */
-    MCUXCLPKC_FP_IMPORTLITTLEENDIANTOPKC(ECC_S0, pSignatureS, encodedLen);
-
-    /* Check s < n. */
-    MCUXCLPKC_FP_CALC_OP1_CMP(ECC_S0, ECC_N);
-    if (MCUXCLPKC_FLAG_NOCARRY == MCUXCLPKC_WAITFORFINISH_GETCARRY())
-    {   /* s >= n. */
-        MCUXCLPKC_FP_DEINITIALIZE(&pCpuWorkarea->pkcStateBackup);
+    MCUX_CSSL_FP_FUNCTION_CALL(retBasePointScalarMult,
+        mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult(
+            session,
+            pDomainParams,
+            pSignature,
+            bitLenN));
+    if (MCUXCLECC_STATUS_OK != retBasePointScalarMult)
+    {
         mcuxClSession_freeWords_pkcWa(session, pCpuWorkarea->wordNumPkcWa);
+        MCUXCLPKC_FP_DEINITIALIZE_RELEASE(session, &pCpuWorkarea->pkcStateBackup,
+            mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
+
         mcuxClSession_freeWords_cpuWa(session, pCpuWorkarea->wordNumCpuWa);
 
-        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_INVALID_SIGNATURE,
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize),             /* Clean up */
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment),   /* Step 1 */
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_ImportLittleEndianToPkc),  /* Step 3 */
-            MCUXCLPKC_FP_CALLED_CALC_OP1_CMP);
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, retBasePointScalarMult,
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment),
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClMath_LeadingZeros),
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult),
+            MCUXCLPKC_FP_CALLED_DEINITIALIZE_RELEASE);
     }
 
+    /*
+     * Step 4: Back up the coordinates of P1 in buffers ECC_COORD25, ECC_COORD26 and ECC_COORD27.
+     */
+    MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD25, ECC_COORD00, 0u);
+    MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD26, ECC_COORD01, 0u);
+    MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD27, ECC_COORD02, 0u);
 
     /*
-     * Step 4: Calculate P1 = S * G, and store the result in homogeneous coordinates in MR in buffers
-     * ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+     * Step 5: Computes the value H(prefix||Renc||Qenc||m') mod n, decode the public EdDSA key Qenc and perform the scalar multiplication
+     *         P2 = h * H(prefix||Renc||Qenc||m') * Q = (H(prefix||Renc||Qenc||m') mod n) * (h * Q) with the decoded EdDSA public key Q
+     *         and store the result in homogeneous coordinates in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+     *         Even if the scalar is zero mod n or the public key is the neutral point or of even order, the result is correctly computed.
+     *         If the public key decoding fails, i.e. when the corresponding point is not on the curve, INVALID_PARAMS will be returned.
      */
-    uint32_t operandSize = MCUXCLPKC_PS1_GETOPLEN();
-    uint32_t leadingZeroN = 0u;
-    MCUX_CSSL_FP_FUNCTION_CALL_VOID(mcuxClMath_LeadingZeros(ECC_N, &leadingZeroN));
-    uint32_t bitLenN = (operandSize * 8u) - leadingZeroN;
-
-    /* Calculate P1 = S * G */
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_plainFixScalarMult,
-        pDomainParams->common.pPlainFixScalarMultFctFP->pScalarMultFct(
+    MCUX_CSSL_FP_FUNCTION_CALL(retPubScalarMult,
+        mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult(
             session,
-            (mcuxClEcc_CommonDomainParams_t *)&pDomainParams->common,
-            ECC_S0,
-            bitLenN,
-            0));
-    if(MCUXCLECC_STATUS_OK != ret_plainFixScalarMult)
-    {
-        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
+            key,
+            mode,
+            pIn,
+            inSize,
+            pCpuWorkarea,
+            pDomainParams,
+            buffSignatureR,
+            bitLenN));
+    if (MCUXCLECC_STATUS_OK != retPubScalarMult)
+    {   /* s >= n. */
+        mcuxClSession_freeWords_pkcWa(session, pCpuWorkarea->wordNumPkcWa);
+        MCUXCLPKC_FP_DEINITIALIZE_RELEASE(session, &pCpuWorkarea->pkcStateBackup,
+            mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
+
+        mcuxClSession_freeWords_cpuWa(session, pCpuWorkarea->wordNumCpuWa);
+
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, retPubScalarMult,
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment),
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClMath_LeadingZeros),
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult),
+            3u * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult),
+            MCUXCLPKC_FP_CALLED_DEINITIALIZE_RELEASE);
     }
 
-
     /*
-     * Step 5: Back up the coordinates of P1 in buffers ECC_COORD25, ECC_COORD26 and ECC_COORD27.
+     * Step 6: Calculate h * R' = P1-P2, check that it lies on the curve and store the homogeneous coordinates of R' in the buffers
+     *         ECC_COORD25, ECC_COORD26 and ECC_COORD27.
      */
 
+    MCUXCLPKC_FP_CALCFUP(mcuxClEcc_FUP_TwEd_PointSubtraction,
+                        mcuxClEcc_FUP_TwEd_PointSubtraction_LEN);
+
+    /* Verify that h * R' lies on the curve */
+    MCUXCLPKC_FP_CALCFUP(mcuxClEcc_FUP_TwEd_PointValidation_HomMR, mcuxClEcc_FUP_TwEd_PointValidation_HomMR_LEN);
+
+    if (MCUXCLPKC_FLAG_ZERO != MCUXCLPKC_WAITFORFINISH_GETZERO())
+    {
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature, MCUXCLECC_STATUS_FAULT_ATTACK);
+    }
+
+    /* Backup h*R' */
     MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD25, ECC_COORD00, 0u);
     MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD26, ECC_COORD01, 0u);
     MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD27, ECC_COORD02, 0u);
 
 
     /*
-     * Step 6: Derive the hash prefix from the mode parameter and calculate H(prefix||Renc||Qenc||m') mod n
-     * and store it in buffer ECC_S0.
-     */
+    * Step 7: Call function pDomainParams->pDecodePointFct to decode Renc and store the homogeneous coordinates of
+    * the decoded point R in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02. If the decoding fails, return #MCUXCLECC_STATUS_INVALID_SIGNATURE.
+    */
 
-    uint8_t *pPubKey = mcuxClKey_getKeyData(key);
-
-    /* Generate digest m' from m in case phflag is set */
-    const uint8_t *m =  NULL;
-    uint32_t mLen = 0u;
-    MCUX_CSSL_FP_FUNCTION_CALL(retPreHash, mcuxClEcc_EdDSA_PreHashMessage(session, pDomainParams, mode->phflag, pIn, inSize, &m, &mLen));
-    if (MCUXCLECC_STATUS_OK != retPreHash)
+    MCUX_CSSL_FP_FUNCTION_CALL(ret2_decodePoint,
+    pDomainParams->pDecodePointFct(
+        pDomainParams,
+        pSignature));
+    if (MCUXCLECC_STATUS_INVALID_PARAMS == ret2_decodePoint)
     {
-        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
-    }
-
-    /* Initialize hash context */
-    mcuxClHash_Context_t pCtx = (mcuxClHash_Context_t) mcuxClSession_allocateWords_cpuWa(session, MCUXCLHASH_CONTEXT_SIZE / sizeof(uint32_t));
-
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_CalcHashModN,
-        mcuxClEcc_EdDSA_CalcHashModN(
-            session, pCtx, pDomainParams,
-            mode->pHashPrefix, mode->hashPrefixLen,
-            pSignatureR,
-            (const uint8_t*)pPubKey,
-            m, mLen) );
-    if (MCUXCLECC_STATUS_OK != ret_CalcHashModN)
-    {
-        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
-    }
-
-    /* Free the hash context */
-    mcuxClSession_freeWords_cpuWa(session, MCUXCLHASH_CONTEXT_SIZE / sizeof(uint32_t));
-
-
-    /*
-     * Step 7: Call function pDomainParams->pDecodePointFct to decode the public key Qenc and store
-     * the homogeneous coordinates of the decoded point Q in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
-     */
-
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_decodePoint,
-        pDomainParams->pDecodePointFct(
-            pDomainParams,
-            (const uint8_t*)pPubKey) );
-    if(MCUXCLECC_STATUS_INVALID_PARAMS == ret_decodePoint)
-    {
-        MCUXCLPKC_FP_DEINITIALIZE(&pCpuWorkarea->pkcStateBackup);
         mcuxClSession_freeWords_pkcWa(session, pCpuWorkarea->wordNumPkcWa);
+        MCUXCLPKC_FP_DEINITIALIZE_RELEASE(session, &pCpuWorkarea->pkcStateBackup,
+            mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
+
         mcuxClSession_freeWords_cpuWa(session, pCpuWorkarea->wordNumCpuWa);
 
-        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_INVALID_PARAMS,
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize),             /* Clean up */
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment),   /* Step 1 */
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_ImportLittleEndianToPkc),  /* Step 3 */
-            MCUXCLPKC_FP_CALLED_CALC_OP1_CMP,
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClMath_LeadingZeros),            /* Step 4 */
-            pDomainParams->common.pPlainFixScalarMultFctFP->scalarMultFct_FP_FuncId,
-            3u * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,                      /* Step 5 */
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_PreHashMessage),     /* Step 6 */
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_CalcHashModN),
-            pDomainParams->pDecodePoint_FP_FuncId);                         /* Step 7 */
+        MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_INVALID_SIGNATURE,
+            MCUXCLPKC_FP_CALLED_DEINITIALIZE_RELEASE,                                         /* Clean up */
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment),                    /* Step 1 */
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClMath_LeadingZeros),                             /* Step 2 */
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult), /* Step 3 */
+            3U * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,                                       /* Step 4 */
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult),    /* Step 5 */
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup),                                   /* Step 6 */
+            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup),
+            3U * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,
+            pDomainParams->pDecodePoint_FP_FuncId);
     }
-    else if(MCUXCLECC_STATUS_OK != ret_decodePoint)
+    else if(MCUXCLECC_STATUS_OK != ret2_decodePoint)
     {
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
     }
     else
     {
-        /* Intentionally left empty */
+        /* Intentionally empty */
     }
 
+    /*
+    * Step 8: Calculate h*R using repeated point doubling, and store the result in homogeneous
+    *         coordinates (X:Y:Z) in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
+    */
+    MCUX_CSSL_FP_FUNCTION_CALL_VOID(mcuxClEcc_TwEd_RepeatedDoubling(pDomainParams->c));
 
     /*
-     * Step 8: Call function pDomainParameters->pPlainVarScalarMultFct to calculate
-     * P2 = (H(prefix||Renc||Qenc||m') mod n)*Q and store the result in homogeneous coordinates in MR
-     * in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
-     */
-
-    MCUX_CSSL_FP_FUNCTION_CALL(ret_plainVarScalarMult,
-        pDomainParams->common.pPlainVarScalarMultFctFP->pScalarMultFct(
-            session,
-            &pDomainParams->common,
-            ECC_S0,
-            bitLenN,
-            0));
-    if(MCUXCLECC_STATUS_OK != ret_plainVarScalarMult)
+    * Step 9: Before finally comparing h*R = (X:Y:Z) with h*R' = (X':Y':Z'), perform a sanity check on the Z-coordinates.
+    *         Since both h*R and h*R' are valid points on the curve derived from finite points via complete curve 
+    *         arithmetic formulas arithmetic, they must also be finite, since for Ed25519 and Ed448 
+    *         the curve parameter d is a non-square modulo p.
+    *         Hence, if one of the two Z-coordinates is zero mod p, FAULT_ATTACK is returned.
+    */
+    MCUXCLPKC_FP_CALC_MC1_MM(ECC_T0, ECC_COORD02, ECC_COORD27, ECC_P); // = Z*Z' in MR
+    MCUXCLPKC_FP_CALC_MC1_MR(ECC_T1, ECC_T0, ECC_P); // = Z*Z' in NR in range [0,p]
+    MCUXCLPKC_FP_CALC_MC1_MS(ECC_T0, ECC_T1, ECC_P, ECC_P); // = Z*Z' mod p
+    if(MCUXCLPKC_FLAG_ZERO == MCUXCLPKC_WAITFORFINISH_GETZERO())
     {
         MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
     }
 
-
     /*
-     * Step 9: Calculate R' = P1-P2 and store the homogeneous coordinates of R' in ECC_COORD00, ECC_COORD01 and ECC_COORD02.
-     */
-
-    MCUXCLPKC_FP_CALCFUP(mcuxClEcc_FUP_TwEd_PointSubtraction,
-                        mcuxClEcc_FUP_TwEd_PointSubtraction_LEN);
-
-
-    /*
-     * Step 10: Derive the encoding (R')enc of R' and store it in ECC_COORD03.
-     */
-    MCUXCLPKC_WAITFORREADY();                                              /* TODO: PS2 length is not used in the above FUP, but this is required due to unknown reason (CLNS-7276) */
-    uint32_t encodedLenPkc = MCUXCLPKC_ROUNDUP_SIZE(encodedLen);
-    MCUXCLPKC_PS2_SETLENGTH(0u, encodedLenPkc);
-    MCUXCLPKC_FP_CALC_OP2_CONST(ECC_COORD03, 0u);                          /* Clear encodedLenPkc bytes of buffer ECC_COORD03 */
-    MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD03, ECC_COORD01, 0u);          /* Copy operandSize < encodedLenPkc bytes of the y-coordinate from ECC_COORD01 to ECC_COORD03 */
+    * Step 10: Bring h*R' and h*R to the same Z-coordinate and compare the coordinates.
+    * If the points are not equal, return #MCUXCLECC_STATUS_INVALID_SIGNATURE.
+    */
     uint16_t *pOperands = MCUXCLPKC_GETUPTRT();
-    uint32_t *pRX = MCUXCLPKC_OFFSET2PTRWORD(pOperands[ECC_COORD00]);
-    uint8_t *pREncLastByte = &MCUXCLPKC_OFFSET2PTR(pOperands[ECC_COORD03])[encodedLen - 1u];
-    MCUXCLPKC_WAITFORFINISH();
-    uint32_t lsbX = (*pRX) & (uint32_t)0x01u;                             /* Loading a word is usually cheaper than loading a byte */
-    *pREncLastByte |= ((uint8_t)lsbX << 7u);
+    pOperands[ECC_V0] = pOperands[ECC_COORD25];
+    pOperands[ECC_V1] = pOperands[ECC_COORD26];
+    pOperands[ECC_V2] = pOperands[ECC_COORD27];
 
-    /*
-     * Step 11: Import the signature component Renc and compare it against (R')enc.
-     */
+    /* Run the point comparison of P1 = h*R = (X1:Y1:Z1) and P2 = h*R' = (X2:Y2:Z2). The FUP program expects
+     *  - the coordinates of h*R (point P1) to be passed via ECC_V0, ECC_V1, ECC_V2. 
+     *  - the coordinates of h*R' (point P2) to be stored in buffers ECC_COORD00, ECC_COORD01, ECC_COORD02.
+     * As a result of the FUP program
+     *  - the ZERO flag is set if and only if the PKC comparison of the two points passed 
+     *  - buffers ECC_S0 and ECC_S1 contain the concatenations X1' || Y1' and X2' || Y2', respectively, where 
+     *      - (X1':Y1':Z1') = (X1*Z2:Y1*Z2:Z1*Z2) are updated coordinates of P1 and
+     *      - (X2':Y2':Z2') = (X2*Z1:Y2*Z1:Z2*Z1) are updated coordinates for P2 
+     *    sharing the same Z-coordinate for a potential upcoming double comparison by the CPU. */
+    MCUXCLPKC_FP_CALCFUP(mcuxClEcc_FUP_PointComparisonHom,
+                        mcuxClEcc_FUP_PointComparisonHom_LEN);
 
-    /* Import Renc to ECC_S0 */
-    MCUXCLPKC_FP_IMPORTLITTLEENDIANTOPKC(ECC_S0, pSignature, encodedLen);
+    mcuxClEcc_Status_t retVerify = MCUXCLECC_STATUS_INVALID_SIGNATURE;
 
-    /* Compare ECC_S0 against ECC_COORD03 */
-    MCUXCLPKC_FP_CALC_OP1_CMP(ECC_S0, ECC_COORD03);
-
-
-    /*
-     * Step 12: If (R')enc != Renc, then compare if h*R' and h*R are equal points
-     */
-
-    uint32_t zeroFlag_check = MCUXCLPKC_WAITFORFINISH_GETZERO();
-    MCUX_CSSL_FP_BRANCH_DECL(RencNotEqual);
-    if (MCUXCLPKC_FLAG_ZERO != zeroFlag_check)
+    /* The last result is only zero if and only if R'=R */
+    if (MCUXCLPKC_FLAG_ZERO == MCUXCLPKC_WAITFORFINISH_GETZERO())
     {
-        /*
-        * Step 12a: Call function pDomainParameters->pPlainVarScalarMultFct to calculate h*R' and store the result in
-        * homogeneous coordinates in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
-        */
-
-        /* Compute h and store it in ECC_S1 */
-        const uint8_t h = (uint8_t) (1u << ((uint32_t) pDomainParams->c & 0x1Fu));      /* c = cofactor exponent, i.e. cofactor: h = 2^c */
-        uint8_t *pS1 = MCUXCLPKC_OFFSET2PTR(pOperands[ECC_S1]);
-        pS1[0] = h;
-        uint32_t bitLenH = (uint32_t)pDomainParams->c + (uint32_t)1u;
-
-        /* Compute h*R' */
-        MCUX_CSSL_FP_FUNCTION_CALL(ret2_plainVarScalarMult,
-        pDomainParams->common.pPlainVarScalarMultFctFP->pScalarMultFct(
-            session,
-            &pDomainParams->common,
-            ECC_S1,
-            bitLenH,
-            0));
-        if(MCUXCLECC_STATUS_OK != ret2_plainVarScalarMult)
-        {
-            MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
-        }
-
-
-        /*
-        * Step 12b: Back up the coordinates of h*R' in buffers ECC_COORD25, ECC_COORD26 and ECC_COORD27.
-        */
-
-        MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD25, ECC_COORD00, 0u);
-        MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD26, ECC_COORD01, 0u);
-        MCUXCLPKC_FP_CALC_OP1_OR_CONST(ECC_COORD27, ECC_COORD02, 0u);
-
-
-        /*
-        * Step 12c: Call function pDomainParams->pDecodePointFct to decode Renc and store the homogeneous coordinates of
-        * the decoded point R in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02. If the decoding fails, return #MCUXCLECC_STATUS_INVALID_SIGNATURE.
-        */
-
-        MCUX_CSSL_FP_FUNCTION_CALL(ret2_decodePoint,
-        pDomainParams->pDecodePointFct(
-            pDomainParams,
-            pSignature) );
-        if(MCUXCLECC_STATUS_INVALID_PARAMS == ret2_decodePoint)
-        {
-            MCUXCLPKC_FP_DEINITIALIZE(&pCpuWorkarea->pkcStateBackup);
-            mcuxClSession_freeWords_pkcWa(session, pCpuWorkarea->wordNumPkcWa);
-            mcuxClSession_freeWords_cpuWa(session, pCpuWorkarea->wordNumCpuWa);
-
-            MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_INVALID_PARAMS,
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize),             /* Clean up */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment),   /* Step 1 */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_ImportLittleEndianToPkc),  /* Step 3 */
-                MCUXCLPKC_FP_CALLED_CALC_OP1_CMP,
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClMath_LeadingZeros),            /* Step 4 */
-                pDomainParams->common.pPlainFixScalarMultFctFP->scalarMultFct_FP_FuncId,
-                3u * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,                      /* Step 5 */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_PreHashMessage),     /* Step 6 */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_CalcHashModN),
-                pDomainParams->pDecodePoint_FP_FuncId,                          /* Step 7 */
-                pDomainParams->common.pPlainVarScalarMultFctFP->scalarMultFct_FP_FuncId, /* Step 8 */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup),                  /* Step 9 */
-                MCUXCLPKC_FP_CALLED_CALC_OP2_CONST,                              /* Step 10 */
-                MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_ImportLittleEndianToPkc),  /* Step 11 */
-                MCUXCLPKC_FP_CALLED_CALC_OP1_CMP,
-                pDomainParams->common.pPlainVarScalarMultFctFP->scalarMultFct_FP_FuncId, /* Step 12a */
-                3u * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,                      /* Step 12b */
-                pDomainParams->pDecodePoint_FP_FuncId);                         /* Step 12c */
-        }
-        else if(MCUXCLECC_STATUS_OK != ret2_decodePoint)
-        {
-            MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
-        }
-        else
-        {
-            /* Intentionally left empty */
-        }
-
-
-        /*
-        * Step 12d: Call function pDomainParameters->pPlainVarScalarMultFct to calculate h*R and store the result in
-        * homogeneous coordinates in MR in buffers ECC_COORD00, ECC_COORD01 and ECC_COORD02.
-        */
-
-        MCUX_CSSL_FP_FUNCTION_CALL(ret3_plainVarScalarMult,
-        pDomainParams->common.pPlainVarScalarMultFctFP->pScalarMultFct(
-            session,
-            &pDomainParams->common,
-            ECC_S1,
-            bitLenH,
-            0));
-        if(MCUXCLECC_STATUS_OK != ret3_plainVarScalarMult)
-        {
-            MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
-        }
-
-
-        /*
-        * Step 12e: Bring h*R' and h*R to the same Z-coordinate and compare the coordinates.
-        * If the points are not equal, return #MCUXCLECC_STATUS_INVALID_SIGNATURE.
-        */
-        pOperands[ECC_V0] = pOperands[ECC_COORD25];
-        pOperands[ECC_V1] = pOperands[ECC_COORD26];
-        pOperands[ECC_V2] = pOperands[ECC_COORD27];
-        MCUXCLPKC_FP_CALCFUP(mcuxClEcc_FUP_PointComparisonHom,
-                            mcuxClEcc_FUP_PointComparisonHom_LEN);
-
-        /* The last result is only zero if and only if R'=R */
-        if (MCUXCLPKC_FLAG_ZERO != MCUXCLPKC_WAITFORFINISH_GETZERO())
-        {
-            MCUXCLPKC_FP_DEINITIALIZE(&pCpuWorkarea->pkcStateBackup);
-            mcuxClSession_freeWords_pkcWa(session, pCpuWorkarea->wordNumPkcWa);
-            mcuxClSession_freeWords_cpuWa(session, pCpuWorkarea->wordNumCpuWa);
-
-            MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_INVALID_SIGNATURE,
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize),             /* Clean up */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment),   /* Step 1 */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_ImportLittleEndianToPkc),  /* Step 3 */
-                MCUXCLPKC_FP_CALLED_CALC_OP1_CMP,
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClMath_LeadingZeros),            /* Step 4 */
-                pDomainParams->common.pPlainFixScalarMultFctFP->scalarMultFct_FP_FuncId,
-                3u * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,                      /* Step 5 */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_PreHashMessage),     /* Step 6 */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_CalcHashModN),
-                pDomainParams->pDecodePoint_FP_FuncId,                          /* Step 7 */
-                pDomainParams->common.pPlainVarScalarMultFctFP->scalarMultFct_FP_FuncId, /* Step 8 */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup),                  /* Step 9 */
-                MCUXCLPKC_FP_CALLED_CALC_OP2_CONST,                              /* Step 10 */
-                MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_ImportLittleEndianToPkc),  /* Step 11 */
-                MCUXCLPKC_FP_CALLED_CALC_OP1_CMP,
-                pDomainParams->common.pPlainVarScalarMultFctFP->scalarMultFct_FP_FuncId, /* Step 12a */
-                3u * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,                      /* Step 12b */
-                pDomainParams->pDecodePoint_FP_FuncId,                          /* Step 12c */
-                pDomainParams->common.pPlainVarScalarMultFctFP->scalarMultFct_FP_FuncId, /* Step 12d */
-                MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup));                 /* Step 12e */
-        }
-
-        MCUX_CSSL_FP_BRANCH_POSITIVE(RencNotEqual,
-            /* Step 12a */
-            pDomainParams->common.pPlainVarScalarMultFctFP->scalarMultFct_FP_FuncId,
-            /* Step 12b */
-            3u * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,
-            /* Step 12c */
-            pDomainParams->pDecodePoint_FP_FuncId,
-            /* Step 12d */
-            pDomainParams->common.pPlainVarScalarMultFctFP->scalarMultFct_FP_FuncId,
-            /* Step 12e */
-            MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup) );
+        retVerify = MCUXCLECC_STATUS_OK;
     }
 
     /*
-     * Step 13: Return #MCUXCLECC_STATUS_OK.
+     * Step 11: Return
      */
 
     /* Clean up and exit */
-    MCUXCLPKC_FP_DEINITIALIZE(&pCpuWorkarea->pkcStateBackup);
     mcuxClSession_freeWords_pkcWa(session, pCpuWorkarea->wordNumPkcWa);
+    MCUXCLPKC_FP_DEINITIALIZE_RELEASE(session, &pCpuWorkarea->pkcStateBackup,
+        mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_FAULT_ATTACK);
+
     mcuxClSession_freeWords_cpuWa(session, pCpuWorkarea->wordNumCpuWa);
 
-    MCUX_CSSL_FP_FUNCTION_EXIT_WITH_CHECK(mcuxClEcc_EdDSA_VerifySignature_Core, MCUXCLECC_STATUS_OK, MCUXCLECC_STATUS_FAULT_ATTACK,
-        /* Step 1 */
+    MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClEcc_EdDSA_VerifySignature_Core, retVerify,
         MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_SetupEnvironment),
-        /* Step 3 */
-        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_ImportLittleEndianToPkc),
-        MCUXCLPKC_FP_CALLED_CALC_OP1_CMP,
-        /* Step 4 */
         MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClMath_LeadingZeros),
-        pDomainParams->common.pPlainFixScalarMultFctFP->scalarMultFct_FP_FuncId,
-        /* Step 5 */
+        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_VerifySignature_BasePointScalarMult),
         3u * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,
-        /* Step 6 */
-        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_PreHashMessage),
-        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_CalcHashModN),
-        /* Step 7 */
-        pDomainParams->pDecodePoint_FP_FuncId,
-        /* Step 8 */
-        pDomainParams->common.pPlainVarScalarMultFctFP->scalarMultFct_FP_FuncId,
-        /* Step 9 */
+        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_VerifySignature_PubKeyScalarMult),
         MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup),
-        /* Step 10 */
-        MCUXCLPKC_FP_CALLED_CALC_OP2_CONST,
-        MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,
-        /* Step 11 */
-        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_ImportLittleEndianToPkc),
-        MCUXCLPKC_FP_CALLED_CALC_OP1_CMP,
-        /* Step 12 */
-        MCUX_CSSL_FP_BRANCH_TAKEN_POSITIVE(RencNotEqual, MCUXCLPKC_FLAG_ZERO != zeroFlag_check),
-        /* Step 13 */
-        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_Deinitialize) );
+        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup),
+        3U * MCUXCLPKC_FP_CALLED_CALC_OP1_OR_CONST,
+        pDomainParams->pDecodePoint_FP_FuncId,
+        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_TwEd_RepeatedDoubling),
+        MCUXCLPKC_FP_CALLED_CALC_MC1_MM,
+        MCUXCLPKC_FP_CALLED_CALC_MC1_MR,
+        MCUXCLPKC_FP_CALLED_CALC_MC1_MS,
+        MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClPkc_CalcFup),
+        MCUXCLPKC_FP_CALLED_DEINITIALIZE_RELEASE);
 }
 
 MCUX_CSSL_FP_FUNCTION_DEF(mcuxClEcc_EdDSA_VerifySignature)
@@ -476,23 +563,24 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClEcc_Status_t) mcuxClEcc_EdDSA_VerifySignature(
     mcuxClSession_Handle_t session,
     mcuxClKey_Handle_t key,
     const mcuxClEcc_EdDSA_SignatureProtocolDescriptor_t *mode,
-    const uint8_t *pIn,
+    mcuxCl_InputBuffer_t pIn,
     uint32_t inSize,
-    const uint8_t *pSignature,
+    mcuxCl_InputBuffer_t pSignature,
     uint32_t signatureSize )
 {
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClEcc_EdDSA_VerifySignature);
 
     /* Call core function to calculate EdDSA signature */
     MCUX_CSSL_FP_FUNCTION_CALL(verify_result, mcuxClEcc_EdDSA_VerifySignature_Core(
-    /* mcuxClSession_Handle_t session:                          */ session,
+    /* mcuxClSession_Handle_t session:                           */ session,
     /* mcuxClKey_Handle_t key                                    */ key,
     /* const mcuxClEcc_EdDSA_SignatureProtocolDescriptor_t *mode */ mode,
-    /* const uint8_t *pIn                                       */ pIn,
+    /* mcuxCl_InputBuffer_t pIn                                  */ pIn,
     /* uint32_t inSize                                          */ inSize,
-    /* const uint8_t *pSignature                                */ pSignature,
+    /* mcuxCl_InputBuffer_t pSignature                           */ pSignature,
     /* uint32_t pSignatureSize                                  */ signatureSize));
 
     MCUX_CSSL_FP_FUNCTION_EXIT_WITH_CHECK(mcuxClEcc_EdDSA_VerifySignature, verify_result, MCUXCLECC_STATUS_FAULT_ATTACK,
                                          MCUX_CSSL_FP_FUNCTION_CALLED(mcuxClEcc_EdDSA_VerifySignature_Core));
 }
+

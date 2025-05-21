@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2023 NXP                                                       */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClHmac_Functions.c
@@ -48,8 +48,10 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_compute(
     MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY("Reinterpret structure for different HMAC context types")
     mcuxClHmac_Context_Generic_t *context = (mcuxClHmac_Context_Generic_t *)contextBuffer;
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY()
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer is of the right type (mcuxClHmac_Context_Generic_t *)")
     context->common.pMode = mode;
     context->key = (mcuxClKey_Descriptor_t *) key;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
     MCUX_CSSL_FP_FUNCTION_CALL(result, pAlgo->engineOneshot(session, context, pIn, inLength, pMac, pMacLength));
 
     MCUX_CSSL_FP_FUNCTION_EXIT(mcuxClHmac_compute, result);
@@ -64,7 +66,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_init(
     MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY("Reinterpret structure for different HMAC context types")
     mcuxClHmac_Context_Generic_t * const pCtx = (mcuxClHmac_Context_Generic_t *) pContext;
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY()
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer pCtx is of the right type (mcuxClHmac_Context_Generic_t * const)")
     mcuxClHmac_Algorithm_t pAlgo = (mcuxClHmac_Algorithm_t) pCtx->common.pMode->common.pAlgorithm;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClHmac_init, pAlgo->protectionToken_engineInit);
 
     pCtx->key = (mcuxClKey_Descriptor_t *) key;
@@ -83,7 +87,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_process(
     MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY("Reinterpret structure for different HMAC context types")
     mcuxClHmac_Context_Generic_t * const pCtx = (mcuxClHmac_Context_Generic_t *) pContext;
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY()
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer pCtx is of the right type (mcuxClHmac_Context_Generic_t * const)")
     mcuxClHmac_Algorithm_t pAlgo = (mcuxClHmac_Algorithm_t) pCtx->common.pMode->common.pAlgorithm;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClHmac_process, pAlgo->protectionToken_engineUpdate);
 
     MCUX_CSSL_FP_FUNCTION_CALL(result, pAlgo->engineUpdate(session, pCtx, pIn, inLength));
@@ -101,7 +107,9 @@ MCUX_CSSL_FP_PROTECTED_TYPE(mcuxClMac_Status_t) mcuxClHmac_finish(
     MCUX_CSSL_ANALYSIS_START_SUPPRESS_REINTERPRET_MEMORY("Reinterpret structure for different HMAC context types")
     mcuxClHmac_Context_Generic_t * const pCtx = (mcuxClHmac_Context_Generic_t *) pContext;
     MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_REINTERPRET_MEMORY()
+    MCUX_CSSL_ANALYSIS_START_SUPPRESS_POINTER_INCOMPATIBLE("The pointer pCtx is of the right type (mcuxClHmac_Context_Generic_t * const)")
     mcuxClHmac_Algorithm_t pAlgo = (mcuxClHmac_Algorithm_t) pCtx->common.pMode->common.pAlgorithm;
+    MCUX_CSSL_ANALYSIS_STOP_SUPPRESS_POINTER_INCOMPATIBLE()
     MCUX_CSSL_FP_FUNCTION_ENTRY(mcuxClHmac_finish, pAlgo->protectionToken_engineFinalize);
 
     MCUX_CSSL_FP_FUNCTION_CALL(result, pAlgo->engineFinalize(session, pCtx, pMac, pMacLength));

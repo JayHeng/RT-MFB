@@ -1,11 +1,10 @@
 //*****************************************************************************
 // MIMXRT798S_cm33_core1 startup code for use with MCUXpresso IDE
 //
-// Version : 261023
+// Version : 110924
 //*****************************************************************************
 //
-// Copyright 2016-2023 NXP
-// All rights reserved.
+// Copyright 2016-2024 NXP
 //
 // SPDX-License-Identifier: BSD-3-Clause
 //*****************************************************************************
@@ -154,7 +153,7 @@ WEAK void PIN_INT3_IRQHandler(void);
 WEAK void SAI3_IRQHandler(void);
 WEAK void XSPI2_IRQHandler(void);
 WEAK void MMU2_IRQHandler(void);
-WEAK void GDET2_IRQHandler(void);
+WEAK void Reserved92_IRQHandler(void);
 WEAK void GDET3_IRQHandler(void);
 WEAK void CDOG3_IRQHandler(void);
 WEAK void CDOG4_IRQHandler(void);
@@ -167,10 +166,9 @@ WEAK void TEMPDET0_IRQHandler(void);
 WEAK void TEMPDET1_IRQHandler(void);
 WEAK void EZHV_IRQHandler(void);
 WEAK void SLEEPCON1_IRQHandler(void);
-WEAK void PVT1_AMBER0_IRQHandler(void);
-WEAK void PVT1_RED0_IRQHandler(void);
-WEAK void PVT1_AMBER1_IRQHandler(void);
-WEAK void PVT1_RED1_IRQHandler(void);
+WEAK void PVTS1_CPU1_IRQHandler(void);
+WEAK void Reserved106_IRQHandler(void);
+WEAK void PVTS1_HIFI1_IRQHandler(void);
 
 //*****************************************************************************
 // Forward declaration of the driver IRQ handlers. These are aliased
@@ -254,7 +252,7 @@ void PIN_INT3_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void SAI3_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void XSPI2_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void MMU2_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void GDET2_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void Reserved92_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void GDET3_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void CDOG3_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void CDOG4_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
@@ -267,10 +265,9 @@ void TEMPDET0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void TEMPDET1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void EZHV_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 void SLEEPCON1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void PVT1_AMBER0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void PVT1_RED0_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void PVT1_AMBER1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
-void PVT1_RED1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void PVTS1_CPU1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void Reserved106_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
+void PVTS1_HIFI1_DriverIRQHandler(void) ALIAS(IntDefaultHandler);
 
 //*****************************************************************************
 // The entry point for the application.
@@ -349,8 +346,8 @@ void (* const g_pfnVectors[])(void) = {
     LP_FLEXCOMM18_IRQHandler,     // 28 : FLEXCOMM: Interrupt request
     LP_FLEXCOMM19_IRQHandler,     // 29 : FLEXCOMM: Interrupt request
     LP_FLEXCOMM20_IRQHandler,     // 30 : FLEXCOMM: Interrupt request
-    ADC_IRQHandler,               // 31 : ADC0 Interrupt request
-    SDADC_IRQHandler,             // 32 : SDADC0 Interrupt request
+    ADC_IRQHandler,               // 31 : ADC0: Interrupt request
+    SDADC_IRQHandler,             // 32 : SDADC0: Interrupt request
     GLIKEY1_IRQHandler,           // 33 : GLIKEY: Interrupt
     ACMP_IRQHandler,              // 34 : ACMP: interrupt request
     PDM_EVENT_IRQHandler,         // 35 : MIC: Interrupt request for read data or Error
@@ -410,8 +407,8 @@ void (* const g_pfnVectors[])(void) = {
     SAI3_IRQHandler,              // 89 : sai3: TX/RX interrupt
     XSPI2_IRQHandler,             // 90 : xspi2: Ored interrupt
     MMU2_IRQHandler,              // 91 : mmu2: Interrupt request
-    GDET2_IRQHandler,             // 92 : gdet2_wrapper: Interrupt request
-    GDET3_IRQHandler,             // 93 : gdet3_wrapper: Interrupt request
+    Reserved92_IRQHandler,        // 92 : Reserved interrupt
+    GDET3_IRQHandler,             // 93 : GDET3: Interrupt request
     CDOG3_IRQHandler,             // 94 : cdog3: Interrupt request
     CDOG4_IRQHandler,             // 95 : cdog4: Interrupt request
     Reserved96_IRQHandler,        // 96 : Reserved interrupt
@@ -423,10 +420,9 @@ void (* const g_pfnVectors[])(void) = {
     TEMPDET1_IRQHandler,          // 102: TEMPDET1: Temperature Detect Interrupt request 1
     EZHV_IRQHandler,              // 103: ezhv: Interrupt request
     SLEEPCON1_IRQHandler,         // 104: SLEEPCON_SENSE CPU1 wakeup event
-    PVT1_AMBER0_IRQHandler,       // 105: pvt_monitor1: AMBER0 interrupt
-    PVT1_RED0_IRQHandler,         // 106: pvt_monitor1: RED0 interrupt
-    PVT1_AMBER1_IRQHandler,       // 107: pvt_monitor1: AMBER1 interrupt
-    PVT1_RED1_IRQHandler,         // 108: pvt_monitor1: RED1 interrupt
+    PVTS1_CPU1_IRQHandler,        // 105: PVTS1 CPU1 interrupt
+    Reserved106_IRQHandler,       // 106: Reserved interrupt
+    PVTS1_HIFI1_IRQHandler,       // 107: PVTS1 HIFI1 interrupt
 }; /* End of g_pfnVectors */
 
 #if defined(ENABLE_RAM_VECTOR_TABLE)
@@ -907,8 +903,8 @@ WEAK void MMU2_IRQHandler(void)
 {   MMU2_DriverIRQHandler();
 }
 
-WEAK void GDET2_IRQHandler(void)
-{   GDET2_DriverIRQHandler();
+WEAK void Reserved92_IRQHandler(void)
+{   Reserved92_DriverIRQHandler();
 }
 
 WEAK void GDET3_IRQHandler(void)
@@ -959,20 +955,16 @@ WEAK void SLEEPCON1_IRQHandler(void)
 {   SLEEPCON1_DriverIRQHandler();
 }
 
-WEAK void PVT1_AMBER0_IRQHandler(void)
-{   PVT1_AMBER0_DriverIRQHandler();
+WEAK void PVTS1_CPU1_IRQHandler(void)
+{   PVTS1_CPU1_DriverIRQHandler();
 }
 
-WEAK void PVT1_RED0_IRQHandler(void)
-{   PVT1_RED0_DriverIRQHandler();
+WEAK void Reserved106_IRQHandler(void)
+{   Reserved106_DriverIRQHandler();
 }
 
-WEAK void PVT1_AMBER1_IRQHandler(void)
-{   PVT1_AMBER1_DriverIRQHandler();
-}
-
-WEAK void PVT1_RED1_IRQHandler(void)
-{   PVT1_RED1_DriverIRQHandler();
+WEAK void PVTS1_HIFI1_IRQHandler(void)
+{   PVTS1_HIFI1_DriverIRQHandler();
 }
 
 //*****************************************************************************

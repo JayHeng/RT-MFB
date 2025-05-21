@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2020-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -90,11 +90,11 @@ extern "C" {
  * @ingroup mcuxClEls_Ecc_Macros
  * @{
  */
-#define MCUXCLELS_ECC_HASHED                     ((uint32_t) 0U) ///< Set this option at #mcuxClEls_EccSignOption_t.echashchl or #mcuxClEls_EccVerifyOption_t.echashchl to specify input is the hash of the message
-#define MCUXCLELS_ECC_NOT_HASHED                 ((uint32_t) 1U) ///< Set this option at #mcuxClEls_EccSignOption_t.echashchl or #mcuxClEls_EccVerifyOption_t.echashchl to specify input is the plain message
+#define MCUXCLELS_ECC_HASHED                     (0U) ///< Set this option at #mcuxClEls_EccSignOption_t.echashchl or #mcuxClEls_EccVerifyOption_t.echashchl to specify input is the hash of the message
+#define MCUXCLELS_ECC_NOT_HASHED                 (1U) ///< Set this option at #mcuxClEls_EccSignOption_t.echashchl or #mcuxClEls_EccVerifyOption_t.echashchl to specify input is the plain message
 
-#define MCUXCLELS_ECC_RTF                        ((uint32_t) 1U) ///< Set this option at #mcuxClEls_EccSignOption_t.signrtf to include the RTF in the signature
-#define MCUXCLELS_ECC_NO_RTF                     ((uint32_t) 0U) ///< Set this option at #mcuxClEls_EccSignOption_t.signrtf to not include the RTF in the signature
+#define MCUXCLELS_ECC_RTF                        (1U) ///< Set this option at #mcuxClEls_EccSignOption_t.signrtf to include the RTF in the signature
+#define MCUXCLELS_ECC_NO_RTF                     (0U) ///< Set this option at #mcuxClEls_EccSignOption_t.signrtf to not include the RTF in the signature
 /**
  * @}
  */
@@ -105,21 +105,21 @@ extern "C" {
  * @ingroup mcuxClEls_Ecc_Macros
  * @{
  */
-#define MCUXCLELS_ECC_PUBLICKEY_SIGN_ENABLE      1U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsign to sign the public key (signature will be concatenated to the output public key)
-#define MCUXCLELS_ECC_PUBLICKEY_SIGN_DISABLE     0U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsign to not sign the public key
+#define MCUXCLELS_ECC_PUBLICKEY_SIGN_ENABLE      (1U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsign to sign the public key (signature will be concatenated to the output public key)
+#define MCUXCLELS_ECC_PUBLICKEY_SIGN_DISABLE     (0U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsign to not sign the public key
 
-#define MCUXCLELS_ECC_OUTPUTKEY_SIGN             0U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgtypedh to specify output key will be a signing key usable by #mcuxClEls_EccSign_Async
-#define MCUXCLELS_ECC_OUTPUTKEY_KEYEXCHANGE      1U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgtypedh to specify output key will be a Diffie Helman key usable by #mcuxClEls_EccKeyExchange_Async
+#define MCUXCLELS_ECC_OUTPUTKEY_SIGN             (0U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgtypedh to specify output key will be a signing key usable by #mcuxClEls_EccSign_Async
+#define MCUXCLELS_ECC_OUTPUTKEY_KEYEXCHANGE      (1U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgtypedh to specify output key will be a Diffie Helman key usable by #mcuxClEls_EccKeyExchange_Async
 
-#define MCUXCLELS_ECC_OUTPUTKEY_DETERMINISTIC    0U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsrc to specify output key is deterministic
-#define MCUXCLELS_ECC_OUTPUTKEY_RANDOM           1U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsrc to specify output key is random
+#define MCUXCLELS_ECC_OUTPUTKEY_DETERMINISTIC    (0U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsrc to specify output key is deterministic
+#define MCUXCLELS_ECC_OUTPUTKEY_RANDOM           (1U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsrc to specify output key is random
 
-#define MCUXCLELS_ECC_GEN_PUBLIC_KEY             0U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.skip_pbk to generate a public key
-#define MCUXCLELS_ECC_SKIP_PUBLIC_KEY            1U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.skip_pbk to not generate a public key.
+#define MCUXCLELS_ECC_GEN_PUBLIC_KEY             (0U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.skip_pbk to generate a public key
+#define MCUXCLELS_ECC_SKIP_PUBLIC_KEY            (1U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.skip_pbk to not generate a public key.
                                                    ///< If #MCUXCLELS_ECC_OUTPUTKEY_KEYEXCHANGE set, this option will be ignored and a public key will be generated.
 
-#define MCUXCLELS_ECC_NO_RANDOM_DATA             0U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsign_rnd to not include user provided random data for the signature
-#define MCUXCLELS_ECC_INCLUDE_RANDOM_DATA        1U ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsign_rnd to include user provided random data for the signature.
+#define MCUXCLELS_ECC_NO_RANDOM_DATA             (0U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsign_rnd to not include user provided random data for the signature
+#define MCUXCLELS_ECC_INCLUDE_RANDOM_DATA        (1U) ///< Set this option at #mcuxClEls_EccKeyGenOption_t.kgsign_rnd to include user provided random data for the signature.
                                                    ///< #MCUXCLELS_ECC_PUBLICKEY_SIGN_ENABLE must be set in this case.
 /**
  * @}

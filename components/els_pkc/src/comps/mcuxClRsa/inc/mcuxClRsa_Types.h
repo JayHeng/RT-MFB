@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
-/* Copyright 2020-2023 NXP                                                  */
+/* Copyright 2020-2024 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /**
@@ -51,6 +51,7 @@
 #define MCUXCLRSA_STATUS_SIGN_OK                            ((mcuxClRsa_Status_t) 0x0FF62E03u )  ///< RSA sign operation successful
 #define MCUXCLRSA_STATUS_VERIFY_OK                          ((mcuxClRsa_Status_t) 0x0FF62E07u )  ///< RSA verify operation successful
 #define MCUXCLRSA_STATUS_VERIFYPRIMITIVE_OK                 ((mcuxClRsa_Status_t) 0x0FF62E0Bu )  ///< RSA verify primitive operation (RSAVP1) successful
+#define MCUXCLRSA_STATUS_OK                                 ((mcuxClRsa_Status_t) 0x0FF62E17u )  ///< RSA operation was successful
 #define MCUXCLRSA_STATUS_ERROR                              ((mcuxClRsa_Status_t) 0x0FF65330u )  ///< Error occurred during RSA operation
 #define MCUXCLRSA_STATUS_INVALID_INPUT                      ((mcuxClRsa_Status_t) 0x0FF653F8u )  ///< Input data cannot be processed
 #define MCUXCLRSA_STATUS_VERIFY_FAILED                      ((mcuxClRsa_Status_t) 0x0FF68930u )  ///< Signature verification failed

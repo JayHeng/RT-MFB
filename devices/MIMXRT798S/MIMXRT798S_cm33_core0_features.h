@@ -1,7 +1,7 @@
 /*
 ** ###################################################################
-**     Version:             rev. 1.0, 2023-11-21
-**     Build:               b240329
+**     Version:             rev. 2.0, 2024-05-28
+**     Build:               b241127
 **
 **     Abstract:
 **         Chip specific module features.
@@ -16,6 +16,8 @@
 **     Revisions:
 **     - rev. 1.0 (2023-11-21)
 **         Initial version.
+**     - rev. 2.0 (2024-05-28)
+**         Rev2 DraftA.
 **
 ** ###################################################################
 */
@@ -69,6 +71,8 @@
 #define FSL_FEATURE_SOC_LPUART_COUNT (14)
 /* @brief MIPI_DSI_HOST availability on the SoC. */
 #define FSL_FEATURE_SOC_MIPI_DSI_HOST_COUNT (1)
+/* @brief MPU availability on the SoC. */
+#define FSL_FEATURE_SOC_MPU_COUNT (1)
 /* @brief MRT availability on the SoC. */
 #define FSL_FEATURE_SOC_MRT_COUNT (1)
 /* @brief MU availability on the SoC. */
@@ -137,7 +141,7 @@
 /* @brief Has C2 RRE Bit */
 #define FSL_FEATURE_ACMP_HAS_C2_RRE_BIT (0)
 /* @brief Has C0 HYSTCTR Bit */
-#define FSL_FEATURE_ACMP_HAS_C0_HYSTCTR_BIT (0)
+#define FSL_FEATURE_ACMP_HAS_C0_HYSTCTR_BIT (1)
 /* @brief If support round-robin mode */
 #define FSL_FEATURE_ACMP_HAS_NO_ROUNDROBIN_MODE (1)
 /* @brief If support 3v domain */
@@ -148,6 +152,8 @@
 #define FSL_FEATURE_ACMP_HAS_NO_FILTER_MODE (0)
 /* @brief Has No C0 SE Bit */
 #define FSL_FEATURE_ACMP_HAS_NO_C0_SE_BIT (1)
+/* @brief If has acmp sample signal */
+#define FSL_FEATURE_ACMP_HAS_NO_SAMPLE_SIGNAL (1)
 
 /* LPADC module features */
 
@@ -242,12 +248,14 @@
 
 /* SYSPM module features */
 
-/* @brief Temperature sensor parameter A (slope). */
+/* @brief SYSPM support disable counters if stopped or halted. */
 #define FSL_FEATURE_SYSPM_HAS_PMCR_DCIFSH (1)
-/* @brief Temperature sensor parameter B (offset). */
+/* @brief SYSPM has reset instruction counter. */
 #define FSL_FEATURE_SYSPM_HAS_PMCR_RICTR (1)
 /* @brief Number of PMCR registers signals number of performance monitors available in single SYSPM instance. */
 #define FSL_FEATURE_SYSPM_PMCR_COUNT (1)
+/* @brief SYSPM has instruction counter. */
+#define FSL_FEATURE_SYSPM_HAS_PMICTR (1)
 
 /* CRC module features */
 
@@ -327,6 +335,8 @@
 #define FSL_FEATURE_EDMA_INSTANCE_HAS_MP_CHANNEL_MUXn(x) (0)
 /* @brief Instance has register bit field CH_SBR[INSTR]. */
 #define FSL_FEATURE_EDMA_INSTANCE_HAS_CHANNEL_ACCESS_TYPEn(x) (0)
+/* @brief Whether has SOC level request enable control. */
+#define FSL_FEATURE_EDMA_HAS_SOC_REQUEST_ENABLE (1)
 /* @brief Has register bit fields CH_MATTR[WCACHE], CH_MATTR[RCACHE]. */
 #define FSL_FEATURE_EDMA_HAS_CHANNEL_MEMORY_ATTRIBUTE (0)
 /* @brief Instance has register CH_MATTR. */
@@ -347,6 +357,8 @@
 #define FSL_FEATURE_EDMA_HAS_NO_CH_SBR_SEC (0)
 /* @brief edma5 has different tcd type. */
 #define FSL_FEATURE_EDMA_TCD_TYPEn(x) (0)
+/* @brief Number of DMA channels with asynchronous request capability. */
+#define FSL_FEATURE_EDMA_ASYNCHRO_REQUEST_CHANNEL_COUNT (16)
 
 /* FLEXIO module features */
 
@@ -509,7 +521,7 @@
 /* @brief Has LPUART_PINCFG. */
 #define FSL_FEATURE_LPUART_HAS_PINCFG (1)
 /* @brief Belong to LPFLEXCOMM */
-#define FSL_FEATURE_LPUART_IS_LPFLEXCOMM (0)
+#define FSL_FEATURE_LPUART_IS_LPFLEXCOMM (1)
 /* @brief Has register MODEM Control. */
 #define FSL_FEATURE_LPUART_HAS_MCR (0)
 /* @brief Has register Half Duplex Control. */
@@ -604,10 +616,6 @@
 #define FSL_FEATURE_PDM_HAS_RANGE_CTRL (1)
 /* @brief PDM Has Low Frequency */
 #define FSL_FEATURE_PDM_HAS_STATUS_LOW_FREQ (0)
-/* @brief CLKDIV factor in Medium, High and Low Quality modes */
-#define FSL_FEATURE_PDM_HIGH_QUALITY_CLKDIV_FACTOR (93)
-/* @brief CLKDIV factor in Very Low Quality modes */
-#define FSL_FEATURE_PDM_VERY_LOW_QUALITY_CLKDIV_FACTOR (43)
 /* @brief PDM Has DC_OUT_CTRL. */
 #define FSL_FEATURE_PDM_HAS_DC_OUT_CTRL (1)
 /* @brief PDM Has Fixed DC CTRL VALUE. */
@@ -615,7 +623,7 @@
 /* @brief PDM Has no independent error IRQ. */
 #define FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ (1)
 /* @brief PDM has no minimum clkdiv. */
-#define FSL_FEATURE_PDM_HAS_NO_MINIMUM_CLKDIV (0)
+#define FSL_FEATURE_PDM_HAS_NO_MINIMUM_CLKDIV (1)
 /* @brief PDM Has No VADEF Bitfield In PDM VAD0_STAT Register */
 #define FSL_FEATURE_PDM_HAS_NO_VADEF (1)
 /* @brief PDM Has no FIR_RDY Bitfield In PDM STAT Register */
@@ -634,6 +642,13 @@
 
 /* @brief Has no OS Timer control register in PMC */
 #define FSL_FEATURE_PMC_HAS_NO_OSTIMER_REG (1)
+
+/* PUF module features */
+
+/* @brief SOC has no PUF reset. */
+#define FSL_FEATURE_PUF_HAS_NO_RESET (1)
+/* @brief Puf Activation Code Size. */
+#define FSL_FEATURE_PUF_ACTIVATION_CODE_SIZE (1000)
 
 /* RTC module features */
 
@@ -845,14 +860,10 @@
 #define FSL_FEATURE_XSPI_DLL_REF_VALUE_BYPASS_DELAY_ELEMENT_FINE (0U)
 /* @brief Autoupdate frequency threshold */
 #define FSL_FEATURE_XSPI_DLL_REF_VALUE_AUTOUPDATE_FREQ_THRESHOLD (130000000UL)
-/* @brief Reference counts of autoupdate x16 enabled */
-#define FSL_FEATURE_XSPI_DLL_REF_VALUE_AUTOUPDATE_X16_ENABLED_REF_COUNTER (2U)
-/* @brief Reference counts of autoupdate x16 disabled */
-#define FSL_FEATURE_XSPI_DLL_REF_VALUE_AUTOUPDATE_X16_DISABLED_REF_COUNTER (1U)
-/* @brief autoupdate x16 enabled resolution */
-#define FSL_FEATURE_XSPI_DLL_REF_VALUE_AUTOUPDATE_X16_ENABLED_RES (6U)
-/* @brief autoupdate x16 disabled resolution */
-#define FSL_FEATURE_XSPI_DLL_REF_VALUE_AUTOUPDATE_X16_DISABLE_RES (4U)
+/* @brief Reference counts of autoupdate */
+#define FSL_FEATURE_XSPI_DLL_REF_VALUE_AUTOUPDATE_REF_COUNTER (2U)
+/* @brief autoupdate resolution */
+#define FSL_FEATURE_XSPI_DLL_REF_VALUE_AUTOUPDATE_RES (4U)
 /* @brief Delay Elements in autoupdate_t_div16 offset */
 #define FSL_FEATURE_XSPI_DLL_REF_VALUE_AUTOUPDATE_T_DIV16_OFFSET_DELAY_ELEMENT_COUNT (0U)
 /* @brief Delay Elements in autoupdate offset */

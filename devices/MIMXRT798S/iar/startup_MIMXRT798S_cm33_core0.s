@@ -2,9 +2,9 @@
 ;  @file:    startup_MIMXRT798S_cm33_core0.s
 ;  @purpose: CMSIS Cortex-M33 Core Device Startup File
 ;            MIMXRT798S_cm33_core0
-;  @version: 1.0
-;  @date:    2022-9-15
-;  @build:   b240311
+;  @version: 2.0
+;  @date:    2024-5-28
+;  @build:   b241121
 ; -------------------------------------------------------------------------
 ;
 ; Copyright 1997-2016 Freescale Semiconductor, Inc.
@@ -118,7 +118,7 @@ __vector_table_0x1c
         DCD     WDT1_IRQHandler                               ;WDT: Interrupt request
         DCD     USBPHY0_IRQHandler                            ;HSUSBPHY: UTM interrupt request
         DCD     PUF_IRQHandler                                ;PUF: Interrupt Request
-        DCD     PMIC_IRQN_IRQHandler                          ;PMIC: External PMIC interrupt
+        DCD     Reserved62_IRQHandler                         ;xxx Interrupt 62
         DCD     LP_FLEXCOMM8_IRQHandler                       ;FLEXCOMM: Interrupt request
         DCD     LP_FLEXCOMM9_IRQHandler                       ;FLEXCOMM: Interrupt request
         DCD     LP_FLEXCOMM10_IRQHandler                      ;FLEXCOMM: Interrupt request
@@ -197,10 +197,10 @@ __vector_table_0x1c
         DCD     MMU1_IRQHandler                               ;MMU: Interrupt request
         DCD     MMU2_IRQHandler                               ;MMU: Interrupt request
         DCD     Freqme_IRQHandler                             ;FREQME: Interrupt request
-        DCD     GDET0_IRQHandler                              ;GDET: Interrupt request
-        DCD     GDET1_IRQHandler                              ;GDET: Interrupt request
-        DCD     GDET2_IRQHandler                              ;GDET: Interrupt request
-        DCD     GDET3_IRQHandler                              ;GDET: Interrupt request
+        DCD     GDET0_IRQHandler                              ;GDET0: Interrupt request
+        DCD     Reserved142_IRQHandler                        ;Reserved interrupt
+        DCD     Reserved143_IRQHandler                        ;Reserved interrupt
+        DCD     GDET3_IRQHandler                              ;GDET3: Interrupt request
         DCD     CDOG0_IRQHandler                              ;CDOG: Interrupt request
         DCD     CDOG1_IRQHandler                              ;CDOG: Interrupt request
         DCD     CDOG2_IRQHandler                              ;CDOG: Interrupt request
@@ -222,10 +222,10 @@ __vector_table_0x1c
         DCD     GLIKEY2_IRQHandler                            ;GLIKEY: Interrupt
         DCD     GLIKEY3_IRQHandler                            ;GLIKEY: Interrupt
         DCD     GLIKEY5_IRQHandler                            ;GLIKEY: Interrupt
-        DCD     PVT0_AMBER0_IRQHandler                        ;PVT0 AMBER0 interrupt
-        DCD     PVT0_RED0_IRQHandler                          ;PVT0 RED0 interrupt
-        DCD     PVT0_AMBER1_IRQHandler                        ;PVT0 AMBER1 interrupt
-        DCD     PVT0_RED1_IRQHandler                          ;PVT0 RED1 interrupt
+        DCD     PVTS0_CPU0_IRQHandler                         ;PVTS0 CPU0 interrupt
+        DCD     Reserved167_IRQHandler                        ;Reserved interrupt 167
+        DCD     PVTS0_HIFI4_IRQHandler                        ;PVTS0 HIFI4 interrupt
+        DCD     Reserved169_IRQHandler                        ;Reserved interrupt 169
         DCD     FRO0_IRQHandler                               ;FRO: 300MHz FRO in VDD2 domain Async interrupt
         DCD     FRO1_IRQHandler                               ;FRO: 192MHz FRO in VDD2 domain Async interrupt
         DCD     FRO2_IRQHandler                               ;FRO: 300MHz FRO in VDD1 domain Async interrupt
@@ -631,11 +631,11 @@ PUF_IRQHandler
         LDR     R0, =PUF_DriverIRQHandler
         BX      R0
 
-        PUBWEAK PMIC_IRQN_IRQHandler
-        PUBWEAK PMIC_IRQN_DriverIRQHandler
+        PUBWEAK Reserved62_IRQHandler
+        PUBWEAK Reserved62_DriverIRQHandler
         SECTION .text:CODE:REORDER:NOROOT(2)
-PMIC_IRQN_IRQHandler
-        LDR     R0, =PMIC_IRQN_DriverIRQHandler
+Reserved62_IRQHandler
+        LDR     R0, =Reserved62_DriverIRQHandler
         BX      R0
 
         PUBWEAK LP_FLEXCOMM8_IRQHandler
@@ -1191,18 +1191,18 @@ GDET0_IRQHandler
         LDR     R0, =GDET0_DriverIRQHandler
         BX      R0
 
-        PUBWEAK GDET1_IRQHandler
-        PUBWEAK GDET1_DriverIRQHandler
+        PUBWEAK Reserved142_IRQHandler
+        PUBWEAK Reserved142_DriverIRQHandler
         SECTION .text:CODE:REORDER:NOROOT(2)
-GDET1_IRQHandler
-        LDR     R0, =GDET1_DriverIRQHandler
+Reserved142_IRQHandler
+        LDR     R0, =Reserved142_DriverIRQHandler
         BX      R0
 
-        PUBWEAK GDET2_IRQHandler
-        PUBWEAK GDET2_DriverIRQHandler
+        PUBWEAK Reserved143_IRQHandler
+        PUBWEAK Reserved143_DriverIRQHandler
         SECTION .text:CODE:REORDER:NOROOT(2)
-GDET2_IRQHandler
-        LDR     R0, =GDET2_DriverIRQHandler
+Reserved143_IRQHandler
+        LDR     R0, =Reserved143_DriverIRQHandler
         BX      R0
 
         PUBWEAK GDET3_IRQHandler
@@ -1359,32 +1359,32 @@ GLIKEY5_IRQHandler
         LDR     R0, =GLIKEY5_DriverIRQHandler
         BX      R0
 
-        PUBWEAK PVT0_AMBER0_IRQHandler
-        PUBWEAK PVT0_AMBER0_DriverIRQHandler
+        PUBWEAK PVTS0_CPU0_IRQHandler
+        PUBWEAK PVTS0_CPU0_DriverIRQHandler
         SECTION .text:CODE:REORDER:NOROOT(2)
-PVT0_AMBER0_IRQHandler
-        LDR     R0, =PVT0_AMBER0_DriverIRQHandler
+PVTS0_CPU0_IRQHandler
+        LDR     R0, =PVTS0_CPU0_DriverIRQHandler
         BX      R0
 
-        PUBWEAK PVT0_RED0_IRQHandler
-        PUBWEAK PVT0_RED0_DriverIRQHandler
+        PUBWEAK Reserved167_IRQHandler
+        PUBWEAK Reserved167_DriverIRQHandler
         SECTION .text:CODE:REORDER:NOROOT(2)
-PVT0_RED0_IRQHandler
-        LDR     R0, =PVT0_RED0_DriverIRQHandler
+Reserved167_IRQHandler
+        LDR     R0, =Reserved167_DriverIRQHandler
         BX      R0
 
-        PUBWEAK PVT0_AMBER1_IRQHandler
-        PUBWEAK PVT0_AMBER1_DriverIRQHandler
+        PUBWEAK PVTS0_HIFI4_IRQHandler
+        PUBWEAK PVTS0_HIFI4_DriverIRQHandler
         SECTION .text:CODE:REORDER:NOROOT(2)
-PVT0_AMBER1_IRQHandler
-        LDR     R0, =PVT0_AMBER1_DriverIRQHandler
+PVTS0_HIFI4_IRQHandler
+        LDR     R0, =PVTS0_HIFI4_DriverIRQHandler
         BX      R0
 
-        PUBWEAK PVT0_RED1_IRQHandler
-        PUBWEAK PVT0_RED1_DriverIRQHandler
+        PUBWEAK Reserved169_IRQHandler
+        PUBWEAK Reserved169_DriverIRQHandler
         SECTION .text:CODE:REORDER:NOROOT(2)
-PVT0_RED1_IRQHandler
-        LDR     R0, =PVT0_RED1_DriverIRQHandler
+Reserved169_IRQHandler
+        LDR     R0, =Reserved169_DriverIRQHandler
         BX      R0
 
         PUBWEAK FRO0_IRQHandler
@@ -1461,7 +1461,7 @@ WDT0_DriverIRQHandler
 WDT1_DriverIRQHandler
 USBPHY0_DriverIRQHandler
 PUF_DriverIRQHandler
-PMIC_IRQN_DriverIRQHandler
+Reserved62_DriverIRQHandler
 LP_FLEXCOMM8_DriverIRQHandler
 LP_FLEXCOMM9_DriverIRQHandler
 LP_FLEXCOMM10_DriverIRQHandler
@@ -1541,8 +1541,8 @@ MMU1_DriverIRQHandler
 MMU2_DriverIRQHandler
 Freqme_DriverIRQHandler
 GDET0_DriverIRQHandler
-GDET1_DriverIRQHandler
-GDET2_DriverIRQHandler
+Reserved142_DriverIRQHandler
+Reserved143_DriverIRQHandler
 GDET3_DriverIRQHandler
 CDOG0_DriverIRQHandler
 CDOG1_DriverIRQHandler
@@ -1565,10 +1565,10 @@ GLIKEY0_DriverIRQHandler
 GLIKEY2_DriverIRQHandler
 GLIKEY3_DriverIRQHandler
 GLIKEY5_DriverIRQHandler
-PVT0_AMBER0_DriverIRQHandler
-PVT0_RED0_DriverIRQHandler
-PVT0_AMBER1_DriverIRQHandler
-PVT0_RED1_DriverIRQHandler
+PVTS0_CPU0_DriverIRQHandler
+Reserved167_DriverIRQHandler
+PVTS0_HIFI4_DriverIRQHandler
+Reserved169_DriverIRQHandler
 FRO0_DriverIRQHandler
 FRO1_DriverIRQHandler
 FRO2_DriverIRQHandler

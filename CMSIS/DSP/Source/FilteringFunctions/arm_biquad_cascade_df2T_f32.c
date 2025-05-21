@@ -43,12 +43,11 @@
   @param[in]     pSrc      points to the block of input data
   @param[out]    pDst      points to the block of output data
   @param[in]     blockSize number of samples to process
-  @return        none
  */
 #if (defined(ARM_MATH_MVEF) && defined(ARM_MATH_HELIUM_EXPERIMENTAL)) && !defined(ARM_MATH_AUTOVECTORIZE)
 #include "arm_helium_utils.h"
 
-void arm_biquad_cascade_df2T_f32(
+ARM_DSP_ATTRIBUTE void arm_biquad_cascade_df2T_f32(
   const arm_biquad_cascade_df2T_instance_f32 * S,
   const float32_t * pSrc,
         float32_t * pDst,
@@ -182,7 +181,7 @@ void arm_biquad_cascade_df2T_f32(
 #else
 #if defined(ARM_MATH_NEON) 
 
-void arm_biquad_cascade_df2T_f32(
+ARM_DSP_ATTRIBUTE void arm_biquad_cascade_df2T_f32(
   const arm_biquad_cascade_df2T_instance_f32 * S,
   const float32_t * pSrc,
         float32_t * pDst,
@@ -343,8 +342,8 @@ void arm_biquad_cascade_df2T_f32(
    }
 }
 #else
-LOW_OPTIMIZATION_ENTER
-void arm_biquad_cascade_df2T_f32(
+
+ARM_DSP_ATTRIBUTE void arm_biquad_cascade_df2T_f32(
   const arm_biquad_cascade_df2T_instance_f32 * S,
   const float32_t * pSrc,
         float32_t * pDst,
@@ -643,7 +642,7 @@ void arm_biquad_cascade_df2T_f32(
    } while (stage > 0U);
 
 }
-LOW_OPTIMIZATION_EXIT
+
 #endif /* #if defined(ARM_MATH_NEON) */
 #endif /* defined(ARM_MATH_MVEF) && !defined(ARM_MATH_AUTOVECTORIZE) */
 

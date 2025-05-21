@@ -1,14 +1,14 @@
 /*--------------------------------------------------------------------------*/
 /* Copyright 2021-2023 NXP                                                  */
 /*                                                                          */
-/* NXP Confidential. This software is owned or controlled by NXP and may    */
+/* NXP Proprietary. This software is owned or controlled by NXP and may     */
 /* only be used strictly in accordance with the applicable license terms.   */
 /* By expressly accepting such terms or by downloading, installing,         */
 /* activating and/or otherwise using the software, you are agreeing that    */
 /* you have read, and that you agree to comply with and are bound by, such  */
-/* license terms. If you do not agree to be bound by the applicable license */
-/* terms, then you may not retain, install, activate or otherwise use the   */
-/* software.                                                                */
+/* license terms.  If you do not agree to be bound by the applicable        */
+/* license terms, then you may not retain, install, activate or otherwise   */
+/* use the software.                                                        */
 /*--------------------------------------------------------------------------*/
 
 /** @file  mcuxClCipher_Constants.h
@@ -34,6 +34,8 @@
 #define MCUXCLCIPHER_STATUS_ERROR_MEMORY_ALLOCATION      ((mcuxClCipher_Status_t) 0x0222533Cu) // memory allocation error
 #define MCUXCLCIPHER_STATUS_FAULT_ATTACK                 ((mcuxClCipher_Status_t) 0x0222F0F0u)
 #define MCUXCLCIPHER_STATUS_OK                           ((mcuxClCipher_Status_t) 0x02222E03u)
+#define MCUXCLCIPHER_STATUS_JOB_STARTED                  ((mcuxClCipher_Status_t) 0x02222E47u)
+#define MCUXCLCIPHER_STATUS_JOB_COMPLETED                ((mcuxClCipher_Status_t) 0x02222E8Bu)
 
 /** @}*/
 #endif /* MCUXCLCIPHER_CONSTANTS_H_ */

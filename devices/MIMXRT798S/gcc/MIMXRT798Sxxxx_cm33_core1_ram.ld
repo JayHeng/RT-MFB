@@ -4,9 +4,9 @@
 **                          MIMXRT798SGFOA_cm33_core1
 **
 **     Compiler:            GNU C Compiler
-**     Reference manual:    iMXRT700RM Rev.1, 08/2022
-**     Version:             rev. 1.0, 2023-11-14
-**     Build:               b240227
+**     Reference manual:    iMXRT700RM Rev.2 DraftA, 05/2024
+**     Version:             rev. 2.0, 2024-05-28
+**     Build:               b240528
 **
 **     Abstract:
 **         Linker file for the GNU C Compiler
@@ -28,7 +28,8 @@ ENTRY(Reset_Handler)
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
-RPMSG_SHMEM_SIZE = DEFINED(__use_shmem__) ? 0x2000 : 0;
+RPMSG_SHMEM_SIZE = (DEFINED(__use_shmem__) || DEFINED(__use_shmem_hifi1__)) ? 0x2000 : 0;
+RPMSG_SHMEM_START = DEFINED(__use_shmem_hifi1__) ? 0x20588000 : 0x20200000;
 
 /* Specify the memory areas */
 /* The SRAM region [0x580000-0x5BFFFF] is reserved for shared memory or application data. */
@@ -39,7 +40,7 @@ MEMORY
   m_interrupts          (RX)  : ORIGIN = 0x00600000, LENGTH = 0x00000200
   m_text                (RX)  : ORIGIN = 0x00600200, LENGTH = 0x0007FE00
   m_data                (RW)  : ORIGIN = 0x205C0000, LENGTH = 0x00040000
-  rpmsg_sh_mem          (RW)  : ORIGIN = 0x20200000, LENGTH = RPMSG_SHMEM_SIZE
+  rpmsg_sh_mem          (RW)  : ORIGIN = RPMSG_SHMEM_START, LENGTH = RPMSG_SHMEM_SIZE
 }
 
 /* Define output sections */

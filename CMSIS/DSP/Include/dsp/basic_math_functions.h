@@ -1,8 +1,8 @@
 /******************************************************************************
  * @file     basic_math_functions.h
  * @brief    Public header file for CMSIS DSP Library
- * @version  V1.9.0
- * @date     23 April 2021
+ * @version  V1.10.0
+ * @date     08 July 2021
  * Target Processor: Cortex-M and Cortex-A cores
  ******************************************************************************/
 /*
@@ -24,8 +24,8 @@
  */
 
  
-#ifndef _BASIC_MATH_FUNCTIONS_H_
-#define _BASIC_MATH_FUNCTIONS_H_
+#ifndef BASIC_MATH_FUNCTIONS_H_
+#define BASIC_MATH_FUNCTIONS_H_
 
 #include "arm_math_types.h"
 #include "arm_math_memory.h"
@@ -100,6 +100,21 @@ extern "C"
 
 
 
+/**
+ * @brief Floating-point vector multiplication.
+ * @param[in]  pSrcA      points to the first input vector
+ * @param[in]  pSrcB      points to the second input vector
+ * @param[out] pDst       points to the output vector
+ * @param[in]  blockSize  number of samples in each vector
+ */
+void arm_mult_f64(
+const float64_t * pSrcA,
+const float64_t * pSrcB,
+	  float64_t * pDst,
+	  uint32_t blockSize);
+
+
+
  /**
    * @brief Floating-point vector addition.
    * @param[in]  pSrcA      points to the first input vector
@@ -112,6 +127,21 @@ extern "C"
   const float32_t * pSrcB,
         float32_t * pDst,
         uint32_t blockSize);
+
+
+
+/**
+  * @brief Floating-point vector addition.
+  * @param[in]  pSrcA      points to the first input vector
+  * @param[in]  pSrcB      points to the second input vector
+  * @param[out] pDst       points to the output vector
+  * @param[in]  blockSize  number of samples in each vector
+  */
+ void arm_add_f64(
+ const float64_t * pSrcA,
+ const float64_t * pSrcB,
+	   float64_t * pDst,
+	   uint32_t blockSize);
 
 
 
@@ -173,6 +203,21 @@ extern "C"
 
 
   /**
+   * @brief Floating-point vector subtraction.
+   * @param[in]  pSrcA      points to the first input vector
+   * @param[in]  pSrcB      points to the second input vector
+   * @param[out] pDst       points to the output vector
+   * @param[in]  blockSize  number of samples in each vector
+   */
+  void arm_sub_f64(
+  const float64_t * pSrcA,
+  const float64_t * pSrcB,
+        float64_t * pDst,
+        uint32_t blockSize);
+
+
+
+  /**
    * @brief Q7 vector subtraction.
    * @param[in]  pSrcA      points to the first input vector
    * @param[in]  pSrcB      points to the second input vector
@@ -225,6 +270,21 @@ extern "C"
   const float32_t * pSrc,
         float32_t scale,
         float32_t * pDst,
+        uint32_t blockSize);
+
+
+
+  /**
+   * @brief Multiplies a floating-point vector by a scalar.
+   * @param[in]  pSrc       points to the input vector
+   * @param[in]  scale      scale factor to be applied
+   * @param[out] pDst       points to the output vector
+   * @param[in]  blockSize  number of samples in the vector
+   */
+  void arm_scale_f64(
+  const float64_t * pSrc,
+        float64_t scale,
+        float64_t * pDst,
         uint32_t blockSize);
 
 
@@ -302,6 +362,18 @@ extern "C"
 
 
 
+/**
+ * @brief Floating-point vector absolute value.
+ * @param[in]  pSrc       points to the input buffer
+ * @param[out] pDst       points to the output buffer
+ * @param[in]  blockSize  number of samples in each vector
+ */
+void arm_abs_f64(
+const float64_t * pSrc,
+	  float64_t * pDst,
+	  uint32_t blockSize);
+
+
 
   /**
    * @brief Q15 vector absolute value.
@@ -339,6 +411,21 @@ extern "C"
   const float32_t * pSrcB,
         uint32_t blockSize,
         float32_t * result);
+
+
+
+/**
+ * @brief Dot product of floating-point vectors.
+ * @param[in]  pSrcA      points to the first input vector
+ * @param[in]  pSrcB      points to the second input vector
+ * @param[in]  blockSize  number of samples in each vector
+ * @param[out] result     output result returned here
+ */
+void arm_dot_prod_f64(
+const float64_t * pSrcA,
+const float64_t * pSrcB,
+	  uint32_t blockSize,
+	  float64_t * result);
 
 
 
@@ -426,6 +513,21 @@ extern "C"
         uint32_t blockSize);
 
 
+/**
+ * @brief  Adds a constant offset to a floating-point vector.
+ * @param[in]  pSrc       points to the input vector
+ * @param[in]  offset     is the offset to be added
+ * @param[out] pDst       points to the output vector
+ * @param[in]  blockSize  number of samples in the vector
+ */
+void arm_offset_f64(
+const float64_t * pSrc,
+	  float64_t offset,
+	  float64_t * pDst,
+	  uint32_t blockSize);
+
+
+
   /**
    * @brief  Adds a constant offset to a floating-point vector.
    * @param[in]  pSrc       points to the input vector
@@ -495,6 +597,20 @@ extern "C"
         uint32_t blockSize);
 
 
+
+/**
+ * @brief  Negates the elements of a floating-point vector.
+ * @param[in]  pSrc       points to the input vector
+ * @param[out] pDst       points to the output vector
+ * @param[in]  blockSize  number of samples in the vector
+ */
+void arm_negate_f64(
+const float64_t * pSrc,
+	  float64_t * pDst,
+	  uint32_t blockSize);
+
+
+
   /**
    * @brief  Negates the elements of a Q7 vector.
    * @param[in]  pSrc       points to the input vector
@@ -536,7 +652,6 @@ extern "C"
    * @param[in]     pSrcB      points to input vector B
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_and_u16(
     const uint16_t * pSrcA,
@@ -550,7 +665,6 @@ extern "C"
    * @param[in]     pSrcB      points to input vector B
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_and_u32(
     const uint32_t * pSrcA,
@@ -564,7 +678,6 @@ extern "C"
    * @param[in]     pSrcB      points to input vector B
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_and_u8(
     const uint8_t * pSrcA,
@@ -578,7 +691,6 @@ extern "C"
    * @param[in]     pSrcB      points to input vector B
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_or_u16(
     const uint16_t * pSrcA,
@@ -592,7 +704,6 @@ extern "C"
    * @param[in]     pSrcB      points to input vector B
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_or_u32(
     const uint32_t * pSrcA,
@@ -606,7 +717,6 @@ extern "C"
    * @param[in]     pSrcB      points to input vector B
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_or_u8(
     const uint8_t * pSrcA,
@@ -619,7 +729,6 @@ extern "C"
    * @param[in]     pSrc       points to input vector 
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_not_u16(
     const uint16_t * pSrc,
@@ -631,7 +740,6 @@ extern "C"
    * @param[in]     pSrc       points to input vector 
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_not_u32(
     const uint32_t * pSrc,
@@ -643,7 +751,6 @@ extern "C"
    * @param[in]     pSrc       points to input vector 
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_not_u8(
     const uint8_t * pSrc,
@@ -656,7 +763,6 @@ extern "C"
    * @param[in]     pSrcB      points to input vector B
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_xor_u16(
     const uint16_t * pSrcA,
@@ -670,7 +776,6 @@ extern "C"
    * @param[in]     pSrcB      points to input vector B
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_xor_u32(
     const uint32_t * pSrcA,
@@ -684,7 +789,6 @@ extern "C"
    * @param[in]     pSrcB      points to input vector B
    * @param[out]    pDst       points to output vector
    * @param[in]     blockSize  number of samples in each vector
-   * @return        none
    */
   void arm_xor_u8(
     const uint8_t * pSrcA,
@@ -699,7 +803,6 @@ extern "C"
   @param[in]     low           lower bound
   @param[in]     high          higher bound
   @param[in]     numSamples    number of samples to clip
-  @return        none
  */
 
 void arm_clip_f32(const float32_t * pSrc, 
@@ -715,7 +818,6 @@ void arm_clip_f32(const float32_t * pSrc,
   @param[in]     low           lower bound
   @param[in]     high          higher bound
   @param[in]     numSamples    number of samples to clip
-  @return        none
  */
 
 void arm_clip_q31(const q31_t * pSrc, 
@@ -731,7 +833,6 @@ void arm_clip_q31(const q31_t * pSrc,
   @param[in]     low           lower bound
   @param[in]     high          higher bound
   @param[in]     numSamples    number of samples to clip
-  @return        none
  */
 
 void arm_clip_q15(const q15_t * pSrc, 
@@ -747,7 +848,6 @@ void arm_clip_q15(const q15_t * pSrc,
   @param[in]     low           lower bound
   @param[in]     high          higher bound
   @param[in]     numSamples    number of samples to clip
-  @return        none
  */
 
 void arm_clip_q7(const q7_t * pSrc, 
