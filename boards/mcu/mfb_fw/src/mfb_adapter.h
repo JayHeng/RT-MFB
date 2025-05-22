@@ -153,7 +153,7 @@
 #define kMIXSPI_2PAD                    kXSPI_2PAD
 #define kMIXSPI_4PAD                    kXSPI_4PAD
 #define kMIXSPI_8PAD                    kXSPI_8PAD
-#define mixspi_port_t                   uint32_t
+#define mixspi_port_t                   xspi_target_group_t
 #define mixspi_read_sample_clock_t      xspi_sample_clk_source_t
 #define kMIXSPI_SampClkLoopbackDummy0   kXSPI_SampleClkFromNonInvertedFullySpeedDummyPadLoopback
 #define kMIXSPI_SampClkLoopbackDummy1   kXSPI_SampleClkFromInvertedFullySpeedDummyPadLoopback

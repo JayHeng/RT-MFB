@@ -13,7 +13,6 @@
 
 #include "fsl_cache.h"
 #include "fsl_clock.h"
-#include "fsl_cache.h"
 #include "fsl_iopctl.h"
 #include "fsl_xspi.h"
 #include "pin_mux.h"
@@ -32,7 +31,7 @@
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
 #define EXAMPLE_MIXSPI_CLOCK            kCLOCK_Xspi0
-#define EXAMPLE_MIXSPI_PORT             0
+#define EXAMPLE_MIXSPI_PORT             kXSPI_TargetGroup0
 
 #define CACHE_MAINTAIN           1
 #define EXAMPLE_INVALIDATE_XSPI_CACHE do { \
@@ -62,11 +61,11 @@ static void cpu_show_clock_source(void)
 #endif
 }
 
-static void mixspi_port_switch(XSPI_Type *base, uint32_t port, xspi_pad_t pads)
+static void mixspi_port_switch(XSPI_Type *base, mixspi_port_t port, xspi_pad_t pads)
 {
 }
 
-static void mixspi_pin_init(XSPI_Type *base, uint32_t port, xspi_pad_t pads)
+static void mixspi_pin_init(XSPI_Type *base, mixspi_port_t port, xspi_pad_t pads)
 {
     if (base == XSPI0)
     {
