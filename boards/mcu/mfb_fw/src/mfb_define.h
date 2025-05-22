@@ -16,6 +16,7 @@
 
 #define MFB_MIXSPI_MODULE_IS_FLEXSPI 0U
 #define MFB_MIXSPI_MODULE_IS_QUADSPI 1U
+#define MFB_MIXSPI_MODULE_IS_XSPI    2U
 
 // MFB cfg block tag
 #define MFB_CFG_BLK_TAG                  (0x4246U)   // Ascii "FB" Big Endian

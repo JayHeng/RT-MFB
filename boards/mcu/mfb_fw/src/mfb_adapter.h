@@ -20,13 +20,20 @@
 #endif
 
 #if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
-#define mixspi_pad_t                 flexspi_pad_t                
-#define mixspi_read_sample_clock_t   flexspi_read_sample_clock_t  
+#define mixspi_pad_t                 flexspi_pad_t
+#define mixspi_port_t                flexspi_port_t
+#define mixspi_read_sample_clock_t   flexspi_read_sample_clock_t
 #define MIXSPI_Type                  FLEXSPI_Type
 #elif MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_QUADSPI
-#define mixspi_pad_t                 uint32_t  
+#define mixspi_pad_t                 uint32_t
+#define mixspi_port_t                flexspi_port_t
 #define mixspi_read_sample_clock_t   qspi_dqs_read_sample_clock_t
 #define MIXSPI_Type                  QuadSPI_Type
+#elif MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_XSPI
+#define mixspi_pad_t                 xspi_pad_t
+#define mixspi_port_t                uint32_t
+#define mixspi_read_sample_clock_t   xspi_sample_clk_source_t
+#define MIXSPI_Type                  XSPI_Type
 #endif
 
 /*******************************************************************************
