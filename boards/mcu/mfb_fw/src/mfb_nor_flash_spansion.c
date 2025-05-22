@@ -27,114 +27,114 @@ const uint32_t s_customLUT_SPANSION_Quad[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_QPI_MODE_ENABLE
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kMIXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_4PAD, SPANSION_QUAD_FLASH_DUMMY_CYCLES),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kMIXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_4PAD, SPANSION_QUAD_FLASH_DUMMY_CYCLES),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 #else
     /* Fast read quad mode - QPI-SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kMIXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_4PAD, SPANSION_QUAD_FLASH_DUMMY_CYCLES),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kMIXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_4PAD, SPANSION_QUAD_FLASH_DUMMY_CYCLES),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 #endif
 
     /* Read status register - 1 */
     // opcode 0x05/0x07 to read Status Registers (1/2)
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 
     /* Write Enable - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
 #if SPANSION_DEVICE_S25FL064L
     /* Erase 4KB Sector - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
 #elif SPANSION_DEVICE_S25HS512T
     /* Erase 256KB Sector - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0xD8, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0xD8, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
 #endif
 
     /* Page Program - single mode */
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Enable Quad mode */
     // QE bit in 8bit Configuration Register-1[1], there are three Configuration Registers (1/2/3)
     // opcode 0x01 to write Status Registers 1 and Configuration Registers (1&2&3)
     [4 * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04),
 
     /* Write Any register - CFR3N */
     [4 * NOR_CMD_LUT_SEQ_IDX_UNIQUECFG] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x71, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x71, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_UNIQUECFG + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x04),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x04),
     [4 * NOR_CMD_LUT_SEQ_IDX_UNIQUECFG + 2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
 #if SPANSION_DEVICE_S25HS512T
     /* Read Any register */
     // The Read Any Register (RDARG_C_0) transaction is the best way to read all device registers, both nonvolatile and
     //   volatile. This is followed by a number of latency cycles set by (CFR2V[3:0]) for reading nonvolatile registers.
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 
     /* Read Any register */
     // The Read Any Register (RDARG_C_0) transaction is the best way to read all device registers, both nonvolatile and
     //   volatile. This is followed by a number of latency cycles set by CFR3V[7:6] for reading volatile registers.
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 #elif SPANSION_DEVICE_S25FL064L
     /* Read Any register */
     // The Read Any Register (RDAR) command provides a way to read device registers. The instruction is followed by a 3 or 4 Byte
     //   address (depending on the address length configuration CR2V[0]), followed by a number of latency (dummy) cycles set by
     //   CR3V[3:0].
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 #endif
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /* Enter QPI mode */
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x38, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x38, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Read status register -QPI-SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x01),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x01),
 
     /* Write Enable -QPI-SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_QPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0x06, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0x06, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Erase Sector - QPI-SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_QPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
 
     /* Page Program - QPI-SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_QPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 };
 #endif
 
@@ -143,95 +143,95 @@ const uint32_t s_customLUT_SPANSION_Octal[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_OPI_MODE_DISABLE
     /*  DDR OCTAL I/O FAST READ */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xEE, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xEE),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xEE, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xEE),
     // Don't care the dummy value setting here, as it uses external DQS
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x06),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x06),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 #else
     /*  4-BYTE Fast READ (1S-1S-1S) */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x0B, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x20),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x0B, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x20),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, SPANSION_OCTAL_FLASH_DUMMY_CYCLES, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x04),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, SPANSION_OCTAL_FLASH_DUMMY_CYCLES, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x04),
 #endif
 
     /* Read status register -SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 
     /* Write Enable - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Set Dummy cycle */
     // Volatile Configuration Register address 800003h - Dummy cycle configuration
     //   - Default dummy cycle for OPI DDR is 20, max freq is 200MHz
     [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x71, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x80),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x71, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x80),
     [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x03),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x03),
     [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Erase Sector - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x21, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x20),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x21, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x20),
 
     /* 4-BYTE Page Program - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Dummy write, do nothing when AHB write command is triggered. */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /* Enter OPI mode */
     // Volatile Configuration Register address 800006h - I/O mode
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x71, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x80),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x71, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x80),
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06),
     [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Read status register using Octal DDR read */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 2] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 3] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x06, kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01),
 
     /* Write Enable - OPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x06, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x06),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x06, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x06),
 
     /* Erase Sector - OPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x21, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x21),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x21, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x21),
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* 4-BYTE Page Program - OPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x12, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x12),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x12, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x12),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_WRITE_DDR, kMIXSPI_8PAD, 0x04),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_WRITE_DDR, kMIXSPI_8PAD, 0x04),
 
     /* READ ANY REGISTER */
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 0] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x65, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x65),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x65, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x65),
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x08),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x08),
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 };
 #endif
 
@@ -239,95 +239,95 @@ const uint32_t s_customLUT_SPANSION_Octal[CUSTOM_LUT_LENGTH] = {
 const uint32_t s_customLUT_SPANSION_Hyper[CUSTOM_LUT_LENGTH] = {
     /* Read Data */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xA0, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // RA (ROW+COL)
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xA0, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // RA (ROW+COL)
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x04), // RD
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x04), // RD
 
     /* Write Data */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // WA (ROW+COL)
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x20, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // WA (ROW+COL)
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_WRITE_DDR, kMIXSPI_8PAD, 0x02), // WD
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_WRITE_DDR, kMIXSPI_8PAD, 0x02), // WD
 
     /* Read Status */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 3] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x70), // DATA 0x70
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x70), // DATA 0x70
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 4] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xA0, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // RA (ROW+COL)
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xA0, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // RA (ROW+COL)
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 5] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_DUMMY_RWDS_DDR, kMIXSPI_8PAD, 0x0B),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_DUMMY_RWDS_DDR, kMIXSPI_8PAD, 0x0B),
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS + 6] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x0),  // RD
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x0),  // RD
 
     /* Write Enable */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 3] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // DATA 0xAA
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // DATA 0xAA
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 4] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 5] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x55), // ADDR 0x2AA
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x55), // ADDR 0x2AA
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 6] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x02),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x02),
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE + 7] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x55), // DATA 0x55
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x55), // DATA 0x55
 
     /* Erase Sector  */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 3] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x80), // DATA 0x80
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x80), // DATA 0x80
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 4] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 5] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 6] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 7] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // DATA 0xAA
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // DATA 0xAA
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 8] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 9] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x55), // ADDR 0x2AA
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x55), // ADDR 0x2AA
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 10] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x02),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x02),
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 11] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x55), // DATA 0x55
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x55), // DATA 0x55
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 12] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // SA (ROW+COL)
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // SA (ROW+COL)
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 13] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR + 14] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x30, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00), // DATA 0x30
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x30, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00), // DATA 0x30
 
     /* program page with word program command sequence */
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xAA), // ADDR 0x555
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 3] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xA0), // DATA 0xA0
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0xA0), // DATA 0xA0
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 4] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // PA (ROW+COL)
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_DDR,       kMIXSPI_8PAD, 0x00, kFLEXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x18), // PA (ROW+COL)
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 5] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_WRITE_DDR, kMIXSPI_8PAD, 0x80), // PD
+        MIXSPI_LUT_SEQ(kFLEXSPI_Command_CADDR_DDR, kMIXSPI_8PAD, 0x10, kFLEXSPI_Command_WRITE_DDR, kMIXSPI_8PAD, 0x80), // PD
 };
 #endif
 
