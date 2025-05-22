@@ -95,8 +95,8 @@
 #define kMIXSPI_Command_READ_DDR        0xE
 //#define kMIXSPI_Command_LEARN_DDR
 //#define kMIXSPI_Command_DATSZ_DDR
-//#define kMIXSPI_Command_DUMMY_DDR
-//#define kMIXSPI_Command_DUMMY_RWDS_DDR
+#define kMIXSPI_Command_DUMMY_DDR       3
+#define kMIXSPI_Command_DUMMY_RWDS_DDR  3
 #define kMIXSPI_Command_JUMP_ON_CS      9
 //#define kMIXSPI_Command_JUMP_TO_SEQ
 #define mixspi_pad_t                    uint32_t
@@ -141,8 +141,8 @@
 #define kMIXSPI_Command_READ_DDR        kXSPI_Command_READ_DDR
 #define kMIXSPI_Command_LEARN_DDR       kXSPI_Command_LEARN_DDR
 //#define kMIXSPI_Command_DATSZ_DDR
-//#define kMIXSPI_Command_DUMMY_DDR       kFLEXSPI_Command_DUMMY_DDR
-//#define kMIXSPI_Command_DUMMY_RWDS_DDR
+#define kMIXSPI_Command_DUMMY_DDR       kXSPI_Command_DUMMY_SDR
+#define kMIXSPI_Command_DUMMY_RWDS_DDR  kXSPI_Command_DUMMY_SDR
 #define kMIXSPI_Command_JUMP_ON_CS      kXSPI_Command_JMP_ON_CS
 #define kMIXSPI_Command_JUMP_TO_SEQ     kXSPI_Command_JUMP_TO_SEQ
 #define mixspi_pad_t                    xspi_pad_t
