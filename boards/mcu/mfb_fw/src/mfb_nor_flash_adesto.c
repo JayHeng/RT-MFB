@@ -25,40 +25,40 @@
 const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_4PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0xEB, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kFLEXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_4PAD, ADESTO_QUAD_FLASH_DUMMY_CYCLES - 2),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_MODE8_SDR, kMIXSPI_4PAD, 0x00, kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_4PAD, ADESTO_QUAD_FLASH_DUMMY_CYCLES - 2),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Read status register - 1 */
     // opcode 0x05/0x35/0x15 to read Status Registers (1/2/3)
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x01),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 
     /* Write Enable - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Erase Sector - SPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
 
     /* Page Program - single mode */
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Enable Quad mode */
     // QE bit in 8bit Status Register-2[1], there are three Status Registers (1/2/3)
     // opcode 0x01/0x31/0x11 to write Status Registers (1/2/3)
     [4 * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x31, kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x01),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x31, kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
 
     /* Read status register */
     [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x03),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x03),
 };
 #endif
 
@@ -120,7 +120,7 @@ void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID)
 #if ADESTO_DEVICE_QUAD
     if (!g_flashPropertyInfo.flashIsOctal)
     {
-        g_flashPropertyInfo.mixspiPad                 = kFLEXSPI_4PAD;
+        g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
         g_flashPropertyInfo.flashBusyStatusPol        = ADESTO_FLASH_BUSY_STATUS_POL;

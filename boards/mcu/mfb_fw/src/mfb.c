@@ -61,65 +61,65 @@ flexspi_device_config_t g_deviceconfig = {
 const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     /*  Normal read */
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x03, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x03, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Read status register */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x05, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x04),
 
     /* Write Enable */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0X00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0X00),
 
     /* Read ID */
     [4 * NOR_CMD_LUT_SEQ_IDX_READID] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x9F, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x9F, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x04),
 
     /* Read ID - QPI_1 */
     [4 * NOR_CMD_LUT_SEQ_IDX_READID_QPI_1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0xAF, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0xAF, kFLEXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04),
 
     /* Read ID - QPI_2 */
     [4 * NOR_CMD_LUT_SEQ_IDX_READID_QPI_2] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_4PAD, 0x9F, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_4PAD, 0x04),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_4PAD, 0x9F, kFLEXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04),
 
     /* Read ID - OPI */
     [4 * NOR_CMD_LUT_SEQ_IDX_READID_OPI] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_8PAD, 0x9F, kFLEXSPI_Command_DUMMY_DDR, kFLEXSPI_8PAD, 0x06),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_8PAD, 0x9F, kFLEXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x06),
     [4 * NOR_CMD_LUT_SEQ_IDX_READID_OPI + 1] = 
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kFLEXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Read SFDP */
     [4 * NOR_CMD_LUT_SEQ_IDX_READSFDP] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x5A, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x5A, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_READSFDP + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kFLEXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kFLEXSPI_1PAD, 0xFF),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kFLEXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0xFF),
 
     /* Program Security registers or SFDP */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITESECSFDP] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x42, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x42, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITESECSFDP + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0xFF, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0xFF, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Erase Security registers or SFDP */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECSFDP] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x44, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x44, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
 
     /* Dummy write, do nothing when AHB write command is triggered. */
     [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Erase Sector */
     [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x20, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
 
     /* Page Program - single mode */
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kFLEXSPI_1PAD, 0x18),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR,       kMIXSPI_1PAD, 0x02, kFLEXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
-        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kFLEXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+        FLEXSPI_LUT_SEQ(kFLEXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04, kFLEXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 };
 
 /*******************************************************************************
@@ -172,7 +172,7 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
         case kFlashInstMode_QPI_1:
         case kFlashInstMode_QPI_2:
             /* Init FlexSPI pinmux */
-            mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kFLEXSPI_4PAD);
+            mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kMIXSPI_4PAD);
             /* Init FlexSPI using common LUT */ 
             mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally, flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to Quad-I/O for default QPI SDR mode.\r\n");
@@ -180,7 +180,7 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
 
         case kFlashInstMode_OPI:
             /* Init FlexSPI pinmux */
-            mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kFLEXSPI_8PAD);
+            mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kMIXSPI_8PAD);
             /* Init FlexSPI using common LUT */ 
             mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad, flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to Octal-I/O for default OPI DDR mode.\r\n");
@@ -189,7 +189,7 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
         case kFlashInstMode_SPI:
         default:
             /* Init FlexSPI pinmux */
-            mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kFLEXSPI_1PAD);
+            mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kMIXSPI_1PAD);
             /* Init FlexSPI using common LUT */ 
             mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally, flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to 1bit SPI SDR normal read mode.\r\n");
@@ -450,7 +450,7 @@ void mfb_main(void)
 
     mfb_printf("\r\nMFB: Set FlexSPI port to 1-bit pad.\r\n");
     /* Switch FlexSPI port if needed */
-    mixspi_port_switch(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, kFLEXSPI_1PAD);
+    mixspi_port_switch(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, kMIXSPI_1PAD);
     mfb_printf("MFB: Set FlexSPI root clock to 30MHz.\r\n");
     /* Move FlexSPI clock to a stable clock source */ 
     mixspi_clock_init(EXAMPLE_MIXSPI, kMixspiRootClkFreq_30MHz);
@@ -461,7 +461,7 @@ void mfb_main(void)
     /* Set default paramenters */
     g_flashPropertyInfo.flashHasQpiSupport = false;
     g_flashPropertyInfo.flashIsOctal = false;
-    g_flashPropertyInfo.mixspiPad = kFLEXSPI_4PAD;
+    g_flashPropertyInfo.mixspiPad = kMIXSPI_4PAD;
     g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
     g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
     g_flashPropertyInfo.flashDummyValue = U32_VALUE_INVALID;
