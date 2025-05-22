@@ -71,7 +71,7 @@
                 </option>
                 <option>
                     <name>RTDescription</name>
-                    <state>0</state>
+                    <state>A compact configuration of the C/C++14 runtime library. No locale interface, C locale, no file descriptor support, no multibytes in printf and scanf, and no hex floats in strtod.</state>
                 </option>
                 <option>
                     <name>OGProductVersion</name>
@@ -108,7 +108,7 @@
                 <option>
                     <name>GBECoreSlave</name>
                     <version>34</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>OGUseCmsis</name>
@@ -198,7 +198,7 @@
                 <option>
                     <name>TrustZoneModes</name>
                     <version>0</version>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OGAarch64Abi</name>
@@ -366,6 +366,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../src</state>
                     <state>$PROJ_DIR$/../../../../flash_config</state>
                     <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
                     <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
@@ -1034,7 +1035,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>mfb_fw_cm33_core0_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -4523,6 +4524,9 @@
         <file>
             <name>$PROJ_DIR$\..\pin_mux.h</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\..\port_mixspi_info.h</name>
+        </file>
     </group>
     <group>
         <name>CMSIS</name>
@@ -4921,6 +4925,78 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\mcux_config.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_adapter.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_config.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_define.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_adesto.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_adesto.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_gigadevice.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_gigadevice.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_issi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_issi.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_micron.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_micron.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_mxic.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_mxic.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_spansion.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_spansion.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_winbond.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_winbond.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_ops_xspi.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\microseconds_common.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\microseconds_cortexm_systick.c</name>
         </file>
     </group>
     <group>

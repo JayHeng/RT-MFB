@@ -10,6 +10,7 @@
 #include "fsl_debug_console.h"
 #include "board.h"
 #include "app.h"
+#include "mfb.h"
 
 /*******************************************************************************
  * Definitions
@@ -31,16 +32,15 @@
  */
 int main(void)
 {
-    char ch;
-
     /* Init board hardware. */
     BOARD_InitHardware();
 
-    PRINTF("hello world.\r\n");
+    mfb_printf("\r\nMFB: Target i.MXRT700.\r\n");
+    mfb_printf("\r\n-------------------------------------\r\n");
+    mfb_main();
+    mfb_printf("-------------------------------------\r\n");
 
     while (1)
     {
-        ch = GETCHAR();
-        PUTCHAR(ch);
     }
 }
