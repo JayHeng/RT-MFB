@@ -180,7 +180,7 @@ typedef struct _flash_reg_access
    be set to STOP command to avoid unexpected debugger behaivor.
  */
 #define NOR_CMD_LUT_SEQ_IDX_WRITE           9
-#define CUSTOM_LUT_LENGTH                   64
+#define CUSTOM_LUT_LENGTH                   (16 * MIXSPI_LUT_SUB_SEQ_LEN)
 
 ////////////////////////////////////////////////////////////////////////////////
 #define WINBOND_DEVICE_SERIES       (1)

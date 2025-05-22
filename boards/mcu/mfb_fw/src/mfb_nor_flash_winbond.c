@@ -24,60 +24,60 @@
 #if WINBOND_DEVICE_QUAD
 const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0xEB, kMIXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_MODE8_SDR, kMIXSPI_4PAD, 0xF0, kMIXSPI_Command_DUMMY_SDR, kMIXSPI_4PAD, WINBOND_QUAD_FLASH_DUMMY_CYCLES - 2),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
         MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Read status register - 1 */
     // opcode 0x05/0x35/0x15 to read Status Registers (1/2/3)
-    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x05, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 
     /* Write Enable - SPI */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Erase Sector - SPI */
-    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x20, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
 
     /* Page Program - single mode */
-    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x02, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
-    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Enable Quad mode */
     // QE bit in 8bit Status Register-2[1], there are three Status Registers (1/2/3)
     // opcode 0x01/0x31/0x11 to write Status Registers (1/2/3)
     // opcode 0x01 to write Status Registers (1&2)
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x31, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
 
     /* Set Drive strength */
     // DRV[1:0] in 8bit Status Register-3[6:5], there are three Status Registers (1/2/3)
     // opcode 0x01/0x31/0x11 to write Status Registers (1/2/3)
-    [4 * NOR_CMD_LUT_SEQ_IDX_SETDRIVE] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDRIVE] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x11, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
 
     /* Set Dummy cycle */
-    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0xC0, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
 
     /* Read status register - 2 */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x35, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 
     /* Read status register - 3 */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x15, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /* Enter QPI mode */
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x38, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 };
 #endif
@@ -86,92 +86,92 @@ const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
 const uint32_t s_customLUT_WINBOND_Octal[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_OPI_MODE_DISABLE
     /*  DDR OCTAL I/O FAST READ */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_8PAD, 0xFD, kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20),
     // Don't care the dummy value setting here, as it uses external DQS
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x06, kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x04),
 #else
     /*  4-BYTE OCTAL I/O FAST READ */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 0] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0xCC, kMIXSPI_Command_RADDR_SDR, kMIXSPI_8PAD, 0x20),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DUMMY_SDR, kMIXSPI_8PAD, 0x08, kMIXSPI_Command_READ_SDR,  kMIXSPI_8PAD, 0x04),
 #endif
 
     /* Read status register - SPI */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x05, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 
     /* Write Enable - SPI */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x06, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Set Dummy cycle */
     // Volatile Configuration Register address 000001h - Dummy cycle configuration
     //   - Default dummy cycle for OPI DDR is 16, max freq is 143MHz (for random start addr)
     //   - To support freq 200MHz, min dummy cycle is 22
-    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x81, kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00),
-    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 1] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x01),
-    [4 * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 2] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 2] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Erase Sector - SPI */
-    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x21, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x20),
 
     /* 4-BYTE Page Program - SPI */
-    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x12, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x20),
-    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Dummy write, do nothing when AHB write command is triggered. */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITE] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_WRITE] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /* Enter OPI mode */
     // Volatile Configuration Register address 000000h - I/O mode
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENTEROPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x81, kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00),
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 1] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00),
-    [4 * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 2] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENTEROPI + 2] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Read status register using Octal DDR read */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_8PAD, 0x05, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x10),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = 
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = 
         MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Write Enable - OPI */
-    [4 * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_8PAD, 0x06, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Erase Sector - OPI */
-    [4 * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_OPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_8PAD, 0x21, kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20),
 
     /* 4-BYTE Page Program - OPI */
-    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_8PAD, 0x12, kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20),
-    [4 * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_DDR, kMIXSPI_8PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* READ VOLATILE CONFIGURATION REGISTER */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READREG] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_8PAD, 0x85, kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READREG + 1] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x10, kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01),
 
     /* READ FLAG STATUS REGISTER */
-    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_8PAD, 0x70, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x10),
-    [4 * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 };
 #endif

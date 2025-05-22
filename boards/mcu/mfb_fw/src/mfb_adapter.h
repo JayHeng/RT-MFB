@@ -24,6 +24,7 @@
 #define MIXSPI_LUT_SEQ(cmd0, pad0, op0, cmd1, pad1, op1)                                                              \
     (FLEXSPI_LUT_OPERAND0(op0) | FLEXSPI_LUT_NUM_PADS0(pad0) | FLEXSPI_LUT_OPCODE0(cmd0) | FLEXSPI_LUT_OPERAND1(op1) | \
      FLEXSPI_LUT_NUM_PADS1(pad1) | FLEXSPI_LUT_OPCODE1(cmd1))
+#define MIXSPI_LUT_SUB_SEQ_LEN          (4)
 #define kMIXSPI_Command_STOP            kFLEXSPI_Command_STOP
 #define kMIXSPI_Command_SDR             kFLEXSPI_Command_SDR
 #define kMIXSPI_Command_RADDR_SDR       kFLEXSPI_Command_RADDR_SDR
@@ -71,6 +72,7 @@
 #define MIXSPI_LUT_SEQ(cmd0, pad0, op0, cmd1, pad1, op1)                                                        \
     (QuadSPI_LUT_INSTR0(cmd0) | QuadSPI_LUT_PAD0(pad0) | QuadSPI_LUT_OPRND0(op0) | QuadSPI_LUT_INSTR1(cmd1) | \
      QuadSPI_LUT_PAD1(pad1) | QuadSPI_LUT_OPRND1(op1))
+#define MIXSPI_LUT_SUB_SEQ_LEN          (4)
 #define kMIXSPI_Command_STOP            0
 #define kMIXSPI_Command_SDR             1
 #define kMIXSPI_Command_RADDR_SDR       2  // QSPI_ADDR
@@ -116,6 +118,7 @@
 #define MIXSPI_LUT_SEQ(cmd0, pad0, op0, cmd1, pad1, op1)                                            \
     (XSPI_LUT_INSTR0(cmd0) | XSPI_LUT_PAD0(pad0) | XSPI_LUT_OPRND0(op0) | XSPI_LUT_INSTR1(cmd1) | \
      XSPI_LUT_PAD1(pad1) | XSPI_LUT_OPRND1(op1))
+#define MIXSPI_LUT_SUB_SEQ_LEN          (5)
 #define kMIXSPI_Command_STOP            kXSPI_Command_STOP
 #define kMIXSPI_Command_SDR             kXSPI_Command_SDR
 #define kMIXSPI_Command_RADDR_SDR       kXSPI_Command_RADDR_SDR
