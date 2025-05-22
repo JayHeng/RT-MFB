@@ -21,6 +21,21 @@
 /*******************************************************************************
  * Code
  ******************************************************************************/
+void mixspi_device_config_init(void)
+{
+
+}
+
+void mixspi_device_config_update_rootclock(uint32_t clkFreq)
+{
+
+}
+
+void mixspi_device_config_update_flashsize(uint32_t flashSize)
+{
+
+}
+
 void mixspi_nor_disable_cache(xspi_cache_status_t *cacheStatus)
 {
 

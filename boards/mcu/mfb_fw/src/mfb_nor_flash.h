@@ -301,6 +301,9 @@ extern const uint32_t g_mixspiRootClkFreqInMHz[];
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
+extern void mixspi_device_config_init(void);
+extern void mixspi_device_config_update_rootclock(uint32_t clkFreq);
+extern void mixspi_device_config_update_flashsize(uint32_t flashSize);
 
 extern status_t mixspi_nor_get_jedec_id(MIXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
 extern status_t mixspi_nor_get_cfi_id(MIXSPI_Type *base, cfi_device_id_t *cfiDeviceId);

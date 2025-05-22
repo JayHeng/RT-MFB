@@ -39,23 +39,6 @@ uint32_t g_flashRwBuffer[EXAMPLE_FLASH_PAGE_SIZE/4];
 flash_property_info_t g_flashPropertyInfo;
 
 /* Common FlexSPI config */
-flexspi_device_config_t g_deviceconfig = {
-    .flexspiRootClk       = 27400000,
-    .flashSize            = 0x4000, /* 128Mb/KByte */
-    .CSIntervalUnit       = kFLEXSPI_CsIntervalUnit1SckCycle,
-    .CSInterval           = 2,
-    .CSHoldTime           = 3,
-    .CSSetupTime          = 3,
-    .dataValidTime        = 2,
-    .columnspace          = 0,
-    .enableWordAddress    = 0,
-    .AWRSeqIndex          = NOR_CMD_LUT_SEQ_IDX_WRITE,
-    .AWRSeqNumber         = 1,
-    .ARDSeqIndex          = NOR_CMD_LUT_SEQ_IDX_READ,
-    .ARDSeqNumber         = 1,
-    .AHBWriteWaitUnit     = kFLEXSPI_AhbWriteWaitUnit2AhbCycle,
-    .AHBWriteWaitInterval = 0,
-};
 
 /* Common FlexSPI LUT */
 const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
@@ -201,15 +184,7 @@ void mfb_hyper_flash_test(void)
 {
     status_t status = kStatus_Success;
     /* Adjust device parammenter */
-    g_deviceconfig.isSck2Enabled        = false;
-    g_deviceconfig.CSInterval           = 2;
-    g_deviceconfig.CSHoldTime           = 0;
-    g_deviceconfig.CSSetupTime          = 3;
-    g_deviceconfig.dataValidTime        = 1;
-    g_deviceconfig.columnspace          = 3;
-    g_deviceconfig.enableWordAddress    = true;
-    g_deviceconfig.AHBWriteWaitInterval = 20;
-  
+    mixspi_device_config_init();
     mfb_hyperflash_set_param_for_spansion();
     g_flashPropertyInfo.flashMemSizeInByte = FLASH_SIZE * 0x400;
 
@@ -221,8 +196,8 @@ void mfb_hyper_flash_test(void)
     /* Show FlexSPI clock source */
     mixspi_show_clock_source(EXAMPLE_MIXSPI);
     /* Update root clock and flash size */
-    g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
-    g_deviceconfig.flashSize = g_flashPropertyInfo.flashMemSizeInByte / 0x400;
+    mixspi_device_config_update_rootclock(mixspi_get_clock(EXAMPLE_MIXSPI));
+    mixspi_device_config_update_flashsize(g_flashPropertyInfo.flashMemSizeInByte / 0x400);
     /* Init FlexSPI using custom LUT */
     mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, kFlashInstMode_Hyper);
     mfb_printf("MFB: FLEXSPI module is initialized to hyperbus read mode.\r\n");
@@ -455,7 +430,7 @@ void mfb_main(void)
     /* Move FlexSPI clock to a stable clock source */ 
     mixspi_clock_init(EXAMPLE_MIXSPI, kMixspiRootClkFreq_30MHz);
     /* Update root clock */
-    g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
+    mixspi_device_config_update_rootclock(mixspi_get_clock(EXAMPLE_MIXSPI));
     /* Show FlexSPI clock source */
     mixspi_show_clock_source(EXAMPLE_MIXSPI);
     /* Set default paramenters */
@@ -490,7 +465,7 @@ void mfb_main(void)
         mfb_printf("\r\nMFB: Set FlexSPI port to %d-bit pad.\r\n", 1u << (uint32_t)g_flashPropertyInfo.mixspiPad);
         /* Configure FlexSPI pinmux as user prescriptive */
         mixspi_pin_init(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, g_flashPropertyInfo.mixspiPad);
-        g_deviceconfig.flashSize = g_flashPropertyInfo.flashMemSizeInByte / 0x400;
+        mixspi_device_config_update_flashsize(g_flashPropertyInfo.flashMemSizeInByte / 0x400);
         /* Re-init FlexSPI using custom LUT */
         mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
         mfb_printf("MFB: FLEXSPI module is initialized to multi-I/O fast read mode.\r\n");
@@ -629,7 +604,7 @@ void mfb_main(void)
                     /* Configure FlexSPI clock as user prescriptive */ 
                     mixspi_clock_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiRootClkFreq);
                     /* Update root clock */
-                    g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
+                    mixspi_device_config_update_rootclock(mixspi_get_clock(EXAMPLE_MIXSPI));
                     /* Show FlexSPI clock source */
                     mixspi_show_clock_source(EXAMPLE_MIXSPI);
                     /* Re-init FlexSPI using custom LUT */

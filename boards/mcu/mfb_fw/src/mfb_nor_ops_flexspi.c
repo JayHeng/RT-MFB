@@ -16,11 +16,50 @@
  * Variables
  ******************************************************************************/
 
-extern flexspi_device_config_t g_deviceconfig;
+/* Common FlexSPI config */
+static flexspi_device_config_t s_deviceconfig = {
+    .flexspiRootClk       = 27400000,
+    .flashSize            = 0x4000, /* 128Mb/KByte */
+    .CSIntervalUnit       = kFLEXSPI_CsIntervalUnit1SckCycle,
+    .CSInterval           = 2,
+    .CSHoldTime           = 3,
+    .CSSetupTime          = 3,
+    .dataValidTime        = 2,
+    .columnspace          = 0,
+    .enableWordAddress    = 0,
+    .AWRSeqIndex          = NOR_CMD_LUT_SEQ_IDX_WRITE,
+    .AWRSeqNumber         = 1,
+    .ARDSeqIndex          = NOR_CMD_LUT_SEQ_IDX_READ,
+    .ARDSeqNumber         = 1,
+    .AHBWriteWaitUnit     = kFLEXSPI_AhbWriteWaitUnit2AhbCycle,
+    .AHBWriteWaitInterval = 0,
+};
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
+void mixspi_device_config_init(void)
+{
+    s_deviceconfig.isSck2Enabled        = false;
+    s_deviceconfig.CSInterval           = 2;
+    s_deviceconfig.CSHoldTime           = 0;
+    s_deviceconfig.CSSetupTime          = 3;
+    s_deviceconfig.dataValidTime        = 1;
+    s_deviceconfig.columnspace          = 3;
+    s_deviceconfig.enableWordAddress    = true;
+    s_deviceconfig.AHBWriteWaitInterval = 20;
+}
+
+void mixspi_device_config_update_rootclock(uint32_t clkFreq)
+{
+    s_deviceconfig.flexspiRootClk = clkFreq;
+}
+
+void mixspi_device_config_update_flashsize(uint32_t flashSize)
+{
+    s_deviceconfig.flashSize = flashSize;
+}
+
 void mixspi_nor_disable_cache(flexspi_cache_status_t *cacheStatus)
 {
 #if (defined __CORTEX_M) && (__CORTEX_M == 7U)
@@ -475,10 +514,10 @@ status_t mixspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, con
         mixspi_clock_init(EXAMPLE_MIXSPI, kMixspiRootClkFreq_50MHz);
 
         /* Get current flexspi root clock. */
-        g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
+        s_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
 
         /* Update DLL value depending on flexspi root clock. */
-        FLEXSPI_UpdateDllValue(base, &g_deviceconfig, EXAMPLE_MIXSPI_PORT);
+        FLEXSPI_UpdateDllValue(base, &s_deviceconfig, EXAMPLE_MIXSPI_PORT);
 
         /* Do software reset. */
         FLEXSPI_SoftwareReset(base);
@@ -538,10 +577,10 @@ status_t mixspi_nor_flash_page_program(FLEXSPI_Type *base, uint32_t address, con
         mixspi_clock_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiRootClkFreq);
 
         /* Get current flexspi root clock. */
-        g_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
+        s_deviceconfig.flexspiRootClk = mixspi_get_clock(EXAMPLE_MIXSPI);
 
         /* Update DLL value depending on flexspi root clock. */
-        FLEXSPI_UpdateDllValue(base, &g_deviceconfig, EXAMPLE_MIXSPI_PORT);
+        FLEXSPI_UpdateDllValue(base, &s_deviceconfig, EXAMPLE_MIXSPI_PORT);
     }
 
     /* Do software reset or clear AHB buffer directly. */
@@ -843,7 +882,7 @@ void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexsp
     FLEXSPI_Init(base, &config);
 
     /* Configure flash settings according to serial flash feature. */
-    FLEXSPI_SetFlashConfig(base, &g_deviceconfig, EXAMPLE_MIXSPI_PORT);
+    FLEXSPI_SetFlashConfig(base, &s_deviceconfig, EXAMPLE_MIXSPI_PORT);
 
     /* Update LUT table into a specific mode, such as octal SDR mode or octal DDR mode based on application's
      * requirement. */
