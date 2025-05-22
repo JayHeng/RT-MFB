@@ -4631,9 +4631,6 @@ _w25q32jv_sfdp_table</state>
             <name>$PROJ_DIR$\..\..\src\mfb_define.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\src\mfb_flexspi_nor_ops.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash.c</name>
         </file>
         <file>
@@ -4680,6 +4677,9 @@ _w25q32jv_sfdp_table</state>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_winbond.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_ops_flexspi.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\microseconds_common.c</name>

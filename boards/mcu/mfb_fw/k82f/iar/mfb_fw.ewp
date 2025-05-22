@@ -2417,7 +2417,7 @@
             <name>$PROJ_DIR$\..\..\src\mfb_define.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\src\mfb_quadspi_nor_ops.c</name>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_ops_quadspi.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\quadspi_polling_transfer.c</name>
