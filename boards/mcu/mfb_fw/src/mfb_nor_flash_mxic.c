@@ -273,7 +273,7 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
-        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
         g_flashPropertyInfo.flashBusyStatusPol        = MXIC_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset     = MXIC_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flashQuadEnableCfg        = MXIC_FLASH_QUAD_ENABLE;
@@ -293,9 +293,9 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_MXIC_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_50MHz;
-        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackInternally;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDummy0;
 #else
-        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkExtInputDqs;
 #endif
         g_flashPropertyInfo.flashDummyValue           = MXIC_OCTAL_FLASH_SET_DUMMY_CMD;
     }

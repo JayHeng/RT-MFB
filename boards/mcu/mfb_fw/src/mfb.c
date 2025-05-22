@@ -174,7 +174,7 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
             /* Init FlexSPI pinmux */
             mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kMIXSPI_4PAD);
             /* Init FlexSPI using common LUT */ 
-            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally, flashInstMode);
+            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kMIXSPI_SampClkLoopbackDummy0, flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to Quad-I/O for default QPI SDR mode.\r\n");
             break;
 
@@ -182,7 +182,7 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
             /* Init FlexSPI pinmux */
             mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kMIXSPI_8PAD);
             /* Init FlexSPI using common LUT */ 
-            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkExternalInputFromDqsPad, flashInstMode);
+            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kMIXSPI_SampClkExtInputDqs, flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to Octal-I/O for default OPI DDR mode.\r\n");
             break;
 
@@ -191,7 +191,7 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
             /* Init FlexSPI pinmux */
             mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kMIXSPI_1PAD);
             /* Init FlexSPI using common LUT */ 
-            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kFLEXSPI_ReadSampleClkLoopbackInternally, flashInstMode);
+            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kMIXSPI_SampClkLoopbackDummy0, flashInstMode);
             mfb_printf("MFB: FLEXSPI module is initialized to 1bit SPI SDR normal read mode.\r\n");
             break;
     }
@@ -463,7 +463,7 @@ void mfb_main(void)
     g_flashPropertyInfo.flashIsOctal = false;
     g_flashPropertyInfo.mixspiPad = kMIXSPI_4PAD;
     g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
-    g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+    g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkLoopbackDqs;
     g_flashPropertyInfo.flashDummyValue = U32_VALUE_INVALID;
     g_flashPropertyInfo.flashDriveStrength = U32_VALUE_INVALID;
     g_flashPropertyInfo.flashQuadEnableBytes = 0;

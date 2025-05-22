@@ -194,7 +194,7 @@ void mfb_flash_set_param_for_micron(jedec_id_t *jedecID)
     {
         g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_120MHz;
-        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
         g_flashPropertyInfo.flashBusyStatusPol        = MICRON_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset     = MICRON_FLASH_BUSY_STATUS_OFFSET;
         //g_flashPropertyInfo.flashQuadEnableCfg    = MICRON_FLASH_QUAD_ENABLE;
@@ -216,10 +216,10 @@ void mfb_flash_set_param_for_micron(jedec_id_t *jedecID)
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_MICRON_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_30MHz;
-        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
 #else
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_332MHz;
-        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkExtInputDqs;
         if (g_flashPropertyInfo.mixspiRootClkFreq == kMixspiRootClkFreq_400MHz)
 #endif
         {

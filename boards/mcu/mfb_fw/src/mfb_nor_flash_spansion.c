@@ -344,7 +344,7 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
         /////////////////////////QuadSPI////////////////////////
         case 0x2A:
             g_flashPropertyInfo.flashHasQpiSupport = true;
-            g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+            g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkLoopbackDqs;
             g_flashPropertyInfo.flashQuadEnableCfg = SPANSION_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
             g_flashPropertyInfo.flashUniqueCfg = SPANSION_QUAD_FLASH_UNIQUE_CFG;
@@ -352,7 +352,7 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
             break;
         case 0x2B:
             g_flashPropertyInfo.flashHasQpiSupport = true;
-            g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+            g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkLoopbackDqs;
             g_flashPropertyInfo.flashQuadEnableCfg = SPANSION_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
             g_flashPropertyInfo.flashUniqueCfg = SPANSION_QUAD_FLASH_UNIQUE_CFG;
@@ -361,7 +361,7 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
         case 0x60:
             // S25FL-L QuadSPI
             g_flashPropertyInfo.flashHasQpiSupport = true;
-            g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+            g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkLoopbackDqs;
             g_flashPropertyInfo.flashQuadEnableCfg = SPANSION_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
             mfb_printf(" -- S25FL-L QuadSPI 3.3V Series.\r\n");
@@ -400,10 +400,10 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_SPANSION_Octal;
 #if MFB_FLASH_OPI_MODE_DISABLE
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_30MHz;
-        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
 #else
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_332MHz;
-        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkExtInputDqs;
         if (g_flashPropertyInfo.mixspiRootClkFreq == kMixspiRootClkFreq_400MHz)
 #endif
         {
@@ -516,7 +516,7 @@ void mfb_hyperflash_set_param_for_spansion(void)
     g_flashPropertyInfo.mixspiRootClkFreq     = kMixspiRootClkFreq_332MHz;
     g_flashPropertyInfo.flashBusyStatusOffset = SPANSION_HYPERFLASH_BUSY_STATUS_OFFSET;
     g_flashPropertyInfo.flashMixStatusMask    = SPANSION_HYPERFLASH_MIX_STATUS_MASK;
-    g_flashPropertyInfo.mixspiReadSampleClock = kFLEXSPI_ReadSampleClkExternalInputFromDqsPad;
+    g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkExtInputDqs;
     g_flashPropertyInfo.mixspiCustomLUTVendor = s_customLUT_SPANSION_Hyper;
 }
 

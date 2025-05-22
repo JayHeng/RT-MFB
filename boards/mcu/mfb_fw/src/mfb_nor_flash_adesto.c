@@ -122,7 +122,7 @@ void mfb_flash_set_param_for_adesto(jedec_id_t *jedecID)
     {
         g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
-        g_flashPropertyInfo.mixspiReadSampleClock     = kFLEXSPI_ReadSampleClkLoopbackFromDqsPad;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
         g_flashPropertyInfo.flashBusyStatusPol        = ADESTO_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset     = ADESTO_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flashQuadEnableCfg        = ADESTO_FLASH_QUAD_ENABLE;

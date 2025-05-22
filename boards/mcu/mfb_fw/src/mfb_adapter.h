@@ -18,40 +18,51 @@
 #ifndef MFB_MIXSPI_MODULE
 #define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
 #endif
-
+////////////////////////////////////////////////////////////////////////////////
 #if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
-#define mixspi_pad_t                 flexspi_pad_t
-#define mixspi_port_t                flexspi_port_t
-#define mixspi_read_sample_clock_t   flexspi_read_sample_clock_t
-#define MIXSPI_Type                  FLEXSPI_Type
+#define MIXSPI_Type                     FLEXSPI_Type
+#define mixspi_pad_t                    flexspi_pad_t
+#define kMIXSPI_1PAD                    kFLEXSPI_1PAD
+#define kMIXSPI_2PAD                    kFLEXSPI_2PAD
+#define kMIXSPI_4PAD                    kFLEXSPI_4PAD
+#define kMIXSPI_8PAD                    kFLEXSPI_8PAD
+#define mixspi_port_t                   flexspi_port_t
+#define mixspi_read_sample_clock_t      flexspi_read_sample_clock_t
+#define kMIXSPI_SampClkLoopbackDummy0   kFLEXSPI_ReadSampleClkLoopbackInternally
+#define kMIXSPI_SampClkLoopbackDqs      kFLEXSPI_ReadSampleClkLoopbackFromDqsPad
+#define kMIXSPI_SampClkLoopbackSck      kFLEXSPI_ReadSampleClkLoopbackFromSckPad
+#define kMIXSPI_SampClkExtInputDqs      kFLEXSPI_ReadSampleClkExternalInputFromDqsPad
 
-#define kMIXSPI_1PAD                 kFLEXSPI_1PAD
-#define kMIXSPI_2PAD                 kFLEXSPI_2PAD
-#define kMIXSPI_4PAD                 kFLEXSPI_4PAD
-#define kMIXSPI_8PAD                 kFLEXSPI_8PAD
-
+////////////////////////////////////////////////////////////////////////////////
 #elif MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_QUADSPI
-#define mixspi_pad_t                 uint32_t
-#define mixspi_port_t                flexspi_port_t
-#define mixspi_read_sample_clock_t   qspi_dqs_read_sample_clock_t
-#define MIXSPI_Type                  QuadSPI_Type
+#define MIXSPI_Type                     QuadSPI_Type
 
-#define kMIXSPI_1PAD                 0
-#define kMIXSPI_2PAD                 0
-#define kMIXSPI_4PAD                 0
-#define kMIXSPI_8PAD                 0
-
+#define mixspi_pad_t                    uint32_t
+#define kMIXSPI_1PAD                    0
+#define kMIXSPI_2PAD                    0
+#define kMIXSPI_4PAD                    0
+#define kMIXSPI_8PAD                    0
+#define mixspi_port_t                   flexspi_port_t
+#define mixspi_read_sample_clock_t      qspi_dqs_read_sample_clock_t
+#define kMIXSPI_SampClkLoopbackDummy0   kQSPI_ReadSampleClkInternalLoopback
+#define kMIXSPI_SampClkLoopbackDqs      kQSPI_ReadSampleClkLoopbackFromDqsPad
+#define kMIXSPI_SampClkExtInputDqs      kQSPI_ReadSampleClkExternalInputFromDqsPad
+////////////////////////////////////////////////////////////////////////////////
 #elif MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_XSPI
-#define mixspi_pad_t                 xspi_pad_t
-#define mixspi_port_t                uint32_t
-#define mixspi_read_sample_clock_t   xspi_sample_clk_source_t
-#define MIXSPI_Type                  XSPI_Type
+#define MIXSPI_Type                     XSPI_Type
 
-#define kMIXSPI_1PAD                 0
-#define kMIXSPI_2PAD                 0
-#define kMIXSPI_4PAD                 0
-#define kMIXSPI_8PAD                 0
-
+#define mixspi_pad_t                    xspi_pad_t
+#define kMIXSPI_1PAD                    kXSPI_1PAD
+#define kMIXSPI_2PAD                    kXSPI_2PAD
+#define kMIXSPI_4PAD                    kXSPI_4PAD
+#define kMIXSPI_8PAD                    kXSPI_8PAD
+#define mixspi_port_t                   uint32_t
+#define mixspi_read_sample_clock_t      xspi_sample_clk_source_t
+#define kMIXSPI_SampClkLoopbackDummy0   kXSPI_SampleClkFromNonInvertedFullySpeedDummyPadLoopback
+#define kMIXSPI_SampClkLoopbackDummy1   kXSPI_SampleClkFromInvertedFullySpeedDummyPadLoopback
+#define kMIXSPI_SampClkLoopbackDummy2   kXSPI_SampleClkFromHalfSpeedDummyPadLoopback
+#define kMIXSPI_SampClkLoopbackDqs      kXSPI_SampleClkFromDqsPadLoopback
+#define kMIXSPI_SampClkExtInputDqs      kXSPI_SampleClkFromExternalDQS
 #endif
 
 /*******************************************************************************
