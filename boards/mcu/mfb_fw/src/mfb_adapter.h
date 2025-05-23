@@ -106,7 +106,7 @@
 #define kMIXSPI_2PAD                    1 // QSPI_PAD_2
 #define kMIXSPI_4PAD                    2 // QSPI_PAD_4
 #define kMIXSPI_8PAD                    3 // QSPI_PAD_8
-#define mixspi_port_t                   flexspi_port_t
+#define mixspi_port_t                   uint32_t
 #define mixspi_read_sample_clock_t      qspi_dqs_read_sample_clock_t
 #define kMIXSPI_SampClkLoopbackDummy0   kQSPI_ReadSampleClkInternalLoopback
 #define kMIXSPI_SampClkLoopbackDqs      kQSPI_ReadSampleClkLoopbackFromDqsPad

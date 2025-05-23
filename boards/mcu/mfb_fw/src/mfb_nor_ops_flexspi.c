@@ -19,6 +19,7 @@
 /* Common FlexSPI config */
 static flexspi_device_config_t s_deviceconfig = {
     .flexspiRootClk       = 27400000,
+    .isSck2Enabled        = false,
     .flashSize            = 0x4000, /* 128Mb/KByte */
     .CSIntervalUnit       = kFLEXSPI_CsIntervalUnit1SckCycle,
     .CSInterval           = 2,
