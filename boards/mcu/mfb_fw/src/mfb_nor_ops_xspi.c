@@ -24,18 +24,18 @@ static xspi_device_config_t s_deviceconfig =
     .interfaceSettings.strandardExtendedSPISettings.pageSize = EXAMPLE_FLASH_PAGE_SIZE,
     .CSHoldTime = 3,
     .CSSetupTime = 3,
-    .sampleClkConfig.sampleClkSource = kXSPI_SampleClkFromNonInvertedFullySpeedDummyPadLoopback,
+    .sampleClkConfig.sampleClkSource = kXSPI_SampleClkFromDqsPadLoopback,
     .sampleClkConfig.enableDQSLatency = false,
     .sampleClkConfig.dllConfig.dllMode = kXSPI_AutoUpdateMode,
     .sampleClkConfig.dllConfig.useRefValue = true,
-    .sampleClkConfig.dllConfig.enableCdl8 = true,
-    .ptrDeviceDdrConfig = NULL,
+    .sampleClkConfig.dllConfig.enableCdl8 = false,
     .addrMode = kXSPI_DeviceByteAddressable,
     .columnAddrWidth = 0U,
     .enableCASInterleaving = false,
     .deviceSize[0] = 0x4000, /* 128Mb/KByte */
     .deviceSize[1] = 0x4000, /* 128Mb/KByte */
     .ptrDeviceRegInfo = NULL,
+    .ptrDeviceDdrConfig = NULL,
 };
 
 /*******************************************************************************
@@ -523,31 +523,32 @@ void mixspi_nor_flash_init(XSPI_Type *base, const uint32_t *customLUT, xspi_samp
     xspi_ahb_access_config_t xspiAhbAccessConfig;
     xspi_ip_access_config_t xspiIpAccessConfig;
 
-    config.ptrAhbAccessConfig = &xspiAhbAccessConfig;
-    config.ptrIpAccessConfig  = &xspiIpAccessConfig;
+    XSPI_ResetSfmAndAhbDomain(base);
+    //XSPI_UpdateByteOrder(base, kXSPI_32BitLE);
 
     /*Get XSPI default settings and configure the xspi. */
+    config.enableDoze         = false;
+    config.ptrAhbAccessConfig = &xspiAhbAccessConfig;
+    config.ptrIpAccessConfig  = &xspiIpAccessConfig;
     XSPI_GetDefaultConfig(&config);
 
-    config.byteOrder                                       = kXSPI_64BitLE;
-    config.ptrAhbAccessConfig->ahbErrorPayload.highPayload = 0x5A5A5A5AUL;
-    config.ptrAhbAccessConfig->ahbErrorPayload.lowPayload  = 0x5A5A5A5AUL;
-    config.ptrAhbAccessConfig->ptrAhbWriteConfig         = NULL;
-    config.ptrAhbAccessConfig->ARDSeqIndex               = NOR_CMD_LUT_SEQ_IDX_READ;
-    config.ptrAhbAccessConfig->enableAHBBufferWriteFlush = true;
-    config.ptrAhbAccessConfig->enableAHBPrefetch         = true;
-
-    config.ptrIpAccessConfig->ptrSfpFradConfig               = NULL;
-    config.ptrIpAccessConfig->ptrSfpMdadConfig               = NULL;
-    config.ptrIpAccessConfig->ipAccessTimeoutValue           = 0xFFFFFFFFUL;
-    config.ptrIpAccessConfig->sfpArbitrationLockTimeoutValue = 0xFFFFFFUL;
+    config.byteOrder                                = kXSPI_32BitLE;
+    xspiAhbAccessConfig.ahbAlignment                = kXSPI_AhbAlignmentNoLimit;
+    xspiAhbAccessConfig.ahbErrorPayload.highPayload = 0x5A5A5A5AUL;
+    xspiAhbAccessConfig.ahbErrorPayload.lowPayload  = 0x5A5A5A5AUL;
+    xspiAhbAccessConfig.ptrAhbWriteConfig           = NULL;
+    xspiAhbAccessConfig.ahbSplitSize                = kXSPI_AhbSplitSizeDisabled;
+    xspiAhbAccessConfig.ARDSeqIndex                 = NOR_CMD_LUT_SEQ_IDX_READ;
+    xspiAhbAccessConfig.enableAHBBufferWriteFlush   = true;
+    xspiAhbAccessConfig.enableAHBPrefetch           = true;
 
     XSPI_Init(base, &config);
-    
+
     s_deviceconfig.sampleClkConfig.sampleClkSource = rxSampleClock;
 
     /* Configure flash settings according to serial flash feature. */
     XSPI_SetDeviceConfig(base, &s_deviceconfig);
+    XSPI_EnableModule(base, true);
 
     /*update LUT*/
     XSPI_UpdateLUT(base, 0, customLUT, CUSTOM_LUT_LENGTH);
