@@ -38,8 +38,6 @@ uint32_t g_flashRwBuffer[EXAMPLE_FLASH_PAGE_SIZE/4];
 /* Main flash paramenter structure */
 flash_property_info_t g_flashPropertyInfo;
 
-/* Common MixSPI config */
-
 /* Common MixSPI LUT */
 const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     /*  Normal read */
@@ -173,8 +171,12 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
         default:
             /* Init MixSPI pinmux */
             mixspi_pin_init(EXAMPLE_MIXSPI,    EXAMPLE_MIXSPI_PORT, kMIXSPI_1PAD);
-            /* Init MixSPI using common LUT */ 
+            /* Init MixSPI using common LUT */
+#if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_XSPI
+            mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kMIXSPI_SampClkLoopbackDqs, flashInstMode);
+#else
             mixspi_nor_flash_init(EXAMPLE_MIXSPI, s_customLUTCommonMode, kMIXSPI_SampClkLoopbackDummy0, flashInstMode);
+#endif
             mfb_printf("MFB: MIXSPI module is initialized to 1bit SPI SDR normal read mode.\r\n");
             break;
     }
@@ -426,9 +428,15 @@ void mfb_main(void)
     mfb_printf("\r\nMFB: Set MixSPI port to 1-bit pad.\r\n");
     /* Switch MixSPI port if needed */
     mixspi_port_switch(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, kMIXSPI_1PAD);
+#if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_XSPI
+    mfb_printf("MFB: Set MixSPI root clock to 50MHz.\r\n");
+    /* Move MixSPI clock to a stable clock source */ 
+    mixspi_clock_init(EXAMPLE_MIXSPI, kMixspiRootClkFreq_50MHz);
+#else
     mfb_printf("MFB: Set MixSPI root clock to 30MHz.\r\n");
     /* Move MixSPI clock to a stable clock source */ 
     mixspi_clock_init(EXAMPLE_MIXSPI, kMixspiRootClkFreq_30MHz);
+#endif
     /* Update root clock */
     mixspi_device_config_update_rootclock(mixspi_get_clock(EXAMPLE_MIXSPI));
     /* Show MixSPI clock source */
