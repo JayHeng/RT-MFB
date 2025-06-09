@@ -490,7 +490,7 @@ static void ConfigSvcSensor(void)
 
         if (status == kStatus_Success)
         {
-            LoadGdetCfg(&gdetData, pack);
+            //LoadGdetCfg(&gdetData, pack);
         }
     }
     else
@@ -516,7 +516,7 @@ static void ConfigSvcSensor(void)
 void BOARD_ClockPreConfig(void)
 {
     OCOTP_OtpInit();
-    ConfigSvcSensor();
+    //ConfigSvcSensor();
     OCOTP_OtpDeinit();
 
     if (BOARD_IS_XIP())

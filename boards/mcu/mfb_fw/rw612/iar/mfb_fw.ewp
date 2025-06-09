@@ -4564,6 +4564,9 @@
         <name>component</name>
         <group>
             <name>els_pkc</name>
+            <excluded>
+                <configuration>debug</configuration>
+            </excluded>
             <group>
                 <name>src</name>
                 <group>
