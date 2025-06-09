@@ -279,6 +279,12 @@ typedef struct _flash_reg_access
 #define SPANSION_DEVICE_HYPERBUS    (1)
 #define SPANSION_DEVICE_S26KS512    (1)  // MIMXRT1050-EVKB (S26KS512)
 
+////////////////////////////////////////////////////////////////////////////////
+#define PUYA_DEVICE_SERIES          (1)
+#define PUYA_DEVICE_VENDOR_ID       (0x85)
+#define PUYA_DEVICE_QUAD            (1)
+#define PUYA_DEVICE_PY25Q128HA      (1)
+
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \
                                      GIGADEVICE_DEVICE_VENDOR_ID, \
@@ -288,7 +294,8 @@ typedef struct _flash_reg_access
                                      ADESTO_DEVICE_VENDOR_ID,     \
                                      ADESTO_DEVICE_VENDOR_ID2,    \
                                      SPANSION_DEVICE_VENDOR_ID,   \
-                                     INFINEON_DEVICE_VENDOR_ID}
+                                     INFINEON_DEVICE_VENDOR_ID,   \
+                                     PUYA_DEVICE_VENDOR_ID}
 
 #if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
 #define MXIC_READ_STATUS_REG_DUMMY_DDR (0x08)
@@ -363,6 +370,10 @@ extern void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_spansion(bool isOctalFlash);
 extern void mfb_hyperflash_set_param_for_spansion(void);
 extern void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId);
+#endif
+#if PUYA_DEVICE_SERIES
+extern void mfb_flash_set_param_for_puya(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_puya(bool isOctalFlash);
 #endif
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);
 extern bool mfb_flash_pattern_verify_test(bool showError);

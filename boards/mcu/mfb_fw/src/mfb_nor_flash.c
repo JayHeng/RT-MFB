@@ -313,6 +313,13 @@ bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID)
             break;
 #endif // SPANSION_DEVICE_SERIES
 
+#if PUYA_DEVICE_SERIES
+        // Puya
+        case PUYA_DEVICE_VENDOR_ID:
+            mfb_flash_set_param_for_puya(jedecID);
+            break;
+#endif // PUYA_DEVICE_SERIES
+
         default:
             mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
             isValidVendorId = false;
