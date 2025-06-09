@@ -212,8 +212,8 @@ typedef struct _flash_reg_access
 #define MXIC_DEVICE_MX25Uxxx45G     (1)  // RD-RW612-BGA (MX25U51245G)
 #define MXIC_QUAD_FLASH_JEDEC_ID    (0x003725C2)
 #define MXIC_DEVICE_OCTAL           (1)
-#define MXIC_DEVICE_MX25UWxx345     (0)
-#define MXIC_DEVICE_MX25UMxx345     (1)  // MIMXRT595-EVK (MX25UM51345), MIMXRT685-EVK (MX25UM51345)
+#define MXIC_DEVICE_MX25UWxx345     (1)
+#define MXIC_DEVICE_MX25UMxx345     (0)  // MIMXRT595-EVK (MX25UM51345), MIMXRT685-EVK (MX25UM51345)
 #define MXIC_DEVICE_MX25LMxx245     (0)
 #define MXIC_OCTAL_FLASH_JEDEC_ID   (0x003781C2)
 ////////////////////////////////////////////////////////////////////////////////
@@ -278,7 +278,7 @@ typedef struct _flash_reg_access
 #define SPANSION_DEVICE_S28HS512    (1)
 #define SPANSION_DEVICE_HYPERBUS    (1)
 #define SPANSION_DEVICE_S26KS512    (1)  // MIMXRT1050-EVKB (S26KS512)
-   
+
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \
                                      GIGADEVICE_DEVICE_VENDOR_ID, \
@@ -290,6 +290,13 @@ typedef struct _flash_reg_access
                                      SPANSION_DEVICE_VENDOR_ID,   \
                                      INFINEON_DEVICE_VENDOR_ID}
 
+#if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
+#define MXIC_READ_STATUS_REG_DUMMY_DDR (0x08)
+#elif MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_QUADSPI
+
+#elif MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_XSPI
+#define MXIC_READ_STATUS_REG_DUMMY_DDR (0x14)
+#endif
 /*******************************************************************************
  * Variables
  ******************************************************************************/

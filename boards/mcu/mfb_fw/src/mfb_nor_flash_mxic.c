@@ -101,7 +101,7 @@ const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0xEE, kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0x11),
     // Don't care the dummy value setting here, as it uses external DQS
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 1] = 
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x08),
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, MXIC_READ_STATUS_REG_DUMMY_DDR),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 2] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 #else
@@ -159,9 +159,11 @@ const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05, kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0xFA),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = 
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x08),
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x12),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 2] = 
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x02, kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x02),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 2] = 
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
     /* Write Enable - OPI */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
@@ -183,7 +185,7 @@ const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG + 0] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0x15, kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0xEA),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG + 1] = 
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x08),
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, MXIC_READ_STATUS_REG_DUMMY_DDR),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG + 2] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
@@ -191,7 +193,7 @@ const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2 + 0] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0x71, kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0x8E),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] = 
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x08),
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, MXIC_READ_STATUS_REG_DUMMY_DDR),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2 + 2] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 };
@@ -253,7 +255,7 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
             break;
         case 0x84:
             g_flashPropertyInfo.flashIsOctal = true;
-            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_400MHz;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
             mfb_printf(" -- MX25UWxx345G OctalSPI 1.8V Series.\r\n");
             break;
         case 0x85:
@@ -297,7 +299,7 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
 #else
         g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkExtInputDqs;
 #endif
-        g_flashPropertyInfo.flashDummyValue           = MXIC_OCTAL_FLASH_SET_DUMMY_CMD;
+        //g_flashPropertyInfo.flashDummyValue           = MXIC_OCTAL_FLASH_SET_DUMMY_CMD;
     }
 #endif
 }

@@ -113,13 +113,13 @@ status_t mixspi_nor_wait_bus_busy(XSPI_Type *base, flash_inst_mode_t flashInstMo
     flashXfer.deviceAddress = EXAMPLE_MIXSPI_AMBA_BASE;
     flashXfer.cmdType       = kXSPI_Read;
     flashXfer.data          = &readValue;
+    flashXfer.dataSize      = 1;
     flashXfer.targetGroup   = EXAMPLE_MIXSPI_PORT;
     flashXfer.lockArbitration = false;
     switch (flashInstMode)
     {
         case kFlashInstMode_QPI_1:
         case kFlashInstMode_QPI_2:
-            flashXfer.dataSize  = 1;
             flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI;
             break;
 
@@ -131,7 +131,6 @@ status_t mixspi_nor_wait_bus_busy(XSPI_Type *base, flash_inst_mode_t flashInstMo
         case kFlashInstMode_SPI:
         case kFlashInstMode_Hyper:
         default:
-            flashXfer.dataSize  = 1;
             flashXfer.seqIndex  = NOR_CMD_LUT_SEQ_IDX_READSTATUS;
             break;
     }
@@ -479,6 +478,7 @@ status_t mixspi_nor_get_jedec_sfdp(XSPI_Type *base, uint32_t addr, uint32_t *jed
     xspi_transfer_t flashXfer;
     flashXfer.deviceAddress = EXAMPLE_MIXSPI_AMBA_BASE + addr;
     flashXfer.cmdType       = kXSPI_Read;
+    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_READSFDP;
     flashXfer.targetGroup   = EXAMPLE_MIXSPI_PORT;
     flashXfer.data            = jedecSfdp;
     flashXfer.dataSize        = sfdpSize;
