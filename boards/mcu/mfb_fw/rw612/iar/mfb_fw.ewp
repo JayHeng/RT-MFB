@@ -361,27 +361,27 @@
                     <state>$PROJ_DIR$/../../../../../devices/RW612/utilities/debug_console_lite</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612/drivers</state>
                     <state>$PROJ_DIR$/../../../../../devices/RW612</state>
-                    <state>$PROJ_DIR$/../../../../../components/uart</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/uart</state>
                     <state>$PROJ_DIR$/../../../flash_config</state>
-                    <state>$PROJ_DIR$/../../../../../components/lists</state>
-                    <state>$PROJ_DIR$/../../../../../components/silicon_id</state>
-                    <state>$PROJ_DIR$/../../../../../components/silicon_id/socs</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/platforms/redfinchSdk_sample</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/lists</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/silicon_id</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/silicon_id/socs</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/platforms/redfinchSdk_sample</state>
                     <state>$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClEls/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClEls/inc/internal</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClCore/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClMemory/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslMemory/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslMemory/inc/internal</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslParamIntegrity/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslFlowProtection/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslSecureCounter/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslCPreProcessor/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslDataIntegrity/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/compiler</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/platforms/redfinchSdk_sample/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClEls/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClEls/inc/internal</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClCore/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClMemory/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslMemory/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslMemory/inc/internal</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslParamIntegrity/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslFlowProtection/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslSecureCounter/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslCPreProcessor/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslDataIntegrity/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/compiler</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/platforms/redfinchSdk_sample/inc</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1495,22 +1495,22 @@
                     <state>$PROJ_DIR$/../../../../../components/lists</state>
                     <state>$PROJ_DIR$/../../../../../components/silicon_id</state>
                     <state>$PROJ_DIR$/../../../../../components/silicon_id/socs</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/platforms/redfinchSdk_sample</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/platforms/redfinchSdk_sample</state>
                     <state>$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClEls/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClEls/inc/internal</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClCore/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClMemory/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslMemory/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslMemory/inc/internal</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslParamIntegrity/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslFlowProtection/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslSecureCounter/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslCPreProcessor/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslDataIntegrity/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/compiler</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/platforms/redfinchSdk_sample/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClEls/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClEls/inc/internal</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClCore/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClMemory/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslMemory/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslMemory/inc/internal</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslParamIntegrity/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslFlowProtection/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslSecureCounter/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslCPreProcessor/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslDataIntegrity/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/compiler</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/platforms/redfinchSdk_sample/inc</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2623,22 +2623,22 @@
                     <state>$PROJ_DIR$/../../../../../components/lists</state>
                     <state>$PROJ_DIR$/../../../../../components/silicon_id</state>
                     <state>$PROJ_DIR$/../../../../../components/silicon_id/socs</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/platforms/redfinchSdk_sample</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/platforms/redfinchSdk_sample</state>
                     <state>$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClEls/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClEls/inc/internal</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClCore/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClMemory/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslMemory/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslMemory/inc/internal</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslParamIntegrity/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslFlowProtection/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslSecureCounter/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslCPreProcessor/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslDataIntegrity/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/compiler</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/platforms/redfinchSdk_sample/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClEls/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClEls/inc/internal</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClCore/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClMemory/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslMemory/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslMemory/inc/internal</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslParamIntegrity/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslFlowProtection/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslSecureCounter/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslCPreProcessor/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslDataIntegrity/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/compiler</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/platforms/redfinchSdk_sample/inc</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -3752,22 +3752,22 @@
                     <state>$PROJ_DIR$/../../../../../components/lists</state>
                     <state>$PROJ_DIR$/../../../../../components/silicon_id</state>
                     <state>$PROJ_DIR$/../../../../../components/silicon_id/socs</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/platforms/redfinchSdk_sample</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/platforms/redfinchSdk_sample</state>
                     <state>$PROJ_DIR$/../../../../../CMSIS/Core/Include</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClEls/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClEls/inc/internal</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClCore/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxClMemory/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslMemory/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslMemory/inc/internal</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslParamIntegrity/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslFlowProtection/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslSecureCounter/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslCPreProcessor/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/comps/mcuxCsslDataIntegrity/inc</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/compiler</state>
-                    <state>$PROJ_DIR$/../../../../../components/els_pkc/src/platforms/redfinchSdk_sample/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClEls/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClEls/inc/internal</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClCore/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxClMemory/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslMemory/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslMemory/inc/internal</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslParamIntegrity/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslFlowProtection/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslSecureCounter/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslCPreProcessor/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/comps/mcuxCsslDataIntegrity/inc</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/compiler</state>
+                    <state>$PROJ_DIR$/../../../../../components_v2.13/els_pkc/src/platforms/redfinchSdk_sample/inc</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -4564,15 +4564,12 @@
         <name>component</name>
         <group>
             <name>els_pkc</name>
-            <excluded>
-                <configuration>debug</configuration>
-            </excluded>
             <group>
                 <name>src</name>
                 <group>
                     <name>compiler</name>
                     <file>
-                        <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\compiler\mcuxClToolchain.h</name>
+                        <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\compiler\mcuxClToolchain.h</name>
                     </file>
                 </group>
                 <group>
@@ -4582,19 +4579,19 @@
                         <group>
                             <name>inc</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_Buffer.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_Buffer.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_Examples.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_Examples.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_FunctionIdentifiers.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_FunctionIdentifiers.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_Platform.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_Platform.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_Toolchain.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClCore\inc\mcuxClCore_Toolchain.h</name>
                             </file>
                         </group>
                     </group>
@@ -4605,71 +4602,71 @@
                             <group>
                                 <name>internal</name>
                                 <file>
-                                    <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\internal\mcuxClEls_Internal.h</name>
+                                    <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\internal\mcuxClEls_Internal.h</name>
                                 </file>
                                 <file>
-                                    <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\internal\mcuxClEls_Internal_mapping.h</name>
+                                    <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\internal\mcuxClEls_Internal_mapping.h</name>
                                 </file>
                                 <file>
-                                    <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\internal\mcuxClEls_SfrAccess.h</name>
+                                    <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\internal\mcuxClEls_SfrAccess.h</name>
                                 </file>
                             </group>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Aead.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Aead.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Cipher.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Cipher.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Cmac.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Cmac.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Common.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Common.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Crc.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Crc.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Ecc.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Ecc.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_GlitchDetector.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_GlitchDetector.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Hash.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Hash.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Hmac.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Hmac.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Kdf.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Kdf.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_KeyManagement.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_KeyManagement.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_mapping.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_mapping.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Rng.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Rng.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Types.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\inc\mcuxClEls_Types.h</name>
                             </file>
                         </group>
                         <group>
                             <name>src</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\src\mcuxClEls_Common.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\src\mcuxClEls_Common.c</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\src\mcuxClEls_GlitchDetector.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\src\mcuxClEls_GlitchDetector.c</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClEls\src\mcuxClEls_KeyManagement.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClEls\src\mcuxClEls_KeyManagement.c</name>
                             </file>
                         </group>
                     </group>
@@ -4680,32 +4677,32 @@
                             <group>
                                 <name>internal</name>
                                 <file>
-                                    <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClMemory\inc\internal\mcuxClMemory_Copy_Internal.h</name>
+                                    <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClMemory\inc\internal\mcuxClMemory_Copy_Internal.h</name>
                                 </file>
                             </group>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Clear.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Clear.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Copy.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Copy.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Endianness.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Endianness.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Set.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Set.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Types.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClMemory\inc\mcuxClMemory_Types.h</name>
                             </file>
                         </group>
                         <group>
                             <name>src</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxClMemory\src\mcuxClMemory.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxClMemory\src\mcuxClMemory.c</name>
                             </file>
                         </group>
                     </group>
@@ -4714,10 +4711,10 @@
                         <group>
                             <name>inc</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslCPreProcessor\inc\mcuxCsslAnalysis.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslCPreProcessor\inc\mcuxCsslAnalysis.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslCPreProcessor\inc\mcuxCsslCPreProcessor.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslCPreProcessor\inc\mcuxCsslCPreProcessor.h</name>
                             </file>
                         </group>
                     </group>
@@ -4726,16 +4723,16 @@
                         <group>
                             <name>inc</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslDataIntegrity\inc\mcuxCsslDataIntegrity.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslDataIntegrity\inc\mcuxCsslDataIntegrity.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslDataIntegrity\inc\mcuxCsslDataIntegrity_Cfg.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslDataIntegrity\inc\mcuxCsslDataIntegrity_Cfg.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslDataIntegrity\inc\mcuxCsslDataIntegrity_Impl.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslDataIntegrity\inc\mcuxCsslDataIntegrity_Impl.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslDataIntegrity\inc\mcuxCsslDataIntegrity_None.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslDataIntegrity\inc\mcuxCsslDataIntegrity_None.h</name>
                             </file>
                         </group>
                     </group>
@@ -4744,22 +4741,22 @@
                         <group>
                             <name>inc</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_Cfg.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_Cfg.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_FunctionIdentifiers.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_FunctionIdentifiers.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_Impl.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_Impl.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_SecureCounter_Common.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_SecureCounter_Common.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_SecureCounter_Local.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslFlowProtection\inc\mcuxCsslFlowProtection_SecureCounter_Local.h</name>
                             </file>
                         </group>
                     </group>
@@ -4770,50 +4767,50 @@
                             <group>
                                 <name>internal</name>
                                 <file>
-                                    <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\inc\internal\mcuxCsslMemory_Internal_Compare_asm.h</name>
+                                    <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\inc\internal\mcuxCsslMemory_Internal_Compare_asm.h</name>
                                 </file>
                                 <file>
-                                    <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\inc\internal\mcuxCsslMemory_Internal_Copy_asm.h</name>
+                                    <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\inc\internal\mcuxCsslMemory_Internal_Copy_asm.h</name>
                                 </file>
                                 <file>
-                                    <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\inc\internal\mcuxCsslMemory_Internal_SecureCompare.h</name>
+                                    <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\inc\internal\mcuxCsslMemory_Internal_SecureCompare.h</name>
                                 </file>
                             </group>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Clear.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Clear.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Compare.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Compare.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Copy.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Copy.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Set.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Set.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Types.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\inc\mcuxCsslMemory_Types.h</name>
                             </file>
                         </group>
                         <group>
                             <name>src</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Clear.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Clear.c</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Compare.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Compare.c</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Copy.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Copy.c</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Internal_SecureCompare_Stub.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Internal_SecureCompare_Stub.c</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Set.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslMemory\src\mcuxCsslMemory_Set.c</name>
                             </file>
                         </group>
                     </group>
@@ -4822,13 +4819,13 @@
                         <group>
                             <name>inc</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslParamIntegrity\inc\mcuxCsslParamIntegrity.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslParamIntegrity\inc\mcuxCsslParamIntegrity.h</name>
                             </file>
                         </group>
                         <group>
                             <name>src</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslParamIntegrity\src\mcuxCsslParamIntegrity.c</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslParamIntegrity\src\mcuxCsslParamIntegrity.c</name>
                             </file>
                         </group>
                     </group>
@@ -4837,19 +4834,19 @@
                         <group>
                             <name>inc</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter_Cfg.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter_Cfg.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter_Impl.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter_Impl.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter_None.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter_None.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter_SW_Local.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\comps\mcuxCsslSecureCounter\inc\mcuxCsslSecureCounter_SW_Local.h</name>
                             </file>
                         </group>
                     </group>
@@ -4861,32 +4858,32 @@
                         <group>
                             <name>inc</name>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\platforms\redfinchSdk_sample\inc\ip_css_constants.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\platforms\redfinchSdk_sample\inc\ip_css_constants.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\platforms\redfinchSdk_sample\inc\ip_css_design_configuration.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\platforms\redfinchSdk_sample\inc\ip_css_design_configuration.h</name>
                             </file>
                             <file>
-                                <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\platforms\redfinchSdk_sample\inc\ip_platform.h</name>
+                                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\platforms\redfinchSdk_sample\inc\ip_platform.h</name>
                             </file>
                         </group>
                         <file>
-                            <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\platforms\redfinchSdk_sample\mcux_els.c</name>
+                            <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\platforms\redfinchSdk_sample\mcux_els.c</name>
                         </file>
                         <file>
-                            <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\platforms\redfinchSdk_sample\mcux_els.h</name>
+                            <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\platforms\redfinchSdk_sample\mcux_els.h</name>
                         </file>
                         <file>
-                            <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\platforms\redfinchSdk_sample\mcux_pkc.c</name>
+                            <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\platforms\redfinchSdk_sample\mcux_pkc.c</name>
                         </file>
                         <file>
-                            <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\platforms\redfinchSdk_sample\mcux_pkc.h</name>
+                            <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\platforms\redfinchSdk_sample\mcux_pkc.h</name>
                         </file>
                         <file>
-                            <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\platforms\redfinchSdk_sample\mcuxClConfig.h</name>
+                            <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\platforms\redfinchSdk_sample\mcuxClConfig.h</name>
                         </file>
                         <file>
-                            <name>$PROJ_DIR$\..\..\..\..\..\components\els_pkc\src\platforms\redfinchSdk_sample\platform_specific_headers.h</name>
+                            <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\els_pkc\src\platforms\redfinchSdk_sample\platform_specific_headers.h</name>
                         </file>
                     </group>
                 </group>
@@ -4895,34 +4892,34 @@
         <group>
             <name>lists</name>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\components\lists\fsl_component_generic_list.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\lists\fsl_component_generic_list.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\components\lists\fsl_component_generic_list.h</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\lists\fsl_component_generic_list.h</name>
             </file>
         </group>
         <group>
             <name>silicon_id</name>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\components\silicon_id\fsl_silicon_id.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\silicon_id\fsl_silicon_id.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\components\silicon_id\fsl_silicon_id.h</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\silicon_id\fsl_silicon_id.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\components\silicon_id\socs\rw610\fsl_silicon_id_soc.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\silicon_id\socs\rw610\fsl_silicon_id_soc.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\components\silicon_id\socs\fsl_silicon_id_soc.h</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\silicon_id\socs\fsl_silicon_id_soc.h</name>
             </file>
         </group>
         <group>
             <name>uart</name>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\components\uart\fsl_adapter_uart.h</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\uart\fsl_adapter_uart.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\components\uart\fsl_adapter_usart.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\components_v2.13\uart\fsl_adapter_usart.c</name>
             </file>
         </group>
     </group>
@@ -5080,6 +5077,12 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_puya.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_puya.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_spansion.c</name>
