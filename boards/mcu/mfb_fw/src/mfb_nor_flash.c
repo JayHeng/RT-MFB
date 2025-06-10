@@ -249,6 +249,13 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
             break;
 #endif // SPANSION_DEVICE_SERIES
 
+#if PUYA_DEVICE_SERIES
+        // Spansion
+        case PUYA_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_puya(isOctalFlash);
+            break;
+#endif // PUYA_DEVICE_SERIES
+
         default:
             break;
     }
