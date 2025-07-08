@@ -4693,6 +4693,12 @@
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_mxic.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_puya.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_puya.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_spansion.c</name>
         </file>
         <file>

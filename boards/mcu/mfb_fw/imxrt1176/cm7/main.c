@@ -36,7 +36,9 @@ int main(void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
-    mfb_printf("\r\nMFB: Target i.MXRT1170.\r\n");
+    uint32_t chipid = ANADIG_MISC->MISC_DIFPROG & 0xFF;
+
+    mfb_printf("\r\nMFB: Target i.MXRT1170 %X.\r\n", chipid);
     mfb_printf("\r\n-------------------------------------\r\n");
     mfb_main();
     mfb_printf("-------------------------------------\r\n");
