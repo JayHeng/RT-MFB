@@ -241,7 +241,7 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
             break;
         case 0x80:
             mfb_printf(" -- W25QxxxJW/NW(-IM) QuadlSPI 1.8V Series.\r\n");
-            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_60MHz;
 #if WINBOND_DEVICE_W25QxxxNW
 #if !MFB_FLASH_USE_DEFAULT_DUMMY
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
@@ -271,7 +271,7 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
         if (!g_flashPropertyInfo.flashIsSingle)
         {
             g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
-            g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
+            g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDummy0;
             g_flashPropertyInfo.flashBusyStatusPol        = WINBOND_FLASH_BUSY_STATUS_POL;
             g_flashPropertyInfo.flashBusyStatusOffset     = WINBOND_FLASH_BUSY_STATUS_OFFSET;
 #if defined(WINBOND_FLASH_QUAD_ENABLE)

@@ -187,7 +187,7 @@ typedef struct _flash_reg_access
 #define WINBOND_DEVICE_SERIES       (1)
 #define WINBOND_DEVICE_VENDOR_ID    (0xEF)
 #define WINBOND_DEVICE_DUAL         (1)
-#define WINBOND_DEVICE_W25QxxxCL    (1)  // Small package not supported on MIMXRT1180-MEM-BB&DS
+#define WINBOND_DEVICE_W25QxxxCL    (0)  // Small package not supported on MIMXRT1180-MEM-BB&DS
 #define WINBOND_DEVICE_QUAD         (1)
 #define WINBOND_DEVICE_W25QxxxJW    (0)  // MIMXRT1180-EVK, MIMXRT1170-EVKB_Rev.A/B (W25Q128JW)
 #define WINBOND_DEVICE_W25QxxxJV    (0)
