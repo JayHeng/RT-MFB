@@ -443,6 +443,7 @@ void mfb_main(void)
     mixspi_show_clock_source(EXAMPLE_MIXSPI);
     /* Set default paramenters */
     g_flashPropertyInfo.flashHasQpiSupport = false;
+    g_flashPropertyInfo.flashIsSingle = false;
     g_flashPropertyInfo.flashIsOctal = false;
     g_flashPropertyInfo.mixspiPad = kMIXSPI_4PAD;
     g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;

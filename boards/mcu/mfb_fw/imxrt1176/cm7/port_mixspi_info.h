@@ -30,6 +30,9 @@
 #define EXAMPLE_MIXSPI_CLOCK            kCLOCK_Flexspi1
 #define EXAMPLE_MIXSPI_PORT             kFLEXSPI_PortA1
 
+#define BOARD_IS_RT1170_EVK_PORTA_DEFAULT           (0)
+#define BOARD_IS_RT1170_FSGPIO_PORTA_2ND_PINSEL     (1)
+
 /*
  * If cache is enabled, this example should maintain the cache to make sure
  * CPU core accesses the memory, not cache only.
@@ -112,6 +115,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
     CLOCK_EnableClock(kCLOCK_Iomuxc);           /* LPCG on: LPCG is ON. */
     if (base == FLEXSPI1)
     {
+#if BOARD_IS_RT1170_EVK_PORTA_DEFAULT
         IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_00_FLEXSPI1_B_DATA03, 1U);
         IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_01_FLEXSPI1_B_DATA02, 1U);
         IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_02_FLEXSPI1_B_DATA01, 1U);
@@ -139,6 +143,24 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B2_09_FLEXSPI1_A_DATA01,  0x08U);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B2_10_FLEXSPI1_A_DATA02,  0x08U);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B2_11_FLEXSPI1_A_DATA03,  0x08U);
+
+#elif BOARD_IS_RT1170_FSGPIO_PORTA_2ND_PINSEL
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_17_FLEXSPI1_A_DQS, 1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_18_FLEXSPI1_A_SS0_B, 1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_19_FLEXSPI1_A_SCLK, 1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_20_FLEXSPI1_A_DATA00, 1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_21_FLEXSPI1_A_DATA01, 1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_22_FLEXSPI1_A_DATA02, 1U);
+        IOMUXC_SetPinMux(IOMUXC_GPIO_AD_23_FLEXSPI1_A_DATA03, 1U);
+
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_17_FLEXSPI1_A_DQS, 0x0AU);
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_18_FLEXSPI1_A_SS0_B, 0x0AU);
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_19_FLEXSPI1_A_SCLK, 0x0AU);
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_20_FLEXSPI1_A_DATA00, 0x0AU);
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_21_FLEXSPI1_A_DATA01, 0x0AU);
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_22_FLEXSPI1_A_DATA02, 0x0AU);
+        IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_23_FLEXSPI1_A_DATA03, 0x0AU);
+#endif
     }
     else if (base == FLEXSPI2)
     {

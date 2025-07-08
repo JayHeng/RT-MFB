@@ -22,9 +22,13 @@
 #define WINBOND_FLASH_DRVIE_STRENGTH_050P  0x40
 #define WINBOND_FLASH_DRVIE_STRENGTH_025P  0x60
 
+#if WINBOND_DEVICE_W25QxxxCL
+#endif
+   
+////////////////////////////////////////////////////////////////////////////////
+
 #if WINBOND_DEVICE_W25QxxxJW | \
     WINBOND_DEVICE_W25QxxxJV | \
-    WINBOND_DEVICE_W25QxxxCL | \
     WINBOND_DEVICE_W25QxxxFW | \
     WINBOND_DEVICE_W25QxxxNE | \
     WINBOND_DEVICE_W25QxxxEW | \
