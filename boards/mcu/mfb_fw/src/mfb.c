@@ -443,7 +443,6 @@ void mfb_main(void)
     mixspi_show_clock_source(EXAMPLE_MIXSPI);
     /* Set default paramenters */
     g_flashPropertyInfo.flashHasQpiSupport = false;
-    g_flashPropertyInfo.flashIsSingle = false;
     g_flashPropertyInfo.flashIsOctal = false;
     g_flashPropertyInfo.mixspiPad = kMIXSPI_4PAD;
     g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
@@ -471,6 +470,8 @@ void mfb_main(void)
             }
         }
 
+
+#if !MFB_FLASH_SPI_MODE_ENABLE
         mfb_printf("\r\nMFB: Set MixSPI port to %d-bit pad.\r\n", 1u << (uint32_t)g_flashPropertyInfo.mixspiPad);
         /* Configure MixSPI pinmux as user prescriptive */
         mixspi_pin_init(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, g_flashPropertyInfo.mixspiPad);
@@ -578,6 +579,7 @@ void mfb_main(void)
 #endif
             }
         }
+#endif // !MFB_FLASH_SPI_MODE_ENABLE
         if (status == kStatus_Success)
         {
             /* Do patten verify test under Multi I/O fast read mode */
@@ -608,7 +610,7 @@ void mfb_main(void)
                 {
                     /* Get perf test result under Multi I/O fast read mode and pre-set speed*/
                     mfb_flash_memcpy_perf_test(false);
-
+#if !MFB_FLASH_SPI_MODE_ENABLE
                     mfb_printf("\r\nMFB: Set MixSPI root clock to %dMHz.\r\n", decode_mixspi_root_clk_defn(g_flashPropertyInfo.mixspiRootClkFreq));
                     /* Configure MixSPI clock as user prescriptive */ 
                     mixspi_clock_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiRootClkFreq);
@@ -619,7 +621,7 @@ void mfb_main(void)
                     /* Re-init MixSPI using custom LUT */
                     mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
                     mfb_printf("MFB: MIXSPI module is initialized to multi-I/O fast read mode.\r\n");
-
+#endif
                     round = 2;
                 }
                 else

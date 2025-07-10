@@ -21,7 +21,7 @@
  * Variables
  ******************************************************************************/
 
-#if WINBOND_DEVICE_QUAD || WINBOND_DEVICE_DUAL
+#if WINBOND_DEVICE_QUAD
 const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
@@ -209,10 +209,6 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
 #else
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
 #endif
-#if WINBOND_DEVICE_W25QxxxCL
-            g_flashPropertyInfo.flashIsSingle = true;
-            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_50MHz;
-#endif
             break;
         case 0x60:
             mfb_printf(" -- W25QxxxJW/FW/EW/NW(-IQ/IN) QuadlSPI 1.8V Series.\r\n");
@@ -265,29 +261,20 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
             break;
     }
     mfb_flash_show_mem_size(jedecID->capacityID, false);
-#if WINBOND_DEVICE_QUAD || WINBOND_DEVICE_DUAL
+#if WINBOND_DEVICE_QUAD
     if (!g_flashPropertyInfo.flashIsOctal)
     {
-        if (!g_flashPropertyInfo.flashIsSingle)
-        {
-            g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
-            g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
-            g_flashPropertyInfo.flashBusyStatusPol        = WINBOND_FLASH_BUSY_STATUS_POL;
-            g_flashPropertyInfo.flashBusyStatusOffset     = WINBOND_FLASH_BUSY_STATUS_OFFSET;
-            g_flashPropertyInfo.flashQuadEnableCfg        = WINBOND_FLASH_QUAD_ENABLE;
-            g_flashPropertyInfo.flashQuadEnableBytes      = 1;
-            g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_WINBOND_Quad;
-        }
-        else
-        {
-            g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
-            g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
-            g_flashPropertyInfo.flashBusyStatusPol        = WINBOND_FLASH_BUSY_STATUS_POL;
-            g_flashPropertyInfo.flashBusyStatusOffset     = WINBOND_FLASH_BUSY_STATUS_OFFSET;
-            g_flashPropertyInfo.flashQuadEnableCfg        = WINBOND_FLASH_QUAD_ENABLE;
-            g_flashPropertyInfo.flashQuadEnableBytes      = 2;
-            g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_WINBOND_Quad;
-        }
+        g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
+        g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
+        g_flashPropertyInfo.flashBusyStatusPol        = WINBOND_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset     = WINBOND_FLASH_BUSY_STATUS_OFFSET;
+        g_flashPropertyInfo.flashQuadEnableCfg        = WINBOND_FLASH_QUAD_ENABLE;
+#if (WINBOND_FLASH_QUAD_ENABLE > 0xFF)
+        g_flashPropertyInfo.flashQuadEnableBytes      = 2;
+#else
+        g_flashPropertyInfo.flashQuadEnableBytes      = 1;
+#endif
+        g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_WINBOND_Quad;
     }
 #endif
 #if WINBOND_DEVICE_OCTAL
