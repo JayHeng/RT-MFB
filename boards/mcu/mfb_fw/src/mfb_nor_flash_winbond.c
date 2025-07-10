@@ -23,13 +23,6 @@
 
 #if WINBOND_DEVICE_QUAD || WINBOND_DEVICE_DUAL
 const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
-#if WINBOND_DEVICE_W25QxxxCL
-    /* Normal read mode - SDR */
-    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x03, kMIXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
-    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
-#else
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0xEB, kMIXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
@@ -37,7 +30,6 @@ const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
         MIXSPI_LUT_SEQ(kMIXSPI_Command_MODE8_SDR, kMIXSPI_4PAD, 0xF0, kMIXSPI_Command_DUMMY_SDR, kMIXSPI_4PAD, WINBOND_QUAD_FLASH_DUMMY_CYCLES - 2),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
         MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
-#endif
 
     /* Read status register - 1 */
     // opcode 0x05/0x35/0x15 to read Status Registers (1/2/3)
@@ -58,12 +50,20 @@ const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
+#if WINBOND_DEVICE_W25QxxxCL
+    /* Enable Quad mode */
+    // QE bit in 8bit Status Register-2[1], there are two Status Registers (1/2)
+    // opcode 0x01 to write Status Registers (1&2)
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x01, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x02),
+#else
     /* Enable Quad mode */
     // QE bit in 8bit Status Register-2[1], there are three Status Registers (1/2/3)
     // opcode 0x01/0x31/0x11 to write Status Registers (1/2/3)
     // opcode 0x01 to write Status Registers (1&2)
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x31, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
+#endif
 
     /* Set Drive strength */
     // DRV[1:0] in 8bit Status Register-3[6:5], there are three Status Registers (1/2/3)
@@ -241,7 +241,7 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
             break;
         case 0x80:
             mfb_printf(" -- W25QxxxJW/NW(-IM) QuadlSPI 1.8V Series.\r\n");
-            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_60MHz;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
 #if WINBOND_DEVICE_W25QxxxNW
 #if !MFB_FLASH_USE_DEFAULT_DUMMY
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
@@ -271,21 +271,21 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
         if (!g_flashPropertyInfo.flashIsSingle)
         {
             g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
-            g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDummy0;
+            g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
             g_flashPropertyInfo.flashBusyStatusPol        = WINBOND_FLASH_BUSY_STATUS_POL;
             g_flashPropertyInfo.flashBusyStatusOffset     = WINBOND_FLASH_BUSY_STATUS_OFFSET;
-#if defined(WINBOND_FLASH_QUAD_ENABLE)
             g_flashPropertyInfo.flashQuadEnableCfg        = WINBOND_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes      = 1;
-#endif
             g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_WINBOND_Quad;
         }
         else
         {
-            g_flashPropertyInfo.mixspiPad                 = kMIXSPI_1PAD;
-            g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDummy0;
+            g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
+            g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
             g_flashPropertyInfo.flashBusyStatusPol        = WINBOND_FLASH_BUSY_STATUS_POL;
             g_flashPropertyInfo.flashBusyStatusOffset     = WINBOND_FLASH_BUSY_STATUS_OFFSET;
+            g_flashPropertyInfo.flashQuadEnableCfg        = WINBOND_FLASH_QUAD_ENABLE;
+            g_flashPropertyInfo.flashQuadEnableBytes      = 2;
             g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_WINBOND_Quad;
         }
     }

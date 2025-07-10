@@ -23,11 +23,11 @@
 #define WINBOND_FLASH_DRVIE_STRENGTH_025P  0x60
 
 #if WINBOND_DEVICE_W25QxxxCL
-#endif
-   
-////////////////////////////////////////////////////////////////////////////////
+// Only Write status (0x01) command is supported in this device to set status registers
+#define WINBOND_FLASH_QUAD_ENABLE        0x0200
+#define WINBOND_QUAD_FLASH_DUMMY_CYCLES  0x06
 
-#if WINBOND_DEVICE_W25QxxxJW | \
+#elif WINBOND_DEVICE_W25QxxxJW | \
     WINBOND_DEVICE_W25QxxxJV | \
     WINBOND_DEVICE_W25QxxxFW | \
     WINBOND_DEVICE_W25QxxxNE | \
