@@ -20,7 +20,7 @@
 #define MFB_FLASH_HYPER_FLASH_ENABLE     (0)
 
 // Whether to use 1bit SPI mode for Quad/Octal Flash
-#define MFB_FLASH_SPI_MODE_ENABLE        (1)
+#define MFB_FLASH_SPI_MODE_ENABLE        (0)
 // Whether to enable QPI mode for Quad Flash
 #define MFB_FLASH_QPI_MODE_ENABLE        (0)
 // Whether to disable OPI mode for Octal Flash (test dummy cycle setting for Octal Flash)
