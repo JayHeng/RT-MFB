@@ -27,6 +27,7 @@
 
 #define EXAMPLE_MIXSPI                  FLEXSPI
 #define MIXSPI_LUT_SEQS                 (32)
+#define NOR_CMD_LUT_SEQ_IDX_START       (0)
 #define FLASH_SIZE                      0x10000 /* 64MB/KByte */
 #define EXAMPLE_CACHE                   CACHE64
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI_AMBA_BASE
