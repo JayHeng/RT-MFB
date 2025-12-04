@@ -181,6 +181,7 @@ void BOARD_BootClockRUN(void)
     CLOCK_InitSysPll(&g_sysPllConfig_BOARD_BootClockRUN);
     CLOCK_InitSysPfd(kCLOCK_Pfd0, 19); /* Enable MAIN PLL clock */
     CLOCK_InitSysPfd(kCLOCK_Pfd2, 24); /* Enable AUX0 PLL clock */
+    CLOCK_InitSysPfd(kCLOCK_Pfd3, 29); /* Enable AUX1 PLL clock */
 
     /* Configure Audio PLL clock source */
     CLOCK_InitAudioPll(&g_audioPllConfig_BOARD_BootClockRUN);

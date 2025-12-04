@@ -34,7 +34,7 @@ void bsp_print_chipid()
     // For C0, There is workaround to store info in Fuse
     uint32_t chipid1 = OCOTP_FSB->OTP_SHADOW_PARTA[21];
     chipid1 = chipid1 >> 9;
-    PRINTF("Silicon Version From Fuse = 0x%x", chipid1);
+    PRINTF("Silicon Version From Fuse = 0x%x\r\n", chipid1);
 }
 
 /*!

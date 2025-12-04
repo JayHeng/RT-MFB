@@ -438,10 +438,10 @@ void BOARD_BootClockRUN(void)
     /* Init Sys Pll2. */
     CLOCK_InitSysPll2(&sysPll2Config_BOARD_BootClockRUN);
     /* Init System Pll2 pfd0. */
-    CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 27);
+    CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd0, 29);
 #endif
     /* Init System Pll2 pfd1. */
-    CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd1, 16);
+    CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd1, 29);
     /* Init System Pll2 pfd2. */
     CLOCK_InitPfd(kCLOCK_PllSys2, kCLOCK_Pfd2, 24);
     /* Init System Pll2 pfd3. */
