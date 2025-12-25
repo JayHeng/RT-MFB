@@ -26,7 +26,7 @@
 #define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
 
 #define EXAMPLE_MIXSPI                  FLEXSPI
-#define MIXSPI_LUT_SEQS                 (32)
+#define MIXSPI_LUT_SEQS                 (16)
 #define NOR_CMD_LUT_SEQ_IDX_START       (0)
 #define FLASH_SIZE                      0x10000 /* 64MB/KByte */
 #define EXAMPLE_CACHE                   CACHE64
