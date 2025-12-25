@@ -92,9 +92,15 @@ const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_WRITE] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
-    /* Erase Sector */
+#if (EXAMPLE_FLASH_SECTOR_SIZE == 0x1000)
+    /* Erase Sector 4KB */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x20, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+#elif (EXAMPLE_FLASH_SECTOR_SIZE == 0x10000)
+    /* Erase Sector 64KB */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0xD8, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+#endif
 
     /* Page Program - single mode */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM] =
