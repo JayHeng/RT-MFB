@@ -342,6 +342,15 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
                         mfb_printf("MFB: Flash SFDP Version is JESD216");
                         switch (sfdp_header.minor_rev)
                         {
+                            case kSfdp_Version_Minor_F:
+                                mfb_printf("F");
+                                break;
+                            case kSfdp_Version_Minor_E:
+                                mfb_printf("E");
+                                break;
+                            case kSfdp_Version_Minor_D:
+                                mfb_printf("D");
+                                break;
                             case kSfdp_Version_Minor_C:
                                 mfb_printf("C");
                                 break;

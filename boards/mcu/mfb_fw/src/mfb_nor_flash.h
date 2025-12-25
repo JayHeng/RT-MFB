@@ -71,11 +71,15 @@ enum
     kSfdp_Version_Minor_A = 5, // JESD216A
     kSfdp_Version_Minor_B = 6, // JESD216B
     kSfdp_Version_Minor_C = 7, // JESD216C
+    kSfdp_Version_Minor_D = 8, // JESD216D
+    kSfdp_Version_Minor_E = 9, // JESD216E
+    kSfdp_Version_Minor_F = 0xA, // JESD216F
 
     kSfdp_BasicProtocolTableSize_Rev0 = 36,
     kSfdp_BasicProtocolTableSize_RevA = 64,
     kSfdp_BasicProtocolTableSize_RevB = kSfdp_BasicProtocolTableSize_RevA,
     kSfdp_BasicProtocolTableSize_RevC = 80,
+    kSfdp_BasicProtocolTableSize_RevD = 123,
 };
 
 typedef struct _sfdp_header
@@ -90,7 +94,7 @@ typedef struct _sfdp_header
 typedef struct _sfdp_table
 {
     sfdp_header_t header;
-    uint32_t tbd[62];
+    uint32_t tbd[kSfdp_BasicProtocolTableSize_RevD-2];
 } sfdp_table_t;
 
 // Flash property info for operation
