@@ -23,6 +23,7 @@
 
 #if WINBOND_DEVICE_QUAD
 const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
+#if !MFB_FLASH_QPI_MODE_ENABLE
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0xEB, kMIXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
@@ -30,6 +31,15 @@ const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
         MIXSPI_LUT_SEQ(kMIXSPI_Command_MODE8_SDR, kMIXSPI_4PAD, 0xF0, kMIXSPI_Command_DUMMY_SDR, kMIXSPI_4PAD, WINBOND_QUAD_FLASH_DUMMY_CYCLES - 2),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
         MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+#else
+    /* Fast read quad mode - QPI-SDR */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_4PAD, 0xEB, kMIXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 1] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_MODE8_SDR, kMIXSPI_4PAD, 0x00, kMIXSPI_Command_DUMMY_SDR, kMIXSPI_4PAD, WINBOND_QUAD_FLASH_DUMMY_CYCLES - 2),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ + 2] = 
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+#endif
 
     /* Read status register - 1 */
     // opcode 0x05/0x35/0x15 to read Status Registers (1/2/3)
@@ -87,6 +97,24 @@ const uint32_t s_customLUT_WINBOND_Quad[CUSTOM_LUT_LENGTH] = {
     /* Enter QPI mode */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x38, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+
+    /* Read status register -QPI-SDR */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_4PAD, 0x05, kMIXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x01),
+
+    /* Write Enable -QPI-SDR */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_QPI] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_4PAD, 0x06, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+
+    /* Erase Sector - QPI-SDR */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR_QPI] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_4PAD, 0x20, kMIXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
+
+    /* Page Program - QPI-SDR */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_QPI] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_4PAD, 0x02, kMIXSPI_Command_RADDR_SDR, kMIXSPI_4PAD, 0x18),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM_OPI + 1] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_SDR, kMIXSPI_4PAD, 0x04, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 };
 #endif
 
@@ -211,9 +239,10 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
 #endif
             break;
         case 0x60:
-            mfb_printf(" -- W25QxxxJW/FW/EW/NW(-IQ/IN) QuadlSPI 1.8V Series.\r\n");
+            mfb_printf(" -- W25QxxxJW/FW/EW/NW/PW(-IQ/IN) QuadlSPI 1.8V Series.\r\n");
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
-#if WINBOND_DEVICE_W25QxxxNW
+#if WINBOND_DEVICE_W25QxxxNW | WINBOND_DEVICE_W25Q33PW
+            g_flashPropertyInfo.flashHasQpiSupport = true;
 #if !MFB_FLASH_USE_DEFAULT_DUMMY
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
             g_flashPropertyInfo.flashDummyValue = WINBOND_QUAD_FLASH_SET_DUMMY_CMD;
@@ -236,9 +265,9 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
             break;
         case 0x80:
-            mfb_printf(" -- W25QxxxJW/NW(-IM) QuadlSPI 1.8V Series.\r\n");
+            mfb_printf(" -- W25QxxxJW/NW/PW(-IM) QuadlSPI 1.8V Series.\r\n");
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
-#if WINBOND_DEVICE_W25QxxxNW
+#if WINBOND_DEVICE_W25QxxxNW | WINBOND_DEVICE_W25Q33PW
 #if !MFB_FLASH_USE_DEFAULT_DUMMY
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
             g_flashPropertyInfo.flashDummyValue = WINBOND_QUAD_FLASH_SET_DUMMY_CMD;

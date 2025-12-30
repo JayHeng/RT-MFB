@@ -55,7 +55,7 @@
 //  2'b11     |       8        |        104MHz         |         104MHz         |
 //------------------------------------------------------------------------------
 
-#elif WINBOND_DEVICE_W25QxxxNW
+#elif WINBOND_DEVICE_W25QxxxNW || WINBOND_DEVICE_W25Q33PW
 #define WINBOND_FLASH_QUAD_ENABLE        0x02
 
 // ¡°Set Read Parameters (C0h)¡± instruction is used to accommodate a wide range of applications with different needs
