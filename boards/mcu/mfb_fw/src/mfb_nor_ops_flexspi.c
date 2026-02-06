@@ -99,6 +99,11 @@ void mixspi_nor_disable_cache(flexspi_cache_status_t *cacheStatus)
     /* Disable cache */
     CACHE64_DisableCache(EXAMPLE_CACHE);
     cacheStatus->CacheEnableFlag = true;
+#elif (defined FSL_FEATURE_SOC_XCACHE_COUNT) && (FSL_FEATURE_SOC_XCACHE_COUNT != 0U)
+    if (XCACHE_CCR_ENCACHE_MASK == (XCACHE_CCR_ENCACHE_MASK & XCACHE_PS->CCR))
+    {
+        XCACHE_DisableCache(XCACHE_PS);
+    }
 #endif
 }
 
@@ -138,6 +143,11 @@ void mixspi_nor_enable_cache(flexspi_cache_status_t cacheStatus)
     {
         /* Enable cache. */
         CACHE64_EnableCache(EXAMPLE_CACHE);
+    }
+#elif (defined FSL_FEATURE_SOC_XCACHE_COUNT) && (FSL_FEATURE_SOC_XCACHE_COUNT != 0U)
+    if (XCACHE_CCR_ENCACHE_MASK != (XCACHE_CCR_ENCACHE_MASK & XCACHE_PS->CCR))
+    {
+        XCACHE_EnableCache(XCACHE_PS);
     }
 #endif
 }
@@ -840,6 +850,31 @@ status_t mixspi_nor_get_cfi_id(FLEXSPI_Type *base, cfi_device_id_t *cfiDeviceId)
     FLEXSPI_SoftwareReset(base);
 
     return status;
+}
+
+void mixspi_nor_system_cache_config(FLEXSPI_Type *base, flash_cache_config_t *cacheConfig)
+{
+    flexspi_cache_status_t cacheStatus;
+    if (cacheConfig->systemDcacheEnable)
+    {
+        mixspi_nor_enable_cache(cacheStatus);
+        DCACHE_CleanInvalidateByRange(EXAMPLE_MIXSPI_AMBA_BASE, EXAMPLE_MIXSPI_AMBA_SIZE);
+    }
+    else
+    {
+        mixspi_nor_disable_cache(&cacheStatus);
+    }
+
+    /* Configure AHB control items. */
+    uint32_t configValue = 0;
+    configValue = base->AHBCR;
+    configValue &= ~(FLEXSPI_AHBCR_PREFETCHEN_MASK | FLEXSPI_AHBCR_CACHABLEEN_MASK);
+    configValue |= FLEXSPI_AHBCR_PREFETCHEN(cacheConfig->ipReadAhbPrefetch) |
+                   FLEXSPI_AHBCR_CACHABLEEN(cacheConfig->ipReadAhbCachable);
+    base->AHBCR = configValue;
+
+    /* Do software reset. */
+    FLEXSPI_SoftwareReset(base);
 }
 
 void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexspi_read_sample_clock_t rxSampleClock, flash_inst_mode_t flashInstMode)

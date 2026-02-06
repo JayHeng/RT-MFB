@@ -28,6 +28,7 @@
 #define NOR_CMD_LUT_SEQ_IDX_START       (16)
 #define FLASH_SIZE                      0x4000 /* 16Mb/KByte */
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI1_AMBA_BASE
+#define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
 #define EXAMPLE_MIXSPI_CLOCK            kCLOCK_Flexspi1

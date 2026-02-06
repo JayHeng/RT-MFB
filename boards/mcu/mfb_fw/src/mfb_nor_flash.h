@@ -120,6 +120,14 @@ typedef struct _flash_property_info
     uint32_t flashUniqueCfg;
 } flash_property_info_t;
 
+// Flash cache config
+typedef struct _flash_cache_config
+{
+    bool systemDcacheEnable;
+    bool ipReadAhbPrefetch;
+    bool ipReadAhbCachable;
+} flash_cache_config_t;
+
 // Flash status/cfg register r/w access helper
 typedef struct _flash_reg_access
 {
