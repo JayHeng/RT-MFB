@@ -19,7 +19,7 @@
  * Variables
  ******************************************************************************/
 
-#if ISSI_DEVICE_IS25WP064A | ISSI_DEVICE_IS25LP064A | ISSI_DEVICE_IS25LP064D | ISSI_DEVICE_IS25WP064D | ISSI_DEVICE_IS25WP128 | ISSI_DEVICE_IS25LP512M
+#if ISSI_DEVICE_IS25WP064A | ISSI_DEVICE_IS25LP064A | ISSI_DEVICE_IS25LP064D | ISSI_DEVICE_IS25WP064D | ISSI_DEVICE_IS25WP128 | ISSI_DEVICE_IS25WJ128F | ISSI_DEVICE_IS25LP512M
 const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
@@ -49,9 +49,26 @@ const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
 
     /* Enable Quad mode */
     // QE bit in 8bit Status Register[6], there is only one Status Register
+
+    // QE bit in 8bit Status Register - 2[2], there are three Status Registers for IS25WJ128F
+    // opcode 0x01/0x31/0x11 to write Status Registers (1/2/3)
+    // opcode 0x01 to write Status Registers (1&2)
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x01, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
 
+#if ISSI_DEVICE_IS25WJ128F
+    /* Set Dummy cycle */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x11, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
+
+    /* Read status register - 2 */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x35, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+
+    /* Read status register - 3 */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x15, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+#else
     /* Set Dummy cycle */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0xC0, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
@@ -63,6 +80,7 @@ const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
     /* Read read parameters */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x61, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+#endif
 
     /* Read extended read parameters */
     /*
@@ -196,7 +214,10 @@ void mfb_flash_set_param_for_issi(jedec_id_t *jedecID)
             mfb_printf(" -- IS25LP/IS25LE QuadSPI 3.3V Series.\r\n");
             break;
         case 0x70:
-            mfb_printf(" -- IS25WP/IS25WJ/IS25WE QuadSPI 1.8V Series.\r\n");
+            mfb_printf(" -- IS25WP/IS25WE QuadSPI 1.8V Series.\r\n");
+            break;
+        case 0x71:
+            mfb_printf(" -- IS25WJ QuadSPI 1.8V Series.\r\n");
             break;
         ////////////////////////OctalSPI////////////////////////
         case 0x5A:
@@ -223,7 +244,11 @@ void mfb_flash_set_param_for_issi(jedec_id_t *jedecID)
         g_flashPropertyInfo.flashBusyStatusPol        = ISSI_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset     = ISSI_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.flashQuadEnableCfg        = ISSI_FLASH_QUAD_ENABLE;
+#if ISSI_DEVICE_IS25WJ128F
+        g_flashPropertyInfo.flashQuadEnableBytes      = 2;
+#else
         g_flashPropertyInfo.flashQuadEnableBytes      = 1;
+#endif
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_ISSI_Quad;
 #if !MFB_FLASH_USE_DEFAULT_DUMMY
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
@@ -243,7 +268,7 @@ void mfb_flash_set_param_for_issi(jedec_id_t *jedecID)
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_30MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
 #else
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_332MHz;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_240MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkExtInputDqs;
         if (g_flashPropertyInfo.mixspiRootClkFreq == kMixspiRootClkFreq_400MHz)
 #endif
@@ -265,12 +290,21 @@ void mfb_flash_show_registers_for_issi(bool isOctalFlash)
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS;
         mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Status Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+#if ISSI_DEVICE_IS25WJ128F
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register [15:8]: 0x%x\r\n", regAccess.regValue.B.reg1);
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register [23:16]: 0x%x\r\n", regAccess.regValue.B.reg1);
+#else
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
         mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Function Register: 0x%x\r\n", regAccess.regValue.B.reg1);
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
         mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Read Parameters: 0x%x\r\n", regAccess.regValue.B.reg1);
+#endif
     }
     else
     {

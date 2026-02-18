@@ -184,6 +184,27 @@
 //    0x2     |       8        |        133MHz         |
 //    0x3     |      10        |        133MHz         |
 //------------------------------------------------------
+
+#elif ISSI_DEVICE_IS25WJ128F
+#define ISSI_FLASH_QUAD_ENABLE        0x0200
+
+#define ISSI_QUAD_FLASH_SET_DUMMY_CMD 0x42
+#if MFB_FLASH_USE_DEFAULT_DUMMY
+#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x06
+#else
+#define ISSI_QUAD_FLASH_DUMMY_CYCLES  0x08
+#endif
+
+//------------------------------------------------------
+//    P[1:0]  |  dummy cycles  |   Quad IO Fast Read   |
+//            |                |Quad IO Fast Read(QPI) |
+//------------------------------------------------------
+//    0x0     |    6(default)  |        120MHz         |
+//    0x1     |       4        |         80MHz         |
+//    0x2     |       8        |        133MHz         |
+//    0x3     |      10        |        133MHz         |
+//------------------------------------------------------
+
 #endif
 
 #if ISSI_DEVICE_IS25WX256 || ISSI_DEVICE_IS25LX256
