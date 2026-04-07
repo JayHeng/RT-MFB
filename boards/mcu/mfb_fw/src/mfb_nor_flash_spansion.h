@@ -68,7 +68,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #define SPANSION_X8_FLASH_BUS_PROTOCOL (kFlashProtocolType_OctaBus)
 
-#if SPANSION_DEVICE_S28HS512
+#if SPANSION_DEVICE_S28HS512T | SPANSION_DEVICE_S28HS256M
 // CFR5N/V
 // bit0 - SPI/OPI enable
 // bit1 - SDR/DDR enable
