@@ -194,7 +194,7 @@ typedef struct _flash_reg_access
    So we need to ensure at any time, the FlexSPI LUT sequence 9 for the flash must
    be set to STOP command to avoid unexpected debugger behaivor.
  */
-#define NOR_CMD_LUT_SEQ_IDX_WRITE           9
+#define NOR_CMD_LUT_SEQ_IDX_WRITE           (NOR_CMD_LUT_SEQ_IDX_START+9)
 #if defined(MIXSPI_LUT_SEQS)
 #define CUSTOM_LUT_LENGTH                   (MIXSPI_LUT_SEQS * MIXSPI_LUT_SUB_SEQ_LEN)
 #else
