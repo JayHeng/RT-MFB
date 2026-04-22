@@ -25,6 +25,7 @@
 #define EXAMPLE_MIXSPI                  FLEXSPI2
 #define FLASH_SIZE                      0x2000 /* 64Mb/KByte */
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI2_AMBA_BASE
+#define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
 #define EXAMPLE_MIXSPI_CLOCK            kCLOCK_FlexSpi2

@@ -70,7 +70,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>9.60.2.5384</state>
+                    <state>9.70.1.13552</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -98,7 +98,7 @@
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -115,7 +115,7 @@
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -138,7 +138,7 @@
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -213,7 +213,7 @@
                 </option>
                 <option>
                     <name>OG_32_64DeviceCoreSlave</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -226,7 +226,7 @@
             <name>ICCARM</name>
             <archiveVersion>2</archiveVersion>
             <data>
-                <version>39</version>
+                <version>40</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -497,6 +497,14 @@
                 </option>
                 <option>
                     <name>CCPosSharedSlave</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>CCUseIarExtensions</name>
+                    <state>1</state>
+                </option>
+                <option>
+                    <name>CCUseGnuExtensions</name>
                     <state>0</state>
                 </option>
             </data>
@@ -1094,7 +1102,7 @@ _w25q32jv_sfdp_table</state>
             <name>IARCHIVE</name>
             <archiveVersion>0</archiveVersion>
             <data>
-                <version>0</version>
+                <version>1</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -1108,6 +1116,14 @@ _w25q32jv_sfdp_table</state>
                 <option>
                     <name>IarchiveOutput</name>
                     <state>###Unitialized###</state>
+                </option>
+                <option>
+                    <name>IarchiveExtraOptionsCheck</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>IarchiveExtraOptions</name>
+                    <state></state>
                 </option>
             </data>
         </settings>
@@ -1214,7 +1230,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -1231,7 +1247,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -1254,7 +1270,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -1329,7 +1345,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>OG_32_64DeviceCoreSlave</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -1342,7 +1358,7 @@ _w25q32jv_sfdp_table</state>
             <name>ICCARM</name>
             <archiveVersion>2</archiveVersion>
             <data>
-                <version>39</version>
+                <version>40</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -1615,6 +1631,14 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>CCPosSharedSlave</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>CCUseIarExtensions</name>
+                    <state>1</state>
+                </option>
+                <option>
+                    <name>CCUseGnuExtensions</name>
                     <state>0</state>
                 </option>
             </data>
@@ -2211,7 +2235,7 @@ _w25q32jv_sfdp_table</state>
             <name>IARCHIVE</name>
             <archiveVersion>0</archiveVersion>
             <data>
-                <version>0</version>
+                <version>1</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -2225,6 +2249,14 @@ _w25q32jv_sfdp_table</state>
                 <option>
                     <name>IarchiveOutput</name>
                     <state>###Unitialized###</state>
+                </option>
+                <option>
+                    <name>IarchiveExtraOptionsCheck</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>IarchiveExtraOptions</name>
+                    <state></state>
                 </option>
             </data>
         </settings>
@@ -2331,7 +2363,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -2348,7 +2380,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -2371,7 +2403,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -2446,7 +2478,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>OG_32_64DeviceCoreSlave</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -2459,7 +2491,7 @@ _w25q32jv_sfdp_table</state>
             <name>ICCARM</name>
             <archiveVersion>2</archiveVersion>
             <data>
-                <version>39</version>
+                <version>40</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -2730,6 +2762,14 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>CCPosSharedSlave</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>CCUseIarExtensions</name>
+                    <state>1</state>
+                </option>
+                <option>
+                    <name>CCUseGnuExtensions</name>
                     <state>0</state>
                 </option>
             </data>
@@ -3327,7 +3367,7 @@ _w25q32jv_sfdp_table</state>
             <name>IARCHIVE</name>
             <archiveVersion>0</archiveVersion>
             <data>
-                <version>0</version>
+                <version>1</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -3340,6 +3380,14 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>IarchiveOutput</name>
+                    <state></state>
+                </option>
+                <option>
+                    <name>IarchiveExtraOptionsCheck</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>IarchiveExtraOptions</name>
                     <state></state>
                 </option>
             </data>
@@ -3447,7 +3495,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -3464,7 +3512,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -3487,7 +3535,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -3562,7 +3610,7 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>OG_32_64DeviceCoreSlave</name>
-                    <version>34</version>
+                    <version>35</version>
                     <state>41</state>
                 </option>
                 <option>
@@ -3575,7 +3623,7 @@ _w25q32jv_sfdp_table</state>
             <name>ICCARM</name>
             <archiveVersion>2</archiveVersion>
             <data>
-                <version>39</version>
+                <version>40</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -3848,6 +3896,14 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>CCPosSharedSlave</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>CCUseIarExtensions</name>
+                    <state>1</state>
+                </option>
+                <option>
+                    <name>CCUseGnuExtensions</name>
                     <state>0</state>
                 </option>
             </data>
@@ -4444,7 +4500,7 @@ _w25q32jv_sfdp_table</state>
             <name>IARCHIVE</name>
             <archiveVersion>0</archiveVersion>
             <data>
-                <version>0</version>
+                <version>1</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -4457,6 +4513,14 @@ _w25q32jv_sfdp_table</state>
                 </option>
                 <option>
                     <name>IarchiveOutput</name>
+                    <state></state>
+                </option>
+                <option>
+                    <name>IarchiveExtraOptionsCheck</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>IarchiveExtraOptions</name>
                     <state></state>
                 </option>
             </data>
@@ -4665,6 +4729,12 @@ _w25q32jv_sfdp_table</state>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_mxic.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_puya.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_puya.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_spansion.c</name>
         </file>
         <file>
@@ -4719,4 +4789,9 @@ _w25q32jv_sfdp_table</state>
             <name>$PROJ_DIR$\..\..\..\..\..\devices\MIMXRT1062\xip\fsl_flexspi_nor_boot.h</name>
         </file>
     </group>
+    <projectSettings>
+        <general>
+            <resolveSourceForBinaries>true</resolveSourceForBinaries>
+        </general>
+    </projectSettings>
 </project>

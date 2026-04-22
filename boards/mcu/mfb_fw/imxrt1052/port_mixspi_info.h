@@ -24,6 +24,7 @@
 
 #define EXAMPLE_MIXSPI                  FLEXSPI
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI_AMBA_BASE
+#define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
 #if MFB_FLASH_HYPER_FLASH_ENABLE
 #define FLASH_SIZE                      0x10000 /* 512Mb/KByte */
 #define EXAMPLE_FLASH_PAGE_SIZE         512

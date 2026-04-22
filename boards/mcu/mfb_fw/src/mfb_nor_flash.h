@@ -152,18 +152,18 @@ typedef struct _flash_reg_access
 #if !defined(NOR_CMD_LUT_SEQ_IDX_START)
 #define NOR_CMD_LUT_SEQ_IDX_START           (0)
 #endif
-#define NOR_CMD_LUT_SEQ_IDX_READ            (NOR_CMD_LUT_SEQ_IDX_START+0)
-#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR     (NOR_CMD_LUT_SEQ_IDX_START+1)
+#define NOR_CMD_LUT_SEQ_IDX_READ            (NOR_CMD_LUT_SEQ_IDX_START+0)  // Used for HyperFlash
+#define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR     (NOR_CMD_LUT_SEQ_IDX_START+1)  // Used for HyperFlash (x4)
 #define NOR_CMD_LUT_SEQ_IDX_ENABLEQE        (NOR_CMD_LUT_SEQ_IDX_START+2)
 #define NOR_CMD_LUT_SEQ_IDX_ENTERQPI        (NOR_CMD_LUT_SEQ_IDX_START+3)
 #define NOR_CMD_LUT_SEQ_IDX_ENTEROPI        (NOR_CMD_LUT_SEQ_IDX_START+3)
-#define NOR_CMD_LUT_SEQ_IDX_READSTATUS      (NOR_CMD_LUT_SEQ_IDX_START+4)
-#define NOR_CMD_LUT_SEQ_IDX_SETDUMMY        (NOR_CMD_LUT_SEQ_IDX_START+5)
+#define NOR_CMD_LUT_SEQ_IDX_SETDUMMY        (NOR_CMD_LUT_SEQ_IDX_START+4)
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS      (NOR_CMD_LUT_SEQ_IDX_START+5)  // Used for HyperFlash (x2)
 #define NOR_CMD_LUT_SEQ_IDX_SETDRIVE        (NOR_CMD_LUT_SEQ_IDX_START+6)
 #define NOR_CMD_LUT_SEQ_IDX_UNIQUECFG       (NOR_CMD_LUT_SEQ_IDX_START+6)
-#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     (NOR_CMD_LUT_SEQ_IDX_START+7)
+#define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE     (NOR_CMD_LUT_SEQ_IDX_START+7)  // Used for HyperFlash (x2)
 #define NOR_CMD_LUT_SEQ_IDX_READREG         (NOR_CMD_LUT_SEQ_IDX_START+8)
-#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     (NOR_CMD_LUT_SEQ_IDX_START+10)
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     (NOR_CMD_LUT_SEQ_IDX_START+10) // Used for HyperFlash (x2)
 #define NOR_CMD_LUT_SEQ_IDX_READREG2        (NOR_CMD_LUT_SEQ_IDX_START+11)
 // FlexSPI LUT seq defn (1bit spi)
 #define NOR_CMD_LUT_SEQ_IDX_ERASESECSFDP    (NOR_CMD_LUT_SEQ_IDX_START+6)
@@ -194,7 +194,7 @@ typedef struct _flash_reg_access
    So we need to ensure at any time, the FlexSPI LUT sequence 9 for the flash must
    be set to STOP command to avoid unexpected debugger behaivor.
  */
-#define NOR_CMD_LUT_SEQ_IDX_WRITE           (NOR_CMD_LUT_SEQ_IDX_START+9)
+#define NOR_CMD_LUT_SEQ_IDX_WRITE           (NOR_CMD_LUT_SEQ_IDX_START+9)   // Used for HyperFlash
 #if defined(MIXSPI_LUT_SEQS)
 #define CUSTOM_LUT_LENGTH                   (MIXSPI_LUT_SEQS * MIXSPI_LUT_SUB_SEQ_LEN)
 #else
