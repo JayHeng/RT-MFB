@@ -910,8 +910,12 @@ void mixspi_nor_flash_init(FLEXSPI_Type *base, const uint32_t *customLUT, flexsp
         /*Allow AHB read start address do not follow the alignment requirement. */
         config.ahbConfig.enableReadAddressOpt = true;
 #if !(defined(FSL_FEATURE_FLEXSPI_HAS_NO_MCR2_SCKBDIFFOPT) && FSL_FEATURE_FLEXSPI_HAS_NO_MCR2_SCKBDIFFOPT)
+#if MFB_FLASH_HYPER_FLASH_DIFF_CLK
         /* enable diff clock  */
         config.enableSckBDiffOpt = true;
+#else
+        config.enableSckBDiffOpt = false;
+#endif
 #endif
     }
 

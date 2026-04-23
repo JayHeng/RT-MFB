@@ -513,7 +513,7 @@ void mfb_flash_show_registers_for_spansion(bool isOctalFlash)
 void mfb_hyperflash_set_param_for_spansion(void)
 {
     g_flashPropertyInfo.mixspiPad             = kMIXSPI_8PAD;
-    g_flashPropertyInfo.mixspiRootClkFreq     = kMixspiRootClkFreq_332MHz;
+    g_flashPropertyInfo.mixspiRootClkFreq     = kMixspiRootClkFreq_200MHz;
     g_flashPropertyInfo.flashBusyStatusOffset = SPANSION_HYPERFLASH_BUSY_STATUS_OFFSET;
     g_flashPropertyInfo.flashMixStatusMask    = SPANSION_HYPERFLASH_MIX_STATUS_MASK;
     g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkExtInputDqs;
@@ -527,22 +527,22 @@ void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId)
     switch (cfiDeviceId->capacityID)
     {
         case 0x70:
-            mfb_printf(" -- S26KS/L 512Mb HyperFlash 1.8V Series.\r\n");
+            mfb_printf(" -- S26KS/L 512Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
             break;
         case 0x6F:
-            mfb_printf(" -- S26KS/L 512Mb HyperFlash 3.0V Series.\r\n");
+            mfb_printf(" -- S26KS/L 512Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
             break;
         case 0x72:
-            mfb_printf(" -- S26KS/L 256Mb HyperFlash 1.8V Series.\r\n");
+            mfb_printf(" -- S26KS/L 256Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
             break;
         case 0x71:
-            mfb_printf(" -- S26KS/L 256Mb HyperFlash 3.0V Series.\r\n");
+            mfb_printf(" -- S26KS/L 256Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
             break;
         case 0x74:
-            mfb_printf(" -- S26KS/L 128Mb HyperFlash 1.8V Series.\r\n");
+            mfb_printf(" -- S26KS/L 128Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
             break;
         case 0x73:
-            mfb_printf(" -- S26KS/L 128Mb HyperFlash 3.0V Series.\r\n");
+            mfb_printf(" -- S26KS/L 128Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
             break;
         default:
             mfb_printf(" -- Unsupported Series.\r\n");

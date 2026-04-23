@@ -299,7 +299,8 @@ typedef struct _flash_reg_access
 #define SPANSION_DEVICE_S28HS512T   (0)
 #define SPANSION_DEVICE_S28HS256M   (1)
 #define SPANSION_DEVICE_HYPERBUS    (1)
-#define SPANSION_DEVICE_S26KS512    (1)  // MIMXRT1050-EVKB (S26KS512)
+#define SPANSION_DEVICE_S26KS512S   (0)  // MIMXRT1050-EVKB (S26KS512)
+#define SPANSION_DEVICE_S26KL128S   (1)
 
 ////////////////////////////////////////////////////////////////////////////////
 #define PUYA_DEVICE_SERIES          (1)

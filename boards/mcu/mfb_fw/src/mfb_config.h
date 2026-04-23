@@ -17,7 +17,9 @@
 #define MFB_APP_IMAGE_OFFSET             (0xC000)
 
 // Whether to enable hyperFlash (or Quad/Octal SPI Flash) test
-#define MFB_FLASH_HYPER_FLASH_ENABLE     (0)
+#define MFB_FLASH_HYPER_FLASH_ENABLE     (1)
+// Whether to use 3.0V flash (Single ended clock) or 1.8V flash (Differential clock CK, CK#)
+#define MFB_FLASH_HYPER_FLASH_DIFF_CLK   (0)
 
 // Whether to use 1bit SPI mode for Quad/Octal Flash
 #define MFB_FLASH_SPI_MODE_ENABLE        (0)

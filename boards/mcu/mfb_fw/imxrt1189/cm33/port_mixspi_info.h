@@ -25,12 +25,18 @@
 
 #define EXAMPLE_MIXSPI                  FLEXSPI1
 #define MIXSPI_LUT_SEQS                 (32)
-#define NOR_CMD_LUT_SEQ_IDX_START       (16)
-#define FLASH_SIZE                      0x4000 /* 16Mb/KByte */
+#define NOR_CMD_LUT_SEQ_IDX_START       (0)
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI1_AMBA_BASE
 #define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
+#if MFB_FLASH_HYPER_FLASH_ENABLE
+#define FLASH_SIZE                      0x10000 /* 512Mb/KByte */
+#define EXAMPLE_FLASH_PAGE_SIZE         512
+#define EXAMPLE_FLASH_SECTOR_SIZE       0x40000 /* 256K */
+#else
+#define FLASH_SIZE                      0x4000 /* 16Mb/KByte */
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
+#endif
 #define EXAMPLE_MIXSPI_CLOCK            kCLOCK_Flexspi1
 #define EXAMPLE_MIXSPI_PORT             kFLEXSPI_PortA1
 
