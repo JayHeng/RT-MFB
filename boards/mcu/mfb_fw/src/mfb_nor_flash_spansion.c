@@ -510,8 +510,44 @@ void mfb_flash_show_registers_for_spansion(bool isOctalFlash)
 #endif
 }
 
-void mfb_hyperflash_set_param_for_spansion(void)
+void mfb_decode_series_id_for_infineon(uint16_t seriesID)
 {
+    switch (seriesID)
+    {
+        case 0x7B1B:
+            mfb_printf(" -- S26HS 1Gb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+            break;
+        case 0x6A1B:
+            mfb_printf(" -- S26HL 1Gb HyperFlash 3.0V Series, Single ended clock.\r\n");
+            break;
+        case 0x7B1A:
+            mfb_printf(" -- S26HS 512Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+            break;
+        case 0x6A1A:
+            mfb_printf(" -- S26HL 512Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
+            break;
+        case 0x7B19:
+            mfb_printf(" -- S26HS 256Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+            break;
+        case 0x6A19:
+            mfb_printf(" -- S26HL 256Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
+            break;
+        default:
+            mfb_printf(" -- Unsupported Series.\r\n");
+            break;
+    }
+}
+
+void mfb_hyperflash_set_param_for_spansion(infineon_samper_id_t *samperID)
+{
+    if (samperID != NULL)
+    {
+        mfb_printf(" -- Infineon Serial Flash.\r\n");
+        mfb_printf("MFB: Flash Family ID: 0x%x", samperID->familyID);
+        uint16_t seriesID = samperID->voltageType;
+        seriesID = (seriesID << 8) + samperID->deviceDensity;
+        mfb_decode_series_id_for_infineon(seriesID);
+    }
     g_flashPropertyInfo.mixspiPad             = kMIXSPI_8PAD;
     g_flashPropertyInfo.mixspiRootClkFreq     = kMixspiRootClkFreq_200MHz;
     g_flashPropertyInfo.flashBusyStatusOffset = SPANSION_HYPERFLASH_BUSY_STATUS_OFFSET;
@@ -553,32 +589,9 @@ void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId)
     }
     else if (cfiDeviceId->memoryTypeID == INFINEON_DEVICE_VENDOR_ID)
     {
-         uint16_t capacityID = cfiDeviceId->voltageType;
-         capacityID = (capacityID << 8) + cfiDeviceId->capacityID;
-        switch (capacityID)
-        {
-            case 0x7B1B:
-                mfb_printf(" -- S26HS 1Gb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
-                break;
-            case 0x6A1B:
-                mfb_printf(" -- S26HL 1Gb HyperFlash 3.0V Series, Single ended clock.\r\n");
-                break;
-            case 0x7B1A:
-                mfb_printf(" -- S26HS 512Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
-                break;
-            case 0x6A1A:
-                mfb_printf(" -- S26HL 512Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
-                break;
-            case 0x7B19:
-                mfb_printf(" -- S26HS 256Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
-                break;
-            case 0x6A19:
-                mfb_printf(" -- S26HL 256Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
-                break;
-            default:
-                mfb_printf(" -- Unsupported Series.\r\n");
-                break;
-        }
+        uint16_t seriesID = cfiDeviceId->voltageType;
+        seriesID = (seriesID << 8) + cfiDeviceId->capacityID;
+        mfb_decode_series_id_for_infineon(seriesID);
     }
 }
 

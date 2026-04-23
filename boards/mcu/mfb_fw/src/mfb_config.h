@@ -20,6 +20,8 @@
 #define MFB_FLASH_HYPER_FLASH_ENABLE     (1)
 // Whether to use 3.0V flash (Single ended clock) or 1.8V flash (Differential clock CK, CK#)
 #define MFB_FLASH_HYPER_FLASH_DIFF_CLK   (0)
+// Whether the flash default boot in HyperBus mode, if no then it boots in 1bit SPI mode
+#define MFB_FLASH_DEFAULT_BOOT_HYPERBUS  (0)
 
 // Whether to use 1bit SPI mode for Quad/Octal Flash
 #define MFB_FLASH_SPI_MODE_ENABLE        (0)

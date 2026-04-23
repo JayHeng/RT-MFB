@@ -16,6 +16,8 @@
  * Prototypes
  ******************************************************************************/
 
+static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t *jedecID, void* secID);
+
 
 /*******************************************************************************
  * Variables
@@ -191,9 +193,31 @@ void mfb_mixspi_common_init(flash_inst_mode_t flashInstMode)
 void mfb_hyper_flash_test(void)
 {
     status_t status = kStatus_Success;
+
+#if !MFB_FLASH_DEFAULT_BOOT_HYPERBUS
+    flash_inst_mode_t sta_flashInstMode = kFlashInstMode_SPI;
+    infineon_samper_id_t infineonID;
+
+    mfb_printf("\r\nMFB: Set MixSPI port to 1-bit pad.\r\n");
+    /* Switch MixSPI port if needed */
+    mixspi_port_switch(EXAMPLE_MIXSPI, EXAMPLE_MIXSPI_PORT, kMIXSPI_1PAD);
+    mfb_printf("MFB: Set MixSPI root clock to 30MHz.\r\n");
+    /* Move MixSPI clock to a stable clock source */ 
+    mixspi_clock_init(EXAMPLE_MIXSPI, kMixspiRootClkFreq_30MHz);
+    /* Update root clock */
+    mixspi_device_config_update_rootclock(mixspi_get_clock(EXAMPLE_MIXSPI));
+    /* Show MixSPI clock source */
+    mixspi_show_clock_source(EXAMPLE_MIXSPI);
+    /* Validate JEDEC ID and SFDP. */
+    if (mfb_validate_jedec(&sta_flashInstMode, NULL, &infineonID))
+    {
+    }
+    return;
+#endif
+
     /* Adjust device parammenter */
     mixspi_device_config_init();
-    mfb_hyperflash_set_param_for_spansion();
+    mfb_hyperflash_set_param_for_spansion(NULL);
     g_flashPropertyInfo.flashMemSizeInByte = FLASH_SIZE * 0x400;
 
     /* Configure MixSPI pinmux&clock as user prescriptive */
@@ -253,7 +277,7 @@ static void mfb_show_final_result(bool isTrue)
     }
 }
 
-static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t *jedecID)
+static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t *jedecID, void *secID)
 {
     bool sta_isValidVendorId = false;
 #if MFB_FLASH_FAKE_JEDEC_ID_ENABLE
@@ -272,7 +296,17 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
         /* Init MixSPI using common LUT */ 
         mfb_mixspi_common_init(*sta_flashInstMode);
         /* Read JEDEC id from flash */
-        status = mixspi_nor_get_jedec_id(EXAMPLE_MIXSPI, (uint32_t *)jedecID, *sta_flashInstMode);
+        uint8_t manufacturerID;
+        if (jedecID != NULL)
+        {
+            status = mixspi_nor_get_jedec_id(EXAMPLE_MIXSPI, (uint32_t *)jedecID, *sta_flashInstMode);
+            manufacturerID = jedecID->manufacturerID;
+        }
+        else if (secID != NULL)
+        {
+            status = mixspi_nor_get_infineon_samper_id(EXAMPLE_MIXSPI, (infineon_samper_id_t *)secID);
+            manufacturerID = ((infineon_samper_id_t *)secID)->manufacturerID;
+        }
         if (status != kStatus_Success)
         {
             mfb_printf("MFB: Get Flash Vendor ID failed");
@@ -282,7 +316,7 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
             uint32_t idx;
             for (idx = 0; idx < sizeof(s_flashVendorIDs); idx++)
             {
-                if (jedecID->manufacturerID == s_flashVendorIDs[idx])
+                if (manufacturerID == s_flashVendorIDs[idx])
                 {
                     break;
                 }
@@ -294,7 +328,7 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
             }
             else
             {
-                mfb_printf("MFB: Get Invalid Flash Vendor ID 0x%x", jedecID->manufacturerID);
+                mfb_printf("MFB: Get Invalid Flash Vendor ID 0x%x", manufacturerID);
             }
         }
         switch (*sta_flashInstMode)
@@ -324,11 +358,23 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
     if (status == kStatus_Success)
 #endif
     {
-        /* Get real flash size according to jedec id result (it may not be appliable to some specifal adesto device) */
-        g_flashPropertyInfo.flashMemSizeInByte = mfb_flash_decode_common_capacity_id(jedecID->capacityID);
-        mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID->manufacturerID);
-        /* Check Vendor ID. */
-        sta_isValidVendorId = mfb_flash_is_valid_jedec_id(jedecID);
+        if (jedecID != NULL)
+        {
+            /* Get real flash size according to jedec id result (it may not be appliable to some specifal adesto device) */
+            g_flashPropertyInfo.flashMemSizeInByte = mfb_flash_decode_common_capacity_id(jedecID->capacityID);
+            mfb_printf("MFB: Flash Manufacturer ID: 0x%x", jedecID->manufacturerID);
+            /* Check Vendor ID. */
+            sta_isValidVendorId = mfb_flash_is_valid_jedec_id(jedecID);
+        }
+        else if (secID != NULL)
+        {
+            infineon_samper_id_t *samperID = secID;
+            /* Get real flash size according to jedec id result (it may not be appliable to some specifal adesto device) */
+            g_flashPropertyInfo.flashMemSizeInByte = mfb_flash_decode_common_capacity_id(samperID->deviceDensity);
+            mfb_printf("MFB: Flash Manufacturer ID: 0x%x", samperID->manufacturerID);
+            /* Check Vendor ID. */
+            sta_isValidVendorId = mfb_flash_is_valid_infineon_samper_id(samperID);
+        }
         if (sta_isValidVendorId && (*sta_flashInstMode == kFlashInstMode_SPI))
         {
             sfdp_header_t sfdp_header;
@@ -467,7 +513,7 @@ void mfb_main(void)
     g_flashPropertyInfo.flashQuadEnableBytes = 0;
     g_flashPropertyInfo.flashUniqueCfg = U32_VALUE_INVALID;
     /* Validate JEDEC ID and SFDP. */
-    if (mfb_validate_jedec(&sta_flashInstMode, &jedecID))
+    if (mfb_validate_jedec(&sta_flashInstMode, &jedecID, NULL))
     {
         /* Only run 1st perf and pattern verify when default flash state is Ext SPI mode */
         if (sta_flashInstMode == kFlashInstMode_SPI)

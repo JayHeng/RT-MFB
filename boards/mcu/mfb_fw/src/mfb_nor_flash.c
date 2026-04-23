@@ -336,6 +336,29 @@ bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID)
     return isValidVendorId;
 }
 
+bool mfb_flash_is_valid_infineon_samper_id(infineon_samper_id_t *samperID)
+{
+    bool isValidVendorId = true;
+    /* Check Vendor ID. */
+    switch (samperID->manufacturerID)
+    {
+#if SPANSION_DEVICE_SERIES
+        // Spansion
+        case SPANSION_DEVICE_VENDOR_ID:
+        case INFINEON_DEVICE_VENDOR_ID:
+            mfb_hyperflash_set_param_for_spansion(samperID);
+            break;
+#endif // SPANSION_DEVICE_SERIES
+
+        default:
+            mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
+            isValidVendorId = false;
+            break;
+    }
+    
+    return isValidVendorId;
+}
+
 #if MFB_FLASH_PATTERN_VERIFY_ENABLE
 static bool mfb_flash_handle_one_pattern_page(uint32_t pageAddr, bool isDataGen, bool showError)
 {

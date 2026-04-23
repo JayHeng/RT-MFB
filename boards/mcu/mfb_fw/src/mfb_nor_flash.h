@@ -38,6 +38,16 @@ typedef struct _jedec_id
     uint8_t reserved;
 } jedec_id_t;
 
+/*! @brief Infineon SEMPER HyperFlash id structure. */
+typedef struct _infineon_samper_id
+{
+    uint16_t manufacturerID;
+    uint16_t voltageType;
+    uint16_t deviceDensity;
+    uint16_t deviceIDLength;
+    uint16_t familyID;
+} infineon_samper_id_t;
+
 /*! @brief CFI device id structure. */
 typedef struct _cfi_device_id
 {
@@ -349,6 +359,7 @@ extern void mixspi_device_config_update_rootclock(uint32_t clkFreq);
 extern void mixspi_device_config_update_flashsize(uint32_t flashSize);
 
 extern status_t mixspi_nor_get_jedec_id(MIXSPI_Type *base, uint32_t *jedecId, flash_inst_mode_t flashInstMode);
+extern status_t mixspi_nor_get_infineon_samper_id(MIXSPI_Type *base, infineon_samper_id_t *samperId);
 extern status_t mixspi_nor_get_cfi_id(MIXSPI_Type *base, cfi_device_id_t *cfiDeviceId);
 extern status_t mixspi_nor_get_jedec_sfdp(MIXSPI_Type *base, uint32_t addr, uint32_t *jedecSfdp, uint32_t sfdpSize);
 extern status_t mixspi_nor_sfdp_sec_erase(MIXSPI_Type *base, uint32_t addr);
@@ -397,7 +408,7 @@ extern void mfb_flash_show_registers_for_adesto(bool isOctalFlash);
 #if SPANSION_DEVICE_SERIES
 extern void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_spansion(bool isOctalFlash);
-extern void mfb_hyperflash_set_param_for_spansion(void);
+extern void mfb_hyperflash_set_param_for_spansion(infineon_samper_id_t *samperID);
 extern void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId);
 #endif
 #if PUYA_DEVICE_SERIES
@@ -405,6 +416,7 @@ extern void mfb_flash_set_param_for_puya(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_puya(bool isOctalFlash);
 #endif
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);
+extern bool mfb_flash_is_valid_infineon_samper_id(infineon_samper_id_t *samperID);
 extern bool mfb_flash_pattern_verify_test(bool showError);
 extern bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode);
 extern void mfb_flash_memcpy_perf_test(bool stressTestEnable);
