@@ -47,7 +47,8 @@ typedef struct _cfi_device_id
     uint8_t memoryTypeID;
     uint8_t reserved2;
     uint8_t capacityID;
-    uint8_t reserved3[2];
+    uint8_t reserved3;
+    uint8_t voltageType;
 } cfi_device_id_t;
 
 // Supported Flash inst mode
@@ -299,8 +300,13 @@ typedef struct _flash_reg_access
 #define SPANSION_DEVICE_S28HS512T   (0)
 #define SPANSION_DEVICE_S28HS256M   (1)
 #define SPANSION_DEVICE_HYPERBUS    (1)
+// This HyperFlash family support HYPERBUS™ interface only
 #define SPANSION_DEVICE_S26KS512S   (0)  // MIMXRT1050-EVKB (S26KS512)
-#define SPANSION_DEVICE_S26KL128S   (1)
+#define SPANSION_DEVICE_S26KL128S   (0)
+// This SEMPER™ Flash family support  both the HYPERBUS™ interface only as well as legacy (x1) SPI.
+//   The legacy (x1) SPI mode is the default protocol following Power-on-Reset (POR) but, flash devices can be
+//   configured to boot-up in the HYPERBUS™ mode.
+#define SPANSION_DEVICE_S26HL512T   (1)  
 
 ////////////////////////////////////////////////////////////////////////////////
 #define PUYA_DEVICE_SERIES          (1)

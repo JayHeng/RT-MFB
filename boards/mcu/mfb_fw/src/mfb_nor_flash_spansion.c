@@ -523,30 +523,62 @@ void mfb_hyperflash_set_param_for_spansion(void)
 void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId)
 {
     mfb_printf("MFB: Flash Manufacturer ID: 0x%x -- Spansion Serial Flash.\r\n", cfiDeviceId->manufacturerID);
-    mfb_printf("MFB: Flash Memory Type ID: 0x%x", cfiDeviceId->memoryTypeID);
-    switch (cfiDeviceId->capacityID)
+    mfb_printf("MFB: Flash Family Type ID: 0x%x", cfiDeviceId->memoryTypeID);
+    if (cfiDeviceId->memoryTypeID == SPANSION_DEVICE_VENDOR_ID)
     {
-        case 0x70:
-            mfb_printf(" -- S26KS/L 512Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
-            break;
-        case 0x6F:
-            mfb_printf(" -- S26KS/L 512Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
-            break;
-        case 0x72:
-            mfb_printf(" -- S26KS/L 256Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
-            break;
-        case 0x71:
-            mfb_printf(" -- S26KS/L 256Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
-            break;
-        case 0x74:
-            mfb_printf(" -- S26KS/L 128Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
-            break;
-        case 0x73:
-            mfb_printf(" -- S26KS/L 128Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
-            break;
-        default:
-            mfb_printf(" -- Unsupported Series.\r\n");
-            break;
+        switch (cfiDeviceId->capacityID)
+        {
+            case 0x70:
+                mfb_printf(" -- S26KS 512Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+                break;
+            case 0x6F:
+                mfb_printf(" -- S26KL 512Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
+                break;
+            case 0x72:
+                mfb_printf(" -- S26KS 256Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+                break;
+            case 0x71:
+                mfb_printf(" -- S26KL 256Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
+                break;
+            case 0x74:
+                mfb_printf(" -- S26KS 128Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+                break;
+            case 0x73:
+                mfb_printf(" -- S26KL 128Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
+                break;
+            default:
+                mfb_printf(" -- Unsupported Series.\r\n");
+                break;
+        }
+    }
+    else if (cfiDeviceId->memoryTypeID == INFINEON_DEVICE_VENDOR_ID)
+    {
+         uint16_t capacityID = cfiDeviceId->voltageType;
+         capacityID = (capacityID << 8) + cfiDeviceId->capacityID;
+        switch (capacityID)
+        {
+            case 0x7B1B:
+                mfb_printf(" -- S26HS 1Gb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+                break;
+            case 0x6A1B:
+                mfb_printf(" -- S26HL 1Gb HyperFlash 3.0V Series, Single ended clock.\r\n");
+                break;
+            case 0x7B1A:
+                mfb_printf(" -- S26HS 512Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+                break;
+            case 0x6A1A:
+                mfb_printf(" -- S26HL 512Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
+                break;
+            case 0x7B19:
+                mfb_printf(" -- S26HS 256Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+                break;
+            case 0x6A19:
+                mfb_printf(" -- S26HL 256Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
+                break;
+            default:
+                mfb_printf(" -- Unsupported Series.\r\n");
+                break;
+        }
     }
 }
 

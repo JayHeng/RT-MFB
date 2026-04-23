@@ -6,6 +6,7 @@
  */
 
 #include "mfb_nor_flash.h"
+#include "mfb_nor_flash_spansion.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -791,6 +792,8 @@ static status_t mixspi_nor_write_cfi(FLEXSPI_Type *base, uint32_t addr, uint32_t
 #if defined(__ICCARM__)
 #pragma optimize = none
 #endif
+// This function is originally designed for S26KS/KL (HyperFlash protocol only)
+// but for S26HS/HL (HyperFlash/1bit SPI protocol), there are some differences
 status_t mixspi_nor_get_cfi_id(FLEXSPI_Type *base, cfi_device_id_t *cfiDeviceId)
 {
     /*
@@ -798,7 +801,7 @@ status_t mixspi_nor_get_cfi_id(FLEXSPI_Type *base, cfi_device_id_t *cfiDeviceId)
      */
     // CFI Entry
     status_t status;
-    uint32_t buffer[2];
+    uint32_t buffer[3];
     uint8_t data[4] = {0x00, 0x98};
     status          = mixspi_nor_write_cfi(base, 0x555, (uint32_t *)data, 2);
     if (status != kStatus_Success)
@@ -806,6 +809,7 @@ status_t mixspi_nor_get_cfi_id(FLEXSPI_Type *base, cfi_device_id_t *cfiDeviceId)
         return status;
     }
 
+#if defined(SPANSION_HYPERFLASH_ID_ADDR_QRY)
     // ID-CFI Read
     // Read Query Unique ASCII String
     status = mixspi_nor_read_cfi(base, 0x10, &buffer[0], sizeof(buffer));
@@ -820,24 +824,39 @@ status_t mixspi_nor_get_cfi_id(FLEXSPI_Type *base, cfi_device_id_t *cfiDeviceId)
         status = kStatus_Fail;
         return status;
     }
+#endif
+
     // ID-CFI Read
     // Read Device id
-    status = mixspi_nor_read_cfi(base, 0x00, &buffer[0], 4);
+    status = mixspi_nor_read_cfi(base, SPANSION_HYPERFLASH_ID_ADDR_MID, &buffer[0], 4);
     if (status != kStatus_Success)
     {
         return status;
     }
-    status = mixspi_nor_read_cfi(base, 0x0e, &buffer[1], 4);
+    status = mixspi_nor_read_cfi(base, SPANSION_HYPERFLASH_ID_ADDR_DID0, &buffer[1], 4);
     if (status != kStatus_Success)
     {
         return status;
     }
+#if defined(SPANSION_HYPERFLASH_ID_ADDR_DID1)
+    status = mixspi_nor_read_cfi(base, SPANSION_HYPERFLASH_ID_ADDR_DID1, &buffer[2], 2);
+    if (status != kStatus_Success)
+    {
+        return status;
+    }
+    cfiDeviceId->manufacturerID = (buffer[0] >> 8) & 0xFF;
+    cfiDeviceId->memoryTypeID = (buffer[2] >> 8) & 0xFF;
+    cfiDeviceId->capacityID = (buffer[1] >> 8) & 0xFF;
+    cfiDeviceId->voltageType = (buffer[0] >> 24) & 0xFF;
+#else
     /*
     cfiDeviceId->manufacturerID = (buffer[0] >> 8) & 0xFF;
     cfiDeviceId->memoryTypeID = (buffer[0] >> 24) & 0xFF;
     cfiDeviceId->capacityID = (buffer[1] >> 8) & 0xFF;
    */
     memcpy((void *)cfiDeviceId, (void *)buffer, sizeof(cfi_device_id_t));
+#endif
+
     // ASO Exit 0xF000
     data[1] = 0xF0;
     status  = mixspi_nor_write_cfi(base, 0x0, (uint32_t *)data, 2);
