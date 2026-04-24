@@ -17,10 +17,12 @@
 #define MFB_APP_IMAGE_OFFSET             (0xC000)
 
 // Whether to enable hyperFlash (or Quad/Octal SPI Flash) test
-#define MFB_FLASH_HYPER_FLASH_ENABLE     (1)
+#define MFB_FLASH_HYPER_FLASH_ENABLE     (0)
 // Whether to use 3.0V flash (Single ended clock) or 1.8V flash (Differential clock CK, CK#)
 #define MFB_FLASH_HYPER_FLASH_DIFF_CLK   (0)
 // Whether the flash default boot in HyperBus mode, if no then it boots in 1bit SPI mode
+// For S26HL512TFPBHI003 or S26HL512TFPBHI023, it boots in x8 HyperBus mode by default
+// For S26HL512TFPBHI010 or S26HL512TFPBHI030, it boots in x1 SPI mode by default
 #define MFB_FLASH_DEFAULT_BOOT_HYPERBUS  (0)
 
 // Whether to use 1bit SPI mode for Quad/Octal Flash
