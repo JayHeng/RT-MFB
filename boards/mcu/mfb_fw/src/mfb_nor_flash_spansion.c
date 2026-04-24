@@ -527,6 +527,16 @@ bool mfb_hyperflash_switch_to_hyperbus_mode(void)
         }
         mfb_printf("MFB: Flash Configuration Register %d: 0x%x\r\n", idx - 1, regAccess.regValue.B.reg1);
     }
+    // CFR3V = 0x08 by default
+
+    // CFR3V[4] = PGMBUF, Program Buffer Size selection
+    //  0 = 256 Byte Write Buffer Size
+    //  1 = 512 Byte Write Buffer Size
+
+    // CFR3V[3] = UNHYSA, Uniform or Hybrid Sector Architecture selection
+    //  0 = Hybrid Sector Architecture (combination of 4KB sectors and 256KB sectors)
+    //  1 = Uniform Sector Architecture (all 256KB sectors)
+    
     // CFR3V[1] = INTFTP, The INTFTP bit selects the interface of the device
     //  between HYPERBUS™ and legacy (x1) SPI.
     //  1 = HYPERBUS™ interface
