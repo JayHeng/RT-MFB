@@ -305,7 +305,7 @@ status_t mixspi_nor_enable_qpi_mode(FLEXSPI_Type *base)
     return status;
 }
 
-static status_t mixspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess)
+status_t mixspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t *regAccess)
 {
     flexspi_transfer_t flashXfer;
     status_t status;
@@ -330,7 +330,7 @@ static status_t mixspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t
         return status;
     }
 
-    flashXfer.deviceAddress = 0;
+    flashXfer.deviceAddress = regAccess->regAddr;
     flashXfer.port          = EXAMPLE_MIXSPI_PORT;
     flashXfer.cmdType       = kFLEXSPI_Write;
     flashXfer.SeqNumber     = 1;
@@ -344,6 +344,14 @@ static status_t mixspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t
         return status;
     }
 
+#if MFB_FLASH_HYPER_FLASH_ENABLE
+    if (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_SWITCHHYPERBUS)
+    {
+        status = mixspi_nor_wait_bus_busy(base, kFlashInstMode_SPI);
+        // For Infineon Samper HyperFlash, actually we don't need to wait here
+        mixspi_sw_delay_us(1000UL);
+    }
+#else
     if ((regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_SETDUMMY) || \
         (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_ENABLEQE))
     {
@@ -360,6 +368,7 @@ static status_t mixspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t
         // For Infineon MirrorBit device, typical delay time for CFR3N setting is 45ms
         mixspi_sw_delay_us(100000UL);
     }
+#endif
 
     /* Do software reset. */
     FLEXSPI_SoftwareReset(base);
@@ -377,6 +386,7 @@ status_t mixspi_nor_set_dummy_cycle(FLEXSPI_Type *base, uint8_t dummyCmd)
     regAccess.regNum = 1;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_SETDUMMY;
     regAccess.regValue.U = dummyCmd;
+    regAccess.regAddr = 0;
     return mixspi_nor_write_register(base, &regAccess);
 }
 
@@ -386,6 +396,7 @@ status_t mixspi_nor_set_drive_strength(FLEXSPI_Type *base, uint8_t driveCmd)
     regAccess.regNum = 1;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_SETDRIVE;
     regAccess.regValue.U = driveCmd;
+    regAccess.regAddr = 0;
     return mixspi_nor_write_register(base, &regAccess);
 }
 
@@ -395,6 +406,7 @@ status_t mixspi_nor_set_unique_cfg(FLEXSPI_Type *base, uint8_t driveCmd)
     regAccess.regNum = 1;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_UNIQUECFG;
     regAccess.regValue.U = driveCmd;
+    regAccess.regAddr = 0;
     return mixspi_nor_write_register(base, &regAccess);
 }
 
@@ -404,6 +416,7 @@ status_t mixspi_nor_enable_quad_mode(FLEXSPI_Type *base)
     regAccess.regNum = g_flashPropertyInfo.flashQuadEnableBytes;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_ENABLEQE;
     regAccess.regValue.U = g_flashPropertyInfo.flashQuadEnableCfg;
+    regAccess.regAddr = 0;
     return mixspi_nor_write_register(base, &regAccess);
 }
 
@@ -413,6 +426,7 @@ status_t mixspi_nor_enable_opi_mode(FLEXSPI_Type *base)
     regAccess.regNum = 1;
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_ENTEROPI;
     regAccess.regValue.U = g_flashPropertyInfo.flashEnableOctalCmd;
+    regAccess.regAddr = 0;
     return mixspi_nor_write_register(base, &regAccess);
 }
 
