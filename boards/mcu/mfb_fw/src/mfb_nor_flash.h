@@ -46,6 +46,7 @@ typedef struct _infineon_samper_id
     uint16_t deviceDensity;
     uint16_t deviceIDLength;
     uint16_t familyID;
+    uint16_t reserved;
 } infineon_samper_id_t;
 
 /*! @brief CFI device id structure. */
@@ -176,6 +177,9 @@ typedef struct _flash_reg_access
 #define NOR_CMD_LUT_SEQ_IDX_READREG         (NOR_CMD_LUT_SEQ_IDX_START+8)
 #define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM     (NOR_CMD_LUT_SEQ_IDX_START+10) // Used for HyperFlash (x2)
 #define NOR_CMD_LUT_SEQ_IDX_READREG2        (NOR_CMD_LUT_SEQ_IDX_START+11)
+// FlexSPI LUT seq defn (For HyperFlash 1bit spi mode)
+#define NOR_CMD_LUT_SEQ_IDX_SWITCHHYPERBUS  (NOR_CMD_LUT_SEQ_IDX_START+2)
+#define NOR_CMD_LUT_SEQ_IDX_READANYREG      (NOR_CMD_LUT_SEQ_IDX_START+4)
 // FlexSPI LUT seq defn (1bit spi)
 #define NOR_CMD_LUT_SEQ_IDX_ERASESECSFDP    (NOR_CMD_LUT_SEQ_IDX_START+6)
 #define NOR_CMD_LUT_SEQ_IDX_WRITESECSFDP    (NOR_CMD_LUT_SEQ_IDX_START+8)
@@ -374,6 +378,7 @@ extern status_t mixspi_nor_flash_erase_sector(MIXSPI_Type *base, uint32_t addres
 extern status_t mixspi_nor_flash_page_program(MIXSPI_Type *base, uint32_t address, const uint32_t *src, uint32_t length, flash_inst_mode_t flashInstMode);
 extern void mixspi_nor_flash_init(MIXSPI_Type *base, const uint32_t *customLUT, mixspi_read_sample_clock_t rxSampleClock, flash_inst_mode_t flashInstMode);
 extern status_t mixspi_nor_read_register(MIXSPI_Type *base, flash_reg_access_t *regAccess);
+extern status_t mixspi_nor_write_register(MIXSPI_Type *base, flash_reg_access_t *regAccess);
 
 extern uint32_t decode_mixspi_root_clk_defn(mixspi_root_clk_freq_t mixspiRootClkFreq);
 extern mixspi_root_clk_freq_t get_current_mixspi_root_clk(uint32_t clkInHz);
@@ -408,7 +413,9 @@ extern void mfb_flash_show_registers_for_adesto(bool isOctalFlash);
 #if SPANSION_DEVICE_SERIES
 extern void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_spansion(bool isOctalFlash);
-extern void mfb_hyperflash_set_param_for_spansion(infineon_samper_id_t *samperID);
+extern bool mfb_hyperflash_switch_to_hyperbus_mode(void);
+extern void mfb_hyperflash_set_param_for_spansion_for_spi_mode(infineon_samper_id_t *samperID);
+extern void mfb_hyperflash_set_param_for_spansion_for_hyperbus_mode(void);
 extern void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId);
 #endif
 #if PUYA_DEVICE_SERIES

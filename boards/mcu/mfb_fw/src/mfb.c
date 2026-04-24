@@ -80,6 +80,20 @@ const uint32_t s_customLUTCommonMode[CUSTOM_LUT_LENGTH] = {
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSFDP + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0xFF),
 
+#if SPANSION_DEVICE_HYPERBUS
+    /* Write Any register */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SWITCHHYPERBUS] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x71, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SWITCHHYPERBUS + 1] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+
+    /* Read Any register */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READANYREG] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READANYREG + 1] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+#endif
+
     /* Program Security registers or SFDP */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_WRITESECSFDP] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x42, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
@@ -208,16 +222,21 @@ void mfb_hyper_flash_test(void)
     mixspi_device_config_update_rootclock(mixspi_get_clock(EXAMPLE_MIXSPI));
     /* Show MixSPI clock source */
     mixspi_show_clock_source(EXAMPLE_MIXSPI);
-    /* Validate JEDEC ID and SFDP. */
+    /* Validate SAMPER ID and SFDP. */
+    bool res = false;
     if (mfb_validate_jedec(&sta_flashInstMode, NULL, &infineonID))
     {
+        res = mfb_hyperflash_switch_to_hyperbus_mode();
     }
-    return;
+    if (!res)
+    {
+        return;
+    }
 #endif
 
     /* Adjust device parammenter */
     mixspi_device_config_init();
-    mfb_hyperflash_set_param_for_spansion(NULL);
+    mfb_hyperflash_set_param_for_spansion_for_hyperbus_mode();
     g_flashPropertyInfo.flashMemSizeInByte = FLASH_SIZE * 0x400;
 
     /* Configure MixSPI pinmux&clock as user prescriptive */

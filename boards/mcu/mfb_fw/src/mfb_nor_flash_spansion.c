@@ -510,27 +510,71 @@ void mfb_flash_show_registers_for_spansion(bool isOctalFlash)
 #endif
 }
 
-void mfb_decode_series_id_for_infineon(uint16_t seriesID)
+bool mfb_hyperflash_switch_to_hyperbus_mode(void)
+{
+    flash_reg_access_t regAccess;
+    regAccess.regNum = 1;
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READANYREG;
+
+    uint32_t cfr3v = 0;
+    for (uint32_t idx = 2; idx <= 5; idx++)
+    {
+        regAccess.regAddr = 0x00800000 + idx;
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+        if (idx == 4)
+        {
+            cfr3v = regAccess.regValue.B.reg1;
+        }
+        mfb_printf("MFB: Flash Configuration Register %d: 0x%x\r\n", idx - 1, regAccess.regValue.B.reg1);
+    }
+    // CFR3V[1] = INTFTP, The INTFTP bit selects the interface of the device
+    //  between HYPERBUS™ and legacy (x1) SPI.
+    //  1 = HYPERBUS™ interface
+    //  0 = Legacy (x1) SPI
+    cfr3v |= 0x02;
+
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_SWITCHHYPERBUS;
+    regAccess.regAddr = 0x00800004;
+    regAccess.regValue.B.reg1 = cfr3v;
+    status_t status = mixspi_nor_write_register(EXAMPLE_MIXSPI, &regAccess);
+    mfb_printf("MFB: Set CFR3V[1]-INTFTP = 1 to switch to hyperbus mode\r\n");
+    return (status == kStatus_Success);
+    
+    /*
+    regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READANYREG;
+    mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+    mfb_printf("MFB: Flash Configuration Register 3: 0x%x\r\n", regAccess.regValue.B.reg1);
+    return (cfr3v == regAccess.regValue.B.reg1);
+    */
+}
+
+static void mfb_decode_series_id_for_infineon(uint16_t seriesID)
 {
     switch (seriesID)
     {
         case 0x7B1B:
             mfb_printf(" -- S26HS 1Gb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_400MHz;
             break;
         case 0x6A1B:
             mfb_printf(" -- S26HL 1Gb HyperFlash 3.0V Series, Single ended clock.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_332MHz;
             break;
         case 0x7B1A:
             mfb_printf(" -- S26HS 512Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_400MHz;
             break;
         case 0x6A1A:
             mfb_printf(" -- S26HL 512Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_332MHz;
             break;
         case 0x7B19:
             mfb_printf(" -- S26HS 256Mb HyperFlash 1.8V Series, Differential clock (CK, CK#).\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_400MHz;
             break;
         case 0x6A19:
             mfb_printf(" -- S26HL 256Mb HyperFlash 3.0V Series, Single ended clock.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_332MHz;
             break;
         default:
             mfb_printf(" -- Unsupported Series.\r\n");
@@ -538,20 +582,30 @@ void mfb_decode_series_id_for_infineon(uint16_t seriesID)
     }
 }
 
-void mfb_hyperflash_set_param_for_spansion(infineon_samper_id_t *samperID)
+void mfb_hyperflash_set_param_for_spansion_for_spi_mode(infineon_samper_id_t *samperID)
 {
     if (samperID != NULL)
     {
         mfb_printf(" -- Infineon Serial Flash.\r\n");
-        mfb_printf("MFB: Flash Family ID: 0x%x", samperID->familyID);
+        mfb_printf("MFB: Flash Family Type ID: 0x%x\r\n", samperID->familyID);
         uint16_t seriesID = samperID->voltageType;
         seriesID = (seriesID << 8) + samperID->deviceDensity;
+        mfb_printf("MFB: Flash Series ID: 0x%x", seriesID);
         mfb_decode_series_id_for_infineon(seriesID);
+        
+        g_flashPropertyInfo.flashBusyStatusPol    = SPANSION_FLASH_BUSY_STATUS_POL;
+        g_flashPropertyInfo.flashBusyStatusOffset = SPANSION_FLASH_BUSY_STATUS_OFFSET;
     }
-    g_flashPropertyInfo.mixspiPad             = kMIXSPI_8PAD;
-    g_flashPropertyInfo.mixspiRootClkFreq     = kMixspiRootClkFreq_200MHz;
+}
+
+void mfb_hyperflash_set_param_for_spansion_for_hyperbus_mode(void)
+{
+#if MFB_FLASH_DEFAULT_BOOT_HYPERBUS
+    g_flashPropertyInfo.mixspiRootClkFreq     = kMixspiRootClkFreq_166MHz;
+#endif
     g_flashPropertyInfo.flashBusyStatusOffset = SPANSION_HYPERFLASH_BUSY_STATUS_OFFSET;
     g_flashPropertyInfo.flashMixStatusMask    = SPANSION_HYPERFLASH_MIX_STATUS_MASK;
+    g_flashPropertyInfo.mixspiPad             = kMIXSPI_8PAD;
     g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkExtInputDqs;
     g_flashPropertyInfo.mixspiCustomLUTVendor = s_customLUT_SPANSION_Hyper;
 }
@@ -559,8 +613,8 @@ void mfb_hyperflash_set_param_for_spansion(infineon_samper_id_t *samperID)
 void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId)
 {
     mfb_printf("MFB: Flash Manufacturer ID: 0x%x -- Spansion Serial Flash.\r\n", cfiDeviceId->manufacturerID);
-    mfb_printf("MFB: Flash Family Type ID: 0x%x", cfiDeviceId->memoryTypeID);
-    if (cfiDeviceId->memoryTypeID == SPANSION_DEVICE_VENDOR_ID)
+    mfb_printf("MFB: Flash Family Type ID: 0x%x\r\n", cfiDeviceId->memoryTypeID);
+    if (cfiDeviceId->manufacturerID == SPANSION_DEVICE_VENDOR_ID)
     {
         switch (cfiDeviceId->capacityID)
         {
@@ -587,10 +641,11 @@ void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId)
                 break;
         }
     }
-    else if (cfiDeviceId->memoryTypeID == INFINEON_DEVICE_VENDOR_ID)
+    else if (cfiDeviceId->manufacturerID == INFINEON_DEVICE_VENDOR_ID)
     {
         uint16_t seriesID = cfiDeviceId->voltageType;
         seriesID = (seriesID << 8) + cfiDeviceId->capacityID;
+        mfb_printf("MFB: Flash Series ID: 0x%x", seriesID);
         mfb_decode_series_id_for_infineon(seriesID);
     }
 }

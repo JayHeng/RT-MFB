@@ -346,7 +346,7 @@ bool mfb_flash_is_valid_infineon_samper_id(infineon_samper_id_t *samperID)
         // Spansion
         case SPANSION_DEVICE_VENDOR_ID:
         case INFINEON_DEVICE_VENDOR_ID:
-            mfb_hyperflash_set_param_for_spansion(samperID);
+            mfb_hyperflash_set_param_for_spansion_for_spi_mode(samperID);
             break;
 #endif // SPANSION_DEVICE_SERIES
 

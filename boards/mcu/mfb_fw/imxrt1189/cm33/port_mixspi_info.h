@@ -30,7 +30,7 @@
 #define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
 #if MFB_FLASH_HYPER_FLASH_ENABLE
 #define FLASH_SIZE                      0x10000 /* 512Mb/KByte */
-#define EXAMPLE_FLASH_PAGE_SIZE         512
+#define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x40000 /* 256K */
 #else
 #define FLASH_SIZE                      0x4000 /* 16Mb/KByte */
