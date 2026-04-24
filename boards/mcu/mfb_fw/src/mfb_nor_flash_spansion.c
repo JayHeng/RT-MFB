@@ -544,10 +544,17 @@ bool mfb_hyperflash_switch_to_hyperbus_mode(void)
     cfr3v |= 0x02;
 
     regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_SWITCHHYPERBUS;
+#if 0
+    regAccess.regAddr = 0x00000004;
+    regAccess.regValue.B.reg1 = cfr3v;
+    status_t status = mixspi_nor_write_register(EXAMPLE_MIXSPI, &regAccess);
+    mfb_printf("MFB: Set CFR3N[1]-INTFTP = 1 to switch to hyperbus mode\r\n");
+#else
     regAccess.regAddr = 0x00800004;
     regAccess.regValue.B.reg1 = cfr3v;
     status_t status = mixspi_nor_write_register(EXAMPLE_MIXSPI, &regAccess);
     mfb_printf("MFB: Set CFR3V[1]-INTFTP = 1 to switch to hyperbus mode\r\n");
+#endif
     return (status == kStatus_Success);
     
     /*

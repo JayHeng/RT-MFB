@@ -209,6 +209,7 @@ void mfb_hyper_flash_test(void)
     status_t status = kStatus_Success;
 
 #if !MFB_FLASH_DEFAULT_BOOT_HYPERBUS
+    mfb_printf("MFB: This Flash boots in x1 SPI mode by default.\r\n");
     flash_inst_mode_t sta_flashInstMode = kFlashInstMode_SPI;
     infineon_samper_id_t infineonID;
 
@@ -232,6 +233,8 @@ void mfb_hyper_flash_test(void)
     {
         return;
     }
+#else
+    mfb_printf("MFB: This Flash boots in x8 HyperBus mode by default.\r\n");
 #endif
 
     /* Adjust device parammenter */

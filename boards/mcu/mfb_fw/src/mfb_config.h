@@ -23,7 +23,7 @@
 // Whether the flash default boot in HyperBus mode, if no then it boots in 1bit SPI mode
 // For S26HL512TFPBHI003 or S26HL512TFPBHI023, it boots in x8 HyperBus mode by default
 // For S26HL512TFPBHI010 or S26HL512TFPBHI030, it boots in x1 SPI mode by default
-#define MFB_FLASH_DEFAULT_BOOT_HYPERBUS  (0)
+#define MFB_FLASH_DEFAULT_BOOT_HYPERBUS  (1)
 
 // Whether to use 1bit SPI mode for Quad/Octal Flash
 #define MFB_FLASH_SPI_MODE_ENABLE        (0)
