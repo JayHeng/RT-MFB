@@ -347,7 +347,7 @@ status_t mixspi_nor_write_register(FLEXSPI_Type *base, flash_reg_access_t *regAc
 #if MFB_FLASH_HYPER_FLASH_ENABLE
     if (regAccess->regSeqIdx == NOR_CMD_LUT_SEQ_IDX_SWITCHHYPERBUS)
     {
-        status = mixspi_nor_wait_bus_busy(base, kFlashInstMode_SPI);
+        status = mixspi_nor_wait_bus_busy(base, kFlashInstMode_Hyper);
         // For Infineon Samper HyperFlash, actually we don't need to wait here
         mixspi_sw_delay_us(1000UL);
     }
