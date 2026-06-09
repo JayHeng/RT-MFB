@@ -82,16 +82,26 @@ const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x61, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 #endif
 
+#if !MFB_FLASH_QPI_MODE_ENABLE
     /* Read extended read parameters */
-    /*
-    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2] =
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG3] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x81, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
-    */
 
+    /* Read AutoBoot Register */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG4] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x14, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x04),
+
+    /* Read Bank Address Register */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG5] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x16, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#else
     /* Enter QPI mode */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x35, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+
+    // TBD
+#endif
 };
 #endif
 
@@ -304,6 +314,19 @@ void mfb_flash_show_registers_for_issi(bool isOctalFlash)
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
         mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Read Parameters: 0x%x\r\n", regAccess.regValue.B.reg1);
+#if !MFB_FLASH_QPI_MODE_ENABLE
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG3;
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+        mfb_printf("MFB: Flash Extended Read Parameters: 0x%x\r\n", regAccess.regValue.B.reg1);
+        regAccess.regNum = 4;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG4;
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+        mfb_printf("MFB: Flash AutoBoot Register: 0x%x\r\n", regAccess.regValue.U);
+        regAccess.regNum = 1;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG5;
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+        mfb_printf("MFB: Flash Bank Address Register: 0x%x\r\n", regAccess.regValue.B.reg1);
+#endif
 #endif
     }
     else
