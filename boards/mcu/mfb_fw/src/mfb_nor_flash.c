@@ -259,6 +259,9 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
         default:
             break;
     }
+#if MFB_FLASH_REGS_READBACK_ONLY
+    while (1);
+#endif
 #endif
 }
 

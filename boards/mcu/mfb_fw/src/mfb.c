@@ -537,6 +537,7 @@ void mfb_main(void)
     /* Validate JEDEC ID and SFDP. */
     if (mfb_validate_jedec(&sta_flashInstMode, &jedecID, NULL))
     {
+#if !(MFB_FLASH_REGS_READBACK_ENABLE && MFB_FLASH_REGS_READBACK_ONLY)
         /* Only run 1st perf and pattern verify when default flash state is Ext SPI mode */
         if (sta_flashInstMode == kFlashInstMode_SPI)
         {
@@ -552,7 +553,7 @@ void mfb_main(void)
                 mfb_flash_memcpy_perf_test(false);
             }
         }
-
+#endif
 
 #if !MFB_FLASH_SPI_MODE_ENABLE
         mfb_printf("\r\nMFB: Set MixSPI port to %d-bit pad.\r\n", 1u << (uint32_t)g_flashPropertyInfo.mixspiPad);
@@ -562,6 +563,10 @@ void mfb_main(void)
         /* Re-init MixSPI using custom LUT */
         mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
         mfb_printf("MFB: MIXSPI module is initialized to multi-I/O fast read mode.\r\n");
+
+        /* Read internal registers of Flash before configuring device */
+        mfb_flash_show_registers(&jedecID, g_flashPropertyInfo.flashIsOctal);
+
         /* Write dummy cycle value into flash if needed */
         if (g_flashPropertyInfo.flashDummyValue != U32_VALUE_INVALID)
         {
@@ -619,7 +624,7 @@ void mfb_main(void)
                     {
                         mfb_printf("MFB: Flash remained in default Quad Enable mode.\r\n");
                     }
-                    /* Read internal registers of Flash */
+                    /* Read internal registers of Flash after configuring device */
                     mfb_flash_show_registers(&jedecID, false);
                 }
             }
@@ -644,7 +649,7 @@ void mfb_main(void)
                 {
                     sta_flashInstMode = kFlashInstMode_OPI;
                     mfb_printf("MFB: Flash entered OPI DDR mode.\r\n");
-                    /* Read internal regiters of Flash */
+                    /* Read internal regiters of Flash after configuring device */
                     mfb_flash_show_registers(&jedecID, true);
                 }
 #else
@@ -655,7 +660,7 @@ void mfb_main(void)
             {
 #if !MFB_FLASH_OPI_MODE_DISABLE
                 mfb_printf("MFB: Flash remained in default OPI DDR mode.\r\n");
-                /* Read internal regiters of Flash */
+                /* Read internal regiters of Flash after configuring device */
                 mfb_flash_show_registers(&jedecID, true);
 #else
 #warning "Do not support loopback dqs option when flash default state in OPI DDR"
