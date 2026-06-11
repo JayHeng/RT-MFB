@@ -49,7 +49,7 @@
 
 ### 已测试Flash型号表
 
-测试结果基于 RT1180-FLEXSPI-MEM-BB&DC_Rev.B（默认板卡设置）FlexSPI1 PortA MUX1 （GPIO_B2_XX）
+下列测试结果基于 RT1180-FLEXSPI-MEM-BB&DC_Rev.B（默认板卡设置）FlexSPI1 PortA MUX1 （GPIO_B2_XX），这组 Pin 也是 RT1180-EVK 默认选择。
 
 ```text
 FlexSPI1 pin multiplex options performance specifications:
@@ -67,7 +67,7 @@ FlexSPI2 pin multiplex options performance specifications:
   -- J68.1-2 3.3V
   -- J68.2-3 1.8V
   -- J16.1-2 1.2V
-- 测试仅改动 BB-J11 以切换 QUAD/OCTAL
+- 测试仅改动 BB-J11 以切换 QUAD/OCTAL Package
   -- J11.1-2 OCTAL
   -- J11.2-3 QUAD
 ```
@@ -656,3 +656,47 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>通过</td>
     </tr>
 </table>
+
+下列测试结果基于 RT1180-FLEXSPI-MEM-BB&DC_Rev.B（默认板卡设置）FlexSPI2 PortA MUX2 （GPIO_AON_XX），这组 Pin 也是 RT1186-FRDM 默认选择。
+
+```text
+FlexSPI1 pin multiplex options performance specifications:
+1. GPIO_B1_XX and GPIO_B2_XX support the maximum 200 MHz operation frequency;
+2. GPIO_SD_B2_XX only supports the maximum 166 MHz operation frequency.
+
+FlexSPI2 pin multiplex options performance specifications:
+1. GPIO_EMC_B1_XX supports the maximum 166 MHz operation frequency;
+2. GPIO_AON_XX only supports the maximum 104 MHz operation frequency
+```
+
+```text
+- 确保BB-[J34-45]-1&2, J122-Open, Remove R61/R1073, FLEXSPI2_MUX_SEL=1(上拉)
+- 测试仅改动 BB-J62&J61 以设置 Flash_VCC: 3.3V/1.8V/1.2V
+  -- J62.1-2 3.3V
+  -- J62.2-3 1.8V
+  -- J61.1-2 1.2V
+- 测试仅改动 BB-J2 以切换 QUAD/OCTAL Package
+  -- J2.1-2 OCTAL
+  -- J2.2-3 QUAD
+```
+
+<table><tbody>
+    <tr>
+        <th>厂商</th>
+        <th>型号</th>
+        <th>电压</th>
+        <th>速度</th>
+        <th>测试项目</th>
+        <th>测试结果</th>
+    </tr>
+    <tr>
+        <td rowspan="1">芯成 ISSI</td>
+        <td>IS25LP01G</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
+
+

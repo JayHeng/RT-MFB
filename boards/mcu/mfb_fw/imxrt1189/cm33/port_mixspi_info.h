@@ -23,10 +23,10 @@
 
 #define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
 
-#define EXAMPLE_MIXSPI                  FLEXSPI1
+#define EXAMPLE_MIXSPI                  FLEXSPI2
 #define MIXSPI_LUT_SEQS                 (32)
 #define NOR_CMD_LUT_SEQ_IDX_START       (0)
-#define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI1_AMBA_BASE
+#define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI2_AMBA_BASE
 #define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
 #if MFB_FLASH_HYPER_FLASH_ENABLE
 #define FLASH_SIZE                      0x10000 /* 512Mb/KByte */
@@ -37,7 +37,7 @@
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
 #endif
-#define EXAMPLE_MIXSPI_CLOCK            kCLOCK_Flexspi1
+#define EXAMPLE_MIXSPI_CLOCK            kCLOCK_Flexspi2
 #define EXAMPLE_MIXSPI_PORT             kFLEXSPI_PortA1
 
 //#define BOARD_IS_RT1180_EVK_PORTA_QUAD      (1)
@@ -45,8 +45,8 @@
 //#define BOARD_IS_RT1180_EVK_PORTB_QUAD      (0)
 //#define BOARD_IS_RT1180_EVK_PORTB_OCTAL     (0)  // To Flash memory daughter card
 
-#define BOARD_IS_RT1180_MEM_DC_MUX1         (1)
-#define BOARD_IS_RT1180_MEM_DC_MUX2         (0)
+#define BOARD_IS_RT1180_MEM_DC_MUX1         (0)
+#define BOARD_IS_RT1180_MEM_DC_MUX2         (1)
 #define BOARD_IS_RT1180_MEM_DC_MUX3         (0)
 
 #define BOARD_IS_RT1180_MEM_DC_MUX_FSPI2_HARD_PULL (1)  // Use pull-up/down to set DC-FLEXSPI2_MUX_SEL
@@ -201,6 +201,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B2_04_FLEXSPI1_BUS2BIT_A_DATA05, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B2_05_FLEXSPI1_BUS2BIT_A_DATA06, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B2_06_FLEXSPI1_BUS2BIT_A_DATA07, 1U);
+                mfb_printf("MFB: FLEXSPI1 pins are PortA - GPIO_B2[13:03].\r\n");
                 break;
             case kFLEXSPI_PortB1:
             case kFLEXSPI_PortB2:
@@ -225,6 +226,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_01_FLEXSPI1_BUS2BIT_B_DATA05, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_02_FLEXSPI1_BUS2BIT_B_DATA06, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B2_03_FLEXSPI1_BUS2BIT_B_DATA07, 1U);
+                mfb_printf("MFB: FLEXSPI1 pins are PortB - GPIO_SD_B2[11:05,03:00].\r\n");
 #elif BOARD_IS_RT1180_MEM_DC_MUX2
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B1_03_FLEXSPI1_BUS2BIT_B_DQS,    1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B1_04_FLEXSPI1_BUS2BIT_B_SS0_B,  1U);
@@ -238,6 +240,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B1_08_FLEXSPI1_BUS2BIT_B_DATA05, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B1_07_FLEXSPI1_BUS2BIT_B_DATA06, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_B1_06_FLEXSPI1_BUS2BIT_B_DATA07, 1U);
+                mfb_printf("MFB: FLEXSPI1 pins are PortB - GPIO_B1[13:03].\r\n");
 #endif
                 break;
             default:
@@ -269,6 +272,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_32_FLEXSPI2_BUS2BIT_B_DATA01, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_33_FLEXSPI2_BUS2BIT_B_DATA00, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_34_FLEXSPI2_BUS2BIT_B_SCLK,   1U);
+                mfb_printf("MFB: FLEXSPI2 pins are PortA&B - GPIO_EMC_B1[41:28].\r\n");
 #elif BOARD_IS_RT1180_MEM_DC_MUX2
                 if ((port == kFLEXSPI_PortA1) || (port == kFLEXSPI_PortA2))
                 {
@@ -312,6 +316,11 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
                 {
                     IOMUXC_SetPinMux(IOMUXC_GPIO_AON_21_FLEXSPI2_BUS2BIT_B_SS0_B,  1U);
                     IOMUXC_SetPinConfig(IOMUXC_GPIO_AON_21_FLEXSPI2_BUS2BIT_B_SS0_B,  0x02U);  // default 0x0e
+                    mfb_printf("MFB: FLEXSPI2 pins are PortB - GPIO_AON[21:15].\r\n");
+                }
+                else
+                {
+                    mfb_printf("MFB: FLEXSPI2 pins are PortA&B - GPIO_AON[27:15].\r\n");
                 }
 
                 IOMUXC_SetPinConfig(IOMUXC_GPIO_AON_20_FLEXSPI2_BUS2BIT_B_DQS,    0x02U);  // default 0x0e
@@ -320,6 +329,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
                 IOMUXC_SetPinConfig(IOMUXC_GPIO_AON_17_FLEXSPI2_BUS2BIT_B_DATA01, 0x02U);  // default 0x06
                 IOMUXC_SetPinConfig(IOMUXC_GPIO_AON_16_FLEXSPI2_BUS2BIT_B_DATA02, 0x02U);  // default 0x06
                 IOMUXC_SetPinConfig(IOMUXC_GPIO_AON_15_FLEXSPI2_BUS2BIT_B_DATA03, 0x02U);  // default 0x06
+                
 #endif
 #elif BOARD_IS_RT1180_MEM_DC_MUX3
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_28_FLEXSPI2_BUS2BIT_B_SS0_B,  1U);
@@ -330,6 +340,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_23_FLEXSPI2_BUS2BIT_B_DATA02, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_24_FLEXSPI2_BUS2BIT_B_DATA01, 1U);
                 IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_B1_25_FLEXSPI2_BUS2BIT_B_DATA00, 1U);
+                mfb_printf("MFB: FLEXSPI2 pins are PortB - GPIO_EMC_B1[28,25:21],GPIO_AON[19].\r\n");
 #endif
                 break;
             default:
