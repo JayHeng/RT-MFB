@@ -694,8 +694,8 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>IS25LP01G</td>
         <td>2.7-3.6V</td>
         <td>133M (x4)</td>
-        <td></td>
-        <td></td>
+        <td>S104Mx4</td>
+        <td>通过</td>
     </tr>
 </table>
 
