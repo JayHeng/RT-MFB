@@ -25,6 +25,7 @@
 #define EXAMPLE_MIXSPI                  FLEXSPI
 #define FLASH_SIZE                      0x4000 /* 128Mb/KByte */
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI_AMBA_BASE
+#define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
 #define EXAMPLE_MIXSPI_CLOCK            kCLOCK_FlexSpi
@@ -85,6 +86,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_10_FLEXSPI_A_SCLK, 0x10E1U); 
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_11_FLEXSPI_A_DATA3, 0x10E1U); 
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_12_FLEXSPI_A_DQS, 0x10E1U);
+        mfb_printf("MFB: FLEXSPI pins are PortA - GPIO_SD[12:06].\r\n");
     }
     else
     {

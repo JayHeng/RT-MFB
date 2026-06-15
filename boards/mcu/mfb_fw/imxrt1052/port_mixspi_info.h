@@ -169,6 +169,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_02_FLEXSPI_B_DATA1, 0x10F1U); 
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_03_FLEXSPI_B_DATA0, 0x10F1U); 
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_04_FLEXSPI_B_SCLK, 0x10F1U); 
+        mfb_printf("MFB: FLEXSPI pins are PortA&B - GPIO_SD_B1[11:00].\r\n");
     }
     else
     {

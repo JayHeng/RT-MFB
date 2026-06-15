@@ -143,6 +143,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B2_09_FLEXSPI1_A_DATA01,  0x08U);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B2_10_FLEXSPI1_A_DATA02,  0x08U);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B2_11_FLEXSPI1_A_DATA03,  0x08U);
+        mfb_printf("MFB: FLEXSPI1 pins are PortA&B - GPIO_SD_B2[11:05,03-00].\r\n");
 
 #elif (EXAMPLE_MIXSPI_PIN_SEL == 1)
         IOMUXC_SetPinMux(IOMUXC_GPIO_AD_17_FLEXSPI1_A_DQS, 1U);
@@ -160,6 +161,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
         IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_21_FLEXSPI1_A_DATA01, 0x0AU);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_22_FLEXSPI1_A_DATA02, 0x0AU);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_23_FLEXSPI1_A_DATA03, 0x0AU);
+        mfb_printf("MFB: FLEXSPI1 pins are PortA - GPIO_AD[23:17].\r\n");
 #endif
     }
     else if (base == FLEXSPI2)
@@ -180,6 +182,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
         IOMUXC_SetPinConfig(IOMUXC_GPIO_EMC_B2_14_FLEXSPI2_A_DATA01, 0x0AU);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_EMC_B2_15_FLEXSPI2_A_DATA02, 0x0AU);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_EMC_B2_16_FLEXSPI2_A_DATA03, 0x0AU);
+        mfb_printf("MFB: FLEXSPI2 pins are PortA - GPIO_EMC_B2[16:10].\r\n");
 #elif (EXAMPLE_MIXSPI_PIN_SEL == 1)
         IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_00_FLEXSPI2_A_SS0_B, 1U);
         IOMUXC_SetPinMux(IOMUXC_GPIO_SD_B1_01_FLEXSPI2_A_SCLK, 1U);
@@ -194,6 +197,7 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_03_FLEXSPI2_A_DATA01, 0x0AU);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_04_FLEXSPI2_A_DATA02, 0x0AU);
         IOMUXC_SetPinConfig(IOMUXC_GPIO_SD_B1_05_FLEXSPI2_A_DATA03, 0x0AU);
+        mfb_printf("MFB: FLEXSPI2 pins are PortA - GPIO_SD_B1[05:00].\r\n");
 #endif
     }
     else

@@ -208,7 +208,7 @@ status_t mixspi_nor_enable_qpi_mode(XSPI_Type *base)
     return status;
 }
 
-static status_t mixspi_nor_write_register(XSPI_Type *base, flash_reg_access_t *regAccess)
+status_t mixspi_nor_write_register(XSPI_Type *base, flash_reg_access_t *regAccess)
 {
     xspi_transfer_t flashXfer;
     status_t status;
@@ -466,6 +466,25 @@ status_t mixspi_nor_get_jedec_id(XSPI_Type *base, uint32_t *jedecId, flash_inst_
     status_t status = XSPI_TransferBlocking(base, &flashXfer);
 
     *jedecId = temp;
+
+    return status;
+}
+
+#if defined(__ICCARM__)
+#pragma optimize = none
+#endif
+status_t mixspi_nor_get_infineon_samper_id(XSPI_Type *base, infineon_samper_id_t *samperId)
+{
+    xspi_transfer_t flashXfer;
+    flashXfer.deviceAddress = EXAMPLE_MIXSPI_AMBA_BASE;
+    flashXfer.cmdType       = kXSPI_Read;
+    flashXfer.seqIndex      = NOR_CMD_LUT_SEQ_IDX_READID;
+    flashXfer.targetGroup   = EXAMPLE_MIXSPI_PORT;
+    flashXfer.data            = (uint32_t *)samperId;;
+    flashXfer.dataSize        = sizeof(infineon_samper_id_t);
+    flashXfer.lockArbitration = false;
+
+    status_t status = XSPI_TransferBlocking(base, &flashXfer);
 
     return status;
 }

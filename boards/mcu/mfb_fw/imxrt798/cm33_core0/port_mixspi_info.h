@@ -259,6 +259,8 @@ static void mixspi_pin_init(XSPI_Type *base, xspi_target_group_t port, xspi_pad_
                                              IOPCTL_PIO_DRIVE_100OHM);
         /* PORT6 PIN11 (coords: F14) is configured as XSPI0_DATA_A7 */
         IOPCTL_PinMuxSet(6U, 11U, port6_pin11_config);
+        
+        mfb_printf("MFB: XSPI0 pins are - P6[11:01].\r\n");
     }
     else if (base == XSPI1)
     {

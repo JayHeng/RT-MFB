@@ -31,6 +31,7 @@
 #define FLASH_SIZE                      0x10000 /* 64MB/KByte */
 #define EXAMPLE_CACHE                   CACHE64
 #define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI_AMBA_BASE
+#define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
 #define EXAMPLE_MIXSPI_CLOCK            kCLOCK_FlexSpi
@@ -349,6 +350,8 @@ static void mixspi_pin_init(FLEXSPI_Type *base, flexspi_port_t port, flexspi_pad
                                              IOPCTL_PIO_INV_DI);
         /* PORT2 PIN23 (coords: P5) is configured as FLEXSPI0B_DATA7 */
         IOPCTL_PinMuxSet(IOPCTL, 2U, 23U, port2_pin23_config);
+        
+        mfb_printf("MFB: FLEXSPI pins are - P2[23,22,19:17,12],P1[29,14:11].\r\n");
     }
     else
     {
