@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015-2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2022,2024 NXP
+ * Copyright 2016-2022,2024-2025 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -59,7 +59,7 @@
 /*! @name Driver version */
 /*! @{ */
 /*! @brief common driver version. */
-#define FSL_COMMON_DRIVER_VERSION (MAKE_VERSION(2, 5, 0))
+#define FSL_COMMON_DRIVER_VERSION (MAKE_VERSION(2, 6, 3))
 /*! @} */
 
 /*! @name Debug console type definition. */
@@ -161,6 +161,7 @@ enum _status_groups
     kStatusGroup_XSPI                  = 108, /*!< Group number for XSPI status codes */
     kStatusGroup_PNGDEC                = 109, /*!< Group number for PNGDEC status codes */
     kStatusGroup_JPEGDEC               = 110, /*!< Group number for JPEGDEC status codes */
+    kStatusGroup_AUDMIX                = 111, /*!< Group number for AUDMIX status codes */
 
     kStatusGroup_HAL_GPIO       = 121, /*!< Group number for HAL GPIO status codes. */
     kStatusGroup_HAL_UART       = 122, /*!< Group number for HAL UART status codes. */
@@ -208,6 +209,13 @@ enum _status_groups
     kStatusGroup_GLIKEY         = 168, /*!< Group number for GLIKEY status codes. */
     kStatusGroup_AON_POWER      = 169, /*!< Group number for AON_POWER status codes. */
     kStatusGroup_AON_COMMON     = 170, /*!< Group number for AON_COMMON status codes. */
+    kStatusGroup_ENDAT3     	= 171, /*!< Group number for ENDAT3 status codes. */
+    kStatusGroup_HIPERFACE      = 172, /*!< Group number for HIPERFACE status codes. */
+    kStatusGroup_NPX            = 173, /*!< Group number for NPX status codes. */
+    kStatusGroup_ELA_CSEC       = 174, /*!< Group number for ELA_CSEC status codes. */
+    kStatusGroup_FLEXIO_T_FORMAT= 175, /*!< Group number for T-format status codes. */
+    kStatusGroup_FLEXIO_A_FORMAT= 176, /*!< Group number for A-format status codes. */
+    kStatusGroup_LPC_QSPI       = 177, /*!< Group number for LPC QSPI status codes. */
 };
 
 /*! \public
@@ -277,6 +285,142 @@ typedef int32_t status_t;
 #if !defined(UINT64_L)
 #define UINT64_L(X)        ((uint32_t)(((uint64_t) (X)) & 0x0FFFFFFFFULL))
 #endif
+
+/*!
+ * @brief Bit mask inversion macros to avoid type promotion
+ * 
+ * These macros are designed to solve INT-31 (integer conversion result in 
+ * lost or misinterpreted data) issues when inverting bit masks for register
+ * operations. The bitwise NOT operator (~) promotes operands to int type, 
+ * which can cause issues when assigning to smaller register types.
+ * 
+ * Example:
+ * @code
+ * uint16_t reg = 0x1234;
+ * uint16_t mask = 0x00F0;
+ * 
+ * // Problem: ~mask promotes to int (0xFFFFFF0F)
+ * reg &= ~mask;  // May cause INT-31 violation
+ * 
+ * // Solution: Use type-safe inversion
+ * reg &= MCUX_MASK_INVERT_16(mask);  // Result: 0xFF0F (uint16_t)
+ * @endcode
+ */
+/*!
+ * @name Bit mask inversion macros to avoid type promotion.
+ * @{
+ */
+#if !defined(MCUX_MASK_INVERT_8)
+/*! @brief 8-bit mask inversion. */
+#define MCUX_MASK_INVERT_8(mask) ((uint8_t)(mask) ^ 0xFFU)
+#endif
+
+#if !defined(MCUX_MASK_INVERT_16)
+/*! @brief 16-bit mask inversion. */
+#define MCUX_MASK_INVERT_16(mask) ((uint16_t)(mask) ^ 0xFFFFU)
+#endif
+
+#if !defined(MCUX_MASK_INVERT_32)
+/*! @brief 32-bit mask inversion for completeness. */
+#define MCUX_MASK_INVERT_32(mask) ((uint32_t)(mask) ^ 0xFFFFFFFFUL)
+#endif
+/*! @} */
+
+/*!
+ * @name Register operation macros.
+ * @{
+ */
+#if !defined(MCUX_REG_WRITE8)
+/*! @brief 8-bit register write macro */
+#define MCUX_REG_WRITE8(reg, value)         ((reg) = (uint8_t)(value))
+#endif
+
+#if !defined(MCUX_REG_WRITE16)
+/*! @brief 16-bit register write macro */
+#define MCUX_REG_WRITE16(reg, value)        ((reg) = (uint16_t)(value))
+#endif
+
+#if !defined(MCUX_REG_WRITE32)
+/*! @brief 32-bit register write macro */
+#define MCUX_REG_WRITE32(reg, value)        ((reg) = (uint32_t)(value))
+#endif
+
+#if !defined(MCUX_REG_READ8)
+/*! @brief 8-bit register read macro */
+#define MCUX_REG_READ8(reg)                 (uint8_t)((reg))
+#endif
+
+#if !defined(MCUX_REG_READ16)
+/*! @brief 16-bit register read macro */
+#define MCUX_REG_READ16(reg)                (uint16_t)((reg))
+#endif
+
+#if !defined(MCUX_REG_READ32)
+/*! @brief 32-bit register read macro */
+#define MCUX_REG_READ32(reg)                (uint32_t)((reg))
+#endif
+
+#if !defined(MCUX_REG_BIT_SET8)
+/*! @brief 8-bit register bit set macro */
+#define MCUX_REG_BIT_SET8(reg, mask)        ((reg) |= (uint8_t)(mask))
+#endif
+
+#if !defined(MCUX_REG_BIT_SET16)
+/*! @brief 16-bit register bit set macro */
+#define MCUX_REG_BIT_SET16(reg, mask)       ((reg) |= (uint16_t)(mask))
+#endif
+
+#if !defined(MCUX_REG_BIT_SET32)
+/*! @brief 32-bit register bit set macro */
+#define MCUX_REG_BIT_SET32(reg, mask)       ((reg) |= (uint32_t)(mask))
+#endif
+
+#if !defined(MCUX_REG_BIT_CLEAR8)
+/*! @brief 8-bit register bit clear macro */
+#define MCUX_REG_BIT_CLEAR8(reg, mask)      ((reg) &= ((uint8_t)(mask) ^ 0xFFU))
+#endif
+
+#if !defined(MCUX_REG_BIT_CLEAR16)
+/*! @brief 16-bit register bit clear macro */
+#define MCUX_REG_BIT_CLEAR16(reg, mask)     ((reg) &= ((uint16_t)(mask) ^ 0xFFFFU))
+#endif
+
+#if !defined(MCUX_REG_BIT_CLEAR32)
+/*! @brief 32-bit register bit clear macro */
+#define MCUX_REG_BIT_CLEAR32(reg, mask)     ((reg) &= ((uint32_t)(mask) ^ 0xFFFFFFFFUL))
+#endif
+
+#if !defined(MCUX_REG_BIT_GET8)
+/*! @brief 8-bit register bit get macro */
+#define MCUX_REG_BIT_GET8(reg, mask)        ((reg) & (uint8_t)(mask))
+#endif
+
+#if !defined(MCUX_REG_BIT_GET16)
+/*! @brief 16-bit register bit get macro */
+#define MCUX_REG_BIT_GET16(reg, mask)       ((reg) & (uint16_t)(mask))
+#endif
+
+#if !defined(MCUX_REG_BIT_GET32)
+/*! @brief 32-bit register bit get macro */
+#define MCUX_REG_BIT_GET32(reg, mask)       ((reg) & (uint32_t)(mask))
+#endif
+
+#if !defined(MCUX_REG_MODIFY8)
+/*! @brief 32-bit register read-modify-write macro */
+#define MCUX_REG_MODIFY8(reg, mask, value)  ((reg) = (((reg) & ((uint8_t)(mask) ^ 0xFFU)) | (uint8_t)(value)))
+#endif
+
+#if !defined(MCUX_REG_MODIFY16)
+/*! @brief 16-bit register read-modify-write macro */
+#define MCUX_REG_MODIFY16(reg, mask, value) ((reg) = (((reg) & ((uint16_t)(mask) ^ 0xFFFFU)) | (uint16_t)(value)))
+#endif
+
+#if !defined(MCUX_REG_MODIFY32)
+/*! @brief 32-bit register read-modify-write macro */
+#define MCUX_REG_MODIFY32(reg, mask, value) ((reg) = (((reg) & ((uint32_t)(mask) ^ 0xFFFFFFFFUL)) | (uint32_t)(value)))
+#endif
+
+/*! @} */
 
 /*!
  * @def SUPPRESS_FALL_THROUGH_WARNING()

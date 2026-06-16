@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,11 +19,20 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief power driver version 2.4.0. */
-#define FSL_POWER_DRIVER_VERSION (MAKE_VERSION(2, 4, 0))
+/*! @brief power driver version 2.5.1. */
+#define FSL_POWER_DRIVER_VERSION (MAKE_VERSION(2, 5, 1))
 /*@}*/
 
-/* Define the default PMIC modes for power modes. */
+/*! @brief Retry times for waiting flag. */
+#ifndef POWER_RETRY_TIMES
+#ifdef CONFIG_POWER_RETRY_TIMES
+#define POWER_RETRY_TIMES CONFIG_POWER_RETRY_TIMES
+#else
+#define POWER_RETRY_TIMES 0U /* Defining to zero means to keep waiting for the flag until it is assert/deassert. */
+#endif
+#endif
+
+/*! @brief Define the default PMIC modes for power modes. */
 #ifndef POWER_DEFAULT_PMICMODE_DS
 #define POWER_DEFAULT_PMICMODE_DS 1U
 #endif
@@ -35,6 +44,19 @@
 #endif
 #ifndef POWER_DEFAULT_PMICMODE_FDPD
 #define POWER_DEFAULT_PMICMODE_FDPD 3U
+#endif
+
+/*! @brief Define the default LVD threshold.  */
+#ifndef POWER_DEFAULT_LVD_VOLT
+#define POWER_DEFAULT_LVD_VOLT (100000U) /*<! Default LVD threshold 100mV. */
+#endif
+
+/*! @brief Define the safe margin for regulator output voltage levels. */
+#ifndef POWER_LDO_SAFE_MARGIN
+/* For the internal LDOs, the voltage accuracy is +/-5%. The target voltage should be configured as required voltage +
+ * 5% to ensure that if the accuracy ends up in the -%5 case the minimum voltage is still supplied to the chip. */
+/* #define POWER_LDO_SAFE_MARGIN(x) ((x) / 20U) */
+#define POWER_LDO_SAFE_MARGIN(x) (0U)
 #endif
 
 #define MAKE_PD_BITS(reg, slot)   (((reg) << 8) | (slot))
@@ -84,7 +106,6 @@ typedef enum pd_bits
     kPDRUNCFG_DSR_VDDN_COM = MAKE_PD_BITS(PMC_PDRCFG0, 8U), /*!< Power Switch and DSR Enable for the VDDN_COM domain. */
     kPDRUNCFG_PD_VDD2_DSP  = MAKE_PD_BITS(PMC_PDRCFG0, 9U), /*!< Power switch for the HiFi4 DSP. */
     kPDRUNCFG_PD_VDD2_MIPI = MAKE_PD_BITS(PMC_PDRCFG0, 10U),        /*!< Power Switch for the MIPI PHY. */
-    kPDRUNCFG_LP_DCDC      = MAKE_PD_BITS(PMC_PDRCFG0, 12U),        /*!< DCDC Low-Power Mode. */
     kPDRUNCFG_PD_RBB_VDD1  = MAKE_PD_BITS(PMC_PDRCFG0, 22U),        /*!< Power Down RBB in VDD1. */
     kPDRUNCFG_PD_AFBB_VDD1 = MAKE_PD_BITS(PMC_PDRCFG0, 23U),        /*!< Power Down AFBB in VDD1 Domain. */
     kPDRUNCFG_PD_RBB_VDD2  = MAKE_PD_BITS(PMC_PDRCFG0, 24U),        /*!< Power Down RBB in VDD2 Domain.*/
@@ -549,8 +570,9 @@ enum _power_ldo_mode
  */
 enum _power_dcdc_mode
 {
-    kPower_DCDCMode_HP = 0U, /*!< LDO High Power mode. */
-    kPower_DCDCMode_LP = 1U, /*!< LDO Low Power mode. */
+    kPower_DCDCMode_HP = 0U,  /*!< DCDC High Power mode. */
+    kPower_DCDCMode_LP = 1U,  /*!< DCDC Low Power mode. */
+    kPower_DCDCMode_ULP = 3U, /*!< DCDC Ultra Low Power mode. A0 Silicon does not support this mode and will default to low power mode when configured. */
 };
 
 /*! @brief VDDN, VDD1 or VDD2 supply source. */
@@ -853,6 +875,14 @@ void POWER_DisableLPRequestMask(uint32_t mask);
  * descritpion in RM.
  */
 void POWER_EnableRunAFBB(uint32_t mask);
+
+/*!
+ * @brief Enable AFBB mode for various domains in deep sleep mode.
+ * Note, users should call POWER_ApplyPD() to make the change take effect.
+ * @param mask : A bitmask of domains to enable AFBB mode, refer to @ref _body_bias_domain and PMC PDSLEEPCFG0 register
+ * descritpion in RM.
+ */
+void POWER_EnableSleepAFBB(uint32_t mask);
 
 /*!
  * @brief Enable RBB mode for various domains in active mode.

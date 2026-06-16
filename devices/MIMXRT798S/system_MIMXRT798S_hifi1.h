@@ -1,12 +1,12 @@
 /*
 ** ###################################################################
-**     Processors:          MIMXRT798SGAWAR_hifi1
-**                          MIMXRT798SGFOA_hifi1
+**     Processors:          MIMXRT798SGAWBR_hifi1
+**                          MIMXRT798SGFOB_hifi1
 **
 **     Compiler:            Xtensa Compiler
-**     Reference manual:    iMXRT700RM Rev.2 DraftA, 05/2024
-**     Version:             rev. 2.0, 2024-05-28
-**     Build:               b241121
+**     Reference manual:    iMXRT700RM Rev.5, 10/2025
+**     Version:             rev. 5.1, 2025-12-08
+**     Build:               b251208
 **
 **     Abstract:
 **         Provides a system configuration function and a global variable that
@@ -14,7 +14,7 @@
 **         the oscillator (PLL) that is part of the microcontroller device.
 **
 **     Copyright 2016 Freescale Semiconductor, Inc.
-**     Copyright 2016-2024 NXP
+**     Copyright 2016-2025 NXP
 **     SPDX-License-Identifier: BSD-3-Clause
 **
 **     http:                 www.nxp.com
@@ -25,6 +25,15 @@
 **         Initial version.
 **     - rev. 2.0 (2024-05-28)
 **         Rev2 DraftA.
+**     - rev. 3.0 (2024-10-29)
+**         Change the device header file from single flat file to multiple files based on peripherals,
+**         each peripheral with dedicated header file located in periphN folder.
+**     - rev. 4.0 (2025-06-06)
+**         B0 initial version
+**     - rev. 5.0 (2025-11-13)
+**         Add puf/sdadc irq and cache64 compatibility macros to common header.
+**     - rev. 5.1 (2025-12-08)
+**         Update RM version and add pdm irq for hifi1/hifi4.
 **
 ** ###################################################################
 */
@@ -32,7 +41,7 @@
 /*!
  * @file MIMXRT798S
  * @version 1.0
- * @date 2024-11-21
+ * @date 2025-12-08
  * @brief Device specific configuration file for MIMXRT798S (header file)
  *
  * Provides a system configuration function and a global variable that contains

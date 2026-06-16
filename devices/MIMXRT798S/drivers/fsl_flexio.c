@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2020, 2024 NXP
+ * Copyright 2016-2020, 2024-2025 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -68,9 +68,18 @@ uint32_t FLEXIO_GetInstance(FLEXIO_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < ARRAY_SIZE(s_flexioBases); instance++)
+    /*
+     * $Branch Coverage Justification$
+     * (instance >= ARRAY_SIZE(s_flexioBases)) not covered. The peripheral base
+     * address is always valid and checked by assert.
+     */
+    for (instance = 0; instance < ARRAY_SIZE(s_flexioBases); instance++) /* GCOVR_EXCL_BR_LINE */
     {
-        if (MSDK_REG_SECURE_ADDR(s_flexioBases[instance]) == MSDK_REG_SECURE_ADDR(base))
+        /*
+         * $Branch Coverage Justification$
+         * false branch not covered - depends on count of peripheral instances
+         */
+        if (MSDK_REG_SECURE_ADDR(s_flexioBases[instance]) == MSDK_REG_SECURE_ADDR(base)) /* GCOVR_EXCL_BR_LINE */
         {
             break;
         }
@@ -114,13 +123,19 @@ void FLEXIO_Init(FLEXIO_Type *base, const flexio_config_t *userConfig)
     FLEXIO_Reset(base);
 
     ctrlReg = base->CTRL;
+#if !(defined(FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT) && (FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT == 0))
     ctrlReg &= ~(FLEXIO_CTRL_DOZEN_MASK | FLEXIO_CTRL_DBGE_MASK | FLEXIO_CTRL_FASTACC_MASK | FLEXIO_CTRL_FLEXEN_MASK);
-    ctrlReg |= (FLEXIO_CTRL_DBGE(userConfig->enableInDebug) | FLEXIO_CTRL_FASTACC(userConfig->enableFastAccess) |
-                FLEXIO_CTRL_FLEXEN(userConfig->enableFlexio));
+#else
+    ctrlReg &= ~(FLEXIO_CTRL_DBGE_MASK | FLEXIO_CTRL_FASTACC_MASK | FLEXIO_CTRL_FLEXEN_MASK);
+#endif
+    ctrlReg |= (FLEXIO_CTRL_DBGE(userConfig->enableInDebug ? 1U : 0U) | FLEXIO_CTRL_FASTACC(userConfig->enableFastAccess ? 1U : 0U) |
+                FLEXIO_CTRL_FLEXEN(userConfig->enableFlexio ? 1U : 0U));
+#if !(defined(FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT) && (FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT == 0))
     if (!userConfig->enableInDoze)
     {
         ctrlReg |= FLEXIO_CTRL_DOZEN_MASK;
     }
+#endif
 
     base->CTRL = ctrlReg;
 }
@@ -160,7 +175,9 @@ void FLEXIO_GetDefaultConfig(flexio_config_t *userConfig)
     (void)memset(userConfig, 0, sizeof(*userConfig));
 
     userConfig->enableFlexio     = true;
+#if !(defined(FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT) && (FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT == 0))
     userConfig->enableInDoze     = false;
+#endif
     userConfig->enableInDebug    = true;
     userConfig->enableFastAccess = false;
 }
@@ -478,11 +495,23 @@ void FLEXIO_SetPinConfig(FLEXIO_Type *base, uint32_t pin, flexio_gpio_config_t *
 }
 #endif /*FSL_FEATURE_FLEXIO_HAS_PIN_REGISTER*/
 
+/*
+ * $Branch Coverage Justification$
+ * Code coverage of FLEXIO_DriverIRQHandler is device specific.
+ */
 void FLEXIO_DriverIRQHandler(void);
 void FLEXIO_DriverIRQHandler(void)
 {
     FLEXIO_CommonIRQHandler();
 }
+
+/*
+ * $Branch Coverage Justification$
+ * The individual FLEXIO IRQ handler functions are instance-specific and depend on
+ * the hardware configuration and application usage.
+ * Only the IRQ handlers for the FLEXIO instances actually used in the application will be invoked,
+ * therefore not all handlers need to be covered.
+ */
 
 void FLEXIO0_DriverIRQHandler(void);
 void FLEXIO0_DriverIRQHandler(void)

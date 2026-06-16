@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2020 NXP
+ * Copyright 2016-2020, 2025 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -22,12 +22,16 @@
 
 /*! @name Driver version */
 /*! @{ */
-#define FSL_FLEXIO_I2C_MASTER_DRIVER_VERSION (MAKE_VERSION(2, 5, 0))
+#define FSL_FLEXIO_I2C_MASTER_DRIVER_VERSION (MAKE_VERSION(2, 6, 2))
 /*! @} */
 
 /*! @brief Retry times for waiting flag. */
 #ifndef I2C_RETRY_TIMES
+#ifdef CONFIG_I2C_RETRY_TIMES
+#define I2C_RETRY_TIMES CONFIG_I2C_RETRY_TIMES
+#else
 #define I2C_RETRY_TIMES 0U /* Define to zero means keep waiting until the flag is assert/deassert. */
+#endif
 #endif
 
 /*! @brief FlexIO I2C transfer status*/
@@ -76,7 +80,9 @@ typedef struct _flexio_i2c_type
 typedef struct _flexio_i2c_master_config
 {
     bool enableMaster;     /*!< Enables the FlexIO I2C peripheral at initialization time. */
+#if !(defined(FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT) && (FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT == 0))
     bool enableInDoze;     /*!< Enable/disable FlexIO operation in doze mode. */
+#endif
     bool enableInDebug;    /*!< Enable/disable FlexIO operation in debug mode. */
     bool enableFastAccess; /*!< Enable/disable fast access to FlexIO registers, fast access requires
                            the FlexIO clock to be at least twice the frequency of the bus clock. */
@@ -90,7 +96,7 @@ typedef struct _flexio_i2c_master_transfer
     uint8_t slaveAddress;             /*!< 7-bit slave address. */
     flexio_i2c_direction_t direction; /*!< Transfer direction, read or write. */
     uint32_t subaddress;              /*!< Sub address. Transferred MSB first. */
-    uint8_t subaddressSize;           /*!< Size of command buffer. */
+    uint8_t subaddressSize;           /*!< Size of sub address. */
     uint8_t volatile *data;           /*!< Transfer buffer. */
     volatile size_t dataSize;         /*!< Transfer size. */
 } flexio_i2c_master_transfer_t;

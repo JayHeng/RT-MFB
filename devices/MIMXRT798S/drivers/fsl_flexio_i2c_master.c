@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2022 NXP
+ * Copyright 2016-2022, 2025 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -177,6 +177,7 @@ static status_t FLEXIO_I2C_MasterTransferInitStateMachine(FLEXIO_I2C_Type *base,
     /* Calculate total byte count in a frame. */
     byteCount = 1U;
 
+    assert(handle->transfer.dataSize <= (UINT16_MAX - 1U - handle->transfer.subaddressSize));
     if (!needRestart)
     {
         byteCount += handle->transfer.dataSize;
@@ -252,6 +253,9 @@ static bool FLEXIO_I2C_MasterTransferStateMachineSendCommand(FLEXIO_I2C_Type *ba
                                                              flexio_i2c_master_handle_t *handle,
                                                              uint32_t statusFlags)
 {
+#if I2C_RETRY_TIMES
+    uint32_t waitTimes = I2C_RETRY_TIMES;
+#endif
     if ((statusFlags & (uint32_t)kFLEXIO_I2C_TxEmptyFlag) != 0U)
     {
         if (handle->transfer.subaddressSize > 0U)
@@ -301,6 +305,7 @@ static bool FLEXIO_I2C_MasterTransferStateMachineSendCommand(FLEXIO_I2C_Type *ba
                     FLEXIO_I2C_MasterStop(base);
 
 #if I2C_RETRY_TIMES
+                    waitTimes = I2C_RETRY_TIMES;
                     while ((0U == (FLEXIO_I2C_MasterGetStatusFlags(base) & (uint32_t)kFLEXIO_I2C_RxFullFlag)) &&
                            (0U != --waitTimes))
                     {
@@ -353,6 +358,7 @@ static bool FLEXIO_I2C_MasterTransferStateMachineSendData(FLEXIO_I2C_Type *base,
             FLEXIO_I2C_MasterStop(base);
 
 #if I2C_RETRY_TIMES
+            uint32_t waitTimes = I2C_RETRY_TIMES;
             while ((0U == (FLEXIO_I2C_MasterGetStatusFlags(base) & (uint32_t)kFLEXIO_I2C_RxFullFlag)) &&
                    (0U != --waitTimes))
             {
@@ -386,6 +392,7 @@ static bool FLEXIO_I2C_MasterTransferStateMachineReceiveDataBegin(FLEXIO_I2C_Typ
         {
             FLEXIO_I2C_MasterEnableAck(base, false);
 #if I2C_RETRY_TIMES
+            uint32_t waitTimes = I2C_RETRY_TIMES;
             while ((0U == (FLEXIO_GetShifterStatusFlags(base->flexioBase) & (1UL << base->shifterIndex[0]))) &&
                    (0U != --waitTimes))
             {
@@ -426,8 +433,9 @@ static status_t FLEXIO_I2C_MasterTransferStateMachineReceiveData(FLEXIO_I2C_Type
     {
         *handle->transfer.data = FLEXIO_I2C_MasterReadByte(base);
         handle->transfer.data++;
-        if (0U != handle->transfer.dataSize--)
+        if (0U != handle->transfer.dataSize)
         {
+            handle->transfer.dataSize--;
             if (handle->transfer.dataSize == 0U)
             {
                 FLEXIO_I2C_MasterDisableInterrupts(base, (uint32_t)kFLEXIO_I2C_RxFullInterruptEnable);
@@ -444,6 +452,7 @@ static status_t FLEXIO_I2C_MasterTransferStateMachineReceiveData(FLEXIO_I2C_Type
             {
                 FLEXIO_I2C_MasterEnableAck(base, false);
 #if I2C_RETRY_TIMES
+                uint32_t waitTimes = I2C_RETRY_TIMES;
                 while ((0U == (FLEXIO_GetShifterStatusFlags(base->flexioBase) & (1UL << base->shifterIndex[0]))) &&
                        (0U != --waitTimes))
                 {
@@ -480,9 +489,6 @@ static status_t FLEXIO_I2C_MasterTransferRunStateMachine(FLEXIO_I2C_Type *base,
                                                          uint32_t statusFlags)
 {
     status_t status;
-#if I2C_RETRY_TIMES
-    uint32_t waitTimes = I2C_RETRY_TIMES;
-#endif
 
     if ((statusFlags & (uint32_t)kFLEXIO_I2C_ReceiveNakFlag) != 0U)
     {
@@ -634,7 +640,7 @@ status_t FLEXIO_I2C_MasterInit(FLEXIO_I2C_Type *base, flexio_i2c_master_config_t
     flexio_shifter_config_t shifterConfig;
     flexio_timer_config_t timerConfig;
     uint32_t controlVal = 0;
-    uint16_t timerDiv   = 0;
+    uint32_t timerDiv   = 0;
     status_t result     = kStatus_Success;
 
     (void)memset(&shifterConfig, 0, sizeof(shifterConfig));
@@ -690,11 +696,12 @@ status_t FLEXIO_I2C_MasterInit(FLEXIO_I2C_Type *base, flexio_i2c_master_config_t
     timerConfig.timerStart      = kFLEXIO_TimerStartBitDisabled;
 
     /* Set TIMCMP = (baud rate divider / 2) - 1. */
-    timerDiv = (uint16_t)(srcClock_Hz / masterConfig->baudRate_Bps) / 2U - 1U;
+    timerDiv = (srcClock_Hz / masterConfig->baudRate_Bps) / 2U - 1U;
     /* Calculate and assign the actual baudrate. */
-    base->baudrate = srcClock_Hz / (2U * ((uint32_t)timerDiv + 1U));
+    base->baudrate = srcClock_Hz / (2U * (timerDiv + 1U));
 
-    timerConfig.timerCompare = timerDiv;
+    assert(timerDiv <= UINT16_MAX);
+    timerConfig.timerCompare = (uint16_t)timerDiv;
 
     FLEXIO_SetTimerConfig(base->flexioBase, base->timerIndex[1], &timerConfig);
 
@@ -740,14 +747,21 @@ status_t FLEXIO_I2C_MasterInit(FLEXIO_I2C_Type *base, flexio_i2c_master_config_t
 
     /* Configure FLEXIO I2C Master. */
     controlVal = base->flexioBase->CTRL;
+#if !(defined(FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT) && (FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT == 0))
     controlVal &=
         ~(FLEXIO_CTRL_DOZEN_MASK | FLEXIO_CTRL_DBGE_MASK | FLEXIO_CTRL_FASTACC_MASK | FLEXIO_CTRL_FLEXEN_MASK);
-    controlVal |= (FLEXIO_CTRL_DBGE(masterConfig->enableInDebug) | FLEXIO_CTRL_FASTACC(masterConfig->enableFastAccess) |
-                   FLEXIO_CTRL_FLEXEN(masterConfig->enableMaster));
-    if (!masterConfig->enableInDoze)
+#else
+    controlVal &=
+        ~(FLEXIO_CTRL_DBGE_MASK | FLEXIO_CTRL_FASTACC_MASK | FLEXIO_CTRL_FLEXEN_MASK);
+#endif
+    controlVal |= (FLEXIO_CTRL_DBGE(masterConfig->enableInDebug ? 1U : 0U) | FLEXIO_CTRL_FASTACC(masterConfig->enableFastAccess ? 1U : 0U) |
+                   FLEXIO_CTRL_FLEXEN(masterConfig->enableMaster ? 1U : 0U));
+#if !(defined(FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT) && (FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT == 0))
+    if (!masterConfig->enableInDoze ? 1U : 0U)
     {
         controlVal |= FLEXIO_CTRL_DOZEN_MASK;
     }
+#endif
 
     base->flexioBase->CTRL = controlVal;
     /* Disable internal IRQs. */
@@ -805,7 +819,9 @@ void FLEXIO_I2C_MasterGetDefaultConfig(flexio_i2c_master_config_t *masterConfig)
     (void)memset(masterConfig, 0, sizeof(*masterConfig));
 
     masterConfig->enableMaster     = true;
+#if !(defined(FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT) && (FSL_FEATURE_FLEXIO_HAS_DOZE_MODE_SUPPORT == 0))
     masterConfig->enableInDoze     = false;
+#endif
     masterConfig->enableInDebug    = true;
     masterConfig->enableFastAccess = false;
 
@@ -911,16 +927,17 @@ void FLEXIO_I2C_MasterDisableInterrupts(FLEXIO_I2C_Type *base, uint32_t mask)
  */
 void FLEXIO_I2C_MasterSetBaudRate(FLEXIO_I2C_Type *base, uint32_t baudRate_Bps, uint32_t srcClock_Hz)
 {
-    uint16_t timerDiv       = 0;
+    uint32_t timerDiv       = 0;
     FLEXIO_Type *flexioBase = base->flexioBase;
 
     /* Set TIMCMP = (baud rate divider / 2) - 1.*/
-    timerDiv = (uint16_t)((srcClock_Hz / baudRate_Bps) / 2U - 1U);
+    timerDiv = ((srcClock_Hz / baudRate_Bps) / 2U - 1U);
 
-    flexioBase->TIMCMP[base->timerIndex[1]] = timerDiv;
+    assert(timerDiv <= UINT16_MAX);
+    flexioBase->TIMCMP[base->timerIndex[1]] = (uint16_t)timerDiv;
 
     /* Calculate and assign the actual baudrate. */
-    base->baudrate = srcClock_Hz / (2U * ((uint32_t)timerDiv + 1U));
+    base->baudrate = srcClock_Hz / (2U * (timerDiv + 1U));
 }
 
 /*!
@@ -1207,10 +1224,19 @@ status_t FLEXIO_I2C_MasterTransferBlocking(FLEXIO_I2C_Type *base, flexio_i2c_mas
 
     } while ((tmpHandle.state != (uint8_t)kFLEXIO_I2C_Idle) && (result == kStatus_Success));
 
+#if I2C_RETRY_TIMES
+    waitTimes = I2C_RETRY_TIMES;
+#endif
     /* Timer disable on timer compare, wait until bit clock TSF set, which means timer disable and stop has been sent.
      */
     while (0U == (FLEXIO_GetTimerStatusFlags(base->flexioBase) & (1UL << base->timerIndex[1])))
     {
+#if I2C_RETRY_TIMES
+        if (--waitTimes == 0U)
+        {
+            return kStatus_FLEXIO_I2C_Timeout;
+        }
+#endif
     }
 
     return result;
@@ -1233,7 +1259,9 @@ status_t FLEXIO_I2C_MasterTransferCreateHandle(FLEXIO_I2C_Type *base,
 {
     assert(handle != NULL);
 
+#if defined(FLEXIO_IRQS)
     IRQn_Type flexio_irqs[] = FLEXIO_IRQS;
+#endif
 
     /* Zero the handle. */
     (void)memset(handle, 0, sizeof(*handle));
@@ -1242,9 +1270,11 @@ status_t FLEXIO_I2C_MasterTransferCreateHandle(FLEXIO_I2C_Type *base,
     handle->completionCallback = callback;
     handle->userData           = userData;
 
+#if defined(FLEXIO_IRQS)
     /* Clear pending NVIC IRQ before enable NVIC IRQ. */
     NVIC_ClearPendingIRQ(flexio_irqs[FLEXIO_I2C_GetInstance(base)]);
     (void)EnableIRQ(flexio_irqs[FLEXIO_I2C_GetInstance(base)]);
+#endif
 
     /* Save the context in global variables to support the double weak mechanism. */
     return FLEXIO_RegisterHandleIRQ(base, handle, FLEXIO_I2C_MasterTransferHandleIRQ);

@@ -1,40 +1,40 @@
 /*
 ** ###################################################################
-**     Processors:          MIMXRT735SGAWAR_cm33_core0
-**                          MIMXRT735SGAWAR_cm33_core1
-**                          MIMXRT735SGAWAR_ezhv
-**                          MIMXRT735SGAWAR_hifi1
-**                          MIMXRT735SGFOA_cm33_core0
-**                          MIMXRT735SGFOA_cm33_core1
-**                          MIMXRT735SGFOA_ezhv
-**                          MIMXRT735SGFOA_hifi1
-**                          MIMXRT758SGAWAR_cm33_core0
-**                          MIMXRT758SGAWAR_cm33_core1
-**                          MIMXRT758SGAWAR_ezhv
-**                          MIMXRT758SGAWAR_hifi1
-**                          MIMXRT758SGFOA_cm33_core0
-**                          MIMXRT758SGFOA_cm33_core1
-**                          MIMXRT758SGFOA_ezhv
-**                          MIMXRT758SGFOA_hifi1
-**                          MIMXRT798SGAWAR_cm33_core0
-**                          MIMXRT798SGAWAR_cm33_core1
-**                          MIMXRT798SGAWAR_ezhv
-**                          MIMXRT798SGAWAR_hifi1
-**                          MIMXRT798SGAWAR_hifi4
-**                          MIMXRT798SGFOA_cm33_core0
-**                          MIMXRT798SGFOA_cm33_core1
-**                          MIMXRT798SGFOA_ezhv
-**                          MIMXRT798SGFOA_hifi1
-**                          MIMXRT798SGFOA_hifi4
+**     Processors:          MIMXRT735SGAWBR_cm33_core0
+**                          MIMXRT735SGAWBR_cm33_core1
+**                          MIMXRT735SGAWBR_ezhv
+**                          MIMXRT735SGAWBR_hifi1
+**                          MIMXRT735SGFOB_cm33_core0
+**                          MIMXRT735SGFOB_cm33_core1
+**                          MIMXRT735SGFOB_ezhv
+**                          MIMXRT735SGFOB_hifi1
+**                          MIMXRT758SGAWBR_cm33_core0
+**                          MIMXRT758SGAWBR_cm33_core1
+**                          MIMXRT758SGAWBR_ezhv
+**                          MIMXRT758SGAWBR_hifi1
+**                          MIMXRT758SGFOB_cm33_core0
+**                          MIMXRT758SGFOB_cm33_core1
+**                          MIMXRT758SGFOB_ezhv
+**                          MIMXRT758SGFOB_hifi1
+**                          MIMXRT798SGAWBR_cm33_core0
+**                          MIMXRT798SGAWBR_cm33_core1
+**                          MIMXRT798SGAWBR_ezhv
+**                          MIMXRT798SGAWBR_hifi1
+**                          MIMXRT798SGAWBR_hifi4
+**                          MIMXRT798SGFOB_cm33_core0
+**                          MIMXRT798SGFOB_cm33_core1
+**                          MIMXRT798SGFOB_ezhv
+**                          MIMXRT798SGFOB_hifi1
+**                          MIMXRT798SGFOB_hifi4
 **
-**     Version:             rev. 2.0, 2024-05-28
-**     Build:               b241121
+**     Version:             rev. 5.1, 2025-12-08
+**     Build:               b251208
 **
 **     Abstract:
 **         CMSIS Peripheral Access Layer for USBNC
 **
 **     Copyright 1997-2016 Freescale Semiconductor, Inc.
-**     Copyright 2016-2024 NXP
+**     Copyright 2016-2025 NXP
 **     SPDX-License-Identifier: BSD-3-Clause
 **
 **     http:                 www.nxp.com
@@ -45,47 +45,56 @@
 **         Initial version.
 **     - rev. 2.0 (2024-05-28)
 **         Rev2 DraftA.
+**     - rev. 3.0 (2024-10-29)
+**         Change the device header file from single flat file to multiple files based on peripherals,
+**         each peripheral with dedicated header file located in periphN folder.
+**     - rev. 4.0 (2025-06-06)
+**         B0 initial version
+**     - rev. 5.0 (2025-11-13)
+**         Add puf/sdadc irq and cache64 compatibility macros to common header.
+**     - rev. 5.1 (2025-12-08)
+**         Update RM version and add pdm irq for hifi1/hifi4.
 **
 ** ###################################################################
 */
 
 /*!
- * @file USBNC.h
- * @version 2.0
- * @date 2024-05-28
+ * @file PERI_USBNC.h
+ * @version 5.1
+ * @date 2025-12-08
  * @brief CMSIS Peripheral Access Layer for USBNC
  *
  * CMSIS Peripheral Access Layer for USBNC
  */
 
-#if !defined(USBNC_H_)
-#define USBNC_H_                                 /**< Symbol preventing repeated inclusion */
+#if !defined(PERI_USBNC_H_)
+#define PERI_USBNC_H_                            /**< Symbol preventing repeated inclusion */
 
-#if (defined(CPU_MIMXRT735SGAWAR_cm33_core0) || defined(CPU_MIMXRT735SGFOA_cm33_core0))
+#if (defined(CPU_MIMXRT735SGAWBR_cm33_core0) || defined(CPU_MIMXRT735SGFOB_cm33_core0))
 #include "MIMXRT735S_cm33_core0_COMMON.h"
-#elif (defined(CPU_MIMXRT735SGAWAR_cm33_core1) || defined(CPU_MIMXRT735SGFOA_cm33_core1))
+#elif (defined(CPU_MIMXRT735SGAWBR_cm33_core1) || defined(CPU_MIMXRT735SGFOB_cm33_core1))
 #include "MIMXRT735S_cm33_core1_COMMON.h"
-#elif (defined(CPU_MIMXRT735SGAWAR_ezhv) || defined(CPU_MIMXRT735SGFOA_ezhv))
+#elif (defined(CPU_MIMXRT735SGAWBR_ezhv) || defined(CPU_MIMXRT735SGFOB_ezhv))
 #include "MIMXRT735S_ezhv_COMMON.h"
-#elif (defined(CPU_MIMXRT735SGAWAR_hifi1) || defined(CPU_MIMXRT735SGFOA_hifi1))
+#elif (defined(CPU_MIMXRT735SGAWBR_hifi1) || defined(CPU_MIMXRT735SGFOB_hifi1))
 #include "MIMXRT735S_hifi1_COMMON.h"
-#elif (defined(CPU_MIMXRT758SGAWAR_cm33_core0) || defined(CPU_MIMXRT758SGFOA_cm33_core0))
+#elif (defined(CPU_MIMXRT758SGAWBR_cm33_core0) || defined(CPU_MIMXRT758SGFOB_cm33_core0))
 #include "MIMXRT758S_cm33_core0_COMMON.h"
-#elif (defined(CPU_MIMXRT758SGAWAR_cm33_core1) || defined(CPU_MIMXRT758SGFOA_cm33_core1))
+#elif (defined(CPU_MIMXRT758SGAWBR_cm33_core1) || defined(CPU_MIMXRT758SGFOB_cm33_core1))
 #include "MIMXRT758S_cm33_core1_COMMON.h"
-#elif (defined(CPU_MIMXRT758SGAWAR_ezhv) || defined(CPU_MIMXRT758SGFOA_ezhv))
+#elif (defined(CPU_MIMXRT758SGAWBR_ezhv) || defined(CPU_MIMXRT758SGFOB_ezhv))
 #include "MIMXRT758S_ezhv_COMMON.h"
-#elif (defined(CPU_MIMXRT758SGAWAR_hifi1) || defined(CPU_MIMXRT758SGFOA_hifi1))
+#elif (defined(CPU_MIMXRT758SGAWBR_hifi1) || defined(CPU_MIMXRT758SGFOB_hifi1))
 #include "MIMXRT758S_hifi1_COMMON.h"
-#elif (defined(CPU_MIMXRT798SGAWAR_cm33_core0) || defined(CPU_MIMXRT798SGFOA_cm33_core0))
+#elif (defined(CPU_MIMXRT798SGAWBR_cm33_core0) || defined(CPU_MIMXRT798SGFOB_cm33_core0))
 #include "MIMXRT798S_cm33_core0_COMMON.h"
-#elif (defined(CPU_MIMXRT798SGAWAR_cm33_core1) || defined(CPU_MIMXRT798SGFOA_cm33_core1))
+#elif (defined(CPU_MIMXRT798SGAWBR_cm33_core1) || defined(CPU_MIMXRT798SGFOB_cm33_core1))
 #include "MIMXRT798S_cm33_core1_COMMON.h"
-#elif (defined(CPU_MIMXRT798SGAWAR_ezhv) || defined(CPU_MIMXRT798SGFOA_ezhv))
+#elif (defined(CPU_MIMXRT798SGAWBR_ezhv) || defined(CPU_MIMXRT798SGFOB_ezhv))
 #include "MIMXRT798S_ezhv_COMMON.h"
-#elif (defined(CPU_MIMXRT798SGAWAR_hifi1) || defined(CPU_MIMXRT798SGFOA_hifi1))
+#elif (defined(CPU_MIMXRT798SGAWBR_hifi1) || defined(CPU_MIMXRT798SGFOB_hifi1))
 #include "MIMXRT798S_hifi1_COMMON.h"
-#elif (defined(CPU_MIMXRT798SGAWAR_hifi4) || defined(CPU_MIMXRT798SGFOA_hifi4))
+#elif (defined(CPU_MIMXRT798SGAWBR_hifi4) || defined(CPU_MIMXRT798SGFOB_hifi4))
 #include "MIMXRT798S_hifi4_COMMON.h"
 #else
   #error "No valid CPU defined!"
@@ -135,14 +144,18 @@
 typedef struct {
   __IO uint32_t CTRL1;                             /**< USB Control 1, offset: 0x0 */
   __IO uint32_t CTRL2;                             /**< USB Control 2, offset: 0x4 */
-       uint8_t RESERVED_0[152];
+       uint8_t RESERVED_0[36];
+  __IO uint32_t HSIC_DLL_CFG4;                     /**< HSIC DLL Configuration 4, offset: 0x2C */
+       uint8_t RESERVED_1[112];
   __IO uint32_t LPM_CSR0;                          /**< USB LPM Control and Status 0, offset: 0xA0 */
   __IO uint32_t LPM_CSR1;                          /**< USB LPM Control and Status 1, offset: 0xA4 */
   __IO uint32_t LPM_CSR2;                          /**< USB LPM Control and Status 2, offset: 0xA8 */
-       uint8_t RESERVED_1[84];
+       uint8_t RESERVED_2[84];
   __IO uint32_t EUSB_CTRL0;                        /**< eUSB Control 0, offset: 0x100, available only on: USBNC1 (missing on USBNC0) */
   __IO uint32_t EUSB_CTRL1;                        /**< eUSB Control 1, offset: 0x104, available only on: USBNC1 (missing on USBNC0) */
-       uint8_t RESERVED_2[64];
+       uint8_t RESERVED_3[4];
+  __IO uint32_t EUSB_CTRL3;                        /**< eUSB Control 3, offset: 0x10C, available only on: USBNC1 (missing on USBNC0) */
+       uint8_t RESERVED_4[56];
   __IO uint32_t EUSB_RAP;                          /**< eUSB RAP Control and Status, offset: 0x148, available only on: USBNC1 (missing on USBNC0) */
 } USBNC_Type;
 
@@ -161,8 +174,8 @@ typedef struct {
 #define USBNC_CTRL1_OVER_CUR_DIS_MASK            (0x80U)
 #define USBNC_CTRL1_OVER_CUR_DIS_SHIFT           (7U)
 /*! OVER_CUR_DIS - Overcurrent Disable
- *  0b0..Enable
- *  0b1..Disable
+ *  0b0..Enables
+ *  0b1..Disables
  */
 #define USBNC_CTRL1_OVER_CUR_DIS(x)              (((uint32_t)(((uint32_t)(x)) << USBNC_CTRL1_OVER_CUR_DIS_SHIFT)) & USBNC_CTRL1_OVER_CUR_DIS_MASK)
 
@@ -185,16 +198,16 @@ typedef struct {
 #define USBNC_CTRL1_WIE_MASK                     (0x400U)
 #define USBNC_CTRL1_WIE_SHIFT                    (10U)
 /*! WIE - Wake-Up Interrupt Enable
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_CTRL1_WIE(x)                       (((uint32_t)(((uint32_t)(x)) << USBNC_CTRL1_WIE_SHIFT)) & USBNC_CTRL1_WIE_MASK)
 
 #define USBNC_CTRL1_WKUP_SW_EN_MASK              (0x4000U)
 #define USBNC_CTRL1_WKUP_SW_EN_SHIFT             (14U)
 /*! WKUP_SW_EN - Software Wake-Up Enable
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_CTRL1_WKUP_SW_EN(x)                (((uint32_t)(((uint32_t)(x)) << USBNC_CTRL1_WKUP_SW_EN_SHIFT)) & USBNC_CTRL1_WKUP_SW_EN_MASK)
 
@@ -209,16 +222,16 @@ typedef struct {
 #define USBNC_CTRL1_WKUP_VBUS_EN_MASK            (0x20000U)
 #define USBNC_CTRL1_WKUP_VBUS_EN_SHIFT           (17U)
 /*! WKUP_VBUS_EN - Wake-Up After VBUS Change Enable
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_CTRL1_WKUP_VBUS_EN(x)              (((uint32_t)(((uint32_t)(x)) << USBNC_CTRL1_WKUP_VBUS_EN_SHIFT)) & USBNC_CTRL1_WKUP_VBUS_EN_MASK)
 
 #define USBNC_CTRL1_REMOTE_WAKEUP_EN_MASK        (0x10000000U)
 #define USBNC_CTRL1_REMOTE_WAKEUP_EN_SHIFT       (28U)
 /*! REMOTE_WAKEUP_EN - Remote Wake-Up Enable
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_CTRL1_REMOTE_WAKEUP_EN(x)          (((uint32_t)(((uint32_t)(x)) << USBNC_CTRL1_REMOTE_WAKEUP_EN_SHIFT)) & USBNC_CTRL1_REMOTE_WAKEUP_EN_MASK)
 
@@ -255,12 +268,24 @@ typedef struct {
 #define USBNC_CTRL2_UTMI_CLK_VLD_MASK            (0x80000000U)
 #define USBNC_CTRL2_UTMI_CLK_VLD_SHIFT           (31U)
 /*! UTMI_CLK_VLD - UTMI Clock Valid Flag
- *  0b0..Not valid
  *  0b0..No effect
- *  0b1..Valid
+ *  0b0..Not valid
  *  0b1..Clear the flag
+ *  0b1..Valid
  */
 #define USBNC_CTRL2_UTMI_CLK_VLD(x)              (((uint32_t)(((uint32_t)(x)) << USBNC_CTRL2_UTMI_CLK_VLD_SHIFT)) & USBNC_CTRL2_UTMI_CLK_VLD_MASK)
+/*! @} */
+
+/*! @name HSIC_DLL_CFG4 - HSIC DLL Configuration 4 */
+/*! @{ */
+
+#define USBNC_HSIC_DLL_CFG4_FS_ISO_B2B_FIXEN_MASK (0x80000000U)
+#define USBNC_HSIC_DLL_CFG4_FS_ISO_B2B_FIXEN_SHIFT (31U)
+/*! FS_ISO_B2B_FIXEN - FS Isochronous Back-to-Back Transfer Enable
+ *  0b0..Disables
+ *  0b1..Enables
+ */
+#define USBNC_HSIC_DLL_CFG4_FS_ISO_B2B_FIXEN(x)  (((uint32_t)(((uint32_t)(x)) << USBNC_HSIC_DLL_CFG4_FS_ISO_B2B_FIXEN_SHIFT)) & USBNC_HSIC_DLL_CFG4_FS_ISO_B2B_FIXEN_MASK)
 /*! @} */
 
 /*! @name LPM_CSR0 - USB LPM Control and Status 0 */
@@ -269,24 +294,24 @@ typedef struct {
 #define USBNC_LPM_CSR0_LPM_EN_MASK               (0x1U)
 #define USBNC_LPM_CSR0_LPM_EN_SHIFT              (0U)
 /*! LPM_EN - Link Power Management Feature Enable
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_LPM_CSR0_LPM_EN(x)                 (((uint32_t)(((uint32_t)(x)) << USBNC_LPM_CSR0_LPM_EN_SHIFT)) & USBNC_LPM_CSR0_LPM_EN_MASK)
 
 #define USBNC_LPM_CSR0_LPM_ERRATA_EN_MASK        (0x2U)
 #define USBNC_LPM_CSR0_LPM_ERRATA_EN_SHIFT       (1U)
 /*! LPM_ERRATA_EN - Link Power Management ECN Errata Feature Enable
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_LPM_CSR0_LPM_ERRATA_EN(x)          (((uint32_t)(((uint32_t)(x)) << USBNC_LPM_CSR0_LPM_ERRATA_EN_SHIFT)) & USBNC_LPM_CSR0_LPM_ERRATA_EN_MASK)
 
 #define USBNC_LPM_CSR0_LPM_AUTO_PHCD_MASK        (0x8U)
 #define USBNC_LPM_CSR0_LPM_AUTO_PHCD_SHIFT       (3U)
 /*! LPM_AUTO_PHCD - Auto Low-Power Mode
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_LPM_CSR0_LPM_AUTO_PHCD(x)          (((uint32_t)(((uint32_t)(x)) << USBNC_LPM_CSR0_LPM_AUTO_PHCD_SHIFT)) & USBNC_LPM_CSR0_LPM_AUTO_PHCD_MASK)
 
@@ -405,8 +430,8 @@ typedef struct {
 #define USBNC_LPM_CSR2_LPM_HST_RWKEN_MASK        (0x1000U)
 #define USBNC_LPM_CSR2_LPM_HST_RWKEN_SHIFT       (12U)
 /*! LPM_HST_RWKEN - LPM Host Extension Token's bRemoteWake
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_LPM_CSR2_LPM_HST_RWKEN(x)          (((uint32_t)(((uint32_t)(x)) << USBNC_LPM_CSR2_LPM_HST_RWKEN_SHIFT)) & USBNC_LPM_CSR2_LPM_HST_RWKEN_MASK)
 
@@ -431,8 +456,8 @@ typedef struct {
 #define USBNC_EUSB_CTRL0_UN_TERMINATED_MODE_MASK (0x20U)
 #define USBNC_EUSB_CTRL0_UN_TERMINATED_MODE_SHIFT (5U)
 /*! UN_TERMINATED_MODE - HS Receiver Termination Option
- *  0b0..Enable
- *  0b1..Disable
+ *  0b0..Enables
+ *  0b1..Disables
  */
 #define USBNC_EUSB_CTRL0_UN_TERMINATED_MODE(x)   (((uint32_t)(((uint32_t)(x)) << USBNC_EUSB_CTRL0_UN_TERMINATED_MODE_SHIFT)) & USBNC_EUSB_CTRL0_UN_TERMINATED_MODE_MASK)
 
@@ -489,6 +514,32 @@ typedef struct {
 #define USBNC_EUSB_CTRL1_EUSB_FSTX_OPT(x)        (((uint32_t)(((uint32_t)(x)) << USBNC_EUSB_CTRL1_EUSB_FSTX_OPT_SHIFT)) & USBNC_EUSB_CTRL1_EUSB_FSTX_OPT_MASK)
 /*! @} */
 
+/*! @name EUSB_CTRL3 - eUSB Control 3 */
+/*! @{ */
+
+#define USBNC_EUSB_CTRL3_XCfg_U2_SWING_MASK      (0xFU)
+#define USBNC_EUSB_CTRL3_XCfg_U2_SWING_SHIFT     (0U)
+/*! XCfg_U2_SWING - HSTX swing
+ *  0b0000..200mV
+ *  0b0001..195.9mV
+ *  0b0010..191.7mV
+ *  0b0011..187.5mV
+ *  0b0100..216.7mV
+ *  0b0101..212.5mV
+ *  0b0110..208.4mV
+ *  0b0111..204.2mV
+ *  0b1000..233.4mV
+ *  0b1001..229.2mV
+ *  0b1010..225mV
+ *  0b1011..220.9mV
+ *  0b1100..250mV
+ *  0b1101..245.9mV
+ *  0b1110..241.7mV
+ *  0b1111..237.5mV
+ */
+#define USBNC_EUSB_CTRL3_XCfg_U2_SWING(x)        (((uint32_t)(((uint32_t)(x)) << USBNC_EUSB_CTRL3_XCfg_U2_SWING_SHIFT)) & USBNC_EUSB_CTRL3_XCfg_U2_SWING_MASK)
+/*! @} */
+
 /*! @name EUSB_RAP - eUSB RAP Control and Status */
 /*! @{ */
 
@@ -515,16 +566,16 @@ typedef struct {
 #define USBNC_EUSB_RAP_CM_RAP_INIT_EN_MASK       (0x10000U)
 #define USBNC_EUSB_RAP_CM_RAP_INIT_EN_SHIFT      (16U)
 /*! CM_RAP_INIT_EN - Enable CM.RAP Feature
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_EUSB_RAP_CM_RAP_INIT_EN(x)         (((uint32_t)(((uint32_t)(x)) << USBNC_EUSB_RAP_CM_RAP_INIT_EN_SHIFT)) & USBNC_EUSB_RAP_CM_RAP_INIT_EN_MASK)
 
 #define USBNC_EUSB_RAP_CM_RAP_START_MASK         (0x20000U)
 #define USBNC_EUSB_RAP_CM_RAP_START_SHIFT        (17U)
 /*! CM_RAP_START - CM.RAP Start
- *  0b0..Disable
- *  0b1..Enable
+ *  0b0..Disables
+ *  0b1..Enables
  */
 #define USBNC_EUSB_RAP_CM_RAP_START(x)           (((uint32_t)(((uint32_t)(x)) << USBNC_EUSB_RAP_CM_RAP_START_SHIFT)) & USBNC_EUSB_RAP_CM_RAP_START_MASK)
 
@@ -594,5 +645,5 @@ typedef struct {
  */ /* end of group Peripheral_access_layer */
 
 
-#endif  /* USBNC_H_ */
+#endif  /* PERI_USBNC_H_ */
 

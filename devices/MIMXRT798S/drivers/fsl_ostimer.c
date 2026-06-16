@@ -1,6 +1,5 @@
 /*
- * Copyright 2018-2021, 2023 NXP
- * All rights reserved.
+ * Copyright 2018-2021, 2023, 2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -126,12 +125,12 @@ uint64_t OSTIMER_GrayToDecimal(uint64_t gray)
 #if (defined(FSL_FEATURE_SYSCTRL_HAS_CODE_GRAY) && FSL_FEATURE_SYSCTRL_HAS_CODE_GRAY)
     return OSTIMER_GrayToDecimalbyCodeGray(gray);
 #else
-    uint64_t temp = gray;
-    while (temp != 0U)
-    {
-        temp >>= 1U;
-        gray ^= temp;
-    }
+    gray ^= gray >> 32U;
+    gray ^= gray >> 16U;
+    gray ^= gray >> 8U;
+    gray ^= gray >> 4U;
+    gray ^= gray >> 2U;
+    gray ^= gray >> 1U;
 
     return gray;
 #endif /* FSL_FEATURE_SYSCTRL_HAS_CODE_GRAY. */
@@ -202,6 +201,9 @@ void OSTIMER_Init(OSTIMER_Type *base)
 void OSTIMER_Deinit(OSTIMER_Type *base)
 {
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+    /* Disable pending interrupts before disabling the OSTIMER clock
+     to avoid interrupts being triggered when the clock is disabled. */
+    OSTIMER_EnableInterrupt(base, false);
     /* Enable clock for OSTIMER. */
     CLOCK_DisableClock(s_ostimerClock[OSTIMER_GetInstance(base)]);
 #if (defined(FSL_FEATURE_SYSCTRL_HAS_CODE_GRAY) && FSL_FEATURE_SYSCTRL_HAS_CODE_GRAY)
@@ -244,21 +246,16 @@ void OSTIMER_ClearStatusFlags(OSTIMER_Type *base, uint32_t mask)
  *
  * This function will set a match value for OSTIMER with an optional callback. And this callback
  * will be called while the data in dedicated pair match register is equals to the value of central EVTIMER.
- * Please note that, the data format is gray-code, if decimal data was desired, please using OSTIMER_SetMatchValue().
+ * Please note that, the data format may be gray-code, if so, please using OSTIMER_SetMatchValue().
  *
  * @param base   OSTIMER peripheral base address.
- * @param count  OSTIMER timer match value.(Value is gray-code format)
+ * @param count  OSTIMER timer match value.(Value may be gray-code format)
  *
  * @param cb     OSTIMER callback (can be left as NULL if none, otherwise should be a void func(void)).
- * @retval kStatus_Success - Set match raw value and enable interrupt Successfully.
- * @retval kStatus_Fail    - Set match raw value fail.
+ * @retval kStatus_Success                    - Set match raw value and enable interrupt Successfully.
  */
 status_t OSTIMER_SetMatchRawValue(OSTIMER_Type *base, uint64_t count, ostimer_callback_t cb)
 {
-#ifdef OSTIMER_OSEVENT_CTRL_MATCH_WR_RDY_MASK
-    uint64_t decValueTimer;
-#endif
-    status_t status;
     uint64_t tmp      = count;
     uint32_t instance = OSTIMER_GetInstance(base);
 
@@ -268,44 +265,10 @@ status_t OSTIMER_SetMatchRawValue(OSTIMER_Type *base, uint64_t count, ostimer_ca
     s_ostimerIsr              = OSTIMER_HandleIRQ;
     s_ostimerHandle[instance] = cb;
 
-    /* Set the match value. */
-    base->MATCH_L = (uint32_t)tmp;
-    base->MATCH_H = (uint32_t)(tmp >> 32U);
+    OSTIMER_SetMatchRegister(base, tmp);
+    OSTIMER_EnableInterrupt(base, true);
 
-#ifdef OSTIMER_OSEVENT_CTRL_MATCH_WR_RDY_MASK
-    /* Workaround-2019-12-30:
-     * Since OSTimer's counter register is Gray-encoded, it would cost more time to write register. When EVTimer Match
-     * Write Ready bit is low, which means the previous match value has been updated successfully by that time, it is
-     * safe to reload (write) the Match Registers. Even if there is the RM comment that "In typical applications, it
-     * should not be necessary to test this bit", but we found the interruption would not be reported when the delta
-     * timer user added is smaller(IE: RT595 11us in 1MHz typical application) in release version." To prevent such
-     * issue from happening, we'd better wait for the match value to update successfully before enabling IRQ.
-     */
-    while (0U != (base->OSEVENT_CTRL & OSTIMER_OSEVENT_CTRL_MATCH_WR_RDY_MASK))
-    {
-    }
-
-    /* After the WR_RDY bit became low, we need to check whether current time goes ahead of the match value we set.
-     * (1) If current timer value has gone ahead of the match value, the interrupt will not be reported before 64-bit
-     * timer value over flow. We need to check whether the interrupt flag has been set or not: if yes, we will enable
-     * interrupt and return success; if not, we will return fail directly.
-     * (2) If current timer value has not gone ahead of match value, we will enable interrupt and return success.
-     */
-    decValueTimer = OSTIMER_GetCurrentTimerValue(base);
-    if ((decValueTimer >= OSTIMER_GrayToDecimal(tmp)) &&
-        (0U == (base->OSEVENT_CTRL & (uint32_t)kOSTIMER_MatchInterruptFlag)))
-    {
-        status = kStatus_Fail;
-    }
-    else
-#endif /* #ifdef OSTIMER_OSEVENT_CTRL_MATCH_WR_RDY_MASK */
-    {
-        /* Enable the module interrupt enablement. */
-        OSTIMER_EnableInterrupt(base, true);
-        status = kStatus_Success;
-    }
-
-    return status;
+    return kStatus_Success;
 }
 
 /*!
@@ -316,26 +279,29 @@ status_t OSTIMER_SetMatchRawValue(OSTIMER_Type *base, uint64_t count, ostimer_ca
  *
  * @param base   OSTIMER peripheral base address.
  * @param count  OSTIMER timer match value.(Value is decimal format, and this value will be translate to Gray code in
- * API. )
+ * API if the IP counter is gray encoded. )
  * @param cb  OSTIMER callback (can be left as NULL if none, otherwise should be a void func(void)).
- * @retval kStatus_Success - Set match value and enable interrupt Successfully.
- * @retval kStatus_Fail    - Set match value fail.
+ * @retval kStatus_Success                    - Set match raw value and enable interrupt Successfully.
  */
 status_t OSTIMER_SetMatchValue(OSTIMER_Type *base, uint64_t count, ostimer_callback_t cb)
 {
+#if (defined(FSL_FEATURE_OSTIMER_HAS_BINARY_ENCODED_COUNTER) && FSL_FEATURE_OSTIMER_HAS_BINARY_ENCODED_COUNTER)
+    return OSTIMER_SetMatchRawValue(base, count, cb);
+#else
     uint64_t tmp = OSTIMER_DecimalToGray(count);
 
     return OSTIMER_SetMatchRawValue(base, tmp, cb);
+#endif /* FSL_FEATURE_OSTIMER_HAS_BINARY_ENCODED_COUNTER */
 }
 
 /*!
  * @brief Get current timer count value from OSTIMER.
  *
  * This function will get a decimal timer count value.
- * The RAW value of timer count is gray code format, will be translated to decimal data internally.
+ * If the RAW value of timer count is gray code format, it will be translated to decimal data internally.
  *
  * @param base   OSTIMER peripheral base address.
- * @return Value of OSTIMER which will formated to decimal value.
+ * @return       Value of OSTIMER which will be formated to decimal value.
  */
 uint64_t OSTIMER_GetCurrentTimerValue(OSTIMER_Type *base)
 {
@@ -343,17 +309,21 @@ uint64_t OSTIMER_GetCurrentTimerValue(OSTIMER_Type *base)
 
     tmp = OSTIMER_GetCurrentTimerRawValue(base);
 
+#if (defined(FSL_FEATURE_OSTIMER_HAS_BINARY_ENCODED_COUNTER) && FSL_FEATURE_OSTIMER_HAS_BINARY_ENCODED_COUNTER)
+    return tmp;
+#else
     return OSTIMER_GrayToDecimal(tmp);
+#endif /* FSL_FEATURE_OSTIMER_HAS_BINARY_ENCODED_COUNTER */
 }
 
 /*!
  * @brief Get the capture value from OSTIMER.
  *
  * This function will get a capture decimal-value from OSTIMER.
- * The RAW value of timer capture is gray code format, will be translated to decimal data internally.
+ * If the RAW value of timer count is gray code format, it will be translated to decimal data internally.
  *
  * @param base   OSTIMER peripheral base address.
- * @return Value of capture register, data format is decimal.
+ * @return       Value of capture register, data format is decimal.
  */
 uint64_t OSTIMER_GetCaptureValue(OSTIMER_Type *base)
 {
@@ -361,7 +331,11 @@ uint64_t OSTIMER_GetCaptureValue(OSTIMER_Type *base)
 
     tmp = OSTIMER_GetCaptureRawValue(base);
 
+#if (defined(FSL_FEATURE_OSTIMER_HAS_BINARY_ENCODED_COUNTER) && FSL_FEATURE_OSTIMER_HAS_BINARY_ENCODED_COUNTER)
+    return tmp;
+#else
     return OSTIMER_GrayToDecimal(tmp);
+#endif /* FSL_FEATURE_OSTIMER_HAS_BINARY_ENCODED_COUNTER */
 }
 
 void OSTIMER_HandleIRQ(OSTIMER_Type *base, ostimer_callback_t cb)
@@ -381,4 +355,3 @@ void OS_EVENT_DriverIRQHandler(void)
     s_ostimerIsr(s_ostimerBases[0], s_ostimerHandle[0]);
     SDK_ISR_EXIT_BARRIER;
 }
-

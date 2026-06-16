@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2020, 2022 NXP
- * All rights reserved.
+ * Copyright 2016-2020, 2022, 2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,14 +67,14 @@ uint32_t SEMA42_GetInstance(SEMA42_Type *base)
      * (instance >= ARRAY_SIZE(s_sema42Bases)) not covered. The peripheral base
      * address is always valid and checked by assert.
      */
-    for (instance = 0; instance < ARRAY_SIZE(s_sema42Bases); instance++)
+    for (instance = 0; instance < ARRAY_SIZE(s_sema42Bases); instance++) /* GCOVR_EXCL_BR_LINE */
     {
         /*
          * $Branch Coverage Justification$
          * (s_sema42Bases[instance] != base) not covered. The peripheral base
          * address is always valid and checked by assert.
          */
-        if (MSDK_REG_SECURE_ADDR(s_sema42Bases[instance]) == MSDK_REG_SECURE_ADDR(base))
+        if (MSDK_REG_SECURE_ADDR(s_sema42Bases[instance]) == MSDK_REG_SECURE_ADDR(base)) /* GCOVR_EXCL_BR_LINE */
         {
             break;
         }
@@ -133,6 +132,7 @@ void SEMA42_Deinit(SEMA42_Type *base)
  *
  * retval kStatus_Success     Lock the sema42 gate successfully.
  * retval kStatus_SEMA42_Busy Sema42 gate has been locked by another processor.
+ * retval kStatus_InvalidArgument Incorrect argument provided.
  */
 status_t SEMA42_TryLock(SEMA42_Type *base, uint8_t gateNum, uint8_t procNum)
 {
@@ -140,8 +140,12 @@ status_t SEMA42_TryLock(SEMA42_Type *base, uint8_t gateNum, uint8_t procNum)
 
     assert(gateNum < (uint8_t)FSL_FEATURE_SEMA42_GATE_COUNT);
 
-    ++procNum;
-
+    if (procNum < (0xFEU)) {
+        ++procNum;
+    } else {
+        /* Handle error case - procNum is at maximum value */
+        return kStatus_InvalidArgument;
+    }
     /* Try to lock. */
     SEMA42_GATEn(base, gateNum) = procNum;
 
@@ -165,15 +169,34 @@ status_t SEMA42_TryLock(SEMA42_Type *base, uint8_t gateNum, uint8_t procNum)
  * locked by other processors, this function waits until it is unlocked and then
  * lock it.
  *
+ * If SEMA42_BUSY_POLL_COUNT is defined and non-zero, the function will timeout
+ * after the specified number of polling iterations and return kStatus_Timeout.
+ *
  * param base SEMA42 peripheral base address.
  * param gateNum  Gate number to lock.
  * param procNum  Current processor number.
+ *
+ * return status_t
+ * retval kStatus_Success The gate was successfully locked.
+ * retval kStatus_Timeout Timeout occurred while waiting for the gate to be unlocked.
  */
-void SEMA42_Lock(SEMA42_Type *base, uint8_t gateNum, uint8_t procNum)
+status_t SEMA42_Lock(SEMA42_Type *base, uint8_t gateNum, uint8_t procNum)
 {
+#if defined(SEMA42_BUSY_POLL_COUNT) && (SEMA42_BUSY_POLL_COUNT > 0)
+    uint32_t poll_count = SEMA42_BUSY_POLL_COUNT;
+#endif
+
     while (kStatus_Success != SEMA42_TryLock(base, gateNum, procNum))
     {
+#if defined(SEMA42_BUSY_POLL_COUNT) && (SEMA42_BUSY_POLL_COUNT > 0)
+        if ((--poll_count) == 0u)
+        {
+            return kStatus_Timeout;
+        }
+#endif
     }
+
+    return kStatus_Success;
 }
 
 /*!
@@ -203,13 +226,13 @@ status_t SEMA42_ResetGate(SEMA42_Type *base, uint8_t gateNum)
      * (0U == (base->RSTGT_R & SEMA42_RSTGT_R_RSTGSM_MASK))) not covered. Test unfeasible,
      * the reset state is too short to catch.
      */
-    if (0U != (base->RSTGT_R & SEMA42_RSTGT_R_RSTGSM_MASK))
+    if (0U != (base->RSTGT_R & SEMA42_RSTGT_R_RSTGSM_MASK)) /* GCOVR_EXCL_BR_LINE */
     {
         /*
          * $Line Coverage Justification$
          * Block not covered. Test unfeasible, the reset state is too short to catch.
          */
-        status = kStatus_SEMA42_Reseting;
+        status = kStatus_SEMA42_Reseting; /* GCOVR_EXCL_LINE */
     }
     else
     {

@@ -1,6 +1,5 @@
 /*
- * Copyright 2018-2021 NXP
- * All rights reserved.
+ * Copyright 2018-2021, 2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,8 +22,9 @@
 /*! @name Driver version */
 /*! @{ */
 /*! @brief OSTIMER driver version. */
-#define FSL_OSTIMER_DRIVER_VERSION (MAKE_VERSION(2, 2, 2))
+#define FSL_OSTIMER_DRIVER_VERSION (MAKE_VERSION(2, 2, 6))
 /*! @} */
+
 
 /*!
  * @brief OSTIMER status flags.
@@ -113,14 +113,13 @@ void OSTIMER_ClearStatusFlags(OSTIMER_Type *base, uint32_t mask);
  *
  * This function will set a match value for OSTIMER with an optional callback. And this callback
  * will be called while the data in dedicated pair match register is equals to the value of central EVTIMER.
- * Please note that, the data format is gray-code, if decimal data was desired, please using OSTIMER_SetMatchValue().
+ * Please note that, the data format may be gray-code, if so, please using OSTIMER_SetMatchValue().
  *
  * @param base   OSTIMER peripheral base address.
- * @param count  OSTIMER timer match value.(Value is gray-code format)
+ * @param count  OSTIMER timer match value.(Value may be gray-code format)
  *
  * @param cb     OSTIMER callback (can be left as NULL if none, otherwise should be a void func(void)).
- * @retval kStatus_Success - Set match raw value and enable interrupt Successfully.
- * @retval kStatus_Fail    - Set match raw value fail.
+ * @retval kStatus_Success                    - Set match raw value and enable interrupt Successfully.
  */
 status_t OSTIMER_SetMatchRawValue(OSTIMER_Type *base, uint64_t count, ostimer_callback_t cb);
 
@@ -132,11 +131,10 @@ status_t OSTIMER_SetMatchRawValue(OSTIMER_Type *base, uint64_t count, ostimer_ca
  *
  * @param base   OSTIMER peripheral base address.
  * @param count  OSTIMER timer match value.(Value is decimal format, and this value will be translate to Gray code
- * internally.)
+ * in API if the IP counter is gray encoded.)
  *
  * @param cb     OSTIMER callback (can be left as NULL if none, otherwise should be a void func(void)).
- * @retval kStatus_Success - Set match value and enable interrupt Successfully.
- * @retval kStatus_Fail    - Set match value fail.
+ * @retval kStatus_Success                    - Set match raw value and enable interrupt Successfully.
  */
 status_t OSTIMER_SetMatchValue(OSTIMER_Type *base, uint64_t count, ostimer_callback_t cb);
 
@@ -160,8 +158,41 @@ static inline void OSTIMER_SetMatchRegister(OSTIMER_Type *base, uint64_t value)
     }
 #endif
 
-    base->MATCH_L = (uint32_t)value;
+    base->MATCH_L = (uint32_t)(value & 0xFFFFFFFFU);
     base->MATCH_H = (uint32_t)(value >> 32U);
+}
+
+/*!
+ * @brief Get the match value from OSTIMER.
+ *
+ * This function will get the match value from OSTIMER.
+ * The value of timer match is gray code format.
+ *
+ * @param base   OSTIMER peripheral base address.
+ * @return Value of match register, data format is gray code.
+ */
+static inline uint64_t OSTIMER_GetMatchRegister(OSTIMER_Type *base)
+{
+    uint64_t tmp = 0U;
+
+    tmp = base->MATCH_L;
+    tmp |= (uint64_t)(base->MATCH_H) << 32U;
+
+    return tmp;
+}
+
+/*!
+ * @brief Get the match value from OSTIMER.
+ *
+ * This function will get a match value from OSTIMER.
+ *
+ * @param base   OSTIMER peripheral base address.
+ * @return Value of match register.
+ */
+static inline uint64_t OSTIMER_GetMatchValue(OSTIMER_Type *base)
+{
+    uint64_t value = OSTIMER_GetMatchRegister(base);
+    return OSTIMER_GrayToDecimal(value);
 }
 
 /*!
@@ -193,11 +224,11 @@ static inline void OSTIMER_DisableMatchInterrupt(OSTIMER_Type *base)
 /*!
  * @brief Get current timer raw count value from OSTIMER.
  *
- * This function will get a gray code type timer count value from OS timer register.
- * The raw value of timer count is gray code format.
+ * This function will get the timer count value from OS timer register.
+ * The raw value of timer count may be gray code format.
  *
  * @param base   OSTIMER peripheral base address.
- * @return       Raw value of OSTIMER, gray code format.
+ * @return       Raw value of OSTIMER, may be gray code format.
  */
 static inline uint64_t OSTIMER_GetCurrentTimerRawValue(OSTIMER_Type *base)
 {
@@ -213,7 +244,7 @@ static inline uint64_t OSTIMER_GetCurrentTimerRawValue(OSTIMER_Type *base)
  * @brief Get current timer count value from OSTIMER.
  *
  * This function will get a decimal timer count value.
- * The RAW value of timer count is gray code format, will be translated to decimal data internally.
+ * If the RAW value of timer count is gray code format, it will be translated to decimal data internally.
  *
  * @param base   OSTIMER peripheral base address.
  * @return       Value of OSTIMER which will be formated to decimal value.
@@ -223,11 +254,11 @@ uint64_t OSTIMER_GetCurrentTimerValue(OSTIMER_Type *base);
 /*!
  * @brief Get the capture value from OSTIMER.
  *
- * This function will get a captured gray-code value from OSTIMER.
- * The Raw value of timer capture is gray code format.
+ * This function will get a captured value from OSTIMER.
+ * The Raw value of timer capture may be gray code format.
  *
  * @param base   OSTIMER peripheral base address.
- * @return       Raw value of capture register, data format is gray code.
+ * @return       Raw value of capture register, data format may be gray code.
  */
 static inline uint64_t OSTIMER_GetCaptureRawValue(OSTIMER_Type *base)
 {
@@ -243,7 +274,7 @@ static inline uint64_t OSTIMER_GetCaptureRawValue(OSTIMER_Type *base)
  * @brief Get the capture value from OSTIMER.
  *
  * This function will get a capture decimal-value from OSTIMER.
- * The RAW value of timer capture is gray code format, will be translated to decimal data internally.
+ * If the RAW value of timer count is gray code format, it will be translated to decimal data internally.
  *
  * @param base   OSTIMER peripheral base address.
  * @return Value of capture register, data format is decimal.

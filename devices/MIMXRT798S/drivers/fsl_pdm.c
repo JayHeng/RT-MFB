@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2020,2025 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -41,6 +41,17 @@ static status_t PDM_ValidateSrcClockRate(uint32_t channelMask,
 static PDM_Type *const s_pdmBases[] = PDM_BASE_PTRS;
 /*!@brief PDM handle pointer */
 static pdm_handle_t *s_pdmHandle[ARRAY_SIZE(s_pdmBases)];
+/* IRQ number array */
+static const IRQn_Type s_pdmEventIRQ[] = PDM_Event_IRQS;
+#if !(defined FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ && FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ)
+static const IRQn_Type s_pdmErrorIRQ[] = PDM_Error_IRQS;
+#endif
+#if !(defined FSL_FEATURE_PDM_HAS_NO_HWVAD && FSL_FEATURE_PDM_HAS_NO_HWVAD)
+static const IRQn_Type s_pdmHwvadEventIRQ[] = PDM_HWVAD_Event_IRQS;
+#if !(defined FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ && FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ)
+static const IRQn_Type s_pdmHwvadErrorIRQ[] = PDM_HWVAD_Error_IRQS;
+#endif
+#endif
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 /* Clock name array */
 static const clock_ip_name_t s_pdmClock[] = PDM_CLOCKS;
@@ -102,8 +113,16 @@ void PDM_ReadFifo(
         for (j = 0; j < channelNums; j++)
         {
 #if defined(FSL_FEATURE_PDM_FIFO_WIDTH) && (FSL_FEATURE_PDM_FIFO_WIDTH != 2U)
-            *dataAddr = base->DATACH[startChannel + j] >> (dataWidth == 4U ? 0U : 8U);
-            dataAddr  = (uint32_t *)((uint32_t)dataAddr + dataWidth);
+            if ((SIZE_MAX - j) >= startChannel)
+            {
+                *dataAddr = base->DATACH[startChannel + j] >> (dataWidth == 4U ? 0U : 8U);
+                dataAddr  = (uint32_t *)((uint32_t)dataAddr + dataWidth);
+            }
+            else
+            {
+                assert(false);
+                break;
+            }
 #else
             *dataAddr = base->DATACH[startChannel + j];
             dataAddr  = (uint32_t *)((uint32_t)dataAddr + 2U);
@@ -130,7 +149,8 @@ void PDM_ReadNonBlocking(PDM_Type *base, uint32_t startChannel, uint32_t channel
     {
         for (j = 0; j < channelNums; j++)
         {
-            *buffer++ = (int16_t)base->DATACH[startChannel + j];
+            /* Extract lower 16 bits of valid data and interpret as signed int */
+            *buffer++ = (int16_t)(uint16_t)(base->DATACH[startChannel + j] & 0xFFFFU);
         }
     }
 }
@@ -148,7 +168,15 @@ static status_t PDM_ValidateSrcClockRate(uint32_t channelMask,
     {
         if (((channelMask >> i) & 0x01U) != 0U)
         {
-            enabledChannel++;
+            // Prevent potential addition overflow by capping at maximum value
+            if (enabledChannel < UINT32_MAX)
+            {
+                enabledChannel++;
+            }
+            else
+            {
+                enabledChannel = UINT32_MAX;
+            }
         }
     }
 
@@ -190,8 +218,52 @@ static status_t PDM_ValidateSrcClockRate(uint32_t channelMask,
     }
 
     /* validate the minimum clock divider */
-    /* 2U is for canculating k, 100U is for determing the specific float number of clock divider */
-    if (((regDiv * k) / 2U * 100U) < (((10U + factor * enabledChannel) * 100U / (8U * osr)) * k / 2U))
+    /* 2U is for calculating k, 100U is for determining the specific float number of clock divider */
+
+    uint32_t leftSide = 0U; // Calculation: (regDiv * k) / 2U * 100U
+
+    // Prevent potential multiplication overflow
+    if (regDiv < (UINT32_MAX / k))
+    {
+        leftSide = (regDiv * k) / 2U * 100U;
+    }
+    else
+    {
+        return kStatus_Fail;
+    }
+
+    uint32_t rightSide = 0U; // Calculation: ((10U + factor * enabledChannel) * 100U / (8U * osr)) * k / 2U
+
+    // Prevent potential multiplication overflow
+    if ((10U + factor) < (UINT32_MAX / enabledChannel))
+    {
+        rightSide = 10U + factor * enabledChannel;
+    }
+    else
+    {
+        return kStatus_Fail;
+    }
+
+    if (rightSide < (UINT32_MAX / 100U))
+    {
+        rightSide *= 100U;
+        rightSide /= (8U * osr);
+    }
+    else
+    {
+        return kStatus_Fail;
+    }
+
+    if (rightSide < (UINT32_MAX / k))
+    {
+        rightSide *= k / 2U;
+    }
+    else
+    {
+        return kStatus_Fail;
+    }
+
+    if (leftSide < rightSide) // Compare calculated values to validate clock divider
     {
         return kStatus_Fail;
     }
@@ -227,6 +299,12 @@ status_t PDM_SetSampleRateConfig(PDM_Type *base, uint32_t sourceClock_HZ, uint32
 
     /* get divider */
     osr          = (PDM_CTRL_2_CICOSR_MASK >> PDM_CTRL_2_CICOSR_SHIFT) + 1U - osr;
+
+    if ((sampleRate_HZ > (UINT32_MAX / 8U)) || ((sampleRate_HZ * 8U) > (UINT32_MAX / osr)))
+    {
+        return kStatus_Fail;
+    }
+
     pdmClockRate = sampleRate_HZ * osr * 8U;
     regDiv       = sourceClock_HZ / pdmClockRate;
 
@@ -343,7 +421,8 @@ void PDM_Init(PDM_Type *base, const pdm_config_t *config)
                    PDM_CTRL_2_CICOSR(config->cicOverSampleRate) | PDM_CTRL_2_QSEL(config->qualityMode);
 
 #if defined(FSL_FEATURE_PDM_HAS_DECIMATION_FILTER_BYPASS) && FSL_FEATURE_PDM_HAS_DECIMATION_FILTER_BYPASS
-    base->CTRL_2 = (base->CTRL_2 & ~PDM_CTRL_2_DEC_BYPASS_MASK) | PDM_CTRL_2_DEC_BYPASS(config->enableFilterBypass);
+    base->CTRL_2 = (base->CTRL_2 & ~PDM_CTRL_2_DEC_BYPASS_MASK) |
+                    PDM_CTRL_2_DEC_BYPASS((config->enableFilterBypass) ? 1UL : 0UL);
 #endif
     /* Set the watermark */
     base->FIFO_CTRL = PDM_FIFO_CTRL_FIFOWMK(config->fifoWatermark);
@@ -405,7 +484,10 @@ void PDM_SetChannelConfig(PDM_Type *base, uint32_t channel, const pdm_channel_co
     assert(config != NULL);
     assert(channel <= (uint32_t)FSL_FEATURE_PDM_CHANNEL_NUM);
 
+#if (defined(FSL_FEATURE_PDM_HAS_DC_OUT_CTRL) && FSL_FEATURE_PDM_HAS_DC_OUT_CTRL) || \
+    !(defined(FSL_FEATURE_PDM_DC_CTRL_VALUE_FIXED) && FSL_FEATURE_PDM_DC_CTRL_VALUE_FIXED)
     uint32_t dcCtrl = 0U;
+#endif
 
 #if (defined(FSL_FEATURE_PDM_HAS_DC_OUT_CTRL) && (FSL_FEATURE_PDM_HAS_DC_OUT_CTRL))
     dcCtrl = base->DC_OUT_CTRL;
@@ -510,10 +592,12 @@ void PDM_TransferCreateHandle(PDM_Type *base, pdm_handle_t *handle, pdm_transfer
 {
     assert(handle != NULL);
 
+    uint32_t instance = PDM_GetInstance(base);
+
     /* Zero the handle */
     (void)memset(handle, 0, sizeof(*handle));
 
-    s_pdmHandle[PDM_GetInstance(base)] = handle;
+    s_pdmHandle[instance] = handle;
 
     handle->callback  = callback;
     handle->userData  = userData;
@@ -523,10 +607,10 @@ void PDM_TransferCreateHandle(PDM_Type *base, pdm_handle_t *handle, pdm_transfer
     s_pdmIsr = PDM_TransferHandleIRQ;
 
     /* Enable RX event IRQ */
-    (void)EnableIRQ(PDM_EVENT_IRQn);
+    (void)EnableIRQ(s_pdmEventIRQ[instance]);
 #if !(defined FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ && FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ)
     /* Enable FIFO error IRQ */
-    (void)EnableIRQ(PDM_ERROR_IRQn);
+    (void)EnableIRQ(s_pdmErrorIRQ[instance]);
 #endif
 }
 
@@ -817,8 +901,10 @@ void PDM_SetHwvadConfig(PDM_Type *base, const pdm_hwvad_config_t *config)
     /* Configure VAD0_CTRL_2 register */
     base->VAD0_CTRL_2 =
         (PDM_VAD0_CTRL_2_VADFRENDIS((config->enableFrameEnergy == true) ? 0U : 1U) |
-         PDM_VAD0_CTRL_2_VADPREFEN(config->enablePreFilter) | PDM_VAD0_CTRL_2_VADFRAMET(config->frameTime) |
-         PDM_VAD0_CTRL_2_VADINPGAIN(config->inputGain) | PDM_VAD0_CTRL_2_VADHPF(config->cutOffFreq));
+         PDM_VAD0_CTRL_2_VADPREFEN((config->enablePreFilter) ? 1UL : 0UL) |
+         PDM_VAD0_CTRL_2_VADFRAMET(config->frameTime) |
+         PDM_VAD0_CTRL_2_VADINPGAIN(config->inputGain) |
+         PDM_VAD0_CTRL_2_VADHPF(config->cutOffFreq));
 }
 
 /*!
@@ -833,7 +919,7 @@ void PDM_SetHwvadSignalFilterConfig(PDM_Type *base, bool enableMaxBlock, uint32_
     uint32_t signalConfig = base->VAD0_SCONFIG;
 
     signalConfig &= ~(PDM_VAD0_SCONFIG_VADSMAXEN_MASK | PDM_VAD0_SCONFIG_VADSGAIN_MASK);
-    signalConfig |= (PDM_VAD0_SCONFIG_VADSMAXEN(enableMaxBlock) | PDM_VAD0_SCONFIG_VADSGAIN(signalGain)) |
+    signalConfig |= (PDM_VAD0_SCONFIG_VADSMAXEN(enableMaxBlock ? 1UL : 0UL) | PDM_VAD0_SCONFIG_VADSGAIN(signalGain)) |
                     PDM_VAD0_SCONFIG_VADSFILEN_MASK;
     base->VAD0_SCONFIG = signalConfig;
 }
@@ -849,10 +935,12 @@ void PDM_SetHwvadNoiseFilterConfig(PDM_Type *base, const pdm_hwvad_noise_filter_
     assert(config != NULL);
 
     base->VAD0_NCONFIG =
-        (PDM_VAD0_NCONFIG_VADNFILAUTO(config->enableAutoNoiseFilter) |
-         PDM_VAD0_NCONFIG_VADNOREN(config->enableNoiseDetectOR) | PDM_VAD0_NCONFIG_VADNMINEN(config->enableNoiseMin) |
-         PDM_VAD0_NCONFIG_VADNDECEN(config->enableNoiseDecimation) |
-         PDM_VAD0_NCONFIG_VADNFILADJ(config->noiseFilterAdjustment) | PDM_VAD0_NCONFIG_VADNGAIN(config->noiseGain));
+        (PDM_VAD0_NCONFIG_VADNFILAUTO((uint32_t)(config->enableAutoNoiseFilter ? 1UL : 0UL)) |
+         PDM_VAD0_NCONFIG_VADNOREN((uint32_t)(config->enableNoiseDetectOR ? 1UL : 0UL)) |
+         PDM_VAD0_NCONFIG_VADNMINEN((uint32_t)(config->enableNoiseMin ? 1UL : 0UL)) |
+         PDM_VAD0_NCONFIG_VADNDECEN((uint32_t)(config->enableNoiseDecimation ? 1UL : 0UL)) |
+         PDM_VAD0_NCONFIG_VADNFILADJ(config->noiseFilterAdjustment) |
+         PDM_VAD0_NCONFIG_VADNGAIN(config->noiseGain));
 }
 
 /*!
@@ -868,8 +956,10 @@ void PDM_SetHwvadZeroCrossDetectorConfig(PDM_Type *base, const pdm_hwvad_zero_cr
     uint32_t zcd = (base->VAD0_ZCD & (~(PDM_VAD0_ZCD_VADZCDTH_MASK | PDM_VAD0_ZCD_VADZCDADJ_MASK |
                                         PDM_VAD0_ZCD_VADZCDAUTO_MASK | PDM_VAD0_ZCD_VADZCDAND_MASK)));
 
-    zcd |= (PDM_VAD0_ZCD_VADZCDTH(config->threshold) | PDM_VAD0_ZCD_VADZCDADJ(config->adjustmentThreshold) |
-            PDM_VAD0_ZCD_VADZCDAUTO(config->enableAutoThreshold) | PDM_VAD0_ZCD_VADZCDAND(config->zcdAnd)) |
+    zcd |= (PDM_VAD0_ZCD_VADZCDTH(config->threshold) |
+            PDM_VAD0_ZCD_VADZCDADJ(config->adjustmentThreshold) |
+            PDM_VAD0_ZCD_VADZCDAUTO((uint32_t)(config->enableAutoThreshold ? 1UL : 0UL)) |
+            PDM_VAD0_ZCD_VADZCDAND(config->zcdAnd)) |
            PDM_VAD0_ZCD_VADZCDEN_MASK;
 
     base->VAD0_ZCD = zcd;
@@ -886,6 +976,7 @@ void PDM_SetHwvadZeroCrossDetectorConfig(PDM_Type *base, const pdm_hwvad_zero_cr
  * param enable true is enable, false is disable.
  * retval None.
  */
+#if !(defined FSL_FEATURE_PDM_HAS_NO_HWVAD && FSL_FEATURE_PDM_HAS_NO_HWVAD)
 void PDM_EnableHwvadInterruptCallback(PDM_Type *base, pdm_hwvad_callback_t vadCallback, void *userData, bool enable)
 {
     uint32_t instance = PDM_GetInstance(base);
@@ -893,11 +984,11 @@ void PDM_EnableHwvadInterruptCallback(PDM_Type *base, pdm_hwvad_callback_t vadCa
     if (enable)
     {
         PDM_EnableHwvadInterrupts(base, (uint32_t)kPDM_HwvadErrorInterruptEnable | (uint32_t)kPDM_HwvadInterruptEnable);
-        NVIC_ClearPendingIRQ(PDM_HWVAD_EVENT_IRQn);
-        (void)EnableIRQ(PDM_HWVAD_EVENT_IRQn);
+        NVIC_ClearPendingIRQ(s_pdmHwvadEventIRQ[instance]);
+        (void)EnableIRQ(s_pdmHwvadEventIRQ[instance]);
 #if !(defined FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ && FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ)
-        NVIC_ClearPendingIRQ(PDM_HWVAD_ERROR_IRQn);
-        (void)EnableIRQ(PDM_HWVAD_ERROR_IRQn);
+        NVIC_ClearPendingIRQ(s_pdmHwvadErrorIRQ[instance]);
+        (void)EnableIRQ(s_pdmHwvadErrorIRQ[instance]);
 #endif
         s_pdm_hwvad_notification[instance].callback = vadCallback;
         s_pdm_hwvad_notification[instance].userData = userData;
@@ -906,16 +997,17 @@ void PDM_EnableHwvadInterruptCallback(PDM_Type *base, pdm_hwvad_callback_t vadCa
     {
         PDM_DisableHwvadInterrupts(base,
                                    (uint32_t)kPDM_HwvadErrorInterruptEnable | (uint32_t)kPDM_HwvadInterruptEnable);
-        (void)DisableIRQ(PDM_HWVAD_EVENT_IRQn);
+        (void)DisableIRQ(s_pdmHwvadEventIRQ[instance]);
 #if !(defined FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ && FSL_FEATURE_PDM_HAS_NO_INDEPENDENT_ERROR_IRQ)
-        (void)DisableIRQ(PDM_HWVAD_ERROR_IRQn);
-        NVIC_ClearPendingIRQ(PDM_HWVAD_ERROR_IRQn);
+        (void)DisableIRQ(s_pdmHwvadErrorIRQ[instance]);
+        NVIC_ClearPendingIRQ(s_pdmHwvadErrorIRQ[instance]);
 #endif
         s_pdm_hwvad_notification[instance].callback = NULL;
         s_pdm_hwvad_notification[instance].userData = NULL;
-        NVIC_ClearPendingIRQ(PDM_HWVAD_EVENT_IRQn);
+        NVIC_ClearPendingIRQ(s_pdmHwvadEventIRQ[instance]);
     }
 }
+#endif
 
 #if (defined PDM)
 void PDM_HWVAD_EVENT_DriverIRQHandler(void);

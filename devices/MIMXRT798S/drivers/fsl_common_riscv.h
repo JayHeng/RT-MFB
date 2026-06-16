@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,9 +39,19 @@
 /*! Macro to define a variable with alignbytes alignment */
 #define SDK_ALIGN(var, alignbytes) var __attribute__((aligned(alignbytes)))
 
-/*! Macro to change a value to a given size aligned value */
+/*! Macro to change a value to a given size aligned value (rounded up) */
 #define SDK_SIZEALIGN(var, alignbytes) \
     ((unsigned int)((var) + ((alignbytes)-1U)) & (unsigned int)(~(unsigned int)((alignbytes)-1U)))
+
+/*! Macro to change a value to a given size aligned value (rounded up), the wrapper of SDK_SIZEALIGN */
+#define SDK_SIZEALIGN_UP(var, alignbytes)  SDK_SIZEALIGN(var, alignbytes)
+
+/*! Macro to change a value to a given size aligned value (rounded down) */
+#define SDK_SIZEALIGN_DOWN(var, alignbytes) \
+    ((unsigned int)(var) & (unsigned int)(~(unsigned int)((alignbytes)-1U)))
+
+/*! Macro to check if a value is aligned to a given size */
+#define SDK_IS_ALIGNED(var, alignbytes) (((unsigned int)(var) & ((unsigned int)(alignbytes) - 1U)) == 0U)
 /*! @} */
 
 /*!
@@ -127,6 +137,16 @@ static inline void EnableGlobalIRQ(uint32_t intCtrl)
 static inline void EnableMachineModeInt(ezhv_mie_mask_t mask)
 {
     csr_set(CSR_MIE, mask);
+}
+
+/*!
+ * @brief Disable M-mode interrupt.
+ *
+ * @param mask M-mode interrupt mask.
+ */
+static inline void DisableMachineModeInt(ezhv_mie_mask_t mask)
+{
+    csr_clear(CSR_MIE, mask);
 }
 
 #if defined(__cplusplus)

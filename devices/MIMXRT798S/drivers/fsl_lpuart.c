@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -281,9 +281,10 @@ status_t LPUART_Init(LPUART_Type *base, const lpuart_config_t *config, uint32_t 
 
     status_t status = kStatus_Success;
     uint32_t temp;
-    uint16_t sbr, sbrTemp;
+    uint16_t sbr;
     uint8_t osr, osrTemp;
     uint32_t tempDiff, calculatedBaud, baudDiff;
+    uint64_t sbrTemp;
 
     /* This LPUART instantiation uses a slightly different baud rate calculation
      * The idea is to use the best OSR (over-sampling rate) possible
@@ -296,9 +297,10 @@ status_t LPUART_Init(LPUART_Type *base, const lpuart_config_t *config, uint32_t 
     sbr      = 0U;
     for (osrTemp = 4U; osrTemp <= 32U; osrTemp++)
     {
-        /* calculate the temporary sbr value   */
-        sbrTemp = (uint16_t)((srcClock_Hz * 2U / (config->baudRate_Bps * (uint32_t)osrTemp) + 1U) / 2U);
-        /*set sbrTemp to 1 if the sourceClockInHz can not satisfy the desired baud rate*/
+        /* Calculate the temporary sbr value */
+        sbrTemp = ((((uint64_t)srcClock_Hz * 2U) / ((uint64_t)config->baudRate_Bps * (uint64_t)osrTemp)) + 1U) / 2U;
+
+        /* Set sbrTemp to 1 if the srcClock_Hz can not satisfy the desired baud rate */
         if (sbrTemp == 0U)
         {
             sbrTemp = 1U;
@@ -311,6 +313,7 @@ status_t LPUART_Init(LPUART_Type *base, const lpuart_config_t *config, uint32_t 
         {
             /* For MISRA 15.7 */
         }
+
         /* Calculate the baud rate based on the temporary OSR and SBR values */
         calculatedBaud = (srcClock_Hz / ((uint32_t)osrTemp * (uint32_t)sbrTemp));
         tempDiff       = calculatedBaud > config->baudRate_Bps ? (calculatedBaud - config->baudRate_Bps) :
@@ -320,7 +323,7 @@ status_t LPUART_Init(LPUART_Type *base, const lpuart_config_t *config, uint32_t 
         {
             baudDiff = tempDiff;
             osr      = osrTemp; /* update and store the best OSR value calculated */
-            sbr      = sbrTemp; /* update store the best SBR value calculated */
+            sbr      = (uint16_t)sbrTemp; /* update store the best SBR value calculated */
         }
     }
 
@@ -480,10 +483,10 @@ status_t LPUART_Init(LPUART_Type *base, const lpuart_config_t *config, uint32_t 
         /* Timeout configuration. */
         base->REIR = (uint32_t)config->timeoutConfig.rxExtendedTimeoutValue;
         base->TEIR = (uint32_t)config->timeoutConfig.txExtendedTimeoutValue;
-        base->TOCR |= (uint32_t)config->timeoutConfig.rxCounter0.enableCounter |
-                      ((uint32_t)config->timeoutConfig.rxCounter1.enableCounter << 1U) |
-                      ((uint32_t)config->timeoutConfig.txCounter0.enableCounter << 2U) |
-                      ((uint32_t)config->timeoutConfig.txCounter1.enableCounter << 3U);
+        base->TOCR |= (config->timeoutConfig.rxCounter0.enableCounter ? 1U : 0U) |
+                      ((config->timeoutConfig.rxCounter1.enableCounter ? 1U : 0U) << 1U) |
+                      ((config->timeoutConfig.txCounter0.enableCounter ? 1U : 0U) << 2U) |
+                      ((config->timeoutConfig.txCounter1.enableCounter ? 1U : 0U) << 3U);
         base->TIMEOUT[0] = ((uint32_t)config->timeoutConfig.rxCounter0.timeoutCondition << 30U) |
                            (uint32_t)config->timeoutConfig.rxCounter0.timeoutValue;
         base->TIMEOUT[1] = ((uint32_t)config->timeoutConfig.rxCounter1.timeoutCondition << 30U) |
@@ -619,9 +622,10 @@ status_t LPUART_SetBaudRate(LPUART_Type *base, uint32_t baudRate_Bps, uint32_t s
 
     status_t status = kStatus_Success;
     uint32_t temp, oldCtrl;
-    uint16_t sbr, sbrTemp;
+    uint16_t sbr;
     uint8_t osr, osrTemp;
     uint32_t tempDiff, calculatedBaud, baudDiff;
+    uint64_t sbrTemp;
 
     /* This LPUART instantiation uses a slightly different baud rate calculation
      * The idea is to use the best OSR (over-sampling rate) possible
@@ -634,9 +638,10 @@ status_t LPUART_SetBaudRate(LPUART_Type *base, uint32_t baudRate_Bps, uint32_t s
     sbr      = 0U;
     for (osrTemp = 4U; osrTemp <= 32U; osrTemp++)
     {
-        /* calculate the temporary sbr value   */
-        sbrTemp = (uint16_t)((srcClock_Hz * 2U / (baudRate_Bps * (uint32_t)osrTemp) + 1U) / 2U);
-        /*set sbrTemp to 1 if the sourceClockInHz can not satisfy the desired baud rate*/
+        /* Calculate the temporary sbr value */
+        sbrTemp = ((((uint64_t)srcClock_Hz * 2U) / ((uint64_t)baudRate_Bps * (uint64_t)osrTemp)) + 1U) / 2U;
+
+        /* Set sbrTemp to 1 if the srcClock_Hz can not satisfy the desired baud rate */
         if (sbrTemp == 0U)
         {
             sbrTemp = 1U;
@@ -659,7 +664,7 @@ status_t LPUART_SetBaudRate(LPUART_Type *base, uint32_t baudRate_Bps, uint32_t s
         {
             baudDiff = tempDiff;
             osr      = osrTemp; /* update and store the best OSR value calculated */
-            sbr      = sbrTemp; /* update store the best SBR value calculated */
+            sbr      = (uint16_t)sbrTemp; /* update store the best SBR value calculated */
         }
     }
 
@@ -1183,8 +1188,9 @@ status_t LPUART_ReadBlocking(LPUART_Type *base, uint8_t *data, size_t length)
     uint32_t waitTimes;
 #endif
 
-    while (0U != (length--))
+    while (0U != length)
     {
+        length--;
 #if UART_RETRY_TIMES
         waitTimes = UART_RETRY_TIMES;
 #endif
@@ -1293,8 +1299,9 @@ status_t LPUART_ReadBlocking16bit(LPUART_Type *base, uint16_t *data, size_t leng
     uint32_t waitTimes;
 #endif
 
-    while (0U != (length--))
+    while (0U != length)
     {
+        length--;
 #if UART_RETRY_TIMES
         waitTimes = UART_RETRY_TIMES;
 #endif
@@ -2017,8 +2024,10 @@ void LPUART_TransferHandleIRQ(uint32_t instance, void *irqHandle)
         /* If use RX ring buffer, receive data to ring buffer. */
         if (NULL != handle->rxRingBuffer)
         {
-            while (0U != count--)
+            while (0U != count)
             {
+                count--;
+
                 /* If RX ring buffer is full, trigger callback to notify over run. */
                 if (LPUART_TransferIsRxRingBufferFull(base, handle))
                 {

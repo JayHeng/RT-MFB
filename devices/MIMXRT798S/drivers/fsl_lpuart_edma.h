@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022, 2025-2026 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -23,8 +23,15 @@
 /*! @name Driver version */
 /*! @{ */
 /*! @brief LPUART EDMA driver version. */
-#define FSL_LPUART_EDMA_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+#define FSL_LPUART_EDMA_DRIVER_VERSION (MAKE_VERSION(2, 1, 1))
 /*! @} */
+
+/*! @brief LPUART TX transfer callback mode. */
+typedef enum _lpuart_tx_callback_mode
+{
+    kLPUART_TxFifoEmpty    = 0x0U, /*!< Callback is called when all bytes are transmitted (TX FIFO is empty) */
+    kLPUART_TxEdmaComplete = 0x1U, /*!< Callback is called when eDMA transfer finished (data still can be in TX FIFO) */
+} lpuart_tx_callback_mode_t;
 
 /* Forward declaration of the handle typedef. */
 typedef struct _lpuart_edma_handle lpuart_edma_handle_t;
@@ -45,13 +52,20 @@ struct _lpuart_edma_handle
     size_t rxDataSizeAll;                     /*!< Size of the data to receive. */
     size_t txDataSizeAll;                     /*!< Size of the data to send out. */
 
+    const uint8_t *rxData; /*!< Address of RX data buffer, used for calculation of received data */
+    const uint8_t *txData; /*!< Address of TX data buffer, used for calculation of written data */
+
     edma_handle_t *txEdmaHandle; /*!< The eDMA TX channel used. */
     edma_handle_t *rxEdmaHandle; /*!< The eDMA RX channel used. */
 
-    uint8_t nbytes; /*!< eDMA minor byte transfer count initially configured. */
-
-    volatile uint8_t txState; /*!< TX transfer state. */
+    volatile uint8_t txState; /*!< TX transfer state */
     volatile uint8_t rxState; /*!< RX transfer state */
+
+    lpuart_tx_callback_mode_t txCbMode; /*!< TX transfer callback mode. */
+
+    volatile int8_t oneFifoBlockRxWatermark; /*!< Used to change RXWATER */
+
+    edma_tcd_t edmaTcd[3]; /*!< eDMA TCDs for internal use */
 };
 
 /*******************************************************************************
@@ -85,6 +99,32 @@ void LPUART_TransferCreateHandleEDMA(LPUART_Type *base,
                                      void *userData,
                                      edma_handle_t *txEdmaHandle,
                                      edma_handle_t *rxEdmaHandle);
+
+/*!
+ * @brief Initializes the LPUART handle for eDMA transactional functions with extended TX callback configuration.
+ *
+ * This function initializes the LPUART eDMA handle and allows configuration of when the TX transfer
+ * callback is triggered. Use this function when you need precise control over TX completion notification.
+ *
+ * @note This function disables all LPUART interrupts when TX callback mode is set to kLPUART_TxFifoEmpty.
+ * @note When using kLPUART_TxEdmaComplete mode, the callback occurs when eDMA finishes, but data may
+ *       still be in the TX FIFO. Use kLPUART_TxFifoEmpty if you need to ensure all bytes are transmitted.
+ *
+ * @param base LPUART peripheral base address.
+ * @param handle Pointer to lpuart_edma_handle_t structure.
+ * @param callback Callback function.
+ * @param userData User data.
+ * @param txEdmaHandle User requested DMA handle for TX DMA transfer.
+ * @param rxEdmaHandle User requested DMA handle for RX DMA transfer.
+ * @param txCbMode TX callback mode. See #lpuart_tx_callback_mode_t.
+ */
+void LPUART_TransferCreateHandleEDMAExt(LPUART_Type *base,
+                                     lpuart_edma_handle_t *handle,
+                                     lpuart_edma_transfer_callback_t callback,
+                                     void *userData,
+                                     edma_handle_t *txEdmaHandle,
+                                     edma_handle_t *rxEdmaHandle,
+                                     lpuart_tx_callback_mode_t txCbMode);
 
 /*!
  * @brief Sends data using eDMA.

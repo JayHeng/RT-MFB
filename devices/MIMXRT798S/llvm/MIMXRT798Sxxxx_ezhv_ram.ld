@@ -1,7 +1,7 @@
 /*
 ** ###################################################################
-**     Processors:          MIMXRT798SGAWAR_ezhv
-**                          MIMXRT798SGFOA_ezhv
+**     Processors:          MIMXRT798SGAWBR_ezhv
+**                          MIMXRT798SGFOB_ezhv
 **
 **     Compiler:            LLVM C Compiler
 **     Reference manual:    iMXRT700RM Rev.1, 08/2022
