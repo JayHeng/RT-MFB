@@ -35,6 +35,8 @@ int main(void)
     /* Init board hardware. */
     BOARD_InitHardware();
 
+    mfb_printf("MCUX SDK version: %s\r\n", MCUXSDK_VERSION_FULL_STR);
+
     mfb_printf("\r\nMFB: Target i.MXRT700.\r\n");
     mfb_printf("\r\n-------------------------------------\r\n");
     mfb_main();

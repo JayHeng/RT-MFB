@@ -243,7 +243,8 @@
                     <state>SDK_DEBUGCONSOLE=1</state>
                     <state>MCUX_META_BUILD</state>
                     <state>MCUXPRESSO_SDK</state>
-                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
+                    <state>CPU_MIMXRT798SGFOB_cm33_core0</state>
+                    <state>MIMXRT798S_cm33_core0_SERIES</state>
                     <state>BOOT_HEADER_ENABLE=1</state>
                 </option>
                 <option>
@@ -325,7 +326,7 @@
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state>--diag_suppress=Pa082,Pa050</state>
+                    <state>--preinclude $PROJ_DIR$/../mcuxsdk_version.h --diag_suppress=Pa082,Pa050</state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -1158,7 +1159,7 @@
                 <option>
                     <name>OG_32_64DeviceCoreSlave</name>
                     <version>35</version>
-                    <state>0</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>GOutputSo</name>
@@ -1220,7 +1221,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>9.60.1.2936</state>
+                    <state>9.70.1.13552</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -1266,7 +1267,7 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>35</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
@@ -1289,7 +1290,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>35</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -1384,7 +1385,8 @@
                     <state>SDK_DEBUGCONSOLE=1</state>
                     <state>MCUX_META_BUILD</state>
                     <state>MCUXPRESSO_SDK</state>
-                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
+                    <state>CPU_MIMXRT798SGFOB_cm33_core0</state>
+                    <state>MIMXRT798S_cm33_core0_SERIES</state>
                     <state>BOOT_HEADER_ENABLE=1</state>
                 </option>
                 <option>
@@ -1466,7 +1468,7 @@
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state>--diag_suppress=Pa082,Pa050</state>
+                    <state>--preinclude $PROJ_DIR$/../mcuxsdk_version.h --diag_suppress=Pa082,Pa050</state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -1507,6 +1509,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../src</state>
                     <state>$PROJ_DIR$/../../../../flash_config</state>
                     <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
                     <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
@@ -2298,7 +2301,7 @@
                 <option>
                     <name>OG_32_64DeviceCoreSlave</name>
                     <version>35</version>
-                    <state>38</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>GOutputSo</name>
@@ -2360,7 +2363,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.30.2.18207</state>
+                    <state>9.70.1.13552</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -2406,7 +2409,7 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>35</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
@@ -2429,7 +2432,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>35</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -2524,7 +2527,8 @@
                     <state>SDK_DEBUGCONSOLE=1</state>
                     <state>MCUX_META_BUILD</state>
                     <state>MCUXPRESSO_SDK</state>
-                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
+                    <state>CPU_MIMXRT798SGFOB_cm33_core0</state>
+                    <state>MIMXRT798S_cm33_core0_SERIES</state>
                     <state>BOOT_HEADER_ENABLE=1</state>
                 </option>
                 <option>
@@ -2606,7 +2610,7 @@
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state>--diag_suppress=Pa082,Pa050</state>
+                    <state>--preinclude $PROJ_DIR$/../mcuxsdk_version.h --diag_suppress=Pa082,Pa050</state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -2647,6 +2651,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../src</state>
                     <state>$PROJ_DIR$/../../../../flash_config</state>
                     <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
                     <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
@@ -3323,7 +3328,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>mfb_fw_cm33_core0_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -3438,7 +3443,7 @@
                 <option>
                     <name>OG_32_64DeviceCoreSlave</name>
                     <version>35</version>
-                    <state>38</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>GOutputSo</name>
@@ -3500,7 +3505,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.30.2.18207</state>
+                    <state>9.70.1.13552</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -3546,7 +3551,7 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>35</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
@@ -3569,7 +3574,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>35</version>
-                    <state>58</state>
+                    <state>61</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -3664,7 +3669,8 @@
                     <state>SDK_DEBUGCONSOLE=1</state>
                     <state>MCUX_META_BUILD</state>
                     <state>MCUXPRESSO_SDK</state>
-                    <state>CPU_MIMXRT798SGFOA_cm33_core0</state>
+                    <state>CPU_MIMXRT798SGFOB_cm33_core0</state>
+                    <state>MIMXRT798S_cm33_core0_SERIES</state>
                     <state>BOOT_HEADER_ENABLE=1</state>
                 </option>
                 <option>
@@ -3746,7 +3752,7 @@
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state>--diag_suppress=Pa082,Pa050</state>
+                    <state>--preinclude $PROJ_DIR$/../mcuxsdk_version.h --diag_suppress=Pa082,Pa050</state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -3787,6 +3793,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/..</state>
+                    <state>$PROJ_DIR$/../../../src</state>
                     <state>$PROJ_DIR$/../../../../flash_config</state>
                     <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include</state>
                     <state>$PROJ_DIR$/../../../../../../CMSIS/Core/Include/m-profile</state>
@@ -4463,7 +4470,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>mfb_fw_cm33_core0_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -5071,12 +5078,9 @@
     </group>
     <group>
         <name>startup</name>
-        <group>
-            <name>iar</name>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\iar\startup_MIMXRT798S_cm33_core0.s</name>
-            </file>
-        </group>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\..\devices\MIMXRT798S\startup_MIMXRT798S_cm33_core0.c</name>
+        </file>
     </group>
     <group>
         <name>utilities</name>

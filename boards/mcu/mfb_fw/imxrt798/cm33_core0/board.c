@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +34,12 @@
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-
+#if defined(MIMXRT798S_cm33_core0_SERIES)
+static uint32_t i2c_iomux[2] = {0U};
+#endif
+#if defined(MIMXRT798S_cm33_core0_SERIES) || defined(MIMXRT798S_cm33_core1_SERIES)
+static uint32_t s_pinCtrl[1];
+#endif
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -70,10 +75,14 @@ void BOARD_ClockPreConfig(void)
     CLOCK_AttachClk(kSENSE_BASE_to_SENSE_MAIN);
 }
 
+/*
+ * NOTE, the actual output of the LDO may not exactly same with the setting due to accuracy and internal circuite voltage drop.
+ * To make sure the minumum supply voltage meeting the rquirement of corresponding operation frequency, external supply is suggested.
+ */
 void BOARD_ClockHSRunPreConfig(void)
 {
     BOARD_ClockPreConfig();
-       
+
     /* Change power supply for LDO, if using external PMIC supply for VDD1/VDD2, need configure PMIC to change voltage supply. */
     power_regulator_voltage_t ldo = {
         .LDO.vsel0 = 700000U,  /* 700mv, 0.45 V + 12.5 mV * x */
@@ -83,13 +92,14 @@ void BOARD_ClockHSRunPreConfig(void)
     };
 
     power_lvd_voltage_t lvd = {
-        .VDD12.lvl0 = 600000U, /* 600mv */
-        .VDD12.lvl1 = 700000U, /* 700mv */
-        .VDD12.lvl2 = 800000U, /* 800mv */
+        .VDD12.lvl0 = 600000U,  /* 600mv */
+        .VDD12.lvl1 = 700000U,  /* 700mv */
+        .VDD12.lvl2 = 800000U,  /* 800mv */
         .VDD12.lvl3 = 1000000U, /* 1000mv */
     };
 
     POWER_ConfigRegulatorSetpoints(kRegulator_Vdd1LDO, &ldo, &lvd);
+    POWER_SetRunRegulatorMode(kRegulator_Vdd1LDO, kPower_LDOMode_Bypass); /* Change to bypass mode. */
 
     POWER_ApplyPD();
 }
@@ -121,10 +131,14 @@ void BOARD_ClockPreConfig(void)
     BOARD_XspiClockSafeConfig(); /*Change to common_base clock(Sourced by FRO1). */
 }
 
+/*
+ * NOTE, the actual output of the LDO may not exactly same with the setting due to accuracy and internal circuite voltage drop.
+ * To make sure the minumum supply voltage meeting the rquirement of corresponding operation frequency, external supply is suggested.
+ */
 void BOARD_ClockHSRunPreConfig(void)
 {
     BOARD_ClockPreConfig();
-       
+
     /* Change power supply for LDO, if using external PMIC supply for VDD1/VDD2, need configure PMIC to change voltage supply. */
     power_regulator_voltage_t ldo = {
         .LDO.vsel0 = 700000U,  /* 700mv, 0.45 V + 12.5 mV * x */
@@ -134,13 +148,14 @@ void BOARD_ClockHSRunPreConfig(void)
     };
 
     power_lvd_voltage_t lvd = {
-        .VDD12.lvl0 = 600000U, /* 600mv */
-        .VDD12.lvl1 = 700000U, /* 700mv */
-        .VDD12.lvl2 = 800000U, /* 800mv */
+        .VDD12.lvl0 = 600000U,  /* 600mv */
+        .VDD12.lvl1 = 700000U,  /* 700mv */
+        .VDD12.lvl2 = 800000U,  /* 800mv */
         .VDD12.lvl3 = 1000000U, /* 1000mv */
     };
 
     POWER_ConfigRegulatorSetpoints(kRegulator_Vdd2LDO, &ldo, &lvd);
+    POWER_SetRunRegulatorMode(kRegulator_Vdd2LDO, kPower_LDOMode_Bypass); /* Change to bypass mode. */
 
     POWER_ApplyPD();
 }
@@ -241,6 +256,15 @@ void BOARD_ConfigMPU(void)
         ARM_MPU_SetRegion(1U, ARM_MPU_RBAR(nonCacheStart, ARM_MPU_SH_OUTER, 0U, 1U, 0U),
                           ARM_MPU_RLAR(nonCacheStart + nonCacheSize - 1, 1U));
     }
+
+#if defined(CACHE_MODE_WRITE_THROUGH)
+    /* Change the default cache attribute for SRAM to non-shareable, read/write, any privileged, executable. Attr 2 (write through). */
+    if (nonCacheStart > 0x20000000U)
+    {
+        ARM_MPU_SetRegion(3U, ARM_MPU_RBAR(0x20000000U, ARM_MPU_SH_NON, 0U, 1U, 0U), ARM_MPU_RLAR((nonCacheStart - 1U), 2U));
+    }
+    ARM_MPU_SetRegion(4U, ARM_MPU_RBAR(nonCacheStart + nonCacheSize, ARM_MPU_SH_NON, 0U, 1U, 0U), ARM_MPU_RLAR(0x3FFFFFFFU, 2U));
+#endif
 
     /*
      * Enable MPU and HFNMIENA feature
@@ -556,11 +580,13 @@ void BOARD_Init16bitsPsRam(XSPI_Type *base)
     };
     /* clang-format on */
 
+#if (defined(FSL_FEATURE_XSPI_HAS_DDR) && FSL_FEATURE_XSPI_HAS_DDR)
     xspi_device_ddr_config_t psRamDdrConfig = {
         .ddrDataAlignedClk         = kXSPI_DDRDataAlignedWith2xInternalRefClk,
         .enableByteSwapInOctalMode = false,
         .enableDdr                 = true,
     };
+#endif
 
     xspi_device_config_t psRamDeviceConfig = {
         .xspiRootClk                                = 500000000,      /*!< 500MHz */
@@ -588,7 +614,9 @@ void BOARD_Init16bitsPsRam(XSPI_Type *base)
         .deviceSize[0]                                    = 0x8000U,
         .deviceSize[1]      = 0x8000U, /*!< Single die device, so deviceSize1 should equal to deviceSize0. */
         .ptrDeviceRegInfo   = NULL,
+#if (defined(FSL_FEATURE_XSPI_HAS_DDR) && FSL_FEATURE_XSPI_HAS_DDR)
         .ptrDeviceDdrConfig = &psRamDdrConfig,
+#endif
     };
     /* Get XSPI default settings and configure the xspi. */
     XSPI_GetDefaultConfig(&config);
@@ -665,6 +693,78 @@ void BOARD_Init16bitsPsRam(XSPI_Type *base)
     XSPI_SetDeviceConfig(base, &psRamDeviceConfig);
 }
 
+inline static void i2c_release_bus_delay(void)
+{
+    SDK_DelayAtLeastUs(10U, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
+}
+
+void BOARD_InitI2c2PinAsGpio(void)
+{
+    /* Reset IOPCTL0 module */
+    RESET_ClearPeripheralReset(kIOPCTL0_RST_SHIFT_RSTn);
+
+    /* PORT1 PIN11 is configured as PIO1_11 */
+    i2c_iomux[0]        = IOPCTL0->PIO[1][11];
+    IOPCTL0->PIO[1][11] = 0x440u; /* GPIO with inputbuffer and pseudo uutput drain enabled. */
+    /* PORT1 PIN12 is configured as PIO1_12 */
+    i2c_iomux[1]        = IOPCTL0->PIO[1][12];
+    IOPCTL0->PIO[1][12] = 0x400U; /* GPIO with pseudo uutput drain enabled. */
+}
+
+void BOARD_RestoreI2c2PinMux(void)
+{
+    IOPCTL0->PIO[1][11] = i2c_iomux[0];
+    IOPCTL0->PIO[1][12] = i2c_iomux[1];
+}
+
+void BOARD_I2c2RecoverBus(void)
+{
+    gpio_pin_config_t pin_config = {
+        kGPIO_DigitalOutput,
+        1U,
+    };
+
+    GPIO_PinInit(BOARD_CODEC_I2C_SCL_GPIO, BOARD_CODEC_I2C_SCL_PIN, &pin_config);
+    i2c_release_bus_delay();
+    
+    /* Configure SDA pin as input. */
+    pin_config.pinDirection = kGPIO_DigitalInput;
+    GPIO_PinInit(BOARD_CODEC_I2C_SDA_GPIO, BOARD_CODEC_I2C_SDA_PIN, &pin_config);
+
+    /* Send pulses on SCL until SDA is released and then send stop. */
+    while(true)
+    {
+        /* SCL pulse - low */
+        GPIO_PinWrite(BOARD_CODEC_I2C_SCL_GPIO, BOARD_CODEC_I2C_SCL_PIN, 0U);
+        i2c_release_bus_delay();
+
+        /* Check whether SDA line is released */
+        if (1U == GPIO_PinRead(BOARD_CODEC_I2C_SDA_GPIO, BOARD_CODEC_I2C_SDA_PIN))
+        {
+            /* SDA is released, hold it in low */
+            pin_config.pinDirection = kGPIO_DigitalOutput;
+            pin_config.outputLogic = 0U;
+            GPIO_PinInit(BOARD_CODEC_I2C_SDA_GPIO, BOARD_CODEC_I2C_SDA_PIN, &pin_config);
+
+            /* SCL pulse - high */
+            GPIO_PinWrite(BOARD_CODEC_I2C_SCL_GPIO, BOARD_CODEC_I2C_SCL_PIN, 1U);
+            i2c_release_bus_delay();
+
+            /* Set SDA to high from low - send stop */
+            GPIO_PinWrite(BOARD_CODEC_I2C_SDA_GPIO, BOARD_CODEC_I2C_SDA_PIN, 1U);
+            i2c_release_bus_delay();
+
+            break;
+        }
+        else
+        {
+            /* SCL pulse - high */
+            GPIO_PinWrite(BOARD_CODEC_I2C_SCL_GPIO, BOARD_CODEC_I2C_SCL_PIN, 1U);
+            i2c_release_bus_delay();
+        }
+    }
+}
+
 #endif /* MIMXRT798S_cm33_core0_SERIES */
 
 #if defined(MIMXRT798S_cm33_core0_SERIES) || defined(MIMXRT798S_cm33_core1_SERIES)
@@ -733,6 +833,83 @@ void BOARD_InitAHBSC(void)
     GlikeyClearConfig(GLIKEY1);
     GlikeyClearConfig(GLIKEY2);
 }
+#if defined(MIMXRT798S_cm33_core0_SERIES)
+void BOARD_SetDeepSleepPinConfig(void)
+{
+   bool ioClkEn = false;
+
+   ioClkEn = ((CLKCTL0->PSCCTL5 & CLKCTL0_PSCCTL5_IOPCTL0_MASK) != 0U);
+
+   if (ioClkEn)
+   {
+       s_pinCtrl[0] = IOPCTL0->PIO[0][31];
+       IOPCTL0->PIO[0][31] = 0U; /* Disable input buffer. */
+   }
+   else
+   {
+       CLOCK_EnableClock(kCLOCK_Iopctl0);
+       s_pinCtrl[0] = IOPCTL0->PIO[0][31];
+       IOPCTL0->PIO[0][31] = 0U; /* Disable input buffer. */
+       CLOCK_DisableClock(kCLOCK_Iopctl0);
+   }
+}
+
+void BOARD_RestoreDeepSleepPinConfig(void)
+{
+   bool ioClkEn = false;
+   
+   ioClkEn = ((CLKCTL0->PSCCTL5 & CLKCTL0_PSCCTL5_IOPCTL0_MASK) != 0U);
+   
+   if (ioClkEn)
+   {
+       IOPCTL0->PIO[0][31] = s_pinCtrl[0];
+   }
+   else
+   {
+       CLOCK_EnableClock(kCLOCK_Iopctl0);
+       IOPCTL0->PIO[0][31] = s_pinCtrl[0];
+       CLOCK_DisableClock(kCLOCK_Iopctl0);
+   }
+}
+#else
+void BOARD_SetDeepSleepPinConfig(void)
+{
+   bool ioClkEn = false;
+
+   ioClkEn = ((CLKCTL3->PSCCTL0_SENS & CLKCTL3_PSCCTL0_SENS_IOPCTL1_MASK) != 0U);
+
+   if (ioClkEn)
+   {
+       s_pinCtrl[0] = IOPCTL1->PIO[0][14];
+       IOPCTL1->PIO[0][14] = 0U; /* Disable input buffer for PIO8_14. */
+   }
+   else
+   {
+       CLOCK_EnableClock(kCLOCK_Iopctl1);
+       s_pinCtrl[0] = IOPCTL1->PIO[0][14];
+       IOPCTL1->PIO[0][14] = 0U; /* Disable input buffer for PIO8_14. */
+       CLOCK_DisableClock(kCLOCK_Iopctl1);
+   }
+}
+
+void BOARD_RestoreDeepSleepPinConfig(void)
+{
+   bool ioClkEn = false;
+   
+   ioClkEn = ((CLKCTL3->PSCCTL0_SENS & CLKCTL3_PSCCTL0_SENS_IOPCTL1_MASK) != 0U);
+   
+   if (ioClkEn)
+   {
+       IOPCTL1->PIO[0][14] = s_pinCtrl[0];
+   }
+   else
+   {
+       CLOCK_EnableClock(kCLOCK_Iopctl1);
+       IOPCTL1->PIO[0][14] = s_pinCtrl[0];
+       CLOCK_DisableClock(kCLOCK_Iopctl1);
+   }
+}
+#endif /* MIMXRT798S_cm33_core0_SERIES */
 #endif /* MIMXRT798S_cm33_core0_SERIES || MIMXRT798S_cm33_core1_SERIES */
 
 #if defined(SDK_I2C_BASED_COMPONENT_USED) && SDK_I2C_BASED_COMPONENT_USED

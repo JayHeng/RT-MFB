@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -91,16 +91,17 @@
 #define BOARD_LED_RED_GPIO_PIN 6U
 #endif
 
-/* SSD1963 (TFT_PROTO_5) panel. */
+/* FLEXIO/LCD Socket */
 /* RST pin. */
-#define BOARD_SSD1963_RST_GPIO GPIO2
-#define BOARD_SSD1963_RST_PIN  15
+#define BOARD_FLEXIO_LCD_RST_GPIO GPIO2
+#define BOARD_FLEXIO_LCD_RST_PIN  15
 /* CS pin. */
-#define BOARD_SSD1963_CS_GPIO GPIO2
-#define BOARD_SSD1963_CS_PIN  0
+#define BOARD_FLEXIO_LCD_CS_GPIO GPIO2
+#define BOARD_FLEXIO_LCD_CS_PIN  0
 /* D/C pin, also named RS pin. */
-#define BOARD_SSD1963_RS_GPIO GPIO2
-#define BOARD_SSD1963_RS_PIN  1
+#define BOARD_FLEXIO_LCD_RS_GPIO GPIO2
+#define BOARD_FLEXIO_LCD_RS_PIN  1
+/* SSD1963 (TFT_PROTO_5) panel. */
 /* Touch panel. */
 #define BOARD_SSD1963_TOUCH_I2C_BASEADDR   LPI2C8
 #define BOARD_SSD1963_TOUCH_I2C_CLOCK_FREQ CLOCK_GetLPFlexCommClkFreq(8U)
@@ -108,12 +109,21 @@
 /* MIPI panel. */
 #define BOARD_MIPI_PANEL_TOUCH_I2C_BASEADDR   LPI2C8
 #define BOARD_MIPI_PANEL_TOUCH_I2C_CLOCK_FREQ CLOCK_GetLPFlexCommClkFreq(8U)
+#if (DEMO_PANEL_LCD_PAR_S035 == DEMO_PANEL)
+#define BOARD_MIPI_PANEL_TOUCH_RST_GPIO       GPIO2
+#define BOARD_MIPI_PANEL_TOUCH_RST_PIN        15
+#define BOARD_MIPI_PANEL_TOUCH_INT_GPIO       GPIO2
+#define BOARD_MIPI_PANEL_TOUCH_INT_PIN        5
+#define BOARD_MIPI_TOUCH_INT_GPIO_IRQ         GPIO20_IRQn
+#define BOARD_MIPI_TOUCH_INT_GPIO_IRQ_Handler GPIO20_IRQHandler
+#else
 #define BOARD_MIPI_PANEL_TOUCH_RST_GPIO       GPIO3
 #define BOARD_MIPI_PANEL_TOUCH_RST_PIN        8
 #define BOARD_MIPI_PANEL_TOUCH_INT_GPIO       GPIO1
 #define BOARD_MIPI_PANEL_TOUCH_INT_PIN        13
 #define BOARD_MIPI_TOUCH_INT_GPIO_IRQ         GPIO10_IRQn
 #define BOARD_MIPI_TOUCH_INT_GPIO_IRQ_Handler GPIO10_IRQHandler
+#endif
 
 /* RST pin. */
 #define BOARD_MIPI_RST_GPIO GPIO3
@@ -130,6 +140,7 @@
 #define BOARD_MIPI_TE_GPIO_IRQn        GPIO30_IRQn
 #define BOARD_MIPI_TE_GPIO_IRQ_Handler GPIO30_IRQHandler
 
+#if defined(GPIO8)
 #define LED_RED_INIT(output)                                           \
     GPIO_PinWrite(BOARD_LED_RED_GPIO, BOARD_LED_RED_GPIO_PIN, output); \
     BOARD_LED_RED_GPIO->PDDR |= (1U << BOARD_LED_RED_GPIO_PIN)                         /*!< Enable target LED_RED */
@@ -137,6 +148,7 @@
 #define LED_RED_OFF() GPIO_PortClear(BOARD_LED_RED_GPIO, 1U << BOARD_LED_RED_GPIO_PIN) /*!< Turn off target LED_RED */
 #define LED_RED_TOGGLE() \
     GPIO_PortToggle(BOARD_LED_RED_GPIO, 1U << BOARD_LED_RED_GPIO_PIN)                  /*!< Toggle on target LED_RED1 */
+#endif
 
 #define LED_GREEN_INIT(output)                                             \
     GPIO_PinWrite(BOARD_LED_GREEN_GPIO, BOARD_LED_GREEN_GPIO_PIN, output); \
@@ -191,6 +203,11 @@
 #define BOARD_CODEC_I2C_BASEADDR   LPI2C2
 #define BOARD_CODEC_I2C_CLOCK_FREQ CLOCK_GetLPI2cClkFreq(2)
 #define BOARD_CODEC_I2C_INSTANCE   2
+
+#define BOARD_CODEC_I2C_SCL_PIN  12U
+#define BOARD_CODEC_I2C_SDA_PIN  11U
+#define BOARD_CODEC_I2C_SDA_GPIO GPIO1
+#define BOARD_CODEC_I2C_SCL_GPIO GPIO1
 
 #define BOARD_PMIC_I2C_BASEADDR   LPI2C15
 #define BOARD_PMIC_I2C_CLOCK_FREQ CLOCK_GetLPI2cClkFreq(15)
@@ -272,6 +289,18 @@ void GlikeyWriteEnable(GLIKEY_Type *base, uint8_t idx);
  * @param base GLIKEY peripheral base pointer
  */
 void GlikeyClearConfig(GLIKEY_Type *base);
+
+/*!
+ * @brief Set IOPCTL configuration before DS.
+ *
+ */
+void BOARD_SetDeepSleepPinConfig(void);
+
+/*!
+ * @brief Restore IOPCTL configuration after wake from DS.
+ *
+ */
+void BOARD_RestoreDeepSleepPinConfig(void);
 #endif
 
 #if defined(MIMXRT798S_cm33_core0_SERIES)
@@ -281,6 +310,34 @@ void BOARD_XspiClockSafeConfig(void);
 AT_QUICKACCESS_SECTION_CODE(void BOARD_SetXspiClock(XSPI_Type *base, uint32_t src, uint32_t divider));
 AT_QUICKACCESS_SECTION_CODE(void BOARD_DeinitXspi(XSPI_Type *base, CACHE64_CTRL_Type *cache));
 AT_QUICKACCESS_SECTION_CODE(void BOARD_InitXspi(XSPI_Type *base, CACHE64_CTRL_Type *cache));
+/*!
+ * @brief Set the onboard I2C2 Pins to GPIO.
+ */
+void BOARD_InitI2c2PinAsGpio(void);
+/*!
+ * @brief Restore the pin mux configuration for onboard I2C2 pins.
+ */
+void BOARD_RestoreI2c2PinMux(void);
+/*!
+ * @brief Recover onboard I2C2 bus.
+ */
+void BOARD_I2c2RecoverBus(void);
+/*!
+ * @brief Release onboard I2C bus. This macro is used to release the onboard I2C bus which may connected to sensors or
+ * codec. NOTE, the corresponding APIs called by this macro need to be defined.
+ */
+#define BOARD_I2C_ReleaseBus(n)        \
+    do                                 \
+    {                                  \
+        BOARD_InitI2c##n##PinAsGpio(); \
+        BOARD_I2c##n##RecoverBus();    \
+        BOARD_RestoreI2c##n##PinMux(); \
+    } while (0);
+
+/*!
+ * @brief Release Codec I2C bus. This macro is used to release the onboard codec I2C.
+ */
+#define BOARD_Codec_I2C_ReleaseBus() BOARD_I2C_ReleaseBus(2)
 #endif
 
 #if defined(SDK_I2C_BASED_COMPONENT_USED) && SDK_I2C_BASED_COMPONENT_USED
