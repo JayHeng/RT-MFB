@@ -81,6 +81,7 @@ void mfb_flash_set_param_for_dosilicon(jedec_id_t *jedecID)
         /////////////////////////QuadSPI////////////////////////
         case 0x42:
             mfb_printf(" -- DS25M QuadSPI 1.8V Series.\r\n");
+            break;
         default:
             mfb_printf(" -- Unsupported Series.\r\n");
             break;

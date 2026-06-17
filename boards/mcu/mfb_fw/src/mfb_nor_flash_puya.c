@@ -79,6 +79,7 @@ void mfb_flash_set_param_for_puya(jedec_id_t *jedecID)
         /////////////////////////QuadSPI////////////////////////
         case 0x20:
             mfb_printf(" -- PY25Q QuadSPI 3.3V Series.\r\n");
+            break;
         default:
             mfb_printf(" -- Unsupported Series.\r\n");
             break;
