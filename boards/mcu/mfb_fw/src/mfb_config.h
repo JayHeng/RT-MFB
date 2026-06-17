@@ -55,7 +55,7 @@
 // Whether to show flash internal registers
 #define MFB_FLASH_REGS_READBACK_ENABLE   (1)
 // Whether to show flash internal registers only
-#define MFB_FLASH_REGS_READBACK_ONLY     (1)
+#define MFB_FLASH_REGS_READBACK_ONLY     (0)
 
 /*******************************************************************************
  * Variables

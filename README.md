@@ -655,6 +655,15 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>S104Mx4</td>
         <td>通过</td>
     </tr>
+    <tr>
+        <td rowspan="1">东芯<br>
+                        Dosilicon</td>
+        <td>DS25M4AB</td>
+        <td>1.65-1.95V</td>
+        <td>104M (x4)</td>
+        <td>S104Mx4</td>
+        <td>通过</td>
+    </tr>
 </table>
 
 下列测试结果基于 RT1180-FLEXSPI-MEM-BB&DC_Rev.B（默认板卡设置）FlexSPI2 PortA MUX2 （GPIO_AON_XX），这组 Pin 也是 RT1186-FRDM 默认选择。

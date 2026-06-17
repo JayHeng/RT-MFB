@@ -250,11 +250,18 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
 #endif // SPANSION_DEVICE_SERIES
 
 #if PUYA_DEVICE_SERIES
-        // Spansion
+        // Puya
         case PUYA_DEVICE_VENDOR_ID:
             mfb_flash_show_registers_for_puya(isOctalFlash);
             break;
 #endif // PUYA_DEVICE_SERIES
+
+#if DOSILICON_DEVICE_SERIES
+        // Dosilicon
+        case DOSILICON_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_dosilicon(isOctalFlash);
+            break;
+#endif // DOSILICON_DEVICE_SERIES
 
         default:
             break;
@@ -329,6 +336,13 @@ bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID)
             mfb_flash_set_param_for_puya(jedecID);
             break;
 #endif // PUYA_DEVICE_SERIES
+
+#if DOSILICON_DEVICE_SERIES
+        // Dosilicon
+        case DOSILICON_DEVICE_VENDOR_ID:
+            mfb_flash_set_param_for_dosilicon(jedecID);
+            break;
+#endif // DOSILICON_DEVICE_SERIES
 
         default:
             mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");

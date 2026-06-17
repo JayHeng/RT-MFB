@@ -225,8 +225,8 @@ typedef struct _flash_reg_access
 #define WINBOND_DEVICE_SERIES       (1)
 #define WINBOND_DEVICE_VENDOR_ID    (0xEF)
 #define WINBOND_DEVICE_QUAD         (1)
-#define WINBOND_DEVICE_W25QxxxJW    (0)  // MIMXRT1180-EVK, MIMXRT1170-EVKB_Rev.A/B (W25Q128JW)
-#define WINBOND_DEVICE_W25QxxxJV    (1)
+#define WINBOND_DEVICE_W25QxxxJW    (1)  // MIMXRT1180-EVK, MIMXRT1170-EVKB_Rev.A/B (W25Q128JW)
+#define WINBOND_DEVICE_W25QxxxJV    (0)
 #define WINBOND_DEVICE_W25QxxxCL    (0)  // Small package not supported on MIMXRT1180-MEM-BB&DS
 #define WINBOND_DEVICE_W25QxxxNE    (0)
 #define WINBOND_DEVICE_W25QxxxFW    (0)
@@ -332,6 +332,11 @@ typedef struct _flash_reg_access
 #define PUYA_DEVICE_VENDOR_ID       (0x85)
 #define PUYA_DEVICE_QUAD            (1)
 #define PUYA_DEVICE_PY25Q128HA      (1)
+////////////////////////////////////////////////////////////////////////////////
+#define DOSILICON_DEVICE_SERIES     (1)
+#define DOSILICON_DEVICE_VENDOR_ID  (0xE5)
+#define DOSILICON_DEVICE_QUAD       (1)
+#define DOSILICON_DEVICE_DS25M4AB   (1)
 
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \
@@ -343,7 +348,8 @@ typedef struct _flash_reg_access
                                      ADESTO_DEVICE_VENDOR_ID2,    \
                                      SPANSION_DEVICE_VENDOR_ID,   \
                                      INFINEON_DEVICE_VENDOR_ID,   \
-                                     PUYA_DEVICE_VENDOR_ID}
+                                     PUYA_DEVICE_VENDOR_ID,       \
+                                     DOSILICON_DEVICE_VENDOR_ID}
 
 #if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
 #define MXIC_READ_STATUS_REG_DUMMY_DDR (0x08)
@@ -426,6 +432,10 @@ extern void mfb_hyperflash_show_info_for_spansion(cfi_device_id_t *cfiDeviceId);
 #if PUYA_DEVICE_SERIES
 extern void mfb_flash_set_param_for_puya(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_puya(bool isOctalFlash);
+#endif
+#if DOSILICON_DEVICE_SERIES
+extern void mfb_flash_set_param_for_dosilicon(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_dosilicon(bool isOctalFlash);
 #endif
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);
 extern bool mfb_flash_is_valid_infineon_samper_id(infineon_samper_id_t *samperID);

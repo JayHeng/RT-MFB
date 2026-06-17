@@ -739,7 +739,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>hello_world_demo_cm33.out</state>
+                    <state>mfb_fw_cm33.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -4731,6 +4731,12 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_adesto.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_dosilicon.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_dosilicon.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_gigadevice.c</name>
