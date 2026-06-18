@@ -664,7 +664,62 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>S104Mx4</td>
         <td>通过</td>
     </tr>
+    <tr>
+        <td rowspan="1">武汉新芯<br>
+                        XMC</td>
+        <td>XM25QH64D</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td>S104Mx4</td>
+        <td>待定</td>
+    </tr>
+    <tr>
+        <td rowspan="1">博雅<br>
+                        Boya</td>
+        <td>BY25FQ64ES</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td>S104Mx4</td>
+        <td>待定</td>
+    </tr>
+    <tr>
+        <td rowspan="1">芝芯<br>
+                        Zbit</td>
+        <td>ZB25VQ64D</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td>S104Mx4</td>
+        <td>待定</td>
+    </tr>
+    <tr>
+        <td rowspan="1">芯天下<br>
+                        XTX</td>
+        <td>XT25F64F</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td>S104Mx4</td>
+        <td>待定</td>
+    </tr>
+    <tr>
+        <td rowspan="1">聚辰<br>
+                        Giantec</td>
+        <td>GT25Q64A</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td>S104Mx4</td>
+        <td>待定</td>
+    </tr>
+    <tr>
+        <td rowspan="1">复旦微<br>
+                        FMSH</td>
+        <td>FM25LQ64</td>
+        <td>1.65-1.95V</td>
+        <td>133M (x4)</td>
+        <td>S104Mx4</td>
+        <td>待定</td>
+    </tr>
 </table>
+
 
 下列测试结果基于 RT1180-FLEXSPI-MEM-BB&DC_Rev.B（默认板卡设置）FlexSPI2 PortA MUX2 （GPIO_AON_XX），这组 Pin 也是 RT1186-FRDM 默认选择。
 
