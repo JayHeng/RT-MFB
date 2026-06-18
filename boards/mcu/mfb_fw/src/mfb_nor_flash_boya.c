@@ -81,7 +81,7 @@ void mfb_flash_set_param_for_boya(jedec_id_t *jedecID)
         /////////////////////////QuadSPI////////////////////////
         case 0x40:
             mfb_printf(" -- BY25FQ QuadSPI 3.3V Series.\r\n");
-            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_133MHz;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
             break;
         default:
             mfb_printf(" -- Unsupported Series.\r\n");
