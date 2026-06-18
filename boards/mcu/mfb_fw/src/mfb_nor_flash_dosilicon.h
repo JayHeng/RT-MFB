@@ -22,9 +22,17 @@
 #define DOSILICON_QUAD_FLASH_DUMMY_CYCLES  0x06
 
 /*
-Latency Code Bits (LC1, LC0) – Volatile/Non-Volatile Writable
+DS25M4AB JEDEC ID (9Fh): Manufacturer 0xE5, Device ID 0x4218 (Memory Type 0x42, Capacity 0x18, 128M-bit).
+QE (Quad Enable) bit is bit 1 of Status Register-2 (S9), written by opcode 0x31.
+opcode 0x05/0x35/0x15 read Status Register-1/2/3.
+opcode 0x01/0x31/0x11 write Status Register-1/2/3.
+
+Quad I/O Fast Read (EBh) requires 6 dummy cycles by default for SDR.
+
+Latency Code Bits (LC1, LC0) - Volatile/Non-Volatile Writable
 The Latency Code (LC) selects the mode and number of dummy cycles between the end of address and the start of read data output for DTR read command(EDh).
 */
+
 
 //------------------------------------------------------------------------------
 //   P[4:3]   |  dummy cycles  |Quad IO Fast Read(SPI) | Quad IO Fast Read(DTR) |

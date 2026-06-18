@@ -18,6 +18,15 @@
 #endif
 
 /*
+XT25F64F JEDEC ID (9Fh): Manufacturer 0x0B (XTX), Device ID 0x4017 (Memory Type 0x40, Capacity 0x17, 64M-bit).
+QE (Quad Enable) bit is bit 1 of Status Register-2 (S9), written by opcode 0x31.
+opcode 0x05/0x35/0x15 read Status Register-1/2/3.
+opcode 0x01/0x31/0x11 write Status Register-1/2/3.
+
+Quad I/O Fast Read (EBh) requires 6 dummy cycles by default for SDR.
+The DC (Dummy Configuration) bit in Status Register-3 selects the number of dummy
+cycles between the end of address and the start of read data output.
+
 Read performance:
 //------------------------------------------------------
 //   DC[0]    |  dummy cycles  |Quad IO Fast Read(SPI) |
@@ -26,5 +35,6 @@ Read performance:
 //  1'b1      |       10       |        133MHz         |
 //------------------------------------------------------
 */
+
 
 #endif /* _MFB_NOR_FLASH_XTX_H_ */
