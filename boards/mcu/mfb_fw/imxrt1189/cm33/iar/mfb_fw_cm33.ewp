@@ -4799,6 +4799,13 @@
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_xtx.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_giantec.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_giantec.h</name>
+        </file>
+
+        <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_zbit.c</name>
         </file>
         <file>

@@ -357,6 +357,12 @@ typedef struct _flash_reg_access
 #define XTX_DEVICE_VENDOR_ID        (0x0B)
 #define XTX_DEVICE_QUAD             (1)
 #define XTX_DEVICE_XT25F64F         (1)
+////////////////////////////////////////////////////////////////////////////////
+#define GIANTEC_DEVICE_SERIES       (1)  // Giantec Semiconductor Corporation
+#define GIANTEC_DEVICE_VENDOR_ID    (0xC4)
+#define GIANTEC_DEVICE_QUAD         (1)
+#define GIANTEC_DEVICE_GT25Q64A     (1)
+
 
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \
@@ -372,7 +378,9 @@ typedef struct _flash_reg_access
                                      DOSILICON_DEVICE_VENDOR_ID,  \
                                      BOYA_DEVICE_VENDOR_ID,       \
                                      ZBIT_DEVICE_VENDOR_ID,       \
-                                     XTX_DEVICE_VENDOR_ID}
+                                     XTX_DEVICE_VENDOR_ID,        \
+                                     GIANTEC_DEVICE_VENDOR_ID}
+
 
 
 
@@ -478,6 +486,11 @@ extern void mfb_flash_show_registers_for_zbit(bool isOctalFlash);
 extern void mfb_flash_set_param_for_xtx(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_xtx(bool isOctalFlash);
 #endif
+#if GIANTEC_DEVICE_SERIES
+extern void mfb_flash_set_param_for_giantec(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_giantec(bool isOctalFlash);
+#endif
+
 
 
 

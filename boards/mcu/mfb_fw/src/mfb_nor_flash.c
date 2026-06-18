@@ -315,6 +315,13 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
             mfb_flash_show_registers_for_xtx(isOctalFlash);
             break;
 #endif // XTX_DEVICE_SERIES
+#if GIANTEC_DEVICE_SERIES
+        // Giantec
+        case GIANTEC_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_giantec(isOctalFlash);
+            break;
+#endif // GIANTEC_DEVICE_SERIES
+
 
         default:
             break;
@@ -448,7 +455,15 @@ bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID)
             break;
 #endif // XTX_DEVICE_SERIES
 
+#if GIANTEC_DEVICE_SERIES
+        // Giantec
+        case GIANTEC_DEVICE_VENDOR_ID:
+            mfb_flash_set_param_for_giantec(jedecID);
+            break;
+#endif // GIANTEC_DEVICE_SERIES
+
         default:
+
             mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
 
 
