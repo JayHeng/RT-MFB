@@ -342,6 +342,11 @@ typedef struct _flash_reg_access
 #define XMC_DEVICE_VENDOR_ID        (0x20)
 #define XMC_DEVICE_QUAD             (1)
 #define XMC_DEVICE_XM25QH64D        (1)
+////////////////////////////////////////////////////////////////////////////////
+#define BOYA_DEVICE_SERIES          (1)  // Boya Microelectronics
+#define BOYA_DEVICE_VENDOR_ID       (0x68)
+#define BOYA_DEVICE_QUAD            (1)
+#define BOYA_DEVICE_BY25FQ64ES      (1)
 
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \
@@ -354,7 +359,8 @@ typedef struct _flash_reg_access
                                      SPANSION_DEVICE_VENDOR_ID,   \
                                      INFINEON_DEVICE_VENDOR_ID,   \
                                      PUYA_DEVICE_VENDOR_ID,       \
-                                     DOSILICON_DEVICE_VENDOR_ID}
+                                     DOSILICON_DEVICE_VENDOR_ID,  \
+                                     BOYA_DEVICE_VENDOR_ID}
 
 #if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
 #define MXIC_READ_STATUS_REG_DUMMY_DDR (0x08)
@@ -445,6 +451,10 @@ extern void mfb_flash_show_registers_for_dosilicon(bool isOctalFlash);
 #if XMC_DEVICE_SERIES
 extern void mfb_flash_set_param_for_xmc(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_xmc(bool isOctalFlash);
+#endif
+#if BOYA_DEVICE_SERIES
+extern void mfb_flash_set_param_for_boya(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_boya(bool isOctalFlash);
 #endif
 
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);

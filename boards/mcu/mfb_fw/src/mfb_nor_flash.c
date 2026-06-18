@@ -252,7 +252,6 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
                         break;
                     }
                 }
-
             }
             break;
 #endif // XMC_DEVICE_SERIES
@@ -295,6 +294,13 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
             mfb_flash_show_registers_for_dosilicon(isOctalFlash);
             break;
 #endif // DOSILICON_DEVICE_SERIES
+
+#if BOYA_DEVICE_SERIES
+        // Boya
+        case BOYA_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_boya(isOctalFlash);
+            break;
+#endif // BOYA_DEVICE_SERIES
 
         default:
             break;
@@ -362,7 +368,6 @@ bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID)
                         break;
                     }
                 }
-
             }
             break;
 #endif // XMC_DEVICE_SERIES
@@ -405,6 +410,13 @@ bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID)
             mfb_flash_set_param_for_dosilicon(jedecID);
             break;
 #endif // DOSILICON_DEVICE_SERIES
+
+#if BOYA_DEVICE_SERIES
+        // Boya
+        case BOYA_DEVICE_VENDOR_ID:
+            mfb_flash_set_param_for_boya(jedecID);
+            break;
+#endif // BOYA_DEVICE_SERIES
 
         default:
             mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
