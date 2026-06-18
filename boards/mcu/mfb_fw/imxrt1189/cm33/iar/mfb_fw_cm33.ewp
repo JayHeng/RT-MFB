@@ -4781,6 +4781,12 @@
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_winbond.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_xmc.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_xmc.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_ops_flexspi.c</name>
         </file>
         <file>

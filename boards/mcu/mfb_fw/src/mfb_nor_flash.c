@@ -16,6 +16,10 @@
  * Prototypes
  ******************************************************************************/
 
+extern uint8_t s_micronFlashTypeIDs[];
+extern const uint32_t s_micronFlashTypeIDsNum;
+extern uint8_t s_xmcFlashTypeIDs[];
+extern const uint32_t s_xmcFlashTypeIDsNum;
 
 /*******************************************************************************
  * Variables
@@ -228,8 +232,37 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
 #if MICRON_DEVICE_SERIES
         // Micron
         case MICRON_DEVICE_VENDOR_ID:
+#if XMC_DEVICE_SERIES
+            // XMC shares the same manufacturer ID (0x20) as Micron, distinguish by memory type ID
+            {
+                uint32_t idx;
+                for (idx = 0; idx < s_micronFlashTypeIDsNum; idx++)
+                {
+                    if (jedecID->memoryTypeID == s_micronFlashTypeIDs[idx])
+                    {
+                        mfb_flash_show_registers_for_micron(isOctalFlash);
+                        break;
+                    }
+                }
+                for (idx = 0; idx < s_xmcFlashTypeIDsNum; idx++)
+                {
+                    if (jedecID->memoryTypeID == s_xmcFlashTypeIDs[idx])
+                    {
+                        mfb_flash_show_registers_for_xmc(isOctalFlash);
+                        break;
+                    }
+                }
+
+            }
+            break;
+#endif // XMC_DEVICE_SERIES
         case MICRON_DEVICE_VENDOR_ID2:
             mfb_flash_show_registers_for_micron(isOctalFlash);
+            break;
+#elif XMC_DEVICE_SERIES
+        // XMC
+        case XMC_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_xmc(isOctalFlash);
             break;
 #endif // MICRON_DEVICE_SERIES
 
@@ -309,8 +342,37 @@ bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID)
 #if MICRON_DEVICE_SERIES
         // Micron
         case MICRON_DEVICE_VENDOR_ID:
+#if XMC_DEVICE_SERIES
+            // XMC shares the same manufacturer ID (0x20) as Micron, distinguish by memory type ID
+            {
+                uint32_t idx;
+                for (idx = 0; idx < s_micronFlashTypeIDsNum; idx++)
+                {
+                    if (jedecID->memoryTypeID == s_micronFlashTypeIDs[idx])
+                    {
+                        mfb_flash_set_param_for_micron(jedecID);
+                        break;
+                    }
+                }
+                for (idx = 0; idx < s_xmcFlashTypeIDsNum; idx++)
+                {
+                    if (jedecID->memoryTypeID == s_xmcFlashTypeIDs[idx])
+                    {
+                        mfb_flash_set_param_for_xmc(jedecID);
+                        break;
+                    }
+                }
+
+            }
+            break;
+#endif // XMC_DEVICE_SERIES
         case MICRON_DEVICE_VENDOR_ID2:
             mfb_flash_set_param_for_micron(jedecID);
+            break;
+#elif XMC_DEVICE_SERIES
+        // XMC
+        case XMC_DEVICE_VENDOR_ID:
+            mfb_flash_set_param_for_xmc(jedecID);
             break;
 #endif // MICRON_DEVICE_SERIES
 

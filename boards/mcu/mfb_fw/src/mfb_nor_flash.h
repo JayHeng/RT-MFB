@@ -271,7 +271,7 @@ typedef struct _flash_reg_access
 #define GIGADEVICE_DEVICE_GD25LX    (1)
 #define GIGADEVICE_DEVICE_GD25X     (0)
 ////////////////////////////////////////////////////////////////////////////////
-#define ISSI_DEVICE_SERIES          (1)  // ISSI is acquired by ±±¾©Îù³É in 2015, ±±¾©Îù³É is acquired Ingenic by in 2020
+#define ISSI_DEVICE_SERIES          (1)  // ISSI is acquired by Â±Â±Â¾Â©ÃŽÃ¹Â³Ã‰ in 2015, Â±Â±Â¾Â©ÃŽÃ¹Â³Ã‰ is acquired Ingenic by in 2020
 #define ISSI_DEVICE_VENDOR_ID       (0x9D)
 #define ISSI_DEVICE_QUAD            (1)
 #define ISSI_DEVICE_IS25LP064A      (0)  // MIMXRT1020-EVK (IS25LP064A)
@@ -319,12 +319,12 @@ typedef struct _flash_reg_access
 #define SPANSION_DEVICE_S28HS512T   (0)
 #define SPANSION_DEVICE_S28HS256M   (1)
 #define SPANSION_DEVICE_HYPERBUS    (1)
-// This HyperFlash family support HYPERBUS™ interface only
+// This HyperFlash family support HYPERBUSâ„¢ interface only
 #define SPANSION_DEVICE_S26KS512S   (0)  // MIMXRT1050-EVKB (S26KS512)
 #define SPANSION_DEVICE_S26KL128S   (0)
-// This SEMPER™ Flash family support  both the HYPERBUS™ interface only as well as legacy (x1) SPI.
+// This SEMPERâ„¢ Flash family support  both the HYPERBUSâ„¢ interface only as well as legacy (x1) SPI.
 //   The legacy (x1) SPI mode is the default protocol following Power-on-Reset (POR) but, flash devices can be
-//   configured to boot-up in the HYPERBUS™ mode.
+//   configured to boot-up in the HYPERBUSâ„¢ mode.
 #define SPANSION_DEVICE_S26HL512T   (1)  
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,6 +337,11 @@ typedef struct _flash_reg_access
 #define DOSILICON_DEVICE_VENDOR_ID  (0xE5)
 #define DOSILICON_DEVICE_QUAD       (1)
 #define DOSILICON_DEVICE_DS25M4AB   (1)
+////////////////////////////////////////////////////////////////////////////////
+#define XMC_DEVICE_SERIES           (1)  // Wuhan Xinxin Semiconductor Manufacturing Co., Ltd.
+#define XMC_DEVICE_VENDOR_ID        (0x20)
+#define XMC_DEVICE_QUAD             (1)
+#define XMC_DEVICE_XM25QH64D        (1)
 
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \
@@ -437,6 +442,11 @@ extern void mfb_flash_show_registers_for_puya(bool isOctalFlash);
 extern void mfb_flash_set_param_for_dosilicon(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_dosilicon(bool isOctalFlash);
 #endif
+#if XMC_DEVICE_SERIES
+extern void mfb_flash_set_param_for_xmc(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_xmc(bool isOctalFlash);
+#endif
+
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);
 extern bool mfb_flash_is_valid_infineon_samper_id(infineon_samper_id_t *samperID);
 extern bool mfb_flash_pattern_verify_test(bool showError);
