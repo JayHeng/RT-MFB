@@ -347,6 +347,11 @@ typedef struct _flash_reg_access
 #define BOYA_DEVICE_VENDOR_ID       (0x68)
 #define BOYA_DEVICE_QUAD            (1)
 #define BOYA_DEVICE_BY25FQ64ES      (1)
+////////////////////////////////////////////////////////////////////////////////
+#define ZBIT_DEVICE_SERIES          (1)  // Zbit Semiconductor, Inc.
+#define ZBIT_DEVICE_VENDOR_ID       (0x5E)
+#define ZBIT_DEVICE_QUAD            (1)
+#define ZBIT_DEVICE_ZB25VQ64D       (1)
 
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \
@@ -360,7 +365,9 @@ typedef struct _flash_reg_access
                                      INFINEON_DEVICE_VENDOR_ID,   \
                                      PUYA_DEVICE_VENDOR_ID,       \
                                      DOSILICON_DEVICE_VENDOR_ID,  \
-                                     BOYA_DEVICE_VENDOR_ID}
+                                     BOYA_DEVICE_VENDOR_ID,       \
+                                     ZBIT_DEVICE_VENDOR_ID}
+
 
 #if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
 #define MXIC_READ_STATUS_REG_DUMMY_DDR (0x08)
@@ -456,6 +463,11 @@ extern void mfb_flash_show_registers_for_xmc(bool isOctalFlash);
 extern void mfb_flash_set_param_for_boya(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_boya(bool isOctalFlash);
 #endif
+#if ZBIT_DEVICE_SERIES
+extern void mfb_flash_set_param_for_zbit(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_zbit(bool isOctalFlash);
+#endif
+
 
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);
 extern bool mfb_flash_is_valid_infineon_samper_id(infineon_samper_id_t *samperID);

@@ -302,8 +302,16 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
             break;
 #endif // BOYA_DEVICE_SERIES
 
+#if ZBIT_DEVICE_SERIES
+        // Zbit
+        case ZBIT_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_zbit(isOctalFlash);
+            break;
+#endif // ZBIT_DEVICE_SERIES
+
         default:
             break;
+
     }
 #if MFB_FLASH_REGS_READBACK_ONLY
     while (1);
@@ -418,8 +426,16 @@ bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID)
             break;
 #endif // BOYA_DEVICE_SERIES
 
+#if ZBIT_DEVICE_SERIES
+        // Zbit
+        case ZBIT_DEVICE_VENDOR_ID:
+            mfb_flash_set_param_for_zbit(jedecID);
+            break;
+#endif // ZBIT_DEVICE_SERIES
+
         default:
             mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
+
             isValidVendorId = false;
             break;
     }
