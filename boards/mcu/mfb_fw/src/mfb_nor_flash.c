@@ -309,8 +309,16 @@ void mfb_flash_show_registers(jedec_id_t *jedecID, bool isOctalFlash)
             break;
 #endif // ZBIT_DEVICE_SERIES
 
+#if XTX_DEVICE_SERIES
+        // XTX
+        case XTX_DEVICE_VENDOR_ID:
+            mfb_flash_show_registers_for_xtx(isOctalFlash);
+            break;
+#endif // XTX_DEVICE_SERIES
+
         default:
             break;
+
 
     }
 #if MFB_FLASH_REGS_READBACK_ONLY
@@ -433,8 +441,16 @@ bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID)
             break;
 #endif // ZBIT_DEVICE_SERIES
 
+#if XTX_DEVICE_SERIES
+        // XTX
+        case XTX_DEVICE_VENDOR_ID:
+            mfb_flash_set_param_for_xtx(jedecID);
+            break;
+#endif // XTX_DEVICE_SERIES
+
         default:
             mfb_printf("\r\nMFB: Unsupported Manufacturer ID\r\n");
+
 
             isValidVendorId = false;
             break;

@@ -352,6 +352,11 @@ typedef struct _flash_reg_access
 #define ZBIT_DEVICE_VENDOR_ID       (0x5E)
 #define ZBIT_DEVICE_QUAD            (1)
 #define ZBIT_DEVICE_ZB25VQ64D       (1)
+////////////////////////////////////////////////////////////////////////////////
+#define XTX_DEVICE_SERIES           (1)  // XTX Technology Limited
+#define XTX_DEVICE_VENDOR_ID        (0x0B)
+#define XTX_DEVICE_QUAD             (1)
+#define XTX_DEVICE_XT25F64F         (1)
 
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
                                      MXIC_DEVICE_VENDOR_ID,       \
@@ -366,7 +371,9 @@ typedef struct _flash_reg_access
                                      PUYA_DEVICE_VENDOR_ID,       \
                                      DOSILICON_DEVICE_VENDOR_ID,  \
                                      BOYA_DEVICE_VENDOR_ID,       \
-                                     ZBIT_DEVICE_VENDOR_ID}
+                                     ZBIT_DEVICE_VENDOR_ID,       \
+                                     XTX_DEVICE_VENDOR_ID}
+
 
 
 #if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
@@ -467,6 +474,11 @@ extern void mfb_flash_show_registers_for_boya(bool isOctalFlash);
 extern void mfb_flash_set_param_for_zbit(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_zbit(bool isOctalFlash);
 #endif
+#if XTX_DEVICE_SERIES
+extern void mfb_flash_set_param_for_xtx(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_xtx(bool isOctalFlash);
+#endif
+
 
 
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);
