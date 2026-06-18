@@ -4804,6 +4804,12 @@
         <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_giantec.h</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_fmsh.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_fmsh.h</name>
+        </file>
 
         <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_zbit.c</name>

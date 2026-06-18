@@ -362,6 +362,11 @@ typedef struct _flash_reg_access
 #define GIANTEC_DEVICE_VENDOR_ID    (0xC4)
 #define GIANTEC_DEVICE_QUAD         (1)
 #define GIANTEC_DEVICE_GT25Q64A     (1)
+////////////////////////////////////////////////////////////////////////////////
+#define FMSH_DEVICE_SERIES          (1)  // Shanghai Fudan Microelectronics Group Co., Ltd.
+#define FMSH_DEVICE_VENDOR_ID       (0xA1)
+#define FMSH_DEVICE_QUAD            (1)
+#define FMSH_DEVICE_FM25LQ64        (1)
 
 
 #define FLASH_DEVICE_VENDOR_ID_LIST {WINBOND_DEVICE_VENDOR_ID,    \
@@ -379,10 +384,8 @@ typedef struct _flash_reg_access
                                      BOYA_DEVICE_VENDOR_ID,       \
                                      ZBIT_DEVICE_VENDOR_ID,       \
                                      XTX_DEVICE_VENDOR_ID,        \
-                                     GIANTEC_DEVICE_VENDOR_ID}
-
-
-
+                                     GIANTEC_DEVICE_VENDOR_ID,    \
+                                     FMSH_DEVICE_VENDOR_ID}
 
 #if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
 #define MXIC_READ_STATUS_REG_DUMMY_DDR (0x08)
@@ -490,9 +493,10 @@ extern void mfb_flash_show_registers_for_xtx(bool isOctalFlash);
 extern void mfb_flash_set_param_for_giantec(jedec_id_t *jedecID);
 extern void mfb_flash_show_registers_for_giantec(bool isOctalFlash);
 #endif
-
-
-
+#if FMSH_DEVICE_SERIES
+extern void mfb_flash_set_param_for_fmsh(jedec_id_t *jedecID);
+extern void mfb_flash_show_registers_for_fmsh(bool isOctalFlash);
+#endif
 
 extern bool mfb_flash_is_valid_jedec_id(jedec_id_t *jedecID);
 extern bool mfb_flash_is_valid_infineon_samper_id(infineon_samper_id_t *samperID);
