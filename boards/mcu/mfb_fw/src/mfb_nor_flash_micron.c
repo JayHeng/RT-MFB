@@ -21,6 +21,10 @@
  * Variables
  ******************************************************************************/
 
+uint8_t s_micronFlashTypeIDs[] = {0xBA, 0xBB, 0x5A, 0x5B};
+const uint32_t s_micronFlashTypeIDsNum = sizeof(s_micronFlashTypeIDs) / sizeof(s_micronFlashTypeIDs[0]);
+
+
 #if MICRON_DEVICE_MT25QU128 | MICRON_DEVICE_MT25QL256
 const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
