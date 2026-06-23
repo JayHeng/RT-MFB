@@ -351,7 +351,7 @@ typedef struct _flash_reg_access
 #define ZBIT_DEVICE_SERIES          (1)  // Zbit Semiconductor, Inc.
 #define ZBIT_DEVICE_VENDOR_ID       (0x5E)
 #define ZBIT_DEVICE_QUAD            (1)
-#define ZBIT_DEVICE_ZB25VQ64D       (1)
+#define ZBIT_DEVICE_ZB25VQ128E      (1)
 ////////////////////////////////////////////////////////////////////////////////
 #define XTX_DEVICE_SERIES           (1)  // XTX Technology Limited
 #define XTX_DEVICE_VENDOR_ID        (0x0B)
