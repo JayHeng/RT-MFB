@@ -21,7 +21,7 @@
  * Variables
  ******************************************************************************/
 
-#if ZBIT_DEVICE_ZB25VQ64D
+#if ZBIT_DEVICE_QUAD
 const uint32_t s_customLUT_ZBIT_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
@@ -57,6 +57,12 @@ const uint32_t s_customLUT_ZBIT_Quad[CUSTOM_LUT_LENGTH] = {
     // opcode 0x31 to write Status Register-2
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENABLEQE] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x31, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
+
+    /* Set Dummy cycle */
+    // DC bit in Status Register-3[0], there are three Status Registers (1/2/3)
+    // opcode 0x11 to write Status Register-3
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x11, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01),
 
     /* Read status register-2[15:8] */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG] =
@@ -98,6 +104,10 @@ void mfb_flash_set_param_for_zbit(jedec_id_t *jedecID)
         g_flashPropertyInfo.flashQuadEnableCfg        = ZBIT_FLASH_QUAD_ENABLE;
         g_flashPropertyInfo.flashQuadEnableBytes      = 1;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_ZBIT_Quad;
+#if !MFB_FLASH_USE_DEFAULT_DUMMY
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
+        g_flashPropertyInfo.flashDummyValue           = ZBIT_QUAD_FLASH_SET_DUMMY_CMD;
+#endif
     }
 #endif
 }

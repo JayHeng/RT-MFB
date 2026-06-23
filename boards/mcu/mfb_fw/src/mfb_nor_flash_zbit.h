@@ -10,13 +10,11 @@
 
 #include "mfb_nor_flash.h"
 
-#if ZBIT_DEVICE_ZB25VQ64D
+#if ZBIT_DEVICE_ZB25VQ128E
 
 #define ZBIT_FLASH_QUAD_ENABLE        0x02
 #define ZBIT_FLASH_BUSY_STATUS_POL    1
 #define ZBIT_FLASH_BUSY_STATUS_OFFSET 0
-#define ZBIT_QUAD_FLASH_DUMMY_CYCLES  0x06
-#endif
 
 /*
 ZB25VQ64D JEDEC ID (9Fh): Manufacturer 0x5E (Zbit), Device ID 0x4017 (Memory Type 0x40, Capacity 0x17, 64M-bit).
@@ -37,5 +35,13 @@ Read performance:
 //------------------------------------------------------
 */
 
+#define ZBIT_QUAD_FLASH_SET_DUMMY_CMD 0x01
+#if MFB_FLASH_USE_DEFAULT_DUMMY
+#define ZBIT_QUAD_FLASH_DUMMY_CYCLES  0x06
+#else
+#define ZBIT_QUAD_FLASH_DUMMY_CYCLES  0x0A
+#endif
+
+#endif
 
 #endif /* _MFB_NOR_FLASH_ZBIT_H_ */

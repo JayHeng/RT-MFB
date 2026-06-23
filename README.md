@@ -683,13 +683,13 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>待定</td>
     </tr>
     <tr>
-        <td rowspan="1">芝芯<br>
+        <td rowspan="1">恒烁<br>
                         Zbit</td>
-        <td>ZB25VQ64D</td>
+        <td>ZB25VQ128E</td>
         <td>2.7-3.6V</td>
         <td>133M (x4)</td>
-        <td>S104Mx4</td>
-        <td>待定</td>
+        <td>S133Mx4</td>
+        <td>通过</td>
     </tr>
     <tr>
         <td rowspan="1">芯天下<br>
