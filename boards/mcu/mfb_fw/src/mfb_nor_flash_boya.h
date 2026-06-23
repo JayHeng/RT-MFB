@@ -20,9 +20,6 @@
 #define BOYA_FLASH_BUSY_STATUS_POL    1
 #define BOYA_FLASH_BUSY_STATUS_OFFSET 0
 
-// Default dummy cycles for Fast Read Quad I/O (EBh), Quad I/O up to 532Mbit/s
-#define BOYA_QUAD_FLASH_DUMMY_CYCLES  0x06
-
 /*
 BYT Semiconductor (Boya) BY25FQ64ES: 64Mbit (8MByte), 2.7 - 3.6V, 4KB uniform sector, Quad/QPI.
 JEDEC ID (9Fh): Manufacturer 0x68 (Boya), Device ID 0x4017 (memoryType 0x40, capacity 0x17).
@@ -35,6 +32,14 @@ Read performance:
 //  1'b1      |       10       |     104/133R MHz      |
 //------------------------------------------------------
 */
+
+#define BOYA_QUAD_FLASH_SET_DUMMY_CMD 0x30
+#if MFB_FLASH_USE_DEFAULT_DUMMY
+#define ZBIT_QUAD_FLASH_DUMMY_CYCLES  0x06
+#else
+#define BOYA_QUAD_FLASH_DUMMY_CYCLES  0x0A
+#endif
+
 #endif
 /*******************************************************************************
  * Variables

@@ -674,12 +674,33 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>通过</td>
     </tr>
     <tr>
-        <td rowspan="1">博雅<br>
+        <td rowspan="4">博雅<br>
                         Boya</td>
+        <td>BY25FQ64GS</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td>S133Mx4</td>
+        <td>待定</td>
+    </tr>
+    <tr>
         <td>BY25FQ64ES</td>
         <td>2.7-3.6V</td>
         <td>133M (x4)</td>
-        <td>S104Mx4</td>
+        <td>S133Mx4</td>
+        <td>通过</td>
+    </tr>
+    <tr>
+        <td>HC25FQ128GS</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td>S133Mx4</td>
+        <td>待定</td>
+    </tr>
+    <tr>
+        <td>BY25FQ256ES</td>
+        <td>2.7-3.6V</td>
+        <td>166M (x4)</td>
+        <td>S133Mx4</td>
         <td>待定</td>
     </tr>
     <tr>
