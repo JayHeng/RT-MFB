@@ -669,9 +669,9 @@ FlexSPI2 pin multiplex options performance specifications:
                         XMC</td>
         <td>XM25QH64D</td>
         <td>2.7-3.6V</td>
-        <td>133M (x4)</td>
-        <td>S104Mx4</td>
-        <td>待定</td>
+        <td>166M (x4)</td>
+        <td>S133Mx4</td>
+        <td>通过</td>
     </tr>
     <tr>
         <td rowspan="1">博雅<br>
