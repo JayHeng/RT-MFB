@@ -21,7 +21,7 @@
  * Variables
  ******************************************************************************/
 
-#if ADESTO_DEVICE_AT25SF128A
+#if ADESTO_DEVICE_QUAD
 const uint32_t s_customLUT_ADESTO_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =

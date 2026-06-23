@@ -19,7 +19,7 @@
  * Variables
  ******************************************************************************/
 
-#if ISSI_DEVICE_IS25WP064A | ISSI_DEVICE_IS25LP064A | ISSI_DEVICE_IS25LP064D | ISSI_DEVICE_IS25WP064D | ISSI_DEVICE_IS25WP128 | ISSI_DEVICE_IS25WJ128F | ISSI_DEVICE_IS25LP512M
+#if ISSI_DEVICE_QUAD
 const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
@@ -105,7 +105,7 @@ const uint32_t s_customLUT_ISSI_Quad[CUSTOM_LUT_LENGTH] = {
 };
 #endif
 
-#if ISSI_DEVICE_IS25WX256 || ISSI_DEVICE_IS25LX256
+#if ISSI_DEVICE_OCTAL
 const uint32_t s_customLUT_ISSI_Octal[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_OPI_MODE_DISABLE
     /*  DDR OCTAL I/O FAST READ */

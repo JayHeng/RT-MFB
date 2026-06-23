@@ -21,7 +21,7 @@
  * Variables
  ******************************************************************************/
 
-#if FMSH_DEVICE_FM25LQ64
+#if FMSH_DEVICE_QUAD
 const uint32_t s_customLUT_FMSH_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =

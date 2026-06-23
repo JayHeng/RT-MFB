@@ -21,7 +21,7 @@
  * Variables
  ******************************************************************************/
 
-#if BOYA_DEVICE_BY25FQ64ES
+#if BOYA_DEVICE_QUAD
 const uint32_t s_customLUT_BOYA_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =

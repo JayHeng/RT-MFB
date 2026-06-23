@@ -25,7 +25,7 @@ uint8_t s_xmcFlashTypeIDs[] = {0x40};
 const uint32_t s_xmcFlashTypeIDsNum = sizeof(s_xmcFlashTypeIDs) / sizeof(s_xmcFlashTypeIDs[0]);
 
 
-#if XMC_DEVICE_XM25QH64D
+#if XMC_DEVICE_QUAD
 const uint32_t s_customLUT_XMC_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =

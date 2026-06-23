@@ -25,7 +25,7 @@ uint8_t s_micronFlashTypeIDs[] = {0xBA, 0xBB, 0x5A, 0x5B};
 const uint32_t s_micronFlashTypeIDsNum = sizeof(s_micronFlashTypeIDs) / sizeof(s_micronFlashTypeIDs[0]);
 
 
-#if MICRON_DEVICE_MT25QU128 | MICRON_DEVICE_MT25QL256
+#if MICRON_DEVICE_QUAD
 const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
@@ -70,7 +70,7 @@ const uint32_t s_customLUT_MICRON_Quad[CUSTOM_LUT_LENGTH] = {
 };
 #endif
 
-#if MICRON_DEVICE_MT35XU512_RW303 | MICRON_DEVICE_MT35XU512_RW304
+#if MICRON_DEVICE_OCTAL
 const uint32_t s_customLUT_MICRON_Octal[CUSTOM_LUT_LENGTH] = {
 #if !MFB_FLASH_OPI_MODE_DISABLE
     /*  DDR OCTAL I/O FAST READ */

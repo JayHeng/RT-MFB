@@ -21,7 +21,7 @@
  * Variables
  ******************************************************************************/
 
-#if GIANTEC_DEVICE_GT25Q64A
+#if GIANTEC_DEVICE_QUAD
 const uint32_t s_customLUT_GIANTEC_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =

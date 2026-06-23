@@ -21,7 +21,7 @@
  * Variables
  ******************************************************************************/
 
-#if XTX_DEVICE_XT25F64F
+#if XTX_DEVICE_QUAD
 const uint32_t s_customLUT_XTX_Quad[CUSTOM_LUT_LENGTH] = {
     /* Fast read quad mode - SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READ] =
