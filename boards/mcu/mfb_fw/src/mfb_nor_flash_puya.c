@@ -89,7 +89,7 @@ void mfb_flash_set_param_for_puya(jedec_id_t *jedecID)
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_100MHz;
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
         g_flashPropertyInfo.flashBusyStatusPol        = PUYA_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset     = PUYA_FLASH_BUSY_STATUS_OFFSET;

@@ -652,7 +652,7 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>PY25Q128HA</td>
         <td>2.7-3.6V</td>
         <td>133M (x4)</td>
-        <td>S104Mx4</td>
+        <td>S133Mx4</td>
         <td>通过</td>
     </tr>
     <tr>
@@ -683,8 +683,15 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>待定</td>
     </tr>
     <tr>
-        <td rowspan="1">恒烁<br>
+        <td rowspan="2">恒烁<br>
                         Zbit</td>
+        <td>ZB25VQ64D</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td></td>
+        <td>待定</td>
+    </tr>
+    <tr>
         <td>ZB25VQ128E</td>
         <td>2.7-3.6V</td>
         <td>133M (x4)</td>
