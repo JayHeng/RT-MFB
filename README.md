@@ -739,10 +739,10 @@ FlexSPI2 pin multiplex options performance specifications:
         <td rowspan="1">聚辰<br>
                         Giantec</td>
         <td>GT25Q64A</td>
-        <td>2.7-3.6V</td>
-        <td>133M (x4)</td>
-        <td>S104Mx4</td>
-        <td>待定</td>
+        <td>2.3-3.6V</td>
+        <td>110M (x4)</td>
+        <td>S100Mx4</td>
+        <td>通过</td>
     </tr>
     <tr>
         <td rowspan="1">复旦微<br>
