@@ -656,12 +656,19 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>通过</td>
     </tr>
     <tr>
-        <td rowspan="1">东芯<br>
+        <td rowspan="2">东芯<br>
                         Dosilicon</td>
         <td>DS25M4AB</td>
         <td>1.65-1.95V</td>
         <td>104M (x4)</td>
         <td>S104Mx4</td>
+        <td>通过</td>
+    </tr>
+    <tr>
+        <td>DS25Q64A</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td>S133Mx4</td>
         <td>通过</td>
     </tr>
     <tr>

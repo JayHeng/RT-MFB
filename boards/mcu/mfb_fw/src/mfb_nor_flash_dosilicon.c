@@ -79,8 +79,13 @@ void mfb_flash_set_param_for_dosilicon(jedec_id_t *jedecID)
     switch (jedecID->memoryTypeID)
     {
         /////////////////////////QuadSPI////////////////////////
+        case 0x31:
+            mfb_printf(" -- DS25Q QuadSPI 3.3V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_133MHz;
+            break;
         case 0x42:
             mfb_printf(" -- DS25M QuadSPI 1.8V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_100MHz;
             break;
         default:
             mfb_printf(" -- Unsupported Series.\r\n");
@@ -91,7 +96,6 @@ void mfb_flash_set_param_for_dosilicon(jedec_id_t *jedecID)
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_100MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
         g_flashPropertyInfo.flashBusyStatusPol        = DOSILICON_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset     = DOSILICON_FLASH_BUSY_STATUS_OFFSET;

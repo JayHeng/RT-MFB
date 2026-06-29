@@ -336,7 +336,8 @@ typedef struct _flash_reg_access
 #define DOSILICON_DEVICE_SERIES     (1)
 #define DOSILICON_DEVICE_VENDOR_ID  (0xE5)
 #define DOSILICON_DEVICE_QUAD       (1)
-#define DOSILICON_DEVICE_DS25M4AB   (1)
+#define DOSILICON_DEVICE_DS25M4AB   (0)
+#define DOSILICON_DEVICE_DS25Q64A   (1)
 ////////////////////////////////////////////////////////////////////////////////
 #define XMC_DEVICE_SERIES           (1)  // Wuhan Xinxin Semiconductor Manufacturing Co., Ltd.
 #define XMC_DEVICE_VENDOR_ID        (0x20)
