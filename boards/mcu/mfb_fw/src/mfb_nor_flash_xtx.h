@@ -14,8 +14,7 @@
 #define XTX_FLASH_QUAD_ENABLE        0x02
 #define XTX_FLASH_BUSY_STATUS_POL    1
 #define XTX_FLASH_BUSY_STATUS_OFFSET 0
-#define XTX_QUAD_FLASH_DUMMY_CYCLES  0x06
-#endif
+
 
 /*
 XT25F64F JEDEC ID (9Fh): Manufacturer 0x0B (XTX), Device ID 0x4017 (Memory Type 0x40, Capacity 0x17, 64M-bit).
@@ -36,5 +35,13 @@ Read performance:
 //------------------------------------------------------
 */
 
+#define XTX_QUAD_FLASH_SET_DUMMY_CMD 0x41
+#if MFB_FLASH_USE_DEFAULT_DUMMY
+#define XTX_QUAD_FLASH_DUMMY_CYCLES  0x06
+#else
+#define XTX_QUAD_FLASH_DUMMY_CYCLES  0x0A
+#endif
+
+#endif
 
 #endif /* _MFB_NOR_FLASH_XTX_H_ */

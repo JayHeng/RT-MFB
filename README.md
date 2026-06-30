@@ -686,8 +686,8 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>BY25FQ64GS</td>
         <td>2.7-3.6V</td>
         <td>133M (x4)</td>
-        <td>S133Mx4</td>
-        <td>待定</td>
+        <td></td>
+        <td></td>
     </tr>
     <tr>
         <td>BY25FQ64ES</td>
@@ -700,15 +700,15 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>HC25FQ128GS</td>
         <td>2.7-3.6V</td>
         <td>133M (x4)</td>
-        <td>S133Mx4</td>
-        <td>待定</td>
+        <td></td>
+        <td></td>
     </tr>
     <tr>
         <td>BY25FQ256ES</td>
         <td>2.7-3.6V</td>
         <td>166M (x4)</td>
-        <td>S133Mx4</td>
-        <td>待定</td>
+        <td></td>
+        <td></td>
     </tr>
     <tr>
         <td rowspan="2">恒烁<br>
@@ -717,7 +717,7 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>2.7-3.6V</td>
         <td>133M (x4)</td>
         <td></td>
-        <td>待定</td>
+        <td></td>
     </tr>
     <tr>
         <td>ZB25VQ128E</td>
@@ -727,13 +727,20 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>通过</td>
     </tr>
     <tr>
-        <td rowspan="1">芯天下<br>
+        <td rowspan="2">芯天下<br>
                         XTX</td>
-        <td>XT25F64F</td>
+        <td>XT25F128F</td>
         <td>2.7-3.6V</td>
         <td>133M (x4)</td>
-        <td>S104Mx4</td>
-        <td>待定</td>
+        <td>S133Mx4</td>
+        <td>通过</td>
+    </tr>
+    <tr>
+        <td>XTD25W64A</td>
+        <td>2.7-3.6V</td>
+        <td>133M (x4)</td>
+        <td></td>
+        <td></td>
     </tr>
     <tr>
         <td rowspan="1">聚辰<br>
@@ -750,8 +757,8 @@ FlexSPI2 pin multiplex options performance specifications:
         <td>FM25LQ64</td>
         <td>1.65-1.95V</td>
         <td>133M (x4)</td>
-        <td>S104Mx4</td>
-        <td>待定</td>
+        <td></td>
+        <td></td>
     </tr>
 </table>
 
