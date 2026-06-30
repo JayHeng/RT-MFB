@@ -737,10 +737,10 @@ FlexSPI2 pin multiplex options performance specifications:
     </tr>
     <tr>
         <td>XTD25W64A</td>
-        <td>2.7-3.6V</td>
+        <td>1.65-3.6V</td>
         <td>133M (x4)</td>
-        <td></td>
-        <td></td>
+        <td>S133Mx4</td>
+        <td>通过</td>
     </tr>
     <tr>
         <td rowspan="1">聚辰<br>

@@ -91,6 +91,10 @@ void mfb_flash_set_param_for_xtx(jedec_id_t *jedecID)
             mfb_printf(" -- XT25F QuadSPI 3.3V Series.\r\n");
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
             break;
+        case 0x75:
+            mfb_printf(" -- XTD25W QuadSPI 1.65-3.6V Series.\r\n");
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+            break;
         default:
             mfb_printf(" -- Unsupported Series.\r\n");
             break;

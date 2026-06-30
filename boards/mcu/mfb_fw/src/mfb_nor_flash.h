@@ -357,7 +357,8 @@ typedef struct _flash_reg_access
 #define XTX_DEVICE_SERIES           (1)  // XTX Technology Limited
 #define XTX_DEVICE_VENDOR_ID        (0x0B)
 #define XTX_DEVICE_QUAD             (1)
-#define XTX_DEVICE_XT25F64F         (1)
+#define XTX_DEVICE_XT25F64F         (0)
+#define XTX_DEVICE_XTD25W64A        (1)
 ////////////////////////////////////////////////////////////////////////////////
 #define GIANTEC_DEVICE_SERIES       (1)  // Giantec Semiconductor Corporation
 #define GIANTEC_DEVICE_VENDOR_ID    (0xC4)
