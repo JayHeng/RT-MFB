@@ -73,6 +73,23 @@ static void mixspi_pin_init(XSPI_Type *base, xspi_target_group_t port, xspi_pad_
         /* Reset IOPCTL2 module */
         RESET_ClearPeripheralReset(kIOPCTL2_RST_SHIFT_RSTn);
 
+        const uint32_t port6_pin0_config = (/* Pin is configured as XSPI0_SCK_A_N */
+                                            IOPCTL_PIO_FUNC1 |
+                                            /* Disable pull-up / pull-down function */
+                                            IOPCTL_PIO_PUPD_DI |
+                                            /* Enable pull-down function */
+                                            IOPCTL_PIO_PULLDOWN_EN |
+                                            /* Enables input buffer function */
+                                            IOPCTL_PIO_INBUF_EN |
+                                            /* Pseudo Output Drain is disabled */
+                                            IOPCTL_PIO_PSEDRAIN_DI |
+                                            /* Input function is not inverted */
+                                            IOPCTL_PIO_INV_DI |
+                                            /* Selects transmitter current drive 100ohm */
+                                            IOPCTL_PIO_DRIVE_100OHM);
+        /* PORT6 PIN0 (coords: D16) is configured as XSPI0_SCK_A_N */
+        IOPCTL_PinMuxSet(6U, 0U, port6_pin0_config);
+
         const uint32_t port6_pin1_config = (/* Pin is configured as XSPI0_SCK_A */
                                             IOPCTL_PIO_FUNC1 |
                                             /* Disable pull-up / pull-down function */
@@ -106,6 +123,23 @@ static void mixspi_pin_init(XSPI_Type *base, xspi_target_group_t port, xspi_pad_
                                             IOPCTL_PIO_DRIVE_100OHM);
         /* PORT6 PIN2 (coords: G11) is configured as XSPI0_PCS_A_0 */
         IOPCTL_PinMuxSet(6U, 2U, port6_pin2_config);
+
+        const uint32_t port6_pin12_config = (/* Pin is configured as XSPI0_PCS_A_1 */
+                                             IOPCTL_PIO_FUNC1 |
+                                             /* Disable pull-up / pull-down function */
+                                             IOPCTL_PIO_PUPD_DI |
+                                             /* Enable pull-down function */
+                                             IOPCTL_PIO_PULLDOWN_EN |
+                                             /* Enables input buffer function */
+                                             IOPCTL_PIO_INBUF_EN |
+                                             /* Pseudo Output Drain is disabled */
+                                             IOPCTL_PIO_PSEDRAIN_DI |
+                                             /* Input function is not inverted */
+                                             IOPCTL_PIO_INV_DI |
+                                             /* Selects transmitter current drive 100ohm */
+                                             IOPCTL_PIO_DRIVE_100OHM);
+        /* PORT6 PIN12 (coords: G10) is configured as XSPI0_PCS_A_1 */
+        IOPCTL_PinMuxSet(6U, 12U, port6_pin12_config);
 
         const uint32_t port6_pin7_config = (/* Pin is configured as XSPI0_DQS_A_0 */
                                             IOPCTL_PIO_FUNC1 |
