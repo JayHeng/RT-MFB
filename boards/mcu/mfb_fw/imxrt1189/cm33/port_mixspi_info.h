@@ -23,10 +23,10 @@
 
 #define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
 
-#define EXAMPLE_MIXSPI                  FLEXSPI2
+#define EXAMPLE_MIXSPI                  FLEXSPI1
 #define MIXSPI_LUT_SEQS                 (32)
 #define NOR_CMD_LUT_SEQ_IDX_START       (0)
-#define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI2_AMBA_BASE
+#define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI1_AMBA_BASE
 #define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
 #if MFB_FLASH_HYPER_FLASH_ENABLE
 #define FLASH_SIZE                      0x10000 /* 512Mb/KByte */
@@ -37,7 +37,7 @@
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
 #endif
-#define EXAMPLE_MIXSPI_CLOCK            kCLOCK_Flexspi2
+#define EXAMPLE_MIXSPI_CLOCK            kCLOCK_Flexspi1
 #define EXAMPLE_MIXSPI_PORT             kFLEXSPI_PortA1
 
 //#define BOARD_IS_RT1180_EVK_PORTA_QUAD      (1)
@@ -45,8 +45,8 @@
 //#define BOARD_IS_RT1180_EVK_PORTB_QUAD      (0)
 //#define BOARD_IS_RT1180_EVK_PORTB_OCTAL     (0)  // To Flash memory daughter card
 
-#define BOARD_IS_RT1180_MEM_DC_MUX1         (0)
-#define BOARD_IS_RT1180_MEM_DC_MUX2         (1)
+#define BOARD_IS_RT1180_MEM_DC_MUX1         (1)
+#define BOARD_IS_RT1180_MEM_DC_MUX2         (0)
 #define BOARD_IS_RT1180_MEM_DC_MUX3         (0)
 
 #define BOARD_IS_RT1180_MEM_DC_MUX_FSPI2_HARD_PULL (1)  // Use pull-up/down to set DC-FLEXSPI2_MUX_SEL

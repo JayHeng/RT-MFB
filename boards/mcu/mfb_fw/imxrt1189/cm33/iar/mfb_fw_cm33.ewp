@@ -70,7 +70,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>9.70.1.13552</state>
+                    <state>9.70.4.21192</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -4745,6 +4745,18 @@
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_dosilicon.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_fmsh.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_fmsh.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_giantec.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_giantec.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_gigadevice.c</name>
         </file>
         <file>
@@ -4798,19 +4810,6 @@
         <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_xtx.h</name>
         </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_giantec.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_giantec.h</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_fmsh.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_fmsh.h</name>
-        </file>
-
         <file>
             <name>$PROJ_DIR$\..\..\..\src\mfb_nor_flash_zbit.c</name>
         </file>

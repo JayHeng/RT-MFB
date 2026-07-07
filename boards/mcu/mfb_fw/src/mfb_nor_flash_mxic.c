@@ -156,14 +156,23 @@ const uint32_t s_customLUT_MXIC_Octal[CUSTOM_LUT_LENGTH] = {
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01), 
 
     /* Read status register using Octal DDR read */
+#if MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_FLEXSPI
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05, kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0xFA),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = 
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x12),
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x08),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 2] = 
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_DUMMY_DDR, kMIXSPI_8PAD, 0x02, kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x02),
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+#elif MFB_MIXSPI_MODULE == MFB_MIXSPI_MODULE_IS_XSPI
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0x05, kMIXSPI_Command_DDR,       kMIXSPI_8PAD, 0xFA),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 1] = 
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_RADDR_DDR, kMIXSPI_8PAD, 0x20, kMIXSPI_Command_DUMMY_SDR, kMIXSPI_8PAD, 0x12),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 2] = 
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_DUMMY_SDR, kMIXSPI_8PAD, 0x02, kMIXSPI_Command_READ_DDR,  kMIXSPI_8PAD, 0x08),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_OPI + 3] = 
-        MIXSPI_LUT_SEQ(kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_STOP,      kMIXSPI_8PAD, 0x00, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
+#endif
 
     /* Write Enable - OPI */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_WRITEENABLE_OPI] =
@@ -255,7 +264,7 @@ void mfb_flash_set_param_for_mxic(jedec_id_t *jedecID)
             break;
         case 0x84:
             g_flashPropertyInfo.flashIsOctal = true;
-            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_400MHz;
             mfb_printf(" -- MX25UWxx345G OctalSPI 1.8V Series.\r\n");
             break;
         case 0x85:
