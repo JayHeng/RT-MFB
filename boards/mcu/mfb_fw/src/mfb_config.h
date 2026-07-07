@@ -16,6 +16,7 @@
 // The app image offset in flash device
 #define MFB_APP_IMAGE_OFFSET             (0xC000)
 
+////////////////////////////////////////////////////////////////////////////////
 // Whether to enable hyperFlash (or Quad/Octal SPI Flash) test
 #define MFB_FLASH_HYPER_FLASH_ENABLE     (0)
 // Whether to use 3.0V flash (Single ended clock) or 1.8V flash (Differential clock CK, CK#)
@@ -25,6 +26,7 @@
 // For S26HL512TFPBHI010 or S26HL512TFPBHI030, it boots in x1 SPI mode by default
 #define MFB_FLASH_DEFAULT_BOOT_HYPERBUS  (1)
 
+////////////////////////////////////////////////////////////////////////////////
 // Whether to use 1bit SPI mode for Quad/Octal Flash
 #define MFB_FLASH_SPI_MODE_ENABLE        (0)
 // Whether to enable QPI mode for Quad Flash
@@ -34,8 +36,11 @@
 // Whether to sue default dummy cycle for Quad Flash
 #define MFB_FLASH_USE_DEFAULT_DUMMY      (1)
 
+////////////////////////////////////////////////////////////////////////////////
 // Whether to show MFB log info via UART console (for development)
 #define MFB_DEBUG_LOG_INFO_ENABLE        (1)
+
+////////////////////////////////////////////////////////////////////////////////
 // The flash region size used for perf and pattern test
 #define MFB_FLASH_ACCESS_REGION_START    (0x40000UL)
 #define MFB_FLASH_ACCESS_REGION_SIZE     (0x40000UL)
@@ -48,12 +53,19 @@
 // Whether to use static pattern word or dynamic value (when it is 0)
 #define MFB_FLASH_PATTERN_STATIC_WORD    (0)//(0xFF00FF00)
 
+////////////////////////////////////////////////////////////////////////////////
 // Whether to use fake jedec id (appliable when there is no id in flash device)
 #define MFB_FLASH_FAKE_JEDEC_ID_ENABLE   (0)
+
+////////////////////////////////////////////////////////////////////////////////
+// Whether to check sfdp
+#define MFB_FLASH_CHECK_JEDEC_SFDP_ENABLE (0)
 // Whether to program sfdp if there is no sfdp in flash device
-#define MFB_FLASH_PROG_JEDEC_SFDP_ENABLE (1)
+#define MFB_FLASH_PROG_JEDEC_SFDP_ENABLE  (0)
+
+////////////////////////////////////////////////////////////////////////////////
 // Whether to show flash internal registers
-#define MFB_FLASH_REGS_READBACK_ENABLE   (1)
+#define MFB_FLASH_REGS_READBACK_ENABLE   (0)
 // Whether to show flash internal registers only
 #define MFB_FLASH_REGS_READBACK_ONLY     (0)
 

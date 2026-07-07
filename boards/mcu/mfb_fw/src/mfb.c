@@ -397,6 +397,7 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
             /* Check Vendor ID. */
             sta_isValidVendorId = mfb_flash_is_valid_infineon_samper_id(samperID);
         }
+#if MFB_FLASH_CHECK_JEDEC_SFDP_ENABLE
         if (sta_isValidVendorId && (*sta_flashInstMode == kFlashInstMode_SPI))
         {
             sfdp_header_t sfdp_header;
@@ -487,6 +488,7 @@ static bool mfb_validate_jedec(flash_inst_mode_t *sta_flashInstMode, jedec_id_t 
                 mfb_printf("MFB: Get Flash SFDP failed\r\n");
             }
         }
+#endif
     }
     return sta_isValidVendorId;
 }
