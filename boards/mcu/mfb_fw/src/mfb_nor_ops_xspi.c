@@ -16,6 +16,13 @@
  * Variables
  ******************************************************************************/
 
+static xspi_device_ddr_config_t s_flashDDrConfig = 
+{
+    .ddrDataAlignedClk = kXSPI_DDRDataAlignedWith2xInternalRefClk,
+    .enableDdr = true,
+    .enableByteSwapInOctalMode = false,
+};
+
 static xspi_device_config_t s_deviceconfig =
 {
     .xspiRootClk = 27400000,
@@ -28,14 +35,14 @@ static xspi_device_config_t s_deviceconfig =
     .sampleClkConfig.enableDQSLatency = false,
     .sampleClkConfig.dllConfig.dllMode = kXSPI_AutoUpdateMode,
     .sampleClkConfig.dllConfig.useRefValue = true,
-    .sampleClkConfig.dllConfig.enableCdl8 = false,
+    .sampleClkConfig.dllConfig.enableCdl8 = true,
+    .ptrDeviceDdrConfig = &s_flashDDrConfig,
     .addrMode = kXSPI_DeviceByteAddressable,
     .columnAddrWidth = 0U,
     .enableCASInterleaving = false,
     .deviceSize[0] = 0x4000, /* 128Mb/KByte */
     .deviceSize[1] = 0x4000, /* 128Mb/KByte */
     .ptrDeviceRegInfo = NULL,
-    .ptrDeviceDdrConfig = NULL,
 };
 
 /*******************************************************************************
