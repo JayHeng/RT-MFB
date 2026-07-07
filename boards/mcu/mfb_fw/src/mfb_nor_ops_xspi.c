@@ -542,33 +542,45 @@ void mixspi_nor_flash_init(XSPI_Type *base, const uint32_t *customLUT, xspi_samp
     xspi_ahb_access_config_t xspiAhbAccessConfig;
     xspi_ip_access_config_t xspiIpAccessConfig;
 
-    XSPI_ResetSfmAndAhbDomain(base);
-    //XSPI_UpdateByteOrder(base, kXSPI_32BitLE);
+    /* To store custom's LUT table in local. */
+    uint32_t tempLUT[CUSTOM_LUT_LENGTH] = {0x00U};
 
-    /*Get XSPI default settings and configure the xspi. */
-    config.enableDoze         = false;
+    /* Copy LUT information from flash region into RAM region, because LUT update maybe corrupt read sequence(LUT[0])
+     * and load wrong LUT table from FLASH region. */
+    memcpy(tempLUT, customLUT, sizeof(tempLUT));
+
     config.ptrAhbAccessConfig = &xspiAhbAccessConfig;
     config.ptrIpAccessConfig  = &xspiIpAccessConfig;
     XSPI_GetDefaultConfig(&config);
 
-    config.byteOrder                                = kXSPI_32BitLE;
-    xspiAhbAccessConfig.ahbAlignment                = kXSPI_AhbAlignmentNoLimit;
+#if (defined(FSL_FEATURE_XSPI_HAS_END_CFG) && FSL_FEATURE_XSPI_HAS_END_CFG)
+    config.byteOrder = kXSPI_64BitLE;
+#endif
     xspiAhbAccessConfig.ahbErrorPayload.highPayload = 0x5A5A5A5AUL;
     xspiAhbAccessConfig.ahbErrorPayload.lowPayload  = 0x5A5A5A5AUL;
     xspiAhbAccessConfig.ptrAhbWriteConfig           = NULL;
-    xspiAhbAccessConfig.ahbSplitSize                = kXSPI_AhbSplitSizeDisabled;
     xspiAhbAccessConfig.ARDSeqIndex                 = NOR_CMD_LUT_SEQ_IDX_READ;
     xspiAhbAccessConfig.enableAHBBufferWriteFlush   = true;
     xspiAhbAccessConfig.enableAHBPrefetch           = true;
 
+#if defined(ENABLE_SFP_CONFIG) && (ENABLE_SFP_CONFIG)
+    extern xspi_sfp_mdad_config_t *pSfpMdadConfig;
+    extern xspi_sfp_frad_config_t *pSfpFradConfig;
+    config.ptrIpAccessConfig->ptrSfpFradConfig = pSfpFradConfig;
+    config.ptrIpAccessConfig->ptrSfpMdadConfig = pSfpMdadConfig;
+#else
+    config.ptrIpAccessConfig->ptrSfpFradConfig = NULL; /* This demo does not demonstrate SFP feature.*/
+    config.ptrIpAccessConfig->ptrSfpMdadConfig = NULL;
+#endif
+    config.ptrIpAccessConfig->ipAccessTimeoutValue           = 0xFFFFFFFFUL;
+    config.ptrIpAccessConfig->sfpArbitrationLockTimeoutValue = 0xFFFFFFUL;
     XSPI_Init(base, &config);
 
     s_deviceconfig.sampleClkConfig.sampleClkSource = rxSampleClock;
 
     /* Configure flash settings according to serial flash feature. */
     XSPI_SetDeviceConfig(base, &s_deviceconfig);
-    XSPI_EnableModule(base, true);
 
     /*update LUT*/
-    XSPI_UpdateLUT(base, 0, customLUT, CUSTOM_LUT_LENGTH);
+    XSPI_UpdateLUT(base, 0, tempLUT, CUSTOM_LUT_LENGTH);
 }
