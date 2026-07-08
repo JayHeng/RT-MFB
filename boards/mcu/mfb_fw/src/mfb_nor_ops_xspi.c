@@ -66,12 +66,16 @@ void mixspi_device_config_update_flashsize(uint32_t flashSize)
 
 void mixspi_nor_disable_cache(xspi_cache_status_t *cacheStatus)
 {
-
+#if defined(EXAMPLE_INVALIDATE_XSPI_CACHE)
+    EXAMPLE_INVALIDATE_XSPI_CACHE;
+#endif /*  defined(EXAMPLE_INVALIDATE_XSPI_CACHE) */
 }
 
 void mixspi_nor_enable_cache(xspi_cache_status_t cacheStatus)
 {
-
+#if defined(EXAMPLE_INVALIDATE_XSPI_CACHE)
+    EXAMPLE_INVALIDATE_XSPI_CACHE;
+#endif /*  defined(EXAMPLE_INVALIDATE_XSPI_CACHE) */
 }
 
 status_t mixspi_nor_write_enable(XSPI_Type *base, uint32_t baseAddr, flash_inst_mode_t flashInstMode)
@@ -225,6 +229,11 @@ status_t mixspi_nor_write_register(XSPI_Type *base, flash_reg_access_t *regAcces
         return kStatus_Success;
     }
 
+#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
+    xspi_cache_status_t cacheStatus;
+    mixspi_nor_disable_cache(&cacheStatus);
+#endif
+
     uint32_t writeValue = regAccess->regValue.U;
 
     /* Write enable */
@@ -265,6 +274,13 @@ status_t mixspi_nor_write_register(XSPI_Type *base, flash_reg_access_t *regAcces
         // For Infineon MirrorBit device, typical delay time for CFR3N setting is 45ms
         mixspi_sw_delay_us(100000UL);
     }
+
+    /* Do software reset. */
+    XSPI_SoftwareReset(base);
+
+#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
+    mixspi_nor_enable_cache(cacheStatus);
+#endif
 
     return status;
 }
@@ -328,6 +344,8 @@ status_t mixspi_nor_read_register(XSPI_Type *base, flash_reg_access_t *regAccess
 
     status_t status = XSPI_TransferBlocking(base, &flashXfer);
     
+    XSPI_SoftwareReset(base);
+    
     regAccess->regValue.U = regVal;
 
     return status;
@@ -337,6 +355,11 @@ status_t mixspi_nor_flash_erase_sector(XSPI_Type *base, uint32_t address, flash_
 {
     status_t status;
     xspi_transfer_t flashXfer;
+
+#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
+    xspi_cache_status_t cacheStatus;
+    mixspi_nor_disable_cache(&cacheStatus);
+#endif
 
     /* Write enable */
     status = mixspi_nor_write_enable(base, address, flashInstMode);
@@ -378,6 +401,13 @@ status_t mixspi_nor_flash_erase_sector(XSPI_Type *base, uint32_t address, flash_
 
     status = mixspi_nor_wait_bus_busy(base, flashInstMode);
 
+    /* Do software reset. */
+    XSPI_SoftwareReset(base);
+
+#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
+    mixspi_nor_enable_cache(cacheStatus);
+#endif
+
     return status;
 }
 
@@ -385,6 +415,11 @@ status_t mixspi_nor_flash_page_program(XSPI_Type *base, uint32_t address, const 
 {
     status_t status;
     xspi_transfer_t flashXfer;
+
+#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
+    xspi_cache_status_t cacheStatus;
+    mixspi_nor_disable_cache(&cacheStatus);
+#endif
 
     /* To make sure external flash be in idle status, added wait for busy before program data for
         an external flash without RWW(read while write) attribute.*/
@@ -433,6 +468,13 @@ status_t mixspi_nor_flash_page_program(XSPI_Type *base, uint32_t address, const 
     }
 
     status = mixspi_nor_wait_bus_busy(base, flashInstMode);
+
+    /* Do software reset. */
+    XSPI_SoftwareReset(base);
+
+#if defined(CACHE_MAINTAIN) && CACHE_MAINTAIN
+    mixspi_nor_enable_cache(cacheStatus);
+#endif
 
     return status;
 }
@@ -590,4 +632,7 @@ void mixspi_nor_flash_init(XSPI_Type *base, const uint32_t *customLUT, xspi_samp
 
     /*update LUT*/
     XSPI_UpdateLUT(base, 0, tempLUT, CUSTOM_LUT_LENGTH);
+
+    /* Do software reset. */
+    XSPI_SoftwareReset(base);
 }
