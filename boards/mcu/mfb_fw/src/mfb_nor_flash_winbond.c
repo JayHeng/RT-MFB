@@ -154,6 +154,14 @@ const uint32_t s_customLUT_WINBOND_Octal[CUSTOM_LUT_LENGTH] = {
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDUMMY + 2] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
+    /* Set driver strength */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDRIVE] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x81, kMIXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x00),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDRIVE + 1] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x00, kMIXSPI_Command_SDR,       kFLEXSPI_1PAD, 0x03),
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDRIVE + 2] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x01, kMIXSPI_Command_STOP,      kFLEXSPI_1PAD, 0x00),
+
     /* Erase Sector - SPI */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x21, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x20),
@@ -282,6 +290,7 @@ void mfb_flash_set_param_for_winbond(jedec_id_t *jedecID)
         case 0x5B:
             g_flashPropertyInfo.flashIsOctal = true;
             mfb_printf(" -- W35TxxxNW OctalSPI 1.8V Series.\r\n");
+            //g_flashPropertyInfo.flashDriveStrength = 0xFD;
             break;
         // Missing W25H, W25R
         // Missing xxxJL, xxxDW, xxxRV
