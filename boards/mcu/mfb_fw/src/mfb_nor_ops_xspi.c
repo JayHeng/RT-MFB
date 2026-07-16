@@ -23,6 +23,13 @@ static xspi_device_ddr_config_t s_flashDDrConfig =
     .enableByteSwapInOctalMode = false,
 };
 
+static xspi_device_ddr_config_t s_flashSdrConfig = 
+{
+    .ddrDataAlignedClk = kXSPI_DDRDataAlignedWithInternalRefClk,
+    .enableDdr = false,
+    .enableByteSwapInOctalMode = false,
+};
+
 static xspi_device_config_t s_deviceconfig =
 {
     .xspiRootClk = 27400000,
