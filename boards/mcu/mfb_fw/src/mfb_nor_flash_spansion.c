@@ -356,6 +356,8 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
             g_flashPropertyInfo.flashQuadEnableCfg = SPANSION_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
             g_flashPropertyInfo.flashUniqueCfg = SPANSION_QUAD_FLASH_UNIQUE_CFG;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+            g_flashPropertyInfo.flashSectorSize = 0x40000; // 256KB
             mfb_printf(" -- S25HL-T QuadSPI 3.3V Series.\r\n");
             break;
         case 0x2B:
@@ -364,6 +366,8 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
             g_flashPropertyInfo.flashQuadEnableCfg = SPANSION_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
             g_flashPropertyInfo.flashUniqueCfg = SPANSION_QUAD_FLASH_UNIQUE_CFG;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
+            g_flashPropertyInfo.flashSectorSize = 0x40000; // 256KB
             mfb_printf(" -- S25HS-T QuadSPI 1.8V Series.\r\n");
             break;
         case 0x60:
@@ -372,6 +376,7 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
             g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkLoopbackDqs;
             g_flashPropertyInfo.flashQuadEnableCfg = SPANSION_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
             mfb_printf(" -- S25FL-L QuadSPI 3.3V Series.\r\n");
             break;
         case 0x02:
@@ -380,6 +385,8 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
             g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkLoopbackDqs;
             g_flashPropertyInfo.flashQuadEnableCfg = SPANSION_FLASH_QUAD_ENABLE;
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
+            g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_80MHz;
+            g_flashPropertyInfo.flashSectorSize = 0x40000; // 256KB
             mfb_printf(" -- S25FL-S QuadSPI 3.0V Series.\r\n");
             break;
         ////////////////////////OctalSPI////////////////////////
@@ -400,7 +407,6 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
     if (!g_flashPropertyInfo.flashIsOctal)
     {
         g_flashPropertyInfo.mixspiPad                 = kMIXSPI_4PAD;
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_100MHz;
         g_flashPropertyInfo.flashBusyStatusPol        = SPANSION_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset     = SPANSION_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_SPANSION_Quad;

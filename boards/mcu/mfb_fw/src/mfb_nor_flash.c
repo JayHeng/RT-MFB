@@ -559,11 +559,11 @@ bool mfb_flash_write_pattern_region(flash_inst_mode_t flashInstMode)
 
 #if MFB_FLASH_PATTERN_VERIFY_ENABLE
     mfb_printf("MFB: Write pattern data into Flash region 0x%x - 0x%x (but without readback verify).\r\n", MFB_FLASH_ACCESS_REGION_START, MFB_FLASH_ACCESS_REGION_START + MFB_FLASH_ACCESS_REGION_SIZE - 1);
-    uint32_t sectorMax = MFB_FLASH_ACCESS_REGION_SIZE / EXAMPLE_FLASH_SECTOR_SIZE;
-    uint32_t pagesPerSector = EXAMPLE_FLASH_SECTOR_SIZE / EXAMPLE_FLASH_PAGE_SIZE;
+    uint32_t sectorMax = MFB_FLASH_ACCESS_REGION_SIZE / g_flashPropertyInfo.flashSectorSize;
+    uint32_t pagesPerSector = g_flashPropertyInfo.flashSectorSize / EXAMPLE_FLASH_PAGE_SIZE;
     for (uint32_t sectorId = 0; sectorId < sectorMax; sectorId++)
     {
-        uint32_t sectorAddr = MFB_FLASH_ACCESS_REGION_START + sectorId * EXAMPLE_FLASH_SECTOR_SIZE;
+        uint32_t sectorAddr = MFB_FLASH_ACCESS_REGION_START + sectorId * g_flashPropertyInfo.flashSectorSize;
         status_t status = mixspi_nor_flash_erase_sector(EXAMPLE_MIXSPI, sectorAddr, flashInstMode);
         if (status != kStatus_Success)
         {

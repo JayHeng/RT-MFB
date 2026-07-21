@@ -130,6 +130,8 @@ typedef struct _flash_property_info
     uint32_t flashDummyValue;
     uint32_t flashDriveStrength;
     uint32_t flashUniqueCfg;
+
+    uint32_t flashSectorSize;
 } flash_property_info_t;
 
 // Flash cache config

@@ -536,6 +536,7 @@ void mfb_main(void)
     g_flashPropertyInfo.flashDriveStrength = U32_VALUE_INVALID;
     g_flashPropertyInfo.flashQuadEnableBytes = 0;
     g_flashPropertyInfo.flashUniqueCfg = U32_VALUE_INVALID;
+    g_flashPropertyInfo.flashSectorSize = EXAMPLE_FLASH_SECTOR_SIZE;
     /* Validate JEDEC ID and SFDP. */
     if (mfb_validate_jedec(&sta_flashInstMode, &jedecID, NULL))
     {
