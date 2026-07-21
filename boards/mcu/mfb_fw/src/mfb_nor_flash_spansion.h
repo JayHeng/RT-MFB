@@ -39,6 +39,27 @@
 //   ...      |       ..       |        108MHz         |
 //  4'b1111   |       15       |        108MHz         |
 //------------------------------------------------------
+#elif SPANSION_DEVICE_S25FL256S
+// QE bit in Configuration Register 1 (CR1[1]), written via WRR (01h) as the
+//   second data byte (SR1 first, then CR1). So the 16-bit WRR payload for QE is 0x0200.
+#define SPANSION_FLASH_QUAD_ENABLE           0x0200
+
+// S25FL256S Quad I/O Read (EBh/ECh) with default Latency Code (CR1[7:6]=00b):
+//   High Performance table -> 2 mode cycles + 4 dummy cycles up to 104MHz.
+// The LUT below emits a MODE8 byte, so program 4 dummy cycles here.
+#define SPANSION_QUAD_FLASH_DUMMY_CYCLES     0x04
+
+// No unique/hybrid sector selection register applies to legacy FL-S QuadSPI.
+#define SPANSION_QUAD_FLASH_UNIQUE_CFG       0x00
+
+//------------------------------------------------------------------------------
+// CR1[7:6] |  mode  |  dummy  | Quad I/O Fast Read (EBh/ECh) SDR
+//------------------------------------------------------------------------------
+//   00b    |   2    |    4    |         up to 104MHz
+//   01b    |   2    |    5    |         up to  90MHz
+//   10b    |   2    |    6    |         up to 104MHz
+//   11b    |   -    |    -    |         not supported
+//------------------------------------------------------------------------------
 #elif SPANSION_DEVICE_S25HS512T
 #define SPANSION_FLASH_QUAD_ENABLE           0x0200
 

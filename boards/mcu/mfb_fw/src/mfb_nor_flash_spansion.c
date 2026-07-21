@@ -55,8 +55,8 @@ const uint32_t s_customLUT_SPANSION_Quad[CUSTOM_LUT_LENGTH] = {
     /* Erase 4KB Sector - SPI */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x20, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
-#elif SPANSION_DEVICE_S25HS512T
-    /* Erase 256KB Sector - SPI */
+#elif SPANSION_DEVICE_S25FL256S | SPANSION_DEVICE_S25HS512T
+    /* Erase 64KB/256KB Sector - SPI */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ERASESECTOR] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0xD8, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
 #endif
@@ -111,6 +111,14 @@ const uint32_t s_customLUT_SPANSION_Quad[CUSTOM_LUT_LENGTH] = {
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x65, kMIXSPI_Command_RADDR_SDR, kMIXSPI_1PAD, 0x18),
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2 + 1] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_DUMMY_SDR, kMIXSPI_1PAD, 0x08, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+#elif SPANSION_DEVICE_S25FL256S
+    /* Read Configuration Register (RDCR, 35h) - no address, no dummy */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x35, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
+
+    /* Read Status Register-2 (RDSR2, 07h) - no address, no dummy */
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READREG2] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x07, kMIXSPI_Command_READ_SDR,  kMIXSPI_1PAD, 0x01),
 #endif
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -366,6 +374,14 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
             g_flashPropertyInfo.flashQuadEnableBytes = 2;
             mfb_printf(" -- S25FL-L QuadSPI 3.3V Series.\r\n");
             break;
+        case 0x02:
+            // S25FL-S QuadSPI
+            g_flashPropertyInfo.flashHasQpiSupport = false;
+            g_flashPropertyInfo.mixspiReadSampleClock = kMIXSPI_SampClkLoopbackDqs;
+            g_flashPropertyInfo.flashQuadEnableCfg = SPANSION_FLASH_QUAD_ENABLE;
+            g_flashPropertyInfo.flashQuadEnableBytes = 2;
+            mfb_printf(" -- S25FL-S QuadSPI 3.0V Series.\r\n");
+            break;
         ////////////////////////OctalSPI////////////////////////
         case 0x5A:
             g_flashPropertyInfo.flashIsOctal = true;
@@ -419,6 +435,19 @@ void mfb_flash_show_registers_for_spansion(bool isOctalFlash)
     flash_reg_access_t regAccess;
     if (!isOctalFlash)
     {
+#if SPANSION_DEVICE_S25FL256S
+        regAccess.regNum = 1;
+        regAccess.regAddr = 0x0;
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READSTATUS;
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register 1 (SR1): 0x%x\r\n", regAccess.regValue.B.reg1);
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+        mfb_printf("MFB: Flash Configuration Register 1 (CR1): 0x%x\r\n", regAccess.regValue.B.reg1);
+        regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG2;
+        mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
+        mfb_printf("MFB: Flash Status Register 2 (SR2): 0x%x\r\n", regAccess.regValue.B.reg1);
+#else
         regAccess.regNum = 1;
         regAccess.regAddr = 0x000000;
         regAccess.regSeqIdx = NOR_CMD_LUT_SEQ_IDX_READREG;
@@ -481,6 +510,7 @@ void mfb_flash_show_registers_for_spansion(bool isOctalFlash)
         mixspi_nor_read_register(EXAMPLE_MIXSPI, &regAccess);
         mfb_printf("MFB: Flash Protection Register (PR): 0x%x\r\n", regAccess.regValue.B.reg1);
 #endif
+#endif
     }
     else
     {
@@ -538,8 +568,8 @@ bool mfb_hyperflash_switch_to_hyperbus_mode(void)
     //  1 = Uniform Sector Architecture (all 256KB sectors)
     
     // CFR3V[1] = INTFTP, The INTFTP bit selects the interface of the device
-    //  between HYPERBUS™ and legacy (x1) SPI.
-    //  1 = HYPERBUS™ interface
+    //  between HYPERBUSâ„¢ and legacy (x1) SPI.
+    //  1 = HYPERBUSâ„¢ interface
     //  0 = Legacy (x1) SPI
     cfr3v |= 0x02;
 
