@@ -40,26 +40,38 @@
 //  4'b1111   |       15       |        108MHz         |
 //------------------------------------------------------
 #elif SPANSION_DEVICE_S25FL256S
-// QE bit in Configuration Register 1 (CR1[1]), written via WRR (01h) as the
-//   second data byte (SR1 first, then CR1). So the 16-bit WRR payload for QE is 0x0200.
-#define SPANSION_FLASH_QUAD_ENABLE           0x0200
-
-// S25FL256S Quad I/O Read (EBh/ECh) with default Latency Code (CR1[7:6]=00b):
-//   High Performance table -> 2 mode cycles + 4 dummy cycles up to 104MHz.
-// The LUT below emits a MODE8 byte, so program 4 dummy cycles here.
-#define SPANSION_QUAD_FLASH_DUMMY_CYCLES     0x04
-
 // No unique/hybrid sector selection register applies to legacy FL-S QuadSPI.
 #define SPANSION_QUAD_FLASH_UNIQUE_CFG       0x00
 
 //------------------------------------------------------------------------------
 // CR1[7:6] |  mode  |  dummy  | Quad I/O Fast Read (EBh/ECh) SDR
 //------------------------------------------------------------------------------
-//   00b    |   2    |    4    |         up to 104MHz
-//   01b    |   2    |    5    |         up to  90MHz
-//   10b    |   2    |    6    |         up to 104MHz
-//   11b    |   -    |    -    |         not supported
+//   00b    |   2    |    4    |         80MHz
+//   01b    |   2    |    4    |         90MHz
+//   10b    |   2    |    5    |         104MHz
+//   11b    |   2    |    1    |         50MHz
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// CR1[7:6] |  mode  |  dummy  | Quad I/O Fast Read (EBh/ECh) DDR
+//------------------------------------------------------------------------------
+//   00b    |   1    |    6    |         66MHz
+//   01b    |   1    |    7    |         66MHz
+//   10b    |   1    |    8    |         66MHz
+//   11b    |   1    |    3    |         50MHz
+//------------------------------------------------------------------------------
+
+// LC, QE bit in Configuration Register 1 (CR1[7:6], CR1[1]), written via WRR (01h) as the
+//   second data byte (SR1 first, then CR1). So the 16-bit WRR payload for QE is 0x8200/0200.
+#define SPANSION_QUAD_FLASH_SET_DUMMY_CMD 0x8200
+#if MFB_FLASH_USE_DEFAULT_DUMMY
+#define SPANSION_QUAD_FLASH_DUMMY_CYCLES  0x04
+#define SPANSION_FLASH_QUAD_ENABLE           0x0200
+#else
+#define SPANSION_QUAD_FLASH_DUMMY_CYCLES  0x05
+#define SPANSION_FLASH_QUAD_ENABLE           0x8200
+#endif
+
 #elif SPANSION_DEVICE_S25HS512T
 #define SPANSION_FLASH_QUAD_ENABLE           0x0200
 

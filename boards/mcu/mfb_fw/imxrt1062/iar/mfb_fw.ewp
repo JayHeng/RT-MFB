@@ -70,7 +70,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>9.70.1.13552</state>
+                    <state>9.70.4.21192</state>
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
@@ -4705,6 +4705,30 @@ _w25q32jv_sfdp_table</state>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_adesto.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_boya.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_boya.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_dosilicon.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_dosilicon.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_fmsh.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_fmsh.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_giantec.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_giantec.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_gigadevice.c</name>
         </file>
         <file>
@@ -4745,6 +4769,24 @@ _w25q32jv_sfdp_table</state>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_winbond.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_xmc.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_xmc.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_xtx.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_xtx.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_zbit.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\mfb_nor_flash_zbit.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\mfb_nor_ops_flexspi.c</name>

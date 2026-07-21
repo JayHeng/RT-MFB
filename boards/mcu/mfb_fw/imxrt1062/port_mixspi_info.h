@@ -22,16 +22,16 @@
  
 #define MFB_MIXSPI_MODULE MFB_MIXSPI_MODULE_IS_FLEXSPI
  
-#define EXAMPLE_MIXSPI                  FLEXSPI2
+#define EXAMPLE_MIXSPI                  FLEXSPI
 #define FLASH_SIZE                      0x2000 /* 64Mb/KByte */
-#define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI2_AMBA_BASE
+#define EXAMPLE_MIXSPI_AMBA_BASE        FlexSPI_AMBA_BASE
 #define EXAMPLE_MIXSPI_AMBA_SIZE        (128 * 1024 * 1024)
 #define EXAMPLE_FLASH_PAGE_SIZE         256
 #define EXAMPLE_FLASH_SECTOR_SIZE       0x1000 /* 4K */
-#define EXAMPLE_MIXSPI_CLOCK            kCLOCK_FlexSpi2
+#define EXAMPLE_MIXSPI_CLOCK            kCLOCK_FlexSpi
 #define EXAMPLE_MIXSPI_PORT             kFLEXSPI_PortA1
 
-#define BOARD_IS_RT1064_FSPI2_SIP       (1)
+#define BOARD_IS_RT1064_FSPI2_SIP       (0)
 
 /*
  * If cache is enabled, this example should maintain the cache to make sure

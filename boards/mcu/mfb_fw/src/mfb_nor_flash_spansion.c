@@ -126,6 +126,12 @@ const uint32_t s_customLUT_SPANSION_Quad[CUSTOM_LUT_LENGTH] = {
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_ENTERQPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x38, kMIXSPI_Command_STOP,      kMIXSPI_1PAD, 0x00),
 
+    /* Set Dummy cycle */
+    // LC bit in Configuration Register-1[7:6]
+    // opcode 0x01 to write Status Registers 1 and Configuration Registers 1
+    [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_SETDUMMY] =
+        MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_1PAD, 0x01, kMIXSPI_Command_WRITE_SDR, kMIXSPI_1PAD, 0x02),
+
     /* Read status register -QPI-SDR */
     [MIXSPI_LUT_SUB_SEQ_LEN * NOR_CMD_LUT_SEQ_IDX_READSTATUS_QPI] =
         MIXSPI_LUT_SEQ(kMIXSPI_Command_SDR,       kMIXSPI_4PAD, 0x05, kMIXSPI_Command_READ_SDR,  kMIXSPI_4PAD, 0x01),
@@ -410,6 +416,10 @@ void mfb_flash_set_param_for_spansion(jedec_id_t *jedecID)
         g_flashPropertyInfo.flashBusyStatusPol        = SPANSION_FLASH_BUSY_STATUS_POL;
         g_flashPropertyInfo.flashBusyStatusOffset     = SPANSION_FLASH_BUSY_STATUS_OFFSET;
         g_flashPropertyInfo.mixspiCustomLUTVendor     = s_customLUT_SPANSION_Quad;
+#if !MFB_FLASH_USE_DEFAULT_DUMMY
+        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_100MHz;
+        g_flashPropertyInfo.flashDummyValue           = SPANSION_QUAD_FLASH_SET_DUMMY_CMD;
+#endif
     }
 #endif
 #if SPANSION_DEVICE_OCTAL
