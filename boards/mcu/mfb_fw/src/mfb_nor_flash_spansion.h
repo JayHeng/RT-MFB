@@ -63,12 +63,12 @@
 
 // LC, QE bit in Configuration Register 1 (CR1[7:6], CR1[1]), written via WRR (01h) as the
 //   second data byte (SR1 first, then CR1). So the 16-bit WRR payload for QE is 0x8200/0200.
-#define SPANSION_QUAD_FLASH_SET_DUMMY_CMD 0x8200
+#define SPANSION_QUAD_FLASH_SET_DUMMY_CMD    0x8200
 #if MFB_FLASH_USE_DEFAULT_DUMMY
-#define SPANSION_QUAD_FLASH_DUMMY_CYCLES  0x04
+#define SPANSION_QUAD_FLASH_DUMMY_CYCLES     0x04
 #define SPANSION_FLASH_QUAD_ENABLE           0x0200
 #else
-#define SPANSION_QUAD_FLASH_DUMMY_CYCLES  0x05
+#define SPANSION_QUAD_FLASH_DUMMY_CYCLES     0x05
 #define SPANSION_FLASH_QUAD_ENABLE           0x8200
 #endif
 
