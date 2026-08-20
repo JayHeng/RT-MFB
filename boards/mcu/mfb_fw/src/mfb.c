@@ -567,8 +567,11 @@ void mfb_main(void)
         mixspi_nor_flash_init(EXAMPLE_MIXSPI, g_flashPropertyInfo.mixspiCustomLUTVendor, g_flashPropertyInfo.mixspiReadSampleClock, sta_flashInstMode);
         mfb_printf("MFB: MIXSPI module is initialized to multi-I/O fast read mode.\r\n");
 
-        /* Read internal registers of Flash before configuring device */
-        mfb_flash_show_registers(&jedecID, g_flashPropertyInfo.flashIsOctal);
+        /* Read internal registers of Flash before configuring device if it is QuadFlash */
+        if (!g_flashPropertyInfo.flashIsOctal)
+        {
+            mfb_flash_show_registers(&jedecID, g_flashPropertyInfo.flashIsOctal);
+        }
 
         /* Write dummy cycle value into flash if needed */
         if (g_flashPropertyInfo.flashDummyValue != U32_VALUE_INVALID)
