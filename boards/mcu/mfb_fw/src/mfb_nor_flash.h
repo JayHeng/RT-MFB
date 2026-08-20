@@ -351,6 +351,8 @@ typedef struct _flash_reg_access
 #define BOYA_DEVICE_VENDOR_ID       (0x68)
 #define BOYA_DEVICE_QUAD            (1)
 #define BOYA_DEVICE_BY25FQ64ES      (1)
+#define BOYA_DEVICE_OCTAL           (1)
+#define BOYA_DEVICE_BY25X512EL      (1)
 ////////////////////////////////////////////////////////////////////////////////
 #define ZBIT_DEVICE_SERIES          (1)  // Zbit Semiconductor, Inc.
 #define ZBIT_DEVICE_VENDOR_ID       (0x5E)

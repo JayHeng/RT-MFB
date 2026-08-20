@@ -41,6 +41,51 @@ Read performance:
 #endif
 
 #endif
+
+////////////////////////////////////////////////////////////////////////////////
+#define BOYA_FLASH_BUSY_STATUS_POL    1
+#define BOYA_FLASH_BUSY_STATUS_OFFSET 0
+
+#if BOYA_DEVICE_BY25X512EL
+/*
+BYT Semiconductor (Boya) BY25X512EL: 512Mbit (64MByte) OctalSPI, 1.65 - 2.0V, 4KB uniform sector.
+JEDEC ID (9Fh): Manufacturer 0x68 (Boya), memoryType 0x1A, capacityID 0xFF.
+Micron/Winbond-compatible register model:
+  - I/O mode is selected by Nonvolatile/Volatile Configuration Register Byte<0>.
+  - Dummy cycles are set by Configuration Register Byte<1>.
+  - Volatile Configuration Register: write 0x81, read 0x85.
+  - Flag Status Register: read 0x70.
+
+Configuration Register Byte<0> - I/O mode:
+  0xFF - SPI with DQS (Default)
+  0xDF - SPI without DQS
+  0xE7 - Octal DTR with DQS
+  0xC7 - Octal DTR without DQS
+  0xB7 - Octal STR with DQS
+  0x97 - Octal STR without DQS
+*/
+#define BOYA_OCTAL_FLASH_ENABLE_DDR_CMD     0xE7
+
+// Configuration Register Byte<1> - Dummy cycle configuration
+//   0x04 - 4 dummy, 0x06 - 6 dummy, 0x08 - 8 dummy, 0x0A~0x1E - 10~30 dummy (Default 0x10 = 16)
+//------------------------------------------------------------------------------
+//   DC[7:0]  |  dummy cycles  |Octal I/O DTR(with DQS)|Octal I/O STR(with DQS)|
+//------------------------------------------------------------------------------
+//   0x08     |      08        |         84MHz         |          84MHz        |
+//   0x10     |  16(default)   |        166MHz         |         166MHz        |
+//   0x12     |      18        |        200MHz         |         200MHz        |
+//   0x14     |      20        |        200MHz         |         200MHz        |
+//   0x16     |      22        |        200MHz         |         200MHz        |
+//------------------------------------------------------------------------------
+#if MFB_FLASH_OPI_MODE_DISABLE
+#define BOYA_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#define BOYA_OCTAL_FLASH_DUMMY_CYCLES      0x10   // 166MHz SPI SDR
+#else
+#define BOYA_OCTAL_FLASH_SET_DUMMY_CMD     0x16
+#define BOYA_OCTAL_FLASH_DUMMY_CYCLES      0x16   // 200MHz OPI DTR
+#endif
+#endif
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
