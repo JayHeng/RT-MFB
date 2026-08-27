@@ -68,21 +68,29 @@ Configuration Register Byte<0> - I/O mode:
 
 // Configuration Register Byte<1> - Dummy cycle configuration
 //   0x04 - 4 dummy, 0x06 - 6 dummy, 0x08 - 8 dummy, 0x0A~0x1E - 10~30 dummy (Default 0x10 = 16)
+// Only even number of dummy can be configured.
 //------------------------------------------------------------------------------
 //   DC[7:0]  |  dummy cycles  |Octal I/O DTR(with DQS)|Octal I/O STR(with DQS)|
 //------------------------------------------------------------------------------
 //   0x08     |      08        |         84MHz         |          84MHz        |
+//   0x0A     |      10        |        104MHz         |         104MHz        |
+//   0x0C     |      12        |        133MHz         |         133MHz        |
+//   0x0E     |      14        |        150MHz         |         150MHz        |
 //   0x10     |  16(default)   |        166MHz         |         166MHz        |
-//   0x12     |      18        |        200MHz         |         200MHz        |
+// (T= -40?~125?, VCC=1.65~2.0V)
+//  >0x10     |      XX        |        166MHz         |         166MHz        |
+// (T= -40?~85?, VCC=1.65~2.0V)
+// (T= -40?~105?, VCC=1.65~2.0V)
+//   0x12     |      18        |        188MHz         |         188MHz        |
 //   0x14     |      20        |        200MHz         |         200MHz        |
 //   0x16     |      22        |        200MHz         |         200MHz        |
 //------------------------------------------------------------------------------
 #if MFB_FLASH_OPI_MODE_DISABLE
-#define BOYA_OCTAL_FLASH_SET_DUMMY_CMD     0x00
+#define BOYA_OCTAL_FLASH_SET_DUMMY_CMD     0x10
 #define BOYA_OCTAL_FLASH_DUMMY_CYCLES      0x10   // 166MHz SPI SDR
 #else
-#define BOYA_OCTAL_FLASH_SET_DUMMY_CMD     0x16
-#define BOYA_OCTAL_FLASH_DUMMY_CYCLES      0x16   // 200MHz OPI DTR
+#define BOYA_OCTAL_FLASH_SET_DUMMY_CMD     0x14
+#define BOYA_OCTAL_FLASH_DUMMY_CYCLES      0x14   // 200MHz OPI DTR
 #endif
 #endif
 

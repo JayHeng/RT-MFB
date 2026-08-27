@@ -193,9 +193,10 @@ void mfb_flash_set_param_for_boya(jedec_id_t *jedecID)
             g_flashPropertyInfo.mixspiRootClkFreq = kMixspiRootClkFreq_100MHz;
             break;
         ////////////////////////OctalSPI////////////////////////
-        case 0x1A:
+        case 0x60:
+        case 0x68:
             g_flashPropertyInfo.flashIsOctal = true;
-            mfb_printf(" -- BY25X512EL OctalSPI 1.8V Series.\r\n");
+            mfb_printf(" -- BY25XxxxEL OctalSPI 1.8V Series.\r\n");
             break;
         default:
             mfb_printf(" -- Unsupported Series.\r\n");
