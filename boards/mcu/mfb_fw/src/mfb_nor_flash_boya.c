@@ -196,6 +196,8 @@ void mfb_flash_set_param_for_boya(jedec_id_t *jedecID)
         case 0x60:
         case 0x68:
             g_flashPropertyInfo.flashIsOctal = true;
+            g_flashPropertyInfo.mixspiRootClkFreq  = kMixspiRootClkFreq_400MHz;
+            g_flashPropertyInfo.flashDriveStrength = BOYA_FLASH_DRVIE_STRENGTH_18Ohm;
             mfb_printf(" -- BY25XxxxEL OctalSPI 1.8V Series.\r\n");
             break;
         default:
@@ -231,7 +233,7 @@ void mfb_flash_set_param_for_boya(jedec_id_t *jedecID)
         g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_30MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkLoopbackDqs;
 #else
-        g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_266MHz;
+        //g_flashPropertyInfo.mixspiRootClkFreq         = kMixspiRootClkFreq_266MHz;
         g_flashPropertyInfo.mixspiReadSampleClock     = kMIXSPI_SampClkExtInputDqs;
 #endif
         g_flashPropertyInfo.flashDummyValue           = BOYA_OCTAL_FLASH_SET_DUMMY_CMD;
